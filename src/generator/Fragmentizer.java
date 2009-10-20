@@ -51,8 +51,8 @@ public class Fragmentizer
 	}
 	
 	/**
-	 * XXX: TEMPORARY method to output a List&lt;Fragment&gt; to <code>System.out</code>. Example
-	 * output:
+	 * XXX: TEMPORARY method to output a <code>String</code> and its
+	 * <code>List&lt;Fragment&gt;</code> to <code>System.out</code>. Example output:
 	 * 
 	 * <pre>
 	 * 
@@ -62,6 +62,19 @@ public class Fragmentizer
 	 */
 	public static void main(String[] args)
 	{
-		
+		if (args.length < 4)
+		{
+			System.err.printf("*** Usage: %s string n k kTolerance", Fragmentizer.class.getCanonicalName());
+			System.exit(1);
+		}
+		String string = args[0];
+		int n = Integer.parseInt(args[1]);
+		int k = Integer.parseInt(args[2]);
+		int kTolerance = Integer.parseInt(args[3]);
+		List<Fragment> fragments = fragmentizeForShotgun(string, n, k, kTolerance);
+		for (Fragment fragment : fragments)
+		{
+			System.out.printf("%d: %s", fragment.string);
+		}
 	}
 }

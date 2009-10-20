@@ -13,4 +13,14 @@ public class Fragment
 		string = string_;
 		positions = new EnumMap<FragmentPositionSource, Integer>(FragmentPositionSource.class);
 	}
+	
+	public int getPosition(FragmentPositionSource source)
+	{
+		return positions.get(source);
+	}
+	
+	public void setPosition(FragmentPositionSource source, int value)
+	{
+		positions.put(source, value);
+	}
 }
