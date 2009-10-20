@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import assembly.Fragment;
+import assembly.FragmentPositionSource;
 
 public class Fragmentizer
 {
@@ -28,6 +29,7 @@ public class Fragmentizer
 			int fragmentLength = k + random.nextInt(kTolerance * 2) - kTolerance;
 			int index = random.nextInt(string.length() - fragmentLength);
 			Fragment f = new Fragment(string.substring(index, index + fragmentLength));
+			f.setPosition(FragmentPositionSource.ORIGINAL_SEQUENCE, index);
 			list.add(f);
 		}
 		return list;
