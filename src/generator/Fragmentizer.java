@@ -80,6 +80,15 @@ public class Fragmentizer
 				fragment.string);
 		}
 		System.out.println();
+		for (Fragment fragment : fragments)
+		{
+			for (int i = 0; i < fragment.getPosition(FragmentPositionSource.ORIGINAL_SEQUENCE); i++)
+			{
+				System.out.print(" ");
+			}
+			System.out.println(fragment.string);
+		}
+		System.out.println();
 		System.out.println(string);
 	}
 }
