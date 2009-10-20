@@ -72,8 +72,11 @@ public class Fragmentizer
 				if (earliestFinish != null)
 				{
 					list.add(earliestFinish);
-					// possibleFragments.remove(earliestFinish);
-					begin = earliestFinish.getPosition(source) + earliestFinish.string.length();
+					/*
+					 * +1 here ensures that successive fragments on one line are separated by a gap
+					 * of at least one character.
+					 */
+					begin = earliestFinish.getPosition(source) + earliestFinish.string.length() + 1;
 					fragmentSet.remove(earliestFinish);
 				}
 			}
@@ -89,7 +92,7 @@ public class Fragmentizer
 					System.out.print(" ");
 				}
 				System.out.print(fragment.string);
-				begin = fragment.getPosition(source);
+				begin = fragment.getPosition(source) + fragment.string.length();
 			}
 			System.out.println();
 		}
