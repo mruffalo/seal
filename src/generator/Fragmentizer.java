@@ -68,18 +68,30 @@ public class Fragmentizer
 					{
 						iterator.remove();
 					}
-					if (earliestFinish != null)
-					{
-						list.add(earliestFinish);
-						// possibleFragments.remove(earliestFinish);
-						begin = earliestFinish.getPosition(source) + earliestFinish.string.length();
-						fragmentSet.remove(earliestFinish);
-					}
-					System.out.printf("%5d : %s%n", fragment.getPosition(source) + fragment.string.length(),
-						fragment.string);
+				}
+				if (earliestFinish != null)
+				{
+					list.add(earliestFinish);
+					// possibleFragments.remove(earliestFinish);
+					begin = earliestFinish.getPosition(source) + earliestFinish.string.length();
+					fragmentSet.remove(earliestFinish);
 				}
 			}
 			groupedList.add(list);
+		}
+		for (List<Fragment> list : groupedList)
+		{
+			int begin = 0;
+			for (Fragment fragment : list)
+			{
+				for (int i = 0; i < fragment.getPosition(source) - begin; i++)
+				{
+					System.out.print(" ");
+				}
+				System.out.print(fragment.string);
+				begin = fragment.getPosition(source);
+			}
+			System.out.println();
 		}
 		return groupedList;
 	}

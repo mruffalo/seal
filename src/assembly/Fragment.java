@@ -23,4 +23,10 @@ public class Fragment
 	{
 		positions.put(source, value);
 	}
+	
+	@Override
+	public String toString()
+	{
+		return string;
+	}
 }
