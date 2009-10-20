@@ -1,6 +1,7 @@
 package generator;
 
 import java.util.*;
+import assembly.Fragment;
 
 public abstract class SequenceGenerator
 {
@@ -37,15 +38,16 @@ public abstract class SequenceGenerator
 	 *            <code>length ± lengthTolerance</code>
 	 * @return
 	 */
-	public static List<String> fragmentizeForShotgun(String string, double n, int k, int kTolerance)
+	public static List<Fragment> fragmentizeForShotgun(String string, double n, int k, int kTolerance)
 	{
 		Random random = new Random();
-		LinkedList<String> list = new LinkedList<String>();
+		LinkedList<Fragment> list = new LinkedList<Fragment>();
 		for (int i = 0; i < n; i++)
 		{
 			int fragmentLength = k + random.nextInt(kTolerance * 2) - kTolerance;
 			int index = random.nextInt(string.length() - fragmentLength);
-			list.add(string.substring(index, index + fragmentLength));
+			Fragment f = new Fragment(string.substring(index, index + fragmentLength));
+			list.add(f);
 		}
 		return list;
 	}

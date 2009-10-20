@@ -26,7 +26,7 @@ public class GenerateSequenceToFastaFile
 		int kTolerance = Integer.parseInt(args[6]);
 		SequenceGenerator sg = new SeqGenSingleSequenceMultipleRepeats();
 		String string = sg.generateSequence(m, r, l);
-		List<String> fragments = SequenceGenerator.fragmentizeForShotgun(string, n, k, kTolerance);
+		List<Fragment> fragments = SequenceGenerator.fragmentizeForShotgun(string, n, k, kTolerance);
 		try
 		{
 			FastaHandler.writeFragments(fragments, args[0]);

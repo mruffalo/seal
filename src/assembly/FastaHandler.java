@@ -5,10 +5,10 @@ import java.io.*;
 
 public class FastaHandler
 {
-	public static List<String> getFragments(String filename) throws IOException
+	public static List<Fragment> getFragments(String filename) throws IOException
 	{
 		BufferedReader input = null;
-		List<String> list = new LinkedList<String>();
+		List<Fragment> list = new LinkedList<Fragment>();
 		try
 		{
 			String line;
@@ -20,7 +20,7 @@ public class FastaHandler
 				{
 					if (sb != null)
 					{
-						list.add(sb.toString());
+						list.add(new Fragment(sb.toString()));
 					}
 					sb = new StringBuilder();
 				}
@@ -85,17 +85,17 @@ public class FastaHandler
 		}
 	}
 	
-	public static void writeFragments(List<String> fragments, String filename) throws IOException
+	public static void writeFragments(List<Fragment> fragments, String filename) throws IOException
 	{
 		BufferedWriter output = null;
 		try
 		{
 			output = new BufferedWriter(new FileWriter(filename));
 			int i = 0;
-			for (String string : fragments)
+			for (Fragment fragment : fragments)
 			{
 				output.write(String.format(">FRAGMENT_%d%n", i++));
-				output.write(string);
+				output.write(fragment.string);
 				output.write(String.format("%n"));
 			}
 		}

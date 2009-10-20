@@ -13,38 +13,38 @@ public class PathTest
 	 * ATCATGATACTA
 	 */
 	private final String[] basicStrings = { "ATCAT", "CATG", "TGATACTA" };
-	private List<String> basicList;
+	private List<Fragment> basicList;
 	/**
 	 * ACTGACCTGCATTTCA
 	 */
 	private final String[] biggerStrings = { "ACTGAC", "ACCTG", "CTGCA", "GCATT", "ATTT", "TTCA" };
-	private List<String> biggerList;
+	private List<Fragment> biggerList;
 	
 	/**
 	 * AABBCC + XXYYZZ
 	 */
 	private final String[] disconnectedStrings = { "AABB", "BBCC", "XXYY", "YYZZ" };
-	private List<String> disconnectedList;
+	private List<Fragment> disconnectedList;
 	
 	@Before
 	public void setUp()
 	{
-		List<String> temp = new LinkedList<String>();
+		List<Fragment> temp = new LinkedList<Fragment>();
 		for (String string : basicStrings)
 		{
-			temp.add(string);
+			temp.add(new Fragment(string));
 		}
 		basicList = Collections.unmodifiableList(temp);
-		temp = new LinkedList<String>();
+		temp = new LinkedList<Fragment>();
 		for (String string : biggerStrings)
 		{
-			temp.add(string);
+			temp.add(new Fragment(string));
 		}
 		biggerList = Collections.unmodifiableList(temp);
-		temp = new LinkedList<String>();
+		temp = new LinkedList<Fragment>();
 		for (String string : disconnectedStrings)
 		{
-			temp.add(string);
+			temp.add(new Fragment(string));
 		}
 		disconnectedList = Collections.unmodifiableList(temp);
 	}
@@ -148,7 +148,7 @@ public class PathTest
 	@Test
 	public void testAssembleEmptySequence()
 	{
-		List<String> emptyList = new LinkedList<String>();
+		List<Fragment> emptyList = new LinkedList<Fragment>();
 		OverlapGraph emptyGraph = new OverlapGraph(emptyList);
 		Path path = emptyGraph.createPath();
 		assertEquals("", path.assembleString());

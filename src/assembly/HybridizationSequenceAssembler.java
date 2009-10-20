@@ -8,7 +8,7 @@ import java.util.*;
 public class HybridizationSequenceAssembler implements SequenceAssembler
 {
 	@Override
-	public String assembleSequence(List<String> fragments)
+	public String assembleSequence(List<Fragment> fragments)
 	{
 		// TODO Auto-generated method stub
 		return null;

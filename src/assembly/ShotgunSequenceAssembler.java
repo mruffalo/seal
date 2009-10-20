@@ -15,7 +15,7 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 	 * Assembles the given fragments into a String using greedy Hamiltonian path creation.
 	 */
 	@Override
-	public String assembleSequence(List<String> fragments)
+	public String assembleSequence(List<Fragment> fragments)
 	{
 		OverlapGraph graph = new OverlapGraph(fragments);
 		OverlapGraph.Path path = graph.createPath();
@@ -45,31 +45,31 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 		 *            all Strings in this list are case-normalized (either all lowercase or all
 		 *            uppercase).
 		 */
-		public OverlapGraph(List<String> fragments)
+		public OverlapGraph(List<Fragment> fragments)
 		{
 			vertices = new HashMap<String, Vertex>(fragments.size());
 			queue = new PriorityQueue<Edge>();
-			for (String string : fragments)
+			for (Fragment fragment : fragments)
 			{
-				addVertex(string);
+				addVertex(fragment.string);
 			}
-			for (String first : fragments)
+			for (Fragment first : fragments)
 			{
-				Vertex from = getVertex(first);
-				for (String second : fragments)
+				Vertex from = getVertex(first.string);
+				for (Fragment second : fragments)
 				{
 					// Filter out substrings
-					if (!first.contains(second))
+					if (!first.string.contains(second.string))
 					{
-						Vertex to = getVertex(second);
+						Vertex to = getVertex(second.string);
 						/*
 						 * TODO: Maybe use a more efficient way of doing this, like suffix trees.
 						 * Doesn't seem to be a requirement for this assignment.
 						 */
-						for (int i = Math.min(first.length(), second.length()); i >= 0; i--)
+						for (int i = Math.min(first.string.length(), second.string.length()); i >= 0; i--)
 						{
-							String firstSuffix = first.substring(first.length() - i);
-							String secondPrefix = second.substring(0, i);
+							String firstSuffix = first.string.substring(first.string.length() - i);
+							String secondPrefix = second.string.substring(0, i);
 							if (secondPrefix.equals(firstSuffix))
 							{
 								if (i > 0)

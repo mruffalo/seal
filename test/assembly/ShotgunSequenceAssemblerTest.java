@@ -15,26 +15,26 @@ public class ShotgunSequenceAssemblerTest
 	 * ACTGACCTGCATTTCA
 	 */
 	private final String[] biggerStrings = { "ACTGAC", "ACCTG", "CTGCA", "GCATT", "ATTT", "TTCA" };
-	private List<String> biggerList;
+	private List<Fragment> biggerList;
 	/**
 	 * AABBCC + XXYYZZ
 	 */
 	private final String[] disconnectedStrings = { "AABB", "BBCC", "XXYY", "YYZZ" };
-	private List<String> disconnectedList;
+	private List<Fragment> disconnectedList;
 	
 	@Before
 	public void setUp()
 	{
-		List<String> temp = new LinkedList<String>();
+		List<Fragment> temp = new LinkedList<Fragment>();
 		for (String string : biggerStrings)
 		{
-			temp.add(string);
+			temp.add(new Fragment(string));
 		}
 		biggerList = Collections.unmodifiableList(temp);
-		temp = new LinkedList<String>();
+		temp = new LinkedList<Fragment>();
 		for (String string : disconnectedStrings)
 		{
-			temp.add(string);
+			temp.add(new Fragment(string));
 		}
 		disconnectedList = Collections.unmodifiableList(temp);
 	}
@@ -45,10 +45,10 @@ public class ShotgunSequenceAssemblerTest
 		SequenceAssembler sa = new ShotgunSequenceAssembler();
 		String assembled = sa.assembleSequence(biggerList);
 		System.out.println(assembled);
-		for (String string : biggerList)
+		for (Fragment fragment : biggerList)
 		{
-			assertTrue(String.format("Fragment %s was not contained in assembled sequence %s", string, assembled),
-				assembled.contains(string));
+			assertTrue(String.format("Fragment %s was not contained in assembled sequence %s", fragment.string,
+				assembled), assembled.contains(fragment.string));
 		}
 	}
 	
@@ -58,10 +58,10 @@ public class ShotgunSequenceAssemblerTest
 		SequenceAssembler sa = new ShotgunSequenceAssembler();
 		String assembled = sa.assembleSequence(disconnectedList);
 		System.out.println(assembled);
-		for (String string : disconnectedList)
+		for (Fragment fragment : disconnectedList)
 		{
-			assertTrue(String.format("Fragment %s was not contained in assembled sequence %s", string, assembled),
-				assembled.contains(string));
+			assertTrue(String.format("Fragment %s was not contained in assembled sequence %s", fragment.string,
+				assembled), assembled.contains(fragment.string));
 		}
 	}
 	
@@ -72,12 +72,12 @@ public class ShotgunSequenceAssemblerTest
 		SequenceGenerator sg = new SeqGenSingleSequenceMultipleRepeats();
 		String string = sg.generateSequence(10000, 50, 10);
 		assertEquals(10000, string.length());
-		List<String> list = SequenceGenerator.fragmentizeForShotgun(string, 1000, 50, 5);
+		List<Fragment> list = SequenceGenerator.fragmentizeForShotgun(string, 1000, 50, 5);
 		assertEquals(1000, list.size());
 		String assembled = sa.assembleSequence(list);
-		for (String fragment : list)
+		for (Fragment fragment : list)
 		{
-			assertTrue(assembled.contains(fragment));
+			assertTrue(assembled.contains(fragment.string));
 		}
 	}
 }

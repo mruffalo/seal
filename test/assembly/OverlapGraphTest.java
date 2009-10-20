@@ -13,26 +13,26 @@ public class OverlapGraphTest
 	 * ATCATGATACTA
 	 */
 	private final String[] basicStrings = { "ATCAT", "CATG", "TGATACTA" };
-	private List<String> basicList;
+	private List<Fragment> basicList;
 	/**
 	 * ACTGACCTGCATTTCA
 	 */
 	private final String[] biggerStrings = { "ACTGAC", "ACCTG", "CTGCA", "GCATT", "ATTT", "TTCA" };
-	private List<String> biggerList;
+	private List<Fragment> biggerList;
 	
 	@Before
 	public void setUp()
 	{
-		ArrayList<String> temp = new ArrayList<String>();
+		ArrayList<Fragment> temp = new ArrayList<Fragment>();
 		for (String string : basicStrings)
 		{
-			temp.add(string);
+			temp.add(new Fragment(string));
 		}
 		basicList = Collections.unmodifiableList(temp);
-		temp = new ArrayList<String>();
+		temp = new ArrayList<Fragment>();
 		for (String string : biggerStrings)
 		{
-			temp.add(string);
+			temp.add(new Fragment(string));
 		}
 		biggerList = Collections.unmodifiableList(temp);
 	}
@@ -76,9 +76,9 @@ public class OverlapGraphTest
 		 * This may seem counter-intuitive, but vertices in the overlap graph do not have edges that
 		 * point to themselves.
 		 */
-		assertEquals(0, graph.getOverlap("ATCAT", "ATCAT"));
-		assertEquals(3, graph.getOverlap("ATCAT", "CATG"));
-		assertEquals(0, graph.getOverlap("CATG", "ATCAT"));
+		assertEquals(new Integer(0), graph.getOverlap("ATCAT", "ATCAT"));
+		assertEquals(new Integer(3), graph.getOverlap("ATCAT", "CATG"));
+		assertEquals(new Integer(0), graph.getOverlap("CATG", "ATCAT"));
 	}
 	
 	@Test(expected = NullPointerException.class)
