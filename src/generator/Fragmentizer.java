@@ -49,9 +49,9 @@ public class Fragmentizer
 			Set<Fragment> possibleFragments = new HashSet<Fragment>(fragmentSet);
 			List<Fragment> list = new LinkedList<Fragment>();
 			int begin = 0;
-			Fragment earliestFinish = null;
 			while (!possibleFragments.isEmpty())
 			{
+				Fragment earliestFinish = null;
 				Iterator<Fragment> iterator = possibleFragments.iterator();
 				while (iterator.hasNext())
 				{
@@ -66,12 +66,12 @@ public class Fragmentizer
 					}
 					else
 					{
-						possibleFragments.remove(fragment);
+						iterator.remove();
 					}
 					if (earliestFinish != null)
 					{
 						list.add(earliestFinish);
-						possibleFragments.remove(earliestFinish);
+						// possibleFragments.remove(earliestFinish);
 						begin = earliestFinish.getPosition(source) + earliestFinish.string.length();
 						fragmentSet.remove(earliestFinish);
 					}
