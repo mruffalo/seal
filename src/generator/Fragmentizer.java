@@ -76,7 +76,10 @@ public class Fragmentizer
 		List<Fragment> fragments = fragmentizeForShotgun(string, n, k, kTolerance);
 		for (Fragment fragment : fragments)
 		{
-			System.out.printf("%d: %s", fragment.string);
+			System.out.printf("%5d: %s%n", fragment.getPosition(FragmentPositionSource.ORIGINAL_SEQUENCE),
+				fragment.string);
 		}
+		System.out.println();
+		System.out.println(string);
 	}
 }
