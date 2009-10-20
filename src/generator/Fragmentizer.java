@@ -39,22 +39,29 @@ public class Fragmentizer
 	 * @param fragments
 	 * @return
 	 */
-	public static List<List<Fragment>> groupByLine(List<Fragment> fragments)
+	public static List<List<Fragment>> groupByLine(List<Fragment> fragments, final FragmentPositionSource source)
 	{
 		List<List<Fragment>> groupedList = new LinkedList<List<Fragment>>();
 		Set<Fragment> fragmentSet = new TreeSet<Fragment>(new Comparator<Fragment>()
 		{
 			public int compare(Fragment one, Fragment two)
 			{
-				return 0;
+				int oneEnd = one.string.length() + one.getPosition(source);
+				int twoEnd = two.string.length() + two.getPosition(source);
+				return new Integer(oneEnd).compareTo(twoEnd);
 			}
 		});
 		fragmentSet.addAll(fragments);
-		while (!fragmentSet.isEmpty())
+		/*
+		 * while (!fragmentSet.isEmpty()) { List<Fragment> list = new LinkedList<Fragment>();
+		 * groupedList.add(list); }
+		 */
+		Iterator<Fragment> iterator = fragmentSet.iterator();
+		int begin = 0;
+		while (iterator.hasNext())
 		{
-			List<Fragment> list = new LinkedList<Fragment>();
-			groupedList.add(list);
-			
+			Fragment fragment = iterator.next();
+			System.out.printf("%5d : %s%n", fragment.getPosition(source), fragment.string);
 		}
 		return groupedList;
 	}
@@ -114,5 +121,6 @@ public class Fragmentizer
 		}
 		System.out.println();
 		System.out.println(string);
+		groupByLine(fragments, FragmentPositionSource.ORIGINAL_SEQUENCE);
 	}
 }
