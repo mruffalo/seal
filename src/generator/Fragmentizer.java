@@ -34,34 +34,52 @@ public class Fragmentizer
 	}
 	
 	/**
-	 * TODO: Improve runtime
+	 * TODO: Improve runtime from O(n^2) and generally make this code less stupid
 	 * 
 	 * @param fragments
 	 * @return
 	 */
-	public static List<List<Fragment>> groupByLine(List<Fragment> fragments, final FragmentPositionSource source)
+	public static List<List<Fragment>> groupByLine(List<Fragment> fragments, FragmentPositionSource source)
 	{
 		List<List<Fragment>> groupedList = new LinkedList<List<Fragment>>();
-		Set<Fragment> fragmentSet = new TreeSet<Fragment>(new Comparator<Fragment>()
-		{
-			public int compare(Fragment one, Fragment two)
-			{
-				int oneEnd = one.string.length() + one.getPosition(source);
-				int twoEnd = two.string.length() + two.getPosition(source);
-				return new Integer(oneEnd).compareTo(twoEnd);
-			}
-		});
+		Set<Fragment> fragmentSet = new HashSet<Fragment>(fragments);
 		fragmentSet.addAll(fragments);
-		/*
-		 * while (!fragmentSet.isEmpty()) { List<Fragment> list = new LinkedList<Fragment>();
-		 * groupedList.add(list); }
-		 */
-		Iterator<Fragment> iterator = fragmentSet.iterator();
-		int begin = 0;
-		while (iterator.hasNext())
+		while (!fragmentSet.isEmpty())
 		{
-			Fragment fragment = iterator.next();
-			System.out.printf("%5d : %s%n", fragment.getPosition(source), fragment.string);
+			Set<Fragment> possibleFragments = new HashSet<Fragment>(fragmentSet);
+			List<Fragment> list = new LinkedList<Fragment>();
+			int begin = 0;
+			Fragment earliestFinish = null;
+			while (!possibleFragments.isEmpty())
+			{
+				Iterator<Fragment> iterator = possibleFragments.iterator();
+				while (iterator.hasNext())
+				{
+					Fragment fragment = iterator.next();
+					if (fragment.getPosition(source) >= begin)
+					{
+						if (earliestFinish == null
+								|| (fragment.getPosition(source) + fragment.string.length()) < (earliestFinish.getPosition(source) + earliestFinish.string.length()))
+						{
+							earliestFinish = fragment;
+						}
+					}
+					else
+					{
+						possibleFragments.remove(fragment);
+					}
+					if (earliestFinish != null)
+					{
+						list.add(earliestFinish);
+						possibleFragments.remove(earliestFinish);
+						begin = earliestFinish.getPosition(source) + earliestFinish.string.length();
+						fragmentSet.remove(earliestFinish);
+					}
+					System.out.printf("%5d : %s%n", fragment.getPosition(source) + fragment.string.length(),
+						fragment.string);
+				}
+			}
+			groupedList.add(list);
 		}
 		return groupedList;
 	}
