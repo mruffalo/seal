@@ -1,8 +1,6 @@
 package generator;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import assembly.Fragment;
 import assembly.FragmentPositionSource;
 
@@ -33,6 +31,32 @@ public class Fragmentizer
 			list.add(f);
 		}
 		return list;
+	}
+	
+	/**
+	 * TODO: Improve runtime
+	 * 
+	 * @param fragments
+	 * @return
+	 */
+	public static List<List<Fragment>> groupByLine(List<Fragment> fragments)
+	{
+		List<List<Fragment>> groupedList = new LinkedList<List<Fragment>>();
+		Set<Fragment> fragmentSet = new TreeSet<Fragment>(new Comparator<Fragment>()
+		{
+			public int compare(Fragment one, Fragment two)
+			{
+				return 0;
+			}
+		});
+		fragmentSet.addAll(fragments);
+		while (!fragmentSet.isEmpty())
+		{
+			List<Fragment> list = new LinkedList<Fragment>();
+			groupedList.add(list);
+			
+		}
+		return groupedList;
 	}
 	
 	/**
