@@ -23,11 +23,27 @@ public class SeqGenSingleSequenceMultipleRepeats extends SequenceGenerator
 			Arrays.sort(repeatedSequenceIndices);
 			sb.append(generateSequence(SequenceGenerator.NUCLEOTIDES, nonRepeatedLength));
 		}
+		int repeatStart = 0;
 		for (int i = 0; i < r; i++)
 		{
+			if (debugOutput)
+			{
+				for (int j = 0; j < repeatedSequenceIndices[i] - repeatStart; j++)
+				{
+					System.out.print(" ");
+				}
+				System.out.print(repeatedSequence);
+				repeatStart = repeatedSequenceIndices[i];
+			}
 			sb.insert(i * l + repeatedSequenceIndices[i], repeatedSequence);
 		}
-		return sb.toString();
+		String string = sb.toString();
+		if (debugOutput)
+		{
+			System.out.println();
+			System.out.println(string);
+		}
+		return string;
 	}
 	
 	/**
@@ -48,6 +64,5 @@ public class SeqGenSingleSequenceMultipleRepeats extends SequenceGenerator
 		SequenceGenerator generator = new SeqGenSingleSequenceMultipleRepeats();
 		generator.setDebugOutput(true);
 		String generated = generator.generateSequence(m, r, l);
-		System.out.println(generated);
 	}
 }

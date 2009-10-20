@@ -8,7 +8,7 @@ public abstract class SequenceGenerator
 	public static final String NUCLEIC_ACID_ALLOWED_CHARACTERS = "ACGTURYKMSWBDHVNX-";
 	public static final String AMINO_ACID_ALLOWED_CHARACTERS = "ABCDEFGHIKLMNOPQRSTUVWYZX*-";
 	
-	private boolean debugOutput;
+	protected boolean debugOutput;
 	
 	protected static String generateSequence(String sample, int m)
 	{
