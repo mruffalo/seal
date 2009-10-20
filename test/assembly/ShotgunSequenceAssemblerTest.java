@@ -1,6 +1,7 @@
 package assembly;
 
 import static org.junit.Assert.*;
+import generator.Fragmentizer;
 import generator.SeqGenSingleSequenceMultipleRepeats;
 import generator.SequenceGenerator;
 import java.util.Collections;
@@ -72,7 +73,7 @@ public class ShotgunSequenceAssemblerTest
 		SequenceGenerator sg = new SeqGenSingleSequenceMultipleRepeats();
 		String string = sg.generateSequence(10000, 50, 10);
 		assertEquals(10000, string.length());
-		List<Fragment> list = SequenceGenerator.fragmentizeForShotgun(string, 1000, 50, 5);
+		List<Fragment> list = Fragmentizer.fragmentizeForShotgun(string, 1000, 50, 5);
 		assertEquals(1000, list.size());
 		String assembled = sa.assembleSequence(list);
 		for (Fragment fragment : list)

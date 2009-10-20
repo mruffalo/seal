@@ -105,7 +105,7 @@ public class HybridizationSequenceAssembler implements SequenceAssembler
 			private final String string;
 			private Map<String, Edge> edges;
 			/**
-			 * TODO: Figure out if a Vertex should keep incoming edges references too
+			 * TODO: Figure out if a Vertex should keep incoming edge references too
 			 */
 			private int incomingEdges;
 			

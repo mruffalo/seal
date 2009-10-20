@@ -19,7 +19,7 @@ public class SequenceGeneratorTest
 	{
 		String string = SequenceGenerator.generateSequence(SequenceGenerator.NUCLEOTIDES, 100);
 		int k = 5;
-		List<String> list = SequenceGenerator.fragmentizeForHybridization(string, k);
+		List<String> list = Fragmentizer.fragmentizeForHybridization(string, k);
 		assertEquals(string.length() - k + 1, list.size());
 		for (String fragment : list)
 		{
@@ -36,7 +36,7 @@ public class SequenceGeneratorTest
 		int tolerance = 2;
 		int size = 10;
 		int length = 50;
-		List<Fragment> list = SequenceGenerator.fragmentizeForShotgun(string, length, size, tolerance);
+		List<Fragment> list = Fragmentizer.fragmentizeForShotgun(string, length, size, tolerance);
 		assertEquals(length, list.size());
 		for (Fragment fragment : list)
 		{
@@ -47,7 +47,7 @@ public class SequenceGeneratorTest
 		tolerance = 4;
 		size = 20;
 		length = 20;
-		list = SequenceGenerator.fragmentizeForShotgun(string, length, size, tolerance);
+		list = Fragmentizer.fragmentizeForShotgun(string, length, size, tolerance);
 		assertEquals(length, list.size());
 		for (Fragment fragment : list)
 		{

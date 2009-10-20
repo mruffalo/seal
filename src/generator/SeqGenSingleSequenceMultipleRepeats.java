@@ -28,4 +28,19 @@ public class SeqGenSingleSequenceMultipleRepeats extends SequenceGenerator
 		}
 		return sb.toString();
 	}
+	
+	/**
+	 * XXX: TEMPORARY
+	 * 
+	 * @param args
+	 */
+	public static void main(String[] args)
+	{
+		if (args.length < 3)
+		{
+			System.err.printf("*** Usage: %s m r l", SeqGenSingleSequenceMultipleRepeats.class.getCanonicalName());
+			System.exit(1);
+		}
+		
+	}
 }
