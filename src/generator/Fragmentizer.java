@@ -82,20 +82,6 @@ public class Fragmentizer
 			}
 			groupedList.add(list);
 		}
-		for (List<Fragment> list : groupedList)
-		{
-			int begin = 0;
-			for (Fragment fragment : list)
-			{
-				for (int i = 0; i < fragment.getPosition(source) - begin; i++)
-				{
-					System.out.print(" ");
-				}
-				System.out.print(fragment.string);
-				begin = fragment.getPosition(source) + fragment.string.length();
-			}
-			System.out.println();
-		}
 		return groupedList;
 	}
 	
@@ -137,14 +123,28 @@ public class Fragmentizer
 		int n = Integer.parseInt(args[1]);
 		int k = Integer.parseInt(args[2]);
 		int kTolerance = Integer.parseInt(args[3]);
+		FragmentPositionSource source = FragmentPositionSource.ORIGINAL_SEQUENCE;
 		List<Fragment> fragments = fragmentizeForShotgun(string, n, k, kTolerance);
 		for (Fragment fragment : fragments)
 		{
-			System.out.printf("%5d: %s%n", fragment.getPosition(FragmentPositionSource.ORIGINAL_SEQUENCE),
-				fragment.string);
+			System.out.printf("%5d: %s%n", fragment.getPosition(source), fragment.string);
 		}
 		System.out.println();
 		System.out.println(string);
-		groupByLine(fragments, FragmentPositionSource.ORIGINAL_SEQUENCE);
+		List<List<Fragment>> grouped = groupByLine(fragments, source);
+		for (List<Fragment> list : grouped)
+		{
+			int begin = 0;
+			for (Fragment fragment : list)
+			{
+				for (int i = 0; i < fragment.getPosition(source) - begin; i++)
+				{
+					System.out.print(" ");
+				}
+				System.out.print(fragment.string);
+				begin = fragment.getPosition(source) + fragment.string.length();
+			}
+			System.out.println();
+		}
 	}
 }
