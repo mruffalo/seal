@@ -42,11 +42,22 @@ public class FragmentDisplay
 	{
 		image = image_;
 		frame = new JFrame("Fragment Display");
-		frame.setBounds(25, 25, 320, 320);
+		// frame.setBounds(25, 25, 320, 320);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		System.out.println("Adding new ImagePanel");
 		frame.getContentPane().setLayout(new GridBagLayout());
-		frame.getContentPane().add(new ImagePanel(image_));
+		GridBagConstraints constraints = new GridBagConstraints();
+		constraints.gridheight = 1;
+		constraints.gridwidth = 1;
+		constraints.ipadx = constraints.ipady = 2;
+		frame.getContentPane().add(new ImagePanel(image_), constraints);
+		constraints.gridy = 1;
+		frame.getContentPane().add(new ImagePanel(image_), constraints);
+		constraints = new GridBagConstraints();
+		constraints.ipadx = constraints.ipady = 2;
+		constraints.gridheight = 2;
+		constraints.gridx = 1;
+		frame.getContentPane().add(new ImagePanel(image_), constraints);
 		// frame.getContentPane().add(new JLabel("Test"));
 		frame.pack();
 		frame.setVisible(true);
