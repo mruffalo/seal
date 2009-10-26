@@ -304,15 +304,14 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 			public String assembleString()
 			{
 				StringBuilder sb = new StringBuilder();
-				int position = 0;
 				for (Vertex v : disconnectedPathParents)
 				{
+					int position = sb.length();
 					Edge e = vertexEdgeMap.get(v);
 					if (e != null)
 					{
 						e.from.fragment.setPosition(FragmentPositionSource.ASSEMBLED_SEQUENCE, position);
 						sb.append(e.from.fragment.string);
-						// TODO test this
 						position += e.from.fragment.string.length() - e.overlap;
 						e.to.fragment.setPosition(FragmentPositionSource.ASSEMBLED_SEQUENCE, position);
 						sb.append(e.to.fragment.string.substring(e.overlap));
@@ -320,7 +319,6 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 					}
 					while (e != null)
 					{
-						// TODO test this
 						position += e.from.fragment.string.length() - e.overlap;
 						sb.append(e.to.fragment.string.substring(e.overlap));
 						e = vertexEdgeMap.get(e.to);
