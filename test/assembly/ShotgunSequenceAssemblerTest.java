@@ -87,6 +87,9 @@ public class ShotgunSequenceAssemblerTest
 			int begin = 0;
 			for (Fragment fragment : list)
 			{
+				int position = fragment.getPosition(source);
+				String assembledSubstring = assembled.substring(position, fragment.string.length() + position);
+				assertEquals(fragment.string, assembledSubstring);
 				for (int i = 0; i < fragment.getPosition(source) - begin; i++)
 				{
 					System.out.print(" ");
