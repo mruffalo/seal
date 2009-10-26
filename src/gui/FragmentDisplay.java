@@ -11,6 +11,30 @@ import javax.swing.*;
 
 public class FragmentDisplay
 {
+	static
+	{
+		try
+		{
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		}
+		catch (ClassNotFoundException e)
+		{
+			e.printStackTrace();
+		}
+		catch (InstantiationException e)
+		{
+			e.printStackTrace();
+		}
+		catch (IllegalAccessException e)
+		{
+			e.printStackTrace();
+		}
+		catch (UnsupportedLookAndFeelException e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
 	JFrame frame;
 	Image image;
 	
@@ -18,30 +42,45 @@ public class FragmentDisplay
 	{
 		image = image_;
 		frame = new JFrame("Fragment Display");
-		frame.pack();
 		frame.setBounds(25, 25, 320, 320);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		System.out.println("Adding new ImagePanel");
 		frame.getContentPane().setLayout(new GridBagLayout());
 		frame.getContentPane().add(new ImagePanel(image_));
 		// frame.getContentPane().add(new JLabel("Test"));
+		frame.pack();
 		frame.setVisible(true);
 	}
 	
-	public static Image getFragmentGroupImage(String origSequence, List<List<Fragment>> fragmentGroups)
+	public static Image getFragmentGroupImage(String origSequence, List<List<Fragment>> fragmentGroups,
+		FragmentPositionSource source)
 	{
-		BufferedImage image = new BufferedImage(origSequence.length(), fragmentGroups.size() * 2 - 1,
+		BufferedImage image = new BufferedImage(origSequence.length(), fragmentGroups.size() * 2 + 1,
 			BufferedImage.TYPE_INT_ARGB);
 		System.out.printf("Image height: %d%n", image.getHeight());
 		System.out.printf("Image width: %d%n", image.getWidth());
-		Graphics2D g2d = image.createGraphics();
 		
-		// Make all filled pixels transparent
+		Graphics2D g2d = image.createGraphics();
 		Color red = new Color(255, 0, 0, 255);
 		g2d.setColor(red);
-		// g2d.setComposite(AlphaComposite.Src);
-		g2d.fill(new Rectangle2D.Float(0, 0, 50, 1));
+		g2d.fill(new Rectangle2D.Float(0, 0, origSequence.length(), 1));
 		g2d.dispose();
+		
+		int i = 0;
+		for (List<Fragment> list : fragmentGroups)
+		{
+			for (Fragment fragment : list)
+			{
+				g2d = image.createGraphics();
+				// Make all filled pixels transparent
+				Color black = new Color(0, 0, 0, 255);
+				g2d.setColor(black);
+				// g2d.setComposite(AlphaComposite.Src);
+				g2d.fill(new Rectangle2D.Float(fragment.getPosition(source), (i + 1) * 2, fragment.string.length(), 1));
+				g2d.dispose();
+			}
+			i++;
+		}
 		
 		return image;
 	}
@@ -85,6 +124,7 @@ public class FragmentDisplay
 			}
 			System.out.println();
 		}
-		FragmentDisplay display = new FragmentDisplay(getFragmentGroupImage(string, grouped));
+		FragmentDisplay display = new FragmentDisplay(getFragmentGroupImage(string, grouped,
+			FragmentPositionSource.ORIGINAL_SEQUENCE));
 	}
 }
