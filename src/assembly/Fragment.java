@@ -37,7 +37,7 @@ public class Fragment
 	@Override
 	public boolean equals(Object o)
 	{
-		if (!(o instanceof Fragment))
+		if (!(o instanceof Fragment) || o == null)
 		{
 			return false;
 		}
