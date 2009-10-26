@@ -4,8 +4,8 @@ import assembly.Fragment;
 import assembly.FragmentPositionSource;
 import generator.Fragmentizer;
 import java.util.List;
-import java.awt.GridBagLayout;
-import java.awt.Image;
+import java.awt.*;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.*;
 import javax.swing.*;
 
@@ -17,11 +17,14 @@ public class FragmentDisplay
 	public FragmentDisplay(Image image_)
 	{
 		image = image_;
-		frame = new JFrame();
+		frame = new JFrame("Fragment Display");
 		frame.pack();
 		frame.setBounds(25, 25, 320, 320);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setContentPane(new ImagePanel(image_));
+		System.out.println("Adding new ImagePanel");
+		frame.getContentPane().setLayout(new GridBagLayout());
+		frame.getContentPane().add(new ImagePanel(image_));
+		// frame.getContentPane().add(new JLabel("Test"));
 		frame.setVisible(true);
 	}
 	
@@ -31,6 +34,15 @@ public class FragmentDisplay
 			BufferedImage.TYPE_INT_ARGB);
 		System.out.printf("Image height: %d%n", image.getHeight());
 		System.out.printf("Image width: %d%n", image.getWidth());
+		Graphics2D g2d = image.createGraphics();
+		
+		// Make all filled pixels transparent
+		Color red = new Color(255, 0, 0, 255);
+		g2d.setColor(red);
+		// g2d.setComposite(AlphaComposite.Src);
+		g2d.fill(new Rectangle2D.Float(0, 0, 50, 1));
+		g2d.dispose();
+		
 		return image;
 	}
 	
