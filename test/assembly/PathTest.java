@@ -94,7 +94,7 @@ public class PathTest
 		assertEquals(graph.getVertexCount(), path.getPathVertexCount());
 		Set<Vertex> parents = path.getPathParents();
 		assertEquals(1, parents.size());
-		assertEquals(graph.getVertex("ACTGAC"), parents.iterator().next());
+		assertEquals(graph.getVertex(new Fragment("ACTGAC")), parents.iterator().next());
 		assertTrue("Path was not Hamiltonian", path.isHamiltonian());
 		assertEquals(5, path.getPathEdgeCount());
 		assertEquals("ACTGACCTGCATTTCA", path.assembleString());
@@ -120,8 +120,8 @@ public class PathTest
 		assertEquals(graph.getVertexCount(), path.getPathVertexCount());
 		Set<Vertex> parents = path.getPathParents();
 		assertEquals(2, parents.size());
-		assertTrue(parents.contains(graph.getVertex("AABB")));
-		assertTrue(parents.contains(graph.getVertex("XXYY")));
+		assertTrue(parents.contains(graph.getVertex(new Fragment("AABB"))));
+		assertTrue(parents.contains(graph.getVertex(new Fragment("XXYY"))));
 		assertFalse(path.isHamiltonian());
 		assertEquals(2, path.getPathEdgeCount());
 		System.out.printf("Assembled string: %s%n", path.assembleString());

@@ -34,7 +34,7 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 		 * constant-time retrieval of the overlap directly from the graph data structure. Each
 		 * Vertex also maps Strings to Edges for the same reason.
 		 */
-		private Map<String, Vertex> vertices;
+		private Map<Fragment, Vertex> vertices;
 		private Queue<Edge> queue;
 		
 		/**
@@ -47,21 +47,21 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 		 */
 		public OverlapGraph(List<Fragment> fragments)
 		{
-			vertices = new HashMap<String, Vertex>(fragments.size());
+			vertices = new HashMap<Fragment, Vertex>(fragments.size());
 			queue = new PriorityQueue<Edge>();
 			for (Fragment fragment : fragments)
 			{
-				addVertex(fragment.string);
+				addVertex(fragment);
 			}
 			for (Fragment first : fragments)
 			{
-				Vertex from = getVertex(first.string);
+				Vertex from = getVertex(first);
 				for (Fragment second : fragments)
 				{
 					// Filter out substrings
 					if (!first.string.contains(second.string))
 					{
-						Vertex to = getVertex(second.string);
+						Vertex to = getVertex(second);
 						/*
 						 * TODO: Maybe use a more efficient way of doing this, like suffix trees.
 						 * Doesn't seem to be a requirement for this assignment.
@@ -85,14 +85,14 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 			}
 		}
 		
-		public Vertex addVertex(String data)
+		public Vertex addVertex(Fragment fragment)
 		{
-			return vertices.put(data, new Vertex(data));
+			return vertices.put(fragment, new Vertex(fragment));
 		}
 		
-		public Vertex getVertex(String data)
+		public Vertex getVertex(Fragment fragment)
 		{
-			return vertices.get(data);
+			return vertices.get(fragment);
 		}
 		
 		/**
@@ -160,7 +160,7 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 		 *             if <code>from</code> was not in the fragment list that was used to
 		 *             instantiate this Overlaps
 		 */
-		public Integer getOverlap(String from, String to)
+		public Integer getOverlap(Fragment from, Fragment to)
 		{
 			Edge e = getVertex(from).getEdge(to);
 			if (e == null)
@@ -188,7 +188,7 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 				sb.append(String.format("%s%n", v.toString()));
 				for (Edge e : v.adj.values())
 				{
-					sb.append(String.format("\tEdge to %s, overlap %d%n", e.to.string, e.overlap));
+					sb.append(String.format("\tEdge to %s, overlap %d%n", e.to.fragment.string, e.overlap));
 				}
 			}
 			return sb.toString();
@@ -196,36 +196,36 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 		
 		protected class Vertex
 		{
-			public final String string;
+			public final Fragment fragment;
 			/**
 			 * This is the adjacency list of this Vertex, stored as a (Hash)Map from Strings to
 			 * Edges. This allows constant-time lookup of an Edge from a String, as opposed to
 			 * linear-time lookup if this were a List&lt;Vertex&gt;.
 			 */
-			protected final Map<String, Edge> adj;
+			protected final Map<Fragment, Edge> adj;
 			
-			public Vertex(String string_)
+			public Vertex(Fragment fragment_)
 			{
-				adj = new HashMap<String, Edge>();
-				string = string_;
+				adj = new HashMap<Fragment, Edge>();
+				fragment = fragment_;
 			}
 			
 			public Edge addEdge(Vertex to, int overlap)
 			{
 				Edge e = new Edge(this, overlap, to);
-				adj.put(to.string, e);
+				adj.put(to.fragment, e);
 				return e;
 			}
 			
-			public Edge getEdge(String string)
+			public Edge getEdge(Fragment fragment)
 			{
-				return adj.get(string);
+				return adj.get(fragment);
 			}
 			
 			@Override
 			public String toString()
 			{
-				return String.format("Vertex \"%s\": %d edge(s)", string, adj.size());
+				return String.format("Vertex \"%s\": %d edge(s)", fragment.string, adj.size());
 			}
 		}
 		
@@ -255,7 +255,7 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 			@Override
 			public String toString()
 			{
-				return String.format("%s %d %s", from.string, overlap, to.string);
+				return String.format("%s %d %s", from.fragment.string, overlap, to.fragment.string);
 			}
 		}
 		
@@ -309,13 +309,13 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 					Edge e = vertexEdgeMap.get(v);
 					if (e != null)
 					{
-						sb.append(e.from.string);
-						sb.append(e.to.string.substring(e.overlap));
+						sb.append(e.from.fragment.string);
+						sb.append(e.to.fragment.string.substring(e.overlap));
 						e = vertexEdgeMap.get(e.to);
 					}
 					while (e != null)
 					{
-						sb.append(e.to.string.substring(e.overlap));
+						sb.append(e.to.fragment.string.substring(e.overlap));
 						e = vertexEdgeMap.get(e.to);
 					}
 				}

@@ -76,16 +76,16 @@ public class OverlapGraphTest
 		 * This may seem counter-intuitive, but vertices in the overlap graph do not have edges that
 		 * point to themselves.
 		 */
-		assertEquals(new Integer(0), graph.getOverlap("ATCAT", "ATCAT"));
-		assertEquals(new Integer(3), graph.getOverlap("ATCAT", "CATG"));
-		assertEquals(new Integer(0), graph.getOverlap("CATG", "ATCAT"));
+		assertEquals(new Integer(0), graph.getOverlap(new Fragment("ATCAT"), new Fragment("ATCAT")));
+		assertEquals(new Integer(3), graph.getOverlap(new Fragment("ATCAT"), new Fragment("CATG")));
+		assertEquals(new Integer(0), graph.getOverlap(new Fragment("CATG"), new Fragment("ATCAT")));
 	}
 	
 	@Test(expected = NullPointerException.class)
 	public void testUnexpectedString()
 	{
 		OverlapGraph graph = new OverlapGraph(basicList);
-		graph.getOverlap("not present", "whatever");
+		graph.getOverlap(new Fragment("not present"), new Fragment("whatever"));
 	}
 	
 	@Test
