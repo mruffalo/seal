@@ -66,6 +66,38 @@ public class ShotgunSequenceAssemblerTest
 		}
 	}
 	
+	/**
+	 * Temporary
+	 */
+	@Test
+	public void testPrintDisconnectedSequence()
+	{
+		SequenceAssembler sa = new ShotgunSequenceAssembler();
+		String assembled = sa.assembleSequence(disconnectedList);
+		System.out.println(assembled);
+		for (Fragment fragment : disconnectedList)
+		{
+			assertTrue(String.format("Fragment %s was not contained in assembled sequence %s", fragment.string,
+				assembled), assembled.contains(fragment.string));
+		}
+		FragmentPositionSource source = FragmentPositionSource.ASSEMBLED_SEQUENCE;
+		List<List<Fragment>> grouped = Fragmentizer.groupByLine(disconnectedList, source);
+		for (List<Fragment> list : grouped)
+		{
+			int begin = 0;
+			for (Fragment fragment : list)
+			{
+				for (int i = 0; i < fragment.getPosition(source) - begin; i++)
+				{
+					System.out.print(" ");
+				}
+				System.out.print(fragment.string);
+				begin = fragment.getPosition(source) + fragment.string.length();
+			}
+			System.out.println();
+		}
+	}
+	
 	@Test
 	public void testWithGeneratedSequence()
 	{
