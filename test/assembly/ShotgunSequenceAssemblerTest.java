@@ -66,26 +66,36 @@ public class ShotgunSequenceAssemblerTest
 		}
 	}
 	
-	/**
-	 * Temporary
-	 */
+	@Test
+	public void testPrintBiggerSequence()
+	{
+		testAndPrintAssembly(biggerList);
+	}
+	
 	@Test
 	public void testPrintDisconnectedSequence()
 	{
+		testAndPrintAssembly(disconnectedList);
+	}
+	
+	public void testAndPrintAssembly(List<Fragment> list)
+	{
 		SequenceAssembler sa = new ShotgunSequenceAssembler();
-		String assembled = sa.assembleSequence(disconnectedList);
-		System.out.println(assembled);
-		for (Fragment fragment : disconnectedList)
+		String assembled = sa.assembleSequence(list);
+		for (Fragment fragment : list)
 		{
 			assertTrue(String.format("Fragment %s was not contained in assembled sequence %s", fragment.string,
 				assembled), assembled.contains(fragment.string));
+			assertNotNull(fragment.getPosition(FragmentPositionSource.ASSEMBLED_SEQUENCE));
 		}
+		System.out.println();
+		System.out.println(assembled);
 		FragmentPositionSource source = FragmentPositionSource.ASSEMBLED_SEQUENCE;
-		List<List<Fragment>> grouped = Fragmentizer.groupByLine(disconnectedList, source);
-		for (List<Fragment> list : grouped)
+		List<List<Fragment>> grouped = Fragmentizer.groupByLine(list, source);
+		for (List<Fragment> subList : grouped)
 		{
 			int begin = 0;
-			for (Fragment fragment : list)
+			for (Fragment fragment : subList)
 			{
 				int position = fragment.getPosition(source);
 				String assembledSubstring = assembled.substring(position, fragment.string.length() + position);

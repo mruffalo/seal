@@ -320,6 +320,7 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 					while (e != null)
 					{
 						position += e.from.fragment.string.length() - e.overlap;
+						e.to.fragment.setPosition(FragmentPositionSource.ASSEMBLED_SEQUENCE, position);
 						sb.append(e.to.fragment.string.substring(e.overlap));
 						e = vertexEdgeMap.get(e.to);
 					}
