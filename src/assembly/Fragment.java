@@ -14,7 +14,7 @@ public class Fragment
 		positions = new EnumMap<FragmentPositionSource, Integer>(FragmentPositionSource.class);
 	}
 	
-	public int getPosition(FragmentPositionSource source)
+	public Integer getPosition(FragmentPositionSource source)
 	{
 		return positions.get(source);
 	}
