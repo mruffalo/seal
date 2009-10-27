@@ -105,7 +105,7 @@ public class FragmentDisplay
 	{
 		if (args.length < 4)
 		{
-			System.err.printf("*** Usage: %s string n k kTolerance", Fragmentizer.class.getCanonicalName());
+			System.err.printf("*** Usage: %s string n k kTolerance", FragmentDisplay.class.getCanonicalName());
 			System.exit(1);
 		}
 		String string = args[0];
