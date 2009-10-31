@@ -24,6 +24,16 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 			OverlapGraph.Edge e = graph.getHeaviestEdge();
 			path.addEdge(e);
 		}
+		/*
+		 * XXX: Remove this after debugging
+		 */
+		for (Fragment fragment : fragments)
+		{
+			if (fragment.getPosition(FragmentPositionSource.ASSEMBLED_SEQUENCE) == null)
+			{
+				throw new RuntimeException(String.format("null position: fragment %s", fragment.string));
+			}
+		}
 		return path.assembleString();
 	}
 	
