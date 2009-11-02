@@ -145,10 +145,9 @@ public class FragmentDisplay
 		@Override
 		public void valueChanged(ListSelectionEvent e)
 		{
-			// TODO: determine which is actually selected
-			selectedFragment = fragments.get(e.getLastIndex());
+			selectedFragment = fragments.get(table.getSelectedRow());
 			// TODO redraw graphs
-			System.out.printf("User clicked on fragment %s%n", selectedFragment.string);
+			System.out.printf("Selected fragment: %s%n", selectedFragment.string);
 		}
 	}
 	
