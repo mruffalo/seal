@@ -44,6 +44,11 @@ public class ImagePanel extends JPanel
 		g.drawImage(img, 0, 0, null);
 	}
 	
+	public void setImage(Image image)
+	{
+		img = image;
+	}
+	
 	public static Image getFragmentGroupImage(String sequence, List<List<Fragment>> fragmentGroups, Fragment selected,
 		FragmentPositionSource source)
 	{

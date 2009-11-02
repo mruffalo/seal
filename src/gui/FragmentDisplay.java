@@ -43,18 +43,26 @@ public class FragmentDisplay
 	
 	private JFrame frame;
 	private JTable table;
+	private ImagePanel origImagePanel;
+	private ImagePanel assembledImagePanel;
+	private String origString;
+	private String assembledString;
+	List<List<Fragment>> origGrouped;
+	List<List<Fragment>> assembledGrouped;
 	private List<Fragment> fragments;
+	
 	Fragment selectedFragment = null;
 	
-	public FragmentDisplay(String orig, String assembled, List<Fragment> fragments_)
+	public FragmentDisplay(String origString_, String assembledString_, List<Fragment> fragments_)
 	{
 		fragments = new ArrayList<Fragment>(fragments_);
-		List<List<Fragment>> origGrouped = Fragmentizer.groupByLine(fragments, FragmentPositionSource.ORIGINAL_SEQUENCE);
-		List<List<Fragment>> assembledGrouped = Fragmentizer.groupByLine(fragments,
-			FragmentPositionSource.ASSEMBLED_SEQUENCE);
-		Image origImage = ImagePanel.getFragmentGroupImage(orig, origGrouped, fragments.get(0),
+		origString = origString_;
+		assembledString = assembledString_;
+		origGrouped = Fragmentizer.groupByLine(fragments, FragmentPositionSource.ORIGINAL_SEQUENCE);
+		assembledGrouped = Fragmentizer.groupByLine(fragments, FragmentPositionSource.ASSEMBLED_SEQUENCE);
+		Image origImage = ImagePanel.getFragmentGroupImage(origString, origGrouped, null,
 			FragmentPositionSource.ORIGINAL_SEQUENCE);
-		Image assembledImage = ImagePanel.getFragmentGroupImage(assembled, assembledGrouped, null,
+		Image assembledImage = ImagePanel.getFragmentGroupImage(assembledString, assembledGrouped, null,
 			FragmentPositionSource.ASSEMBLED_SEQUENCE);
 		frame = new JFrame("Fragment Display");
 		// frame.setBounds(25, 25, 320, 320);
@@ -65,9 +73,11 @@ public class FragmentDisplay
 		constraints.gridheight = 1;
 		constraints.gridwidth = 1;
 		constraints.ipadx = constraints.ipady = 2;
-		frame.getContentPane().add(new ImagePanel(origImage), constraints);
+		origImagePanel = new ImagePanel(origImage);
+		frame.getContentPane().add(origImagePanel, constraints);
 		constraints.gridy = 1;
-		frame.getContentPane().add(new ImagePanel(assembledImage), constraints);
+		assembledImagePanel = new ImagePanel(assembledImage);
+		frame.getContentPane().add(assembledImagePanel, constraints);
 		
 		constraints = new GridBagConstraints();
 		constraints.ipadx = constraints.ipady = 2;
@@ -85,7 +95,13 @@ public class FragmentDisplay
 	
 	private void redrawImages()
 	{
-		// TODO: this (or something like it)
+		Image origImage = ImagePanel.getFragmentGroupImage(origString, origGrouped, selectedFragment,
+			FragmentPositionSource.ORIGINAL_SEQUENCE);
+		origImagePanel.setImage(origImage);
+		Image assembledImage = ImagePanel.getFragmentGroupImage(assembledString, assembledGrouped, selectedFragment,
+			FragmentPositionSource.ASSEMBLED_SEQUENCE);
+		assembledImagePanel.setImage(assembledImage);
+		frame.repaint();
 	}
 	
 	/**
@@ -148,6 +164,7 @@ public class FragmentDisplay
 			selectedFragment = fragments.get(table.getSelectedRow());
 			// TODO redraw graphs
 			System.out.printf("Selected fragment: %s%n", selectedFragment.string);
+			redrawImages();
 		}
 	}
 	
