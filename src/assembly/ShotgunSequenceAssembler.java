@@ -310,11 +310,9 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 					Edge e = vertexEdgeMap.get(v);
 					if (e != null)
 					{
-						System.err.printf("Setting position for fragment %s: %d%n", e.from.fragment.string, position);
 						e.from.fragment.setPosition(FragmentPositionSource.ASSEMBLED_SEQUENCE, position);
 						sb.append(e.from.fragment.string);
 						position += e.from.fragment.string.length() - e.overlap;
-						System.err.printf("Setting position for fragment %s: %d%n", e.to.fragment.string, position);
 						e.to.fragment.setPosition(FragmentPositionSource.ASSEMBLED_SEQUENCE, position);
 						sb.append(e.to.fragment.string.substring(e.overlap));
 						e = vertexEdgeMap.get(e.to);
@@ -322,7 +320,6 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 					while (e != null)
 					{
 						position += e.from.fragment.string.length() - e.overlap;
-						System.err.printf("Setting position for fragment %s: %d%n", e.to.fragment.string, position);
 						e.to.fragment.setPosition(FragmentPositionSource.ASSEMBLED_SEQUENCE, position);
 						sb.append(e.to.fragment.string.substring(e.overlap));
 						e = vertexEdgeMap.get(e.to);
