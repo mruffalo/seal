@@ -50,6 +50,7 @@ public class FragmentDisplay
 	List<List<Fragment>> origGrouped;
 	List<List<Fragment>> assembledGrouped;
 	private List<Fragment> fragments;
+	int scale = 2;
 	
 	Fragment selectedFragment = null;
 	
@@ -61,9 +62,9 @@ public class FragmentDisplay
 		origGrouped = Fragmentizer.groupByLine(fragments, FragmentPositionSource.ORIGINAL_SEQUENCE);
 		assembledGrouped = Fragmentizer.groupByLine(fragments, FragmentPositionSource.ASSEMBLED_SEQUENCE);
 		Image origImage = ImagePanel.getFragmentGroupImage(origString, origGrouped, null,
-			FragmentPositionSource.ORIGINAL_SEQUENCE);
+			FragmentPositionSource.ORIGINAL_SEQUENCE, scale);
 		Image assembledImage = ImagePanel.getFragmentGroupImage(assembledString, assembledGrouped, null,
-			FragmentPositionSource.ASSEMBLED_SEQUENCE);
+			FragmentPositionSource.ASSEMBLED_SEQUENCE, scale);
 		frame = new JFrame("Fragment Display");
 		// frame.setBounds(25, 25, 320, 320);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -96,10 +97,10 @@ public class FragmentDisplay
 	private void redrawImages()
 	{
 		Image origImage = ImagePanel.getFragmentGroupImage(origString, origGrouped, selectedFragment,
-			FragmentPositionSource.ORIGINAL_SEQUENCE);
+			FragmentPositionSource.ORIGINAL_SEQUENCE, scale);
 		origImagePanel.setImage(origImage);
 		Image assembledImage = ImagePanel.getFragmentGroupImage(assembledString, assembledGrouped, selectedFragment,
-			FragmentPositionSource.ASSEMBLED_SEQUENCE);
+			FragmentPositionSource.ASSEMBLED_SEQUENCE, scale);
 		assembledImagePanel.setImage(assembledImage);
 		frame.repaint();
 	}

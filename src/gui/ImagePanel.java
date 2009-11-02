@@ -50,17 +50,18 @@ public class ImagePanel extends JPanel
 	}
 	
 	public static Image getFragmentGroupImage(String sequence, List<List<Fragment>> fragmentGroups, Fragment selected,
-		FragmentPositionSource source)
+		FragmentPositionSource source, int scale)
 	{
-		BufferedImage image = new BufferedImage(sequence.length(), fragmentGroups.size() * 2 + 1,
-			BufferedImage.TYPE_INT_ARGB);
+		int width = sequence.length() * scale;
+		int height = (fragmentGroups.size() * 2 + 1) * scale;
+		BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		System.out.printf("Image height: %d%n", image.getHeight());
 		System.out.printf("Image width: %d%n", image.getWidth());
 		
 		Graphics2D g2d = image.createGraphics();
 		Color red = new Color(255, 0, 0, 255);
 		g2d.setColor(red);
-		g2d.fill(new Rectangle2D.Float(0, 0, sequence.length(), 1));
+		g2d.fill(new Rectangle2D.Float(0, 0, sequence.length() * scale, scale));
 		g2d.dispose();
 		
 		int i = 0;
@@ -72,7 +73,8 @@ public class ImagePanel extends JPanel
 				Color color = fragment.equals(selected) ? new Color(0, 255, 0, 255) : new Color(0, 0, 0, 255);
 				g2d.setColor(color);
 				
-				g2d.fill(new Rectangle2D.Float(fragment.getPosition(source), (i + 1) * 2, fragment.string.length(), 1));
+				g2d.fill(new Rectangle2D.Float(fragment.getPosition(source) * scale, (i + 1) * 2 * scale,
+					fragment.string.length() * scale, scale));
 				g2d.dispose();
 			}
 			i++;
