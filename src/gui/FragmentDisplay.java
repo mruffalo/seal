@@ -5,6 +5,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import assembly.Fragment;
 import assembly.FragmentPositionSource;
@@ -68,6 +69,8 @@ public class FragmentDisplay
 		constraints.gridheight = 2;
 		constraints.gridx = 1;
 		table = new JTable(new FragmentTableModel(fragments));
+		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		table.setSelectionModel(new FragmentSelectionModel());
 		
 		JScrollPane tableScroller = new JScrollPane(table);
 		frame.getContentPane().add(tableScroller, constraints);
@@ -77,7 +80,7 @@ public class FragmentDisplay
 	}
 	
 	/**
-	 * ListModel that wraps a <code>List&lt;Fragment&gt;</code>
+	 * TableModel that wraps a <code>List&lt;Fragment&gt;</code>
 	 */
 	private class FragmentTableModel extends AbstractTableModel
 	{
@@ -133,6 +136,138 @@ public class FragmentDisplay
 				return source.guiDescription;
 			}
 		}
+	}
+	
+	private class FragmentSelectionModel implements ListSelectionModel
+	{
+		@Override
+		public void addListSelectionListener(ListSelectionListener arg0)
+		{
+			// TODO Auto-generated method stub
+		}
+		
+		@Override
+		public void addSelectionInterval(int arg0, int arg1)
+		{
+			// TODO Auto-generated method stub
+		}
+		
+		@Override
+		public void clearSelection()
+		{
+			// TODO Auto-generated method stub
+		}
+		
+		@Override
+		public int getAnchorSelectionIndex()
+		{
+			// TODO Auto-generated method stub
+			return 0;
+		}
+		
+		@Override
+		public int getLeadSelectionIndex()
+		{
+			// TODO Auto-generated method stub
+			return 0;
+		}
+		
+		@Override
+		public int getMaxSelectionIndex()
+		{
+			// TODO Auto-generated method stub
+			return 0;
+		}
+		
+		@Override
+		public int getMinSelectionIndex()
+		{
+			// TODO Auto-generated method stub
+			return 0;
+		}
+		
+		@Override
+		public int getSelectionMode()
+		{
+			// TODO Auto-generated method stub
+			return 0;
+		}
+		
+		@Override
+		public boolean getValueIsAdjusting()
+		{
+			// TODO Auto-generated method stub
+			return false;
+		}
+		
+		@Override
+		public void insertIndexInterval(int arg0, int arg1, boolean arg2)
+		{
+			// TODO Auto-generated method stub
+		}
+		
+		@Override
+		public boolean isSelectedIndex(int arg0)
+		{
+			// TODO Auto-generated method stub
+			return false;
+		}
+		
+		@Override
+		public boolean isSelectionEmpty()
+		{
+			// TODO Auto-generated method stub
+			return false;
+		}
+		
+		@Override
+		public void removeIndexInterval(int arg0, int arg1)
+		{
+			// TODO Auto-generated method stub
+		}
+		
+		@Override
+		public void removeListSelectionListener(ListSelectionListener arg0)
+		{
+			// TODO Auto-generated method stub
+		}
+		
+		@Override
+		public void removeSelectionInterval(int arg0, int arg1)
+		{
+			// TODO Auto-generated method stub
+		}
+		
+		@Override
+		public void setAnchorSelectionIndex(int arg0)
+		{
+			// TODO Auto-generated method stub
+		}
+		
+		@Override
+		public void setLeadSelectionIndex(int arg0)
+		{
+			// TODO Auto-generated method stub
+		}
+		
+		@Override
+		public void setSelectionInterval(int arg0, int arg1)
+		{
+			// TODO Auto-generated method stub
+		}
+		
+		@Override
+		public void setSelectionMode(int arg0)
+		{
+			// TODO Auto-generated method stub
+		}
+		
+		@Override
+		public void setValueIsAdjusting(boolean arg0)
+		{
+			// TODO Auto-generated method stub
+		}
+		
 	}
 	
 	/**
