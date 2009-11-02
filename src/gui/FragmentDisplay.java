@@ -44,6 +44,7 @@ public class FragmentDisplay
 	private JFrame frame;
 	private JTable table;
 	private List<Fragment> fragments;
+	Fragment selectedFragment = null;
 	
 	public FragmentDisplay(String orig, String assembled, List<Fragment> fragments_)
 	{
@@ -51,8 +52,9 @@ public class FragmentDisplay
 		List<List<Fragment>> origGrouped = Fragmentizer.groupByLine(fragments, FragmentPositionSource.ORIGINAL_SEQUENCE);
 		List<List<Fragment>> assembledGrouped = Fragmentizer.groupByLine(fragments,
 			FragmentPositionSource.ASSEMBLED_SEQUENCE);
-		Image origImage = ImagePanel.getFragmentGroupImage(orig, origGrouped, FragmentPositionSource.ORIGINAL_SEQUENCE);
-		Image assembledImage = ImagePanel.getFragmentGroupImage(assembled, assembledGrouped,
+		Image origImage = ImagePanel.getFragmentGroupImage(orig, origGrouped, fragments.get(0),
+			FragmentPositionSource.ORIGINAL_SEQUENCE);
+		Image assembledImage = ImagePanel.getFragmentGroupImage(assembled, assembledGrouped, null,
 			FragmentPositionSource.ASSEMBLED_SEQUENCE);
 		frame = new JFrame("Fragment Display");
 		// frame.setBounds(25, 25, 320, 320);
@@ -77,9 +79,13 @@ public class FragmentDisplay
 		
 		JScrollPane tableScroller = new JScrollPane(table);
 		frame.getContentPane().add(tableScroller, constraints);
-		// frame.getContentPane().add(new JLabel("Test"));
 		frame.pack();
 		frame.setVisible(true);
+	}
+	
+	private void redrawImages()
+	{
+		// TODO: this (or something like it)
 	}
 	
 	/**
@@ -139,9 +145,10 @@ public class FragmentDisplay
 		@Override
 		public void valueChanged(ListSelectionEvent e)
 		{
-			Fragment fragment = fragments.get(e.getFirstIndex());
+			// TODO: determine which is actually selected
+			selectedFragment = fragments.get(e.getLastIndex());
 			// TODO redraw graphs
-			System.out.printf("User clicked on fragment %s%n", fragment.string);
+			System.out.printf("User clicked on fragment %s%n", selectedFragment.string);
 		}
 	}
 	

@@ -5,8 +5,8 @@ package assembly;
  */
 public enum FragmentPositionSource
 {
-	ORIGINAL_SEQUENCE("Original Sequence"),
-	ASSEMBLED_SEQUENCE("Assembled Sequence");
+	ORIGINAL_SEQUENCE("Original Position"),
+	ASSEMBLED_SEQUENCE("Assembled Position");
 	
 	public final String guiDescription;
 	

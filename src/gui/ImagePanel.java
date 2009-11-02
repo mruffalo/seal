@@ -43,8 +43,8 @@ public class ImagePanel extends JPanel
 	{
 		g.drawImage(img, 0, 0, null);
 	}
-
-	public static Image getFragmentGroupImage(String sequence, List<List<Fragment>> fragmentGroups,
+	
+	public static Image getFragmentGroupImage(String sequence, List<List<Fragment>> fragmentGroups, Fragment selected,
 		FragmentPositionSource source)
 	{
 		BufferedImage image = new BufferedImage(sequence.length(), fragmentGroups.size() * 2 + 1,
@@ -64,10 +64,9 @@ public class ImagePanel extends JPanel
 			for (Fragment fragment : list)
 			{
 				g2d = image.createGraphics();
-				// Make all filled pixels transparent
-				Color black = new Color(0, 0, 0, 255);
-				g2d.setColor(black);
-				// g2d.setComposite(AlphaComposite.Src);
+				Color color = fragment.equals(selected) ? new Color(0, 255, 0, 255) : new Color(0, 0, 0, 255);
+				g2d.setColor(color);
+				
 				g2d.fill(new Rectangle2D.Float(fragment.getPosition(source), (i + 1) * 2, fragment.string.length(), 1));
 				g2d.dispose();
 			}
