@@ -61,6 +61,8 @@ public class FragmentDisplay
 		assembledString = assembledString_;
 		origGrouped = Fragmentizer.groupByLine(fragments, FragmentPositionSource.ORIGINAL_SEQUENCE);
 		assembledGrouped = Fragmentizer.groupByLine(fragments, FragmentPositionSource.ASSEMBLED_SEQUENCE);
+		printFragmentGraph(origString, origGrouped, FragmentPositionSource.ORIGINAL_SEQUENCE);
+		printFragmentGraph(assembledString, assembledGrouped, FragmentPositionSource.ASSEMBLED_SEQUENCE);
 		Image origImage = ImagePanel.getFragmentGroupImage(origString, origGrouped, null,
 			FragmentPositionSource.ORIGINAL_SEQUENCE, scale);
 		Image assembledImage = ImagePanel.getFragmentGroupImage(assembledString, assembledGrouped, null,
@@ -92,6 +94,29 @@ public class FragmentDisplay
 		frame.getContentPane().add(tableScroller, constraints);
 		frame.pack();
 		frame.setVisible(true);
+	}
+	
+	/**
+	 * XXX: Temporary
+	 */
+	private static void printFragmentGraph(String string, List<List<Fragment>> grouped, FragmentPositionSource source)
+	{
+		System.out.println();
+		System.out.println(string);
+		for (List<Fragment> list : grouped)
+		{
+			int begin = 0;
+			for (Fragment fragment : list)
+			{
+				for (int i = 0; i < fragment.getPosition(source) - begin; i++)
+				{
+					System.out.print(" ");
+				}
+				System.out.print(fragment.string);
+				begin = fragment.getPosition(source) + fragment.string.length();
+			}
+			System.out.println();
+		}
 	}
 	
 	private void redrawImages()
@@ -197,8 +222,6 @@ public class FragmentDisplay
 		{
 			System.out.printf("%5d: %s%n", fragment.getPosition(source), fragment.string);
 		}
-		System.out.println();
-		System.out.println(string);
 		FragmentDisplay display = new FragmentDisplay(string, assembled, fragments);
 	}
 }
