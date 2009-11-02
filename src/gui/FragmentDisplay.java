@@ -1,16 +1,14 @@
 package gui;
 
+import generator.Fragmentizer;
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.*;
 import assembly.Fragment;
 import assembly.FragmentPositionSource;
 import assembly.SequenceAssembler;
 import assembly.ShotgunSequenceAssembler;
-import generator.Fragmentizer;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.awt.*;
-import java.awt.image.*;
-import javax.swing.*;
 
 public class FragmentDisplay
 {
@@ -41,12 +39,13 @@ public class FragmentDisplay
 	JFrame frame;
 	JList list;
 	
-	public FragmentDisplay(String orig, String assembled, List<Fragment> fragments,
-		List<List<Fragment>> groupedFragments)
+	public FragmentDisplay(String orig, String assembled, List<Fragment> fragments)
 	{
-		Image origImage = ImagePanel.getFragmentGroupImage(orig, groupedFragments,
-			FragmentPositionSource.ORIGINAL_SEQUENCE);
-		Image assembledImage = ImagePanel.getFragmentGroupImage(assembled, groupedFragments,
+		List<List<Fragment>> origGrouped = Fragmentizer.groupByLine(fragments, FragmentPositionSource.ORIGINAL_SEQUENCE);
+		List<List<Fragment>> assembledGrouped = Fragmentizer.groupByLine(fragments,
+			FragmentPositionSource.ASSEMBLED_SEQUENCE);
+		Image origImage = ImagePanel.getFragmentGroupImage(orig, origGrouped, FragmentPositionSource.ORIGINAL_SEQUENCE);
+		Image assembledImage = ImagePanel.getFragmentGroupImage(assembled, assembledGrouped,
 			FragmentPositionSource.ASSEMBLED_SEQUENCE);
 		frame = new JFrame("Fragment Display");
 		// frame.setBounds(25, 25, 320, 320);
@@ -61,7 +60,6 @@ public class FragmentDisplay
 		constraints.gridy = 1;
 		frame.getContentPane().add(new ImagePanel(assembledImage), constraints);
 		
-		// TODO make this a JList instead
 		constraints = new GridBagConstraints();
 		constraints.ipadx = constraints.ipady = 2;
 		constraints.gridheight = 2;
@@ -80,6 +78,11 @@ public class FragmentDisplay
 	 */
 	private class FragmentListModel extends AbstractListModel
 	{
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -4514730749142944712L;
+		
 		private List<Fragment> list;
 		
 		public FragmentListModel(List<Fragment> list_)
@@ -130,21 +133,6 @@ public class FragmentDisplay
 		}
 		System.out.println();
 		System.out.println(string);
-		List<List<Fragment>> grouped = Fragmentizer.groupByLine(fragments, source);
-		for (List<Fragment> list : grouped)
-		{
-			int begin = 0;
-			for (Fragment fragment : list)
-			{
-				for (int i = 0; i < fragment.getPosition(source) - begin; i++)
-				{
-					System.out.print(" ");
-				}
-				System.out.print(fragment.string);
-				begin = fragment.getPosition(source) + fragment.string.length();
-			}
-			System.out.println();
-		}
-		FragmentDisplay display = new FragmentDisplay(string, assembled, fragments, grouped);
+		FragmentDisplay display = new FragmentDisplay(string, assembled, fragments);
 	}
 }

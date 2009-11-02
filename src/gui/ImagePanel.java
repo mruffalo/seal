@@ -44,10 +44,10 @@ public class ImagePanel extends JPanel
 		g.drawImage(img, 0, 0, null);
 	}
 
-	public static Image getFragmentGroupImage(String origSequence, List<List<Fragment>> fragmentGroups,
+	public static Image getFragmentGroupImage(String sequence, List<List<Fragment>> fragmentGroups,
 		FragmentPositionSource source)
 	{
-		BufferedImage image = new BufferedImage(origSequence.length(), fragmentGroups.size() * 2 + 1,
+		BufferedImage image = new BufferedImage(sequence.length(), fragmentGroups.size() * 2 + 1,
 			BufferedImage.TYPE_INT_ARGB);
 		System.out.printf("Image height: %d%n", image.getHeight());
 		System.out.printf("Image width: %d%n", image.getWidth());
@@ -55,7 +55,7 @@ public class ImagePanel extends JPanel
 		Graphics2D g2d = image.createGraphics();
 		Color red = new Color(255, 0, 0, 255);
 		g2d.setColor(red);
-		g2d.fill(new Rectangle2D.Float(0, 0, origSequence.length(), 1));
+		g2d.fill(new Rectangle2D.Float(0, 0, sequence.length(), 1));
 		g2d.dispose();
 		
 		int i = 0;

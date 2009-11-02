@@ -44,6 +44,20 @@ public class Fragmentizer
 		List<List<Fragment>> groupedList = new LinkedList<List<Fragment>>();
 		Set<Fragment> fragmentSet = new HashSet<Fragment>(fragments);
 		fragmentSet.addAll(fragments);
+		/*
+		 * The position of a fragment might be null if 'source' is ASSEMBLED_SEQUENCE and the
+		 * fragment was not used (e.g. if it was entirely contained in another fragment). Remove all
+		 * fragments that have null positions.
+		 */
+		Iterator<Fragment> removalIterator = fragmentSet.iterator();
+		while (removalIterator.hasNext())
+		{
+			Fragment f = removalIterator.next();
+			if (f.getPosition(source) == null)
+			{
+				removalIterator.remove();
+			}
+		}
 		while (!fragmentSet.isEmpty())
 		{
 			Set<Fragment> possibleFragments = new HashSet<Fragment>(fragmentSet);
