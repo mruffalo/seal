@@ -80,16 +80,20 @@ public class FragmentDisplay
 		constraints.ipadx = constraints.ipady = 2;
 		constraints.fill = GridBagConstraints.BOTH;
 		origImagePanel = new ImagePanel(origImage);
-		frame.getContentPane().add(origImagePanel, constraints);
+		JScrollPane origImageScroller = new JScrollPane(origImagePanel);
+		frame.getContentPane().add(origImageScroller, constraints);
 		constraints.gridy = 1;
 		assembledImagePanel = new ImagePanel(assembledImage);
-		frame.getContentPane().add(assembledImagePanel, constraints);
+		JScrollPane assembledImageScroller = new JScrollPane(assembledImagePanel);
+		frame.getContentPane().add(assembledImageScroller, constraints);
 		
 		constraints = new GridBagConstraints();
 		constraints.fill = GridBagConstraints.BOTH;
 		constraints.ipadx = constraints.ipady = 2;
 		constraints.gridheight = 2;
 		constraints.gridx = 1;
+		constraints.weightx = 0.5;
+		constraints.weighty = 1;
 		table = new JTable(new FragmentTableModel());
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.getSelectionModel().addListSelectionListener(new FragmentRedrawSelectionListener());
