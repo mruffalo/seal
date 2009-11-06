@@ -74,8 +74,11 @@ public class FragmentDisplay
 		frame.getContentPane().setLayout(new GridBagLayout());
 		GridBagConstraints constraints = new GridBagConstraints();
 		constraints.gridheight = 1;
+		constraints.weightx = 0.5;
+		constraints.weighty = 0.5;
 		constraints.gridwidth = 1;
 		constraints.ipadx = constraints.ipady = 2;
+		constraints.fill = GridBagConstraints.BOTH;
 		origImagePanel = new ImagePanel(origImage);
 		frame.getContentPane().add(origImagePanel, constraints);
 		constraints.gridy = 1;
@@ -83,6 +86,7 @@ public class FragmentDisplay
 		frame.getContentPane().add(assembledImagePanel, constraints);
 		
 		constraints = new GridBagConstraints();
+		constraints.fill = GridBagConstraints.BOTH;
 		constraints.ipadx = constraints.ipady = 2;
 		constraints.gridheight = 2;
 		constraints.gridx = 1;
