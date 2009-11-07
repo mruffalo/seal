@@ -63,24 +63,48 @@ public class FragmentDisplay
 		frame = new JFrame("Fragment Display");
 		// frame.setBounds(25, 25, 320, 320);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
+		frame.setJMenuBar(getMenuBar());
 		frame.getContentPane().setLayout(new GridBagLayout());
 		
 		GridBagConstraints constraints = new GridBagConstraints();
 		constraints.weightx = 1;
-		constraints.weighty = 0.3;
+		constraints.weighty = 0.0;
 		constraints.fill = GridBagConstraints.BOTH;
 		frame.add(getParametersPanel(), constraints);
 		
 		constraints = new GridBagConstraints();
 		constraints.weightx = 1;
-		constraints.weighty = 0.7;
+		constraints.weighty = 1;
 		constraints.gridy = 1;
 		constraints.fill = GridBagConstraints.BOTH;
 		frame.add(getFragmentDisplayPanel(), constraints);
 		
 		frame.pack();
 		frame.setVisible(true);
+	}
+	
+	/**
+	 * TODO: Externalize strings
+	 * 
+	 * @return
+	 */
+	private JMenuBar getMenuBar()
+	{
+		JMenuBar bar = new JMenuBar();
+		
+		JMenu menu = new JMenu("File");
+		bar.add(menu);
+		
+		menu = new JMenu("Sequence");
+		bar.add(menu);
+		
+		menu = new JMenu("Settings");
+		bar.add(menu);
+		
+		menu = new JMenu("Help");
+		bar.add(menu);
+		
+		return bar;
 	}
 	
 	/**
