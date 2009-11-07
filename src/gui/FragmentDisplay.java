@@ -2,6 +2,8 @@ package gui;
 
 import generator.Fragmentizer;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
@@ -50,7 +52,14 @@ public class FragmentDisplay
 	List<List<Fragment>> origGrouped;
 	List<List<Fragment>> assembledGrouped;
 	private List<Fragment> fragments;
+	private JTextField stringField;
+	private JSpinner nSpinner;
+	private JSpinner kSpinner;
+	private JSpinner ktSpinner;
 	private int scale = 2;
+	private int n;
+	private int k;
+	private int kt;
 	
 	Fragment selectedFragment = null;
 	
@@ -128,7 +137,8 @@ public class FragmentDisplay
 		gbc.weightx = 1;
 		gbc.gridwidth = 3;
 		gbc.gridy = 1;
-		JTextField stringField = new JTextField("test");
+		stringField = new JTextField(
+			"asdvhao;isjdrl;kty6j;sodiyfvpuisen57;kuyfbv9p8r5p67jh;v hiuzstgefuoyagw3l5b12353p48ryhalsd7ivgd7gvawasdo8uv9pa8vh");
 		panel.add(stringField, gbc);
 		
 		gbc = new GridBagConstraints();
@@ -154,20 +164,20 @@ public class FragmentDisplay
 		SpinnerNumberModel nModel = new SpinnerNumberModel();
 		nModel.setMinimum(1);
 		nModel.setValue(50);
-		JSpinner nSpinner = new JSpinner(nModel);
+		nSpinner = new JSpinner(nModel);
 		panel.add(nSpinner, gbc);
 		
 		gbc.gridx = 1;
 		SpinnerNumberModel kModel = new SpinnerNumberModel();
 		kModel.setMinimum(1);
 		kModel.setValue(10);
-		JSpinner kSpinner = new JSpinner(kModel);
+		kSpinner = new JSpinner(kModel);
 		panel.add(kSpinner, gbc);
 		
 		gbc.gridx = 2;
 		SpinnerNumberModel ktModel = new SpinnerNumberModel();
 		ktModel.setMinimum(0);
-		JSpinner ktSpinner = new JSpinner(ktModel);
+		ktSpinner = new JSpinner(ktModel);
 		panel.add(ktSpinner, gbc);
 		
 		gbc = new GridBagConstraints();
@@ -175,6 +185,14 @@ public class FragmentDisplay
 		gbc.gridx = 2;
 		gbc.anchor = GridBagConstraints.EAST;
 		JButton assembleButton = new JButton("Assemble");
+		assembleButton.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				assembleString();
+			}
+		});
 		panel.add(assembleButton, gbc);
 		
 		return panel;
@@ -222,6 +240,31 @@ public class FragmentDisplay
 		JScrollPane tableScroller = new JScrollPane(table);
 		panel.add(tableScroller, constraints);
 		return panel;
+	}
+	
+	private void assembleString()
+	{
+		n = (Integer) nSpinner.getValue();
+		k = (Integer) kSpinner.getValue();
+		kt = (Integer) ktSpinner.getValue();
+		origString = stringField.getText();
+		FragmentPositionSource source = FragmentPositionSource.ORIGINAL_SEQUENCE;
+		fragments = Fragmentizer.fragmentizeForShotgun(origString, n, k, kt);
+		SequenceAssembler sa = new ShotgunSequenceAssembler();
+		for (Fragment fragment : fragments)
+		{
+			System.out.printf("%s%n", fragment.string);
+		}
+		assembledString = sa.assembleSequence(fragments);
+		for (Fragment fragment : fragments)
+		{
+			System.out.printf("%5d: %s%n", fragment.getPosition(source), fragment.string);
+		}
+		origGrouped = Fragmentizer.groupByLine(fragments, FragmentPositionSource.ORIGINAL_SEQUENCE);
+		assembledGrouped = Fragmentizer.groupByLine(fragments, FragmentPositionSource.ASSEMBLED_SEQUENCE);
+		printFragmentGraph(origString, origGrouped, FragmentPositionSource.ORIGINAL_SEQUENCE);
+		printFragmentGraph(assembledString, assembledGrouped, FragmentPositionSource.ASSEMBLED_SEQUENCE);
+		redrawImages();
 	}
 	
 	/**
