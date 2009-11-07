@@ -65,13 +65,30 @@ public class FragmentDisplay
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		frame.getContentPane().setLayout(new GridBagLayout());
+		
 		GridBagConstraints constraints = new GridBagConstraints();
 		constraints.weightx = 1;
+		constraints.weighty = 0.3;
+		constraints.fill = GridBagConstraints.BOTH;
+		frame.add(getParametersPanel(), constraints);
+		
+		constraints = new GridBagConstraints();
+		constraints.weightx = 1;
 		constraints.weighty = 0.7;
+		constraints.gridy = 1;
 		constraints.fill = GridBagConstraints.BOTH;
 		frame.add(getFragmentDisplayPanel(), constraints);
+		
 		frame.pack();
 		frame.setVisible(true);
+	}
+	
+	private JPanel getParametersPanel()
+	{
+		JPanel panel = new JPanel(new GridBagLayout());
+		JTextField textField = new JTextField("test");
+		panel.add(textField);
+		return panel;
 	}
 	
 	private JPanel getFragmentDisplayPanel()
