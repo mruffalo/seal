@@ -50,7 +50,7 @@ public class FragmentDisplay
 	List<List<Fragment>> origGrouped;
 	List<List<Fragment>> assembledGrouped;
 	private List<Fragment> fragments;
-	int scale = 2;
+	private int scale = 2;
 	
 	Fragment selectedFragment = null;
 	
@@ -59,6 +59,25 @@ public class FragmentDisplay
 		fragments = new ArrayList<Fragment>(fragments_);
 		origString = origString_;
 		assembledString = assembledString_;
+		
+		frame = new JFrame("Fragment Display");
+		// frame.setBounds(25, 25, 320, 320);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+		frame.getContentPane().setLayout(new GridBagLayout());
+		GridBagConstraints constraints = new GridBagConstraints();
+		constraints.weightx = 1;
+		constraints.weighty = 0.7;
+		constraints.fill = GridBagConstraints.BOTH;
+		frame.add(getFragmentDisplayPanel(), constraints);
+		frame.pack();
+		frame.setVisible(true);
+	}
+	
+	private JPanel getFragmentDisplayPanel()
+	{
+		JPanel panel = new JPanel(new GridBagLayout());
+		
 		origGrouped = Fragmentizer.groupByLine(fragments, FragmentPositionSource.ORIGINAL_SEQUENCE);
 		assembledGrouped = Fragmentizer.groupByLine(fragments, FragmentPositionSource.ASSEMBLED_SEQUENCE);
 		printFragmentGraph(origString, origGrouped, FragmentPositionSource.ORIGINAL_SEQUENCE);
@@ -67,11 +86,7 @@ public class FragmentDisplay
 			FragmentPositionSource.ORIGINAL_SEQUENCE, scale);
 		Image assembledImage = ImagePanel.getFragmentGroupImage(assembledString, assembledGrouped, null,
 			FragmentPositionSource.ASSEMBLED_SEQUENCE, scale);
-		frame = new JFrame("Fragment Display");
-		// frame.setBounds(25, 25, 320, 320);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		System.out.println("Adding new ImagePanel");
-		frame.getContentPane().setLayout(new GridBagLayout());
+		
 		GridBagConstraints constraints = new GridBagConstraints();
 		constraints.gridheight = 1;
 		constraints.weightx = 0.5;
@@ -81,11 +96,11 @@ public class FragmentDisplay
 		constraints.fill = GridBagConstraints.BOTH;
 		origImagePanel = new ImagePanel(origImage);
 		JScrollPane origImageScroller = new JScrollPane(origImagePanel);
-		frame.getContentPane().add(origImageScroller, constraints);
+		panel.add(origImageScroller, constraints);
 		constraints.gridy = 1;
 		assembledImagePanel = new ImagePanel(assembledImage);
 		JScrollPane assembledImageScroller = new JScrollPane(assembledImagePanel);
-		frame.getContentPane().add(assembledImageScroller, constraints);
+		panel.add(assembledImageScroller, constraints);
 		
 		constraints = new GridBagConstraints();
 		constraints.fill = GridBagConstraints.BOTH;
@@ -99,9 +114,8 @@ public class FragmentDisplay
 		table.getSelectionModel().addListSelectionListener(new FragmentRedrawSelectionListener());
 		
 		JScrollPane tableScroller = new JScrollPane(table);
-		frame.getContentPane().add(tableScroller, constraints);
-		frame.pack();
-		frame.setVisible(true);
+		panel.add(tableScroller, constraints);
+		return panel;
 	}
 	
 	/**
@@ -196,7 +210,6 @@ public class FragmentDisplay
 		public void valueChanged(ListSelectionEvent e)
 		{
 			selectedFragment = fragments.get(table.getSelectedRow());
-			// TODO redraw graphs
 			System.out.printf("Selected fragment: %s%n", selectedFragment.string);
 			redrawImages();
 		}
