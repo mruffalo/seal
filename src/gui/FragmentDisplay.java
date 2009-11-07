@@ -83,11 +83,75 @@ public class FragmentDisplay
 		frame.setVisible(true);
 	}
 	
+	/**
+	 * TODO: Externalize strings
+	 * 
+	 * @return
+	 */
 	private JPanel getParametersPanel()
 	{
 		JPanel panel = new JPanel(new GridBagLayout());
-		JTextField textField = new JTextField("test");
-		panel.add(textField);
+		
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.fill = GridBagConstraints.BOTH;
+		gbc.weightx = 1;
+		gbc.gridwidth = 3;
+		JLabel stringLabel = new JLabel("String to read/assemble:");
+		panel.add(stringLabel, gbc);
+		
+		gbc = new GridBagConstraints();
+		gbc.fill = GridBagConstraints.BOTH;
+		gbc.weightx = 1;
+		gbc.gridwidth = 3;
+		gbc.gridy = 1;
+		JTextField stringField = new JTextField("test");
+		panel.add(stringField, gbc);
+		
+		gbc = new GridBagConstraints();
+		gbc.fill = GridBagConstraints.BOTH;
+		gbc.weightx = 0.33;
+		gbc.gridy = 2;
+		JLabel nLabel = new JLabel("Fragment Count");
+		panel.add(nLabel, gbc);
+		
+		gbc.gridx = 1;
+		JLabel kLabel = new JLabel("Fragment Size");
+		panel.add(kLabel, gbc);
+		
+		gbc.gridx = 2;
+		JLabel ktLabel = new JLabel("Size Leeway");
+		panel.add(ktLabel, gbc);
+		
+		gbc = new GridBagConstraints();
+		gbc.fill = GridBagConstraints.BOTH;
+		gbc.weightx = 0.33;
+		gbc.gridy = 3;
+		SpinnerNumberModel nModel = new SpinnerNumberModel();
+		nModel.setMinimum(1);
+		nModel.setValue(50);
+		JSpinner nSpinner = new JSpinner(nModel);
+		panel.add(nSpinner, gbc);
+		
+		gbc.gridx = 1;
+		SpinnerNumberModel kModel = new SpinnerNumberModel();
+		kModel.setMinimum(1);
+		kModel.setValue(10);
+		JSpinner kSpinner = new JSpinner(kModel);
+		panel.add(kSpinner, gbc);
+		
+		gbc.gridx = 2;
+		SpinnerNumberModel ktModel = new SpinnerNumberModel();
+		ktModel.setMinimum(0);
+		JSpinner ktSpinner = new JSpinner(ktModel);
+		panel.add(ktSpinner, gbc);
+		
+		gbc = new GridBagConstraints();
+		gbc.gridy = 4;
+		gbc.gridx = 2;
+		gbc.anchor = GridBagConstraints.EAST;
+		JButton assembleButton = new JButton("Assemble");
+		panel.add(assembleButton, gbc);
+		
 		return panel;
 	}
 	
