@@ -144,6 +144,7 @@ public class FragmentDisplay
 		
 		gbc.gridx = 2;
 		JLabel ktLabel = new JLabel("Size Leeway");
+		ktLabel.setToolTipText("Each fragment will be of length (fragment size) +/- (size leeway)");
 		panel.add(ktLabel, gbc);
 		
 		gbc = new GridBagConstraints();
