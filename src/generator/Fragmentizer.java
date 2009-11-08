@@ -16,7 +16,8 @@ public class Fragmentizer
 	 * @param kTolerance
 	 *            Leeway in fragment size -- each fragment will be of length
 	 *            <code>length ± lengthTolerance</code>
-	 * @return
+	 * @return A list of fragments that were randomly read from the provided String. Fragments that
+	 *         are entirely contained in another fragment <b>have already been filtered</b>.
 	 */
 	public static List<Fragment> fragmentizeForShotgun(String string, double n, int k, int kTolerance)
 	{
@@ -24,13 +25,46 @@ public class Fragmentizer
 		LinkedList<Fragment> list = new LinkedList<Fragment>();
 		for (int i = 0; i < n; i++)
 		{
-			int fragmentLength = k + random.nextInt(kTolerance * 2) - kTolerance;
+			int sizeAddition = kTolerance > 0 ? random.nextInt(kTolerance * 2) - kTolerance : 0;
+			int fragmentLength = k + sizeAddition;
 			int index = random.nextInt(string.length() - fragmentLength);
 			Fragment f = new Fragment(string.substring(index, index + fragmentLength));
 			f.setPosition(FragmentPositionSource.ORIGINAL_SEQUENCE, index);
 			list.add(f);
 		}
-		return list;
+		
+		return removeSubstrings(list);
+	}
+	
+	/**
+	 * @param fragments
+	 *            A list of Fragments
+	 * @return A filtered list -- if a Fragment is entirely contained in another Fragment, it has
+	 *         been removed.
+	 */
+	public static List<Fragment> removeSubstrings(List<Fragment> fragments)
+	{
+		List<Fragment> fixed = new LinkedList<Fragment>();
+		Set<Fragment> substrings = new HashSet<Fragment>();
+		for (Fragment first : fragments)
+		{
+			for (Fragment second : fragments)
+			{
+				// Filter out substrings
+				if (first.string.contains(second.string) && !first.string.equals(second.string))
+				{
+					substrings.add(second);
+				}
+			}
+		}
+		for (Fragment fragment : fragments)
+		{
+			if (!substrings.contains(fragment))
+			{
+				fixed.add(fragment);
+			}
+		}
+		return fixed;
 	}
 	
 	/**

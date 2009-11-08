@@ -41,9 +41,15 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 		 * Ω(n^2).
 		 * 
 		 * @param fragments
-		 *            Note: This overlap calculation <b>is case-sensitive</b>. It is assumed that
-		 *            all Strings in this list are case-normalized (either all lowercase or all
-		 *            uppercase).
+		 *            Note:
+		 *            <ul>
+		 *            <li>This overlap calculation <b>is case-sensitive</b>. It is assumed that all
+		 *            Strings in this list are case-normalized (either all lowercase or all
+		 *            uppercase).</li>
+		 *            <li>It is assumed that no fragment contains another fragment as a substring.
+		 *            If you are not sure that this is true, run your fragment list through
+		 *            {@link generator.Fragmentizer#removeSubstrings}</li>
+		 *            </ul>
 		 */
 		public OverlapGraph(List<Fragment> fragments)
 		{
@@ -58,8 +64,7 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 				Vertex from = getVertex(first);
 				for (Fragment second : fragments)
 				{
-					// Filter out substrings
-					if (!first.string.contains(second.string))
+					if (!first.string.equals(second.string))
 					{
 						Vertex to = getVertex(second);
 						/*

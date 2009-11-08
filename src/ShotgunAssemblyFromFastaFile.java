@@ -1,3 +1,4 @@
+import generator.Fragmentizer;
 import java.io.*;
 import java.util.*;
 import assembly.*;
@@ -18,7 +19,7 @@ public class ShotgunAssemblyFromFastaFile
 		}
 		try
 		{
-			List<Fragment> fragments = FastaHandler.getFragments(args[0]);
+			List<Fragment> fragments = Fragmentizer.removeSubstrings(FastaHandler.getFragments(args[0]));
 			System.out.printf("Fragments read from FASTA file at %s%n", args[0]);
 			SequenceAssembler sa = new ShotgunSequenceAssembler();
 			long begin = System.nanoTime();
