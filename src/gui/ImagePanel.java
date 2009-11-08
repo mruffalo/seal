@@ -60,8 +60,6 @@ public class ImagePanel extends JPanel
 		}
 		int height = (fragmentGroups.size() * 2 + 1) * scale;
 		BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-		System.out.printf("Image height: %d%n", image.getHeight());
-		System.out.printf("Image width: %d%n", image.getWidth());
 		
 		Graphics2D g2d = image.createGraphics();
 		Color red = new Color(255, 0, 0, 255);

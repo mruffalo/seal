@@ -52,7 +52,11 @@ public class FragmentDisplay
 	private String assembledString;
 	List<List<Fragment>> origGrouped;
 	List<List<Fragment>> assembledGrouped;
-	private List<Fragment> fragments;
+	/**
+	 * Specify this as an ArrayList instead of a List to prevent accidentally storing a LinkedList.
+	 * Various parts of this code require random access, for which a LinkedList is badly suited.
+	 */
+	private ArrayList<Fragment> fragments;
 	private JTextField stringField;
 	private JSpinner nSpinner;
 	private JSpinner kSpinner;
@@ -249,14 +253,15 @@ public class FragmentDisplay
 	
 	private void assembleString()
 	{
-		selectedFragment = null;
 		n = (Integer) nSpinner.getValue();
 		k = (Integer) kSpinner.getValue();
 		kt = (Integer) ktSpinner.getValue();
 		origString = stringField.getText();
 		FragmentPositionSource source = FragmentPositionSource.ORIGINAL_SEQUENCE;
-		fragments = Fragmentizer.fragmentizeForShotgun(origString, n, k, kt);
+		table.clearSelection();
+		fragments = new ArrayList<Fragment>(Fragmentizer.fragmentizeForShotgun(origString, n, k, kt));
 		tableModel.fireTableDataChanged();
+		selectedFragment = null;
 		SequenceAssembler sa = new ShotgunSequenceAssembler();
 		for (Fragment fragment : fragments)
 		{
@@ -369,8 +374,7 @@ public class FragmentDisplay
 		@Override
 		public void valueChanged(ListSelectionEvent e)
 		{
-			selectedFragment = fragments.get(table.getSelectedRow());
-			System.out.printf("Selected fragment: %s%n", selectedFragment.string);
+			selectedFragment = table.getSelectedRowCount() > 0 ? fragments.get(table.getSelectedRow()) : null;
 			redrawImages();
 		}
 	}
