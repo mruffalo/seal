@@ -63,11 +63,10 @@ public class FragmentDisplay
 	
 	Fragment selectedFragment = null;
 	
-	public FragmentDisplay(String origString_, String assembledString_, List<Fragment> fragments_)
+	public FragmentDisplay()
 	{
-		fragments = new ArrayList<Fragment>(fragments_);
-		origString = origString_;
-		assembledString = assembledString_;
+		fragments = new ArrayList<Fragment>();
+		origString = assembledString = "";
 		
 		frame = new JFrame("Fragment Display");
 		// frame.setBounds(25, 25, 320, 320);
@@ -138,7 +137,7 @@ public class FragmentDisplay
 		gbc.gridwidth = 3;
 		gbc.gridy = 1;
 		stringField = new JTextField(
-			"asdvhao;isjdrl;kty6j;sodiyfvpuisen57;kuyfbv9p8r5p67jh;v hiuzstgefuoyagw3l5b12353p48ryhalsd7ivgd7gvawasdo8uv9pa8vh");
+			"vp8yp7894hp;ob7p985u6p;o34ig;oris;hvh7100*OYglicg7isdgvP(S&DGF:Kjh;kv83hawas5rf2$AD!)%8;oij45oc78GCG^*Aptin3;oFO*Tlivb;ou;34o58H{}GTDA%2o8ffd67gA");
 		panel.add(stringField, gbc);
 		
 		gbc = new GridBagConstraints();
@@ -170,7 +169,7 @@ public class FragmentDisplay
 		gbc.gridx = 1;
 		SpinnerNumberModel kModel = new SpinnerNumberModel();
 		kModel.setMinimum(1);
-		kModel.setValue(10);
+		kModel.setValue(20);
 		kSpinner = new JSpinner(kModel);
 		panel.add(kSpinner, gbc);
 		
@@ -244,6 +243,7 @@ public class FragmentDisplay
 	
 	private void assembleString()
 	{
+		selectedFragment = null;
 		n = (Integer) nSpinner.getValue();
 		k = (Integer) kSpinner.getValue();
 		kt = (Integer) ktSpinner.getValue();
@@ -371,27 +371,6 @@ public class FragmentDisplay
 	 */
 	public static void main(String[] args)
 	{
-		if (args.length < 4)
-		{
-			System.err.printf("*** Usage: %s string n k kTolerance", FragmentDisplay.class.getCanonicalName());
-			System.exit(1);
-		}
-		String string = args[0];
-		int n = Integer.parseInt(args[1]);
-		int k = Integer.parseInt(args[2]);
-		int kTolerance = Integer.parseInt(args[3]);
-		FragmentPositionSource source = FragmentPositionSource.ORIGINAL_SEQUENCE;
-		List<Fragment> fragments = Fragmentizer.fragmentizeForShotgun(string, n, k, kTolerance);
-		SequenceAssembler sa = new ShotgunSequenceAssembler();
-		for (Fragment fragment : fragments)
-		{
-			System.out.printf("%s%n", fragment.string);
-		}
-		String assembled = sa.assembleSequence(fragments);
-		for (Fragment fragment : fragments)
-		{
-			System.out.printf("%5d: %s%n", fragment.getPosition(source), fragment.string);
-		}
-		FragmentDisplay display = new FragmentDisplay(string, assembled, fragments);
+		new FragmentDisplay();
 	}
 }
