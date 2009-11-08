@@ -47,12 +47,17 @@ public class ImagePanel extends JPanel
 	public void setImage(Image image)
 	{
 		img = image;
+		setPreferredSize(new Dimension(img.getWidth(null), img.getHeight(null)));
 	}
 	
 	public static Image getFragmentGroupImage(String sequence, List<List<Fragment>> fragmentGroups, Fragment selected,
 		FragmentPositionSource source, int scale)
 	{
 		int width = sequence.length() * scale;
+		if (width == 0)
+		{
+			width = 1;
+		}
 		int height = (fragmentGroups.size() * 2 + 1) * scale;
 		BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		System.out.printf("Image height: %d%n", image.getHeight());
