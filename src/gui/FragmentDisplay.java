@@ -45,6 +45,7 @@ public class FragmentDisplay
 	
 	private JFrame frame;
 	private JTable table;
+	private FragmentTableModel tableModel;
 	private ImagePanel origImagePanel;
 	private ImagePanel assembledImagePanel;
 	private String origString;
@@ -67,6 +68,8 @@ public class FragmentDisplay
 	{
 		fragments = new ArrayList<Fragment>();
 		origString = assembledString = "";
+		origGrouped = Fragmentizer.groupByLine(fragments, FragmentPositionSource.ORIGINAL_SEQUENCE);
+		assembledGrouped = Fragmentizer.groupByLine(fragments, FragmentPositionSource.ASSEMBLED_SEQUENCE);
 		
 		frame = new JFrame("Fragment Display");
 		// frame.setBounds(25, 25, 320, 320);
@@ -232,7 +235,8 @@ public class FragmentDisplay
 		constraints.gridx = 1;
 		constraints.weightx = 0.5;
 		constraints.weighty = 1;
-		table = new JTable(new FragmentTableModel());
+		tableModel = new FragmentTableModel();
+		table = new JTable(tableModel);
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.getSelectionModel().addListSelectionListener(new FragmentRedrawSelectionListener());
 		
@@ -250,6 +254,7 @@ public class FragmentDisplay
 		origString = stringField.getText();
 		FragmentPositionSource source = FragmentPositionSource.ORIGINAL_SEQUENCE;
 		fragments = Fragmentizer.fragmentizeForShotgun(origString, n, k, kt);
+		tableModel.fireTableDataChanged();
 		SequenceAssembler sa = new ShotgunSequenceAssembler();
 		for (Fragment fragment : fragments)
 		{
@@ -295,9 +300,13 @@ public class FragmentDisplay
 		Image origImage = ImagePanel.getFragmentGroupImage(origString, origGrouped, selectedFragment,
 			FragmentPositionSource.ORIGINAL_SEQUENCE, scale);
 		origImagePanel.setImage(origImage);
+		origImagePanel.revalidate();
 		Image assembledImage = ImagePanel.getFragmentGroupImage(assembledString, assembledGrouped, selectedFragment,
 			FragmentPositionSource.ASSEMBLED_SEQUENCE, scale);
 		assembledImagePanel.setImage(assembledImage);
+		assembledImagePanel.revalidate();
+		
+		frame.pack();
 		frame.repaint();
 	}
 	
