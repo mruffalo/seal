@@ -81,6 +81,7 @@ public class FragmentDisplay
 		constraints.weightx = 1;
 		constraints.weighty = 0.0;
 		constraints.fill = GridBagConstraints.BOTH;
+		constraints.insets = new Insets(2, 2, 2, 2);
 		frame.add(getParametersPanel(), constraints);
 		
 		constraints = new GridBagConstraints();
@@ -88,6 +89,7 @@ public class FragmentDisplay
 		constraints.weighty = 1;
 		constraints.gridy = 1;
 		constraints.fill = GridBagConstraints.BOTH;
+		constraints.insets = new Insets(2, 2, 2, 2);
 		frame.add(getFragmentDisplayPanel(), constraints);
 		
 		frame.pack();
