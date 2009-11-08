@@ -1,18 +1,13 @@
 package gui;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Image;
+import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.Rectangle2D.Float;
 import java.awt.image.BufferedImage;
 import java.util.List;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
-import assembly.Fragment;
-import assembly.FragmentPositionSource;
+import assembly.*;
 
 public class ImagePanel extends JPanel
 {

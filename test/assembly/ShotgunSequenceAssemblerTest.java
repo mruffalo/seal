@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 import generator.Fragmentizer;
 import generator.SeqGenSingleSequenceMultipleRepeats;
 import generator.SequenceGenerator;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -119,11 +120,48 @@ public class ShotgunSequenceAssemblerTest
 		String string = sg.generateSequence(10000, 50, 10);
 		assertEquals(10000, string.length());
 		List<Fragment> list = Fragmentizer.fragmentizeForShotgun(string, 1000, 50, 5);
-		assertEquals(1000, list.size());
+		assertTrue(list.size() <= 1000);
 		String assembled = sa.assembleSequence(list);
 		for (Fragment fragment : list)
 		{
 			assertTrue(assembled.contains(fragment.string));
+		}
+	}
+	
+	/**
+	 * Ensure that every character in the assembled string comes from at least one fragment.
+	 */
+	@Test
+	public void testNoExtraCharacters()
+	{
+		SequenceAssembler sa = new ShotgunSequenceAssembler();
+		SequenceGenerator sg = new SeqGenSingleSequenceMultipleRepeats();
+		String string = sg.generateSequence(100, 0, 0);
+		List<Fragment> list = Fragmentizer.fragmentizeForShotgun(string, 50, 10, 0);
+		String assembled = sa.assembleSequence(list);
+		ArrayList<ArrayList<Fragment>> fragmentCounts = new ArrayList<ArrayList<Fragment>>(assembled.length());
+		for (int i = 0; i < assembled.length(); i++)
+		{
+			fragmentCounts.add(new ArrayList<Fragment>());
+		}
+		for (Fragment fragment : list)
+		{
+			Integer position = fragment.getPosition(FragmentPositionSource.ASSEMBLED_SEQUENCE);
+			for (int i = 0; i < fragment.string.length(); i++)
+			{
+				fragmentCounts.get(i + position).add(fragment);
+			}
+		}
+		for (int i = 0; i < fragmentCounts.size(); i++)
+		{
+			System.out.printf("%s : ", assembled.substring(i, i + 1));
+			ArrayList<Fragment> fragmentCount = fragmentCounts.get(i);
+			for (Fragment fragment : fragmentCount)
+			{
+				System.out.printf("%s ", fragment.string);
+			}
+			System.out.println();
+			assertTrue(fragmentCount.size() > 0);
 		}
 	}
 }

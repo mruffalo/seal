@@ -17,7 +17,8 @@ public class Fragmentizer
 	 *            Leeway in fragment size -- each fragment will be of length
 	 *            <code>length ± lengthTolerance</code>
 	 * @return A list of fragments that were randomly read from the provided String. Fragments that
-	 *         are entirely contained in another fragment <b>have already been filtered</b>.
+	 *         are entirely contained in another fragment <b>have already been filtered</b>. This
+	 *         means that you will probably get less than <code>n</code> fragments back.
 	 */
 	public static List<Fragment> fragmentizeForShotgun(String string, double n, int k, int kTolerance)
 	{
