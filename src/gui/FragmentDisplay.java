@@ -4,16 +4,15 @@ import generator.Fragmentizer;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.*;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
-import assembly.Fragment;
-import assembly.FragmentPositionSource;
-import assembly.SequenceAssembler;
-import assembly.ShotgunSequenceAssembler;
+import assembly.*;
 
 public class FragmentDisplay
 {
@@ -113,6 +112,7 @@ public class FragmentDisplay
 		
 		menu = new JMenu("Sequence");
 		item = new JMenuItem("Open...");
+		item.addActionListener(new OpenSequenceActionListener());
 		menu.add(item);
 		item = new JMenuItem("Generate...");
 		menu.add(item);
@@ -212,14 +212,7 @@ public class FragmentDisplay
 		gbc.gridx = 2;
 		gbc.anchor = GridBagConstraints.EAST;
 		JButton assembleButton = new JButton("Assemble");
-		assembleButton.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				assembleString();
-			}
-		});
+		assembleButton.addActionListener(new AssembleSequenceActionListener());
 		panel.add(assembleButton, gbc);
 		
 		return panel;
@@ -332,7 +325,6 @@ public class FragmentDisplay
 		assembledImagePanel.setImage(assembledImage);
 		assembledImagePanel.revalidate();
 		
-		frame.pack();
 		frame.repaint();
 	}
 	
@@ -395,6 +387,49 @@ public class FragmentDisplay
 		{
 			selectedFragment = table.getSelectedRowCount() > 0 ? fragments.get(table.getSelectedRow()) : null;
 			redrawImages();
+		}
+	}
+	
+	private class AssembleSequenceActionListener implements ActionListener
+	{
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			assembleString();
+		}
+	}
+	
+	private class OpenSequenceActionListener implements ActionListener
+	{
+		@Override
+		public void actionPerformed(ActionEvent arg0)
+		{
+			JFileChooser fc = new JFileChooser();
+			int returnVal = fc.showOpenDialog(frame);
+			if (returnVal == JFileChooser.APPROVE_OPTION)
+			{
+				File file = fc.getSelectedFile();
+				String string = null;
+				try
+				{
+					stringField.setText(FastaHandler.getSequence(file));
+				}
+				catch (IOException e)
+				{
+					// TODO: Show GUI problem box
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	
+	private class SaveSequenceActionListener implements ActionListener
+	{
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			// TODO Auto-generated method stub
+			
 		}
 	}
 	
