@@ -5,7 +5,7 @@ import java.io.*;
 
 public class FastaHandler
 {
-	public static List<Fragment> getFragments(String filename) throws IOException
+	public static List<Fragment> getFragments(File file) throws IOException
 	{
 		BufferedReader input = null;
 		List<Fragment> list = new LinkedList<Fragment>();
@@ -13,7 +13,7 @@ public class FastaHandler
 		{
 			String line;
 			StringBuilder sb = null;
-			input = new BufferedReader(new FileReader(filename));
+			input = new BufferedReader(new FileReader(file));
 			while ((line = input.readLine()) != null)
 			{
 				if (line.startsWith(">"))
@@ -40,22 +40,21 @@ public class FastaHandler
 		return list;
 	}
 	
-	public static String getSequence(String filename) throws IOException
+	public static String getSequence(File file) throws IOException
 	{
-		String sequence = null;
+		String sequence = null, temp = null;
 		Scanner input = null;
-		String storage;
 		try
 		{
-			input = new Scanner(new BufferedReader(new FileReader(filename)));
+			input = new Scanner(new BufferedReader(new FileReader(file)));
 			while (input.hasNext())
 			{
-				storage = input.next();
-				if (storage.contains(">"))
+				temp = input.next();
+				if (temp.startsWith(">"))
 				{
-					storage = input.next();
+					continue;
 				}
-				sequence = storage;
+				sequence = temp;
 			}
 		}
 		finally
@@ -68,12 +67,12 @@ public class FastaHandler
 		return sequence;
 	}
 	
-	public static void writeSequence(String sequence, String filename) throws IOException
+	public static void writeSequence(String sequence, File file) throws IOException
 	{
 		BufferedWriter output = null;
 		try
 		{
-			output = new BufferedWriter(new FileWriter(filename));
+			output = new BufferedWriter(new FileWriter(file));
 			output.write(String.format(">COMPLETED_SEQUENCE%n%s%n", sequence));
 		}
 		finally
@@ -85,12 +84,12 @@ public class FastaHandler
 		}
 	}
 	
-	public static void writeFragments(List<Fragment> fragments, String filename) throws IOException
+	public static void writeFragments(List<Fragment> fragments, File file) throws IOException
 	{
 		BufferedWriter output = null;
 		try
 		{
-			output = new BufferedWriter(new FileWriter(filename));
+			output = new BufferedWriter(new FileWriter(file));
 			int i = 0;
 			for (Fragment fragment : fragments)
 			{

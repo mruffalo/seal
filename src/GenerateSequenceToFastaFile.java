@@ -29,7 +29,7 @@ public class GenerateSequenceToFastaFile
 		List<Fragment> fragments = Fragmentizer.fragmentizeForShotgun(string, n, k, kTolerance);
 		try
 		{
-			FastaHandler.writeFragments(fragments, args[0]);
+			FastaHandler.writeFragments(fragments, new File(args[0]));
 		}
 		catch (IOException e)
 		{
