@@ -108,17 +108,36 @@ public class FragmentDisplay
 	private JMenuBar getMenuBar()
 	{
 		JMenuBar bar = new JMenuBar();
-		
-		JMenu menu = new JMenu("File");
-		bar.add(menu);
+		JMenuItem item;
+		JMenu menu;
 		
 		menu = new JMenu("Sequence");
+		item = new JMenuItem("Open...");
+		menu.add(item);
+		item = new JMenuItem("Generate...");
+		menu.add(item);
+		item = new JMenuItem("Export...");
+		menu.add(item);
+		menu.addSeparator();
+		item = new JMenuItem("Exit");
+		menu.add(item);
+		bar.add(menu);
+		
+		menu = new JMenu("Fragments");
+		item = new JMenuItem("Open...");
+		menu.add(item);
+		item = new JMenuItem("Export...");
+		menu.add(item);
 		bar.add(menu);
 		
 		menu = new JMenu("Settings");
+		item = new JMenuItem("Configure Fragment Display...");
+		menu.add(item);
 		bar.add(menu);
 		
 		menu = new JMenu("Help");
+		item = new JMenuItem("About");
+		menu.add(item);
 		bar.add(menu);
 		
 		return bar;
