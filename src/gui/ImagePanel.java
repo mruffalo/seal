@@ -2,7 +2,6 @@ package gui;
 
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
-import java.awt.geom.Rectangle2D.Float;
 import java.awt.image.BufferedImage;
 import java.util.List;
 import javax.swing.ImageIcon;

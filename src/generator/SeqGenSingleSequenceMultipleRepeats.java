@@ -51,6 +51,7 @@ public class SeqGenSingleSequenceMultipleRepeats extends SequenceGenerator
 	 * 
 	 * @param args
 	 */
+	@SuppressWarnings("unused")
 	public static void main(String[] args)
 	{
 		if (args.length < 3)
