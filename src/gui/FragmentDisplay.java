@@ -57,6 +57,7 @@ public class FragmentDisplay
 	 */
 	private ArrayList<Fragment> fragments;
 	private JTextField stringField;
+	private JTextField assembledField;
 	private JSpinner nSpinner;
 	private JSpinner kSpinner;
 	private JSpinner ktSpinner;
@@ -117,6 +118,7 @@ public class FragmentDisplay
 		item = new JMenuItem("Generate...");
 		menu.add(item);
 		item = new JMenuItem("Export...");
+		item.addActionListener(new SaveSequenceActionListener());
 		menu.add(item);
 		menu.addSeparator();
 		item = new JMenuItem("Exit");
@@ -125,8 +127,10 @@ public class FragmentDisplay
 		
 		menu = new JMenu("Fragments");
 		item = new JMenuItem("Open...");
+		item.addActionListener(new OpenFragmentsActionListener());
 		menu.add(item);
 		item = new JMenuItem("Export...");
+		item.addActionListener(new SaveFragmentsActionListener());
 		menu.add(item);
 		bar.add(menu);
 		
@@ -215,6 +219,21 @@ public class FragmentDisplay
 		assembleButton.addActionListener(new AssembleSequenceActionListener());
 		panel.add(assembleButton, gbc);
 		
+		gbc = new GridBagConstraints();
+		gbc.gridy = 5;
+		gbc.gridwidth = 3;
+		gbc.fill = GridBagConstraints.BOTH;
+		JLabel assembledLabel = new JLabel("Assembled string:");
+		panel.add(assembledLabel, gbc);
+		
+		gbc = new GridBagConstraints();
+		gbc.gridy = 6;
+		gbc.gridwidth = 3;
+		gbc.fill = GridBagConstraints.BOTH;
+		assembledField = new JTextField();
+		assembledField.setEditable(false);
+		panel.add(assembledField, gbc);
+		
 		return panel;
 	}
 	
@@ -280,6 +299,7 @@ public class FragmentDisplay
 			System.out.printf("%s%n", fragment.string);
 		}
 		assembledString = sa.assembleSequence(fragments);
+		assembledField.setText(assembledString);
 		for (Fragment fragment : fragments)
 		{
 			System.out.printf("%5d: %s%n", fragment.getPosition(source), fragment.string);
@@ -402,14 +422,13 @@ public class FragmentDisplay
 	private class OpenSequenceActionListener implements ActionListener
 	{
 		@Override
-		public void actionPerformed(ActionEvent arg0)
+		public void actionPerformed(ActionEvent unused)
 		{
 			JFileChooser fc = new JFileChooser();
 			int returnVal = fc.showOpenDialog(frame);
 			if (returnVal == JFileChooser.APPROVE_OPTION)
 			{
 				File file = fc.getSelectedFile();
-				String string = null;
 				try
 				{
 					stringField.setText(FastaHandler.getSequence(file));
@@ -426,10 +445,70 @@ public class FragmentDisplay
 	private class SaveSequenceActionListener implements ActionListener
 	{
 		@Override
-		public void actionPerformed(ActionEvent e)
+		public void actionPerformed(ActionEvent unused)
 		{
-			// TODO Auto-generated method stub
-			
+			JFileChooser fc = new JFileChooser();
+			int returnVal = fc.showOpenDialog(frame);
+			if (returnVal == JFileChooser.APPROVE_OPTION)
+			{
+				File file = fc.getSelectedFile();
+				try
+				{
+					FastaHandler.writeSequence(assembledString, file);
+				}
+				catch (IOException e)
+				{
+					// TODO: Show GUI problem box
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	
+	private class OpenFragmentsActionListener implements ActionListener
+	{
+		@Override
+		public void actionPerformed(ActionEvent unused)
+		{
+			JFileChooser fc = new JFileChooser();
+			int returnVal = fc.showOpenDialog(frame);
+			if (returnVal == JFileChooser.APPROVE_OPTION)
+			{
+				File file = fc.getSelectedFile();
+				try
+				{
+					// TODO: Make this a delimited file instead of using FastaHandler
+					FastaHandler.writeFragments(fragments, file);
+				}
+				catch (IOException e)
+				{
+					// TODO: Show GUI problem box
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	
+	private class SaveFragmentsActionListener implements ActionListener
+	{
+		@Override
+		public void actionPerformed(ActionEvent unused)
+		{
+			JFileChooser fc = new JFileChooser();
+			int returnVal = fc.showOpenDialog(frame);
+			if (returnVal == JFileChooser.APPROVE_OPTION)
+			{
+				File file = fc.getSelectedFile();
+				try
+				{
+					fragments = new ArrayList<Fragment>(Fragmentizer.removeSubstrings(FastaHandler.getFragments(file)));
+				}
+				catch (IOException e)
+				{
+					// TODO: Show GUI problem box
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 	
