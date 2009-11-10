@@ -68,8 +68,7 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 					{
 						Vertex to = getVertex(second);
 						/*
-						 * TODO: Maybe use a more efficient way of doing this, like suffix trees.
-						 * Doesn't seem to be a requirement for this assignment.
+						 * TODO: Use a more efficient way of doing this, like suffix trees.
 						 */
 						for (int i = Math.min(first.string.length(), second.string.length()); i >= 0; i--)
 						{
@@ -203,8 +202,8 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 		{
 			public final Fragment fragment;
 			/**
-			 * This is the adjacency list of this Vertex, stored as a (Hash)Map from Strings to
-			 * Edges. This allows constant-time lookup of an Edge from a String, as opposed to
+			 * This is the adjacency list of this Vertex, stored as a (Hash)Map from Fragments to
+			 * Edges. This allows constant-time lookup of an Edge from a Fragment, as opposed to
 			 * linear-time lookup if this were a List&lt;Vertex&gt;.
 			 */
 			protected final Map<Fragment, Edge> adj;
@@ -311,6 +310,10 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 				StringBuilder sb = new StringBuilder();
 				for (Vertex v : disconnectedPathParents)
 				{
+					/*
+					 * FIXME: Sometimes positions are not assigned. Implementing saving/loading
+					 * fragments in the GUI will really help in debugging this.
+					 */
 					int position = sb.length();
 					Edge e = vertexEdgeMap.get(v);
 					if (e != null)
