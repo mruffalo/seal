@@ -292,13 +292,13 @@ public class FragmentDisplay
 		fragments = new ArrayList<Fragment>(Fragmentizer.fragmentizeForShotgun(origString, n, k, kt));
 		tableModel.fireTableDataChanged();
 		selectedFragment = null;
-		
 	}
 	
 	private void assembleFragments()
 	{
 		SequenceAssembler sa = new ShotgunSequenceAssembler();
 		assembledString = sa.assembleSequence(fragments);
+		tableModel.fireTableDataChanged();
 		assembledField.setText(assembledString);
 		for (Fragment fragment : fragments)
 		{
@@ -504,6 +504,7 @@ public class FragmentDisplay
 				try
 				{
 					fragments = new ArrayList<Fragment>(Fragmentizer.removeSubstrings(FastaHandler.getFragments(file)));
+					assembleFragments();
 				}
 				catch (IOException e)
 				{
