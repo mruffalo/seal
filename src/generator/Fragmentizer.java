@@ -46,10 +46,11 @@ public class Fragmentizer
 	public static List<Fragment> removeSubstrings(List<Fragment> fragments)
 	{
 		List<Fragment> fixed = new LinkedList<Fragment>();
+		Set<Fragment> nonDuplicates = new HashSet<Fragment>(fragments);
 		Set<Fragment> substrings = new HashSet<Fragment>();
-		for (Fragment first : fragments)
+		for (Fragment first : nonDuplicates)
 		{
-			for (Fragment second : fragments)
+			for (Fragment second : nonDuplicates)
 			{
 				// Filter out substrings
 				if (first.string.contains(second.string) && !first.string.equals(second.string))
@@ -58,7 +59,7 @@ public class Fragmentizer
 				}
 			}
 		}
-		for (Fragment fragment : fragments)
+		for (Fragment fragment : nonDuplicates)
 		{
 			if (!substrings.contains(fragment))
 			{
