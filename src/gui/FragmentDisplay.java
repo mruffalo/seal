@@ -282,27 +282,28 @@ public class FragmentDisplay
 		return panel;
 	}
 	
-	private void assembleString()
+	private void splitString()
 	{
 		n = (Integer) nSpinner.getValue();
 		k = (Integer) kSpinner.getValue();
 		kt = (Integer) ktSpinner.getValue();
 		origString = stringField.getText();
-		FragmentPositionSource source = FragmentPositionSource.ORIGINAL_SEQUENCE;
 		table.clearSelection();
 		fragments = new ArrayList<Fragment>(Fragmentizer.fragmentizeForShotgun(origString, n, k, kt));
 		tableModel.fireTableDataChanged();
 		selectedFragment = null;
+		
+	}
+	
+	private void assembleFragments()
+	{
 		SequenceAssembler sa = new ShotgunSequenceAssembler();
-		for (Fragment fragment : fragments)
-		{
-			System.out.printf("%s%n", fragment.string);
-		}
 		assembledString = sa.assembleSequence(fragments);
 		assembledField.setText(assembledString);
 		for (Fragment fragment : fragments)
 		{
-			System.out.printf("%5d: %s%n", fragment.getPosition(source), fragment.string);
+			System.out.printf("%5d: %s%n", fragment.getPosition(FragmentPositionSource.ORIGINAL_SEQUENCE),
+				fragment.string);
 		}
 		origGrouped = Fragmentizer.groupByLine(fragments, FragmentPositionSource.ORIGINAL_SEQUENCE);
 		assembledGrouped = Fragmentizer.groupByLine(fragments, FragmentPositionSource.ASSEMBLED_SEQUENCE);
@@ -415,7 +416,8 @@ public class FragmentDisplay
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
-			assembleString();
+			splitString();
+			assembleFragments();
 		}
 	}
 	
@@ -465,7 +467,7 @@ public class FragmentDisplay
 		}
 	}
 	
-	private class OpenFragmentsActionListener implements ActionListener
+	private class SaveFragmentsActionListener implements ActionListener
 	{
 		@Override
 		public void actionPerformed(ActionEvent unused)
@@ -489,7 +491,7 @@ public class FragmentDisplay
 		}
 	}
 	
-	private class SaveFragmentsActionListener implements ActionListener
+	private class OpenFragmentsActionListener implements ActionListener
 	{
 		@Override
 		public void actionPerformed(ActionEvent unused)
