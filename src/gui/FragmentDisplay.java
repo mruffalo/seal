@@ -480,7 +480,7 @@ public class FragmentDisplay
 				try
 				{
 					// TODO: Make this a delimited file instead of using FastaHandler
-					FastaHandler.writeFragments(fragments, file);
+					FastaHandler.writeFragmentsWithPositions(fragments, file);
 				}
 				catch (IOException e)
 				{
@@ -505,6 +505,8 @@ public class FragmentDisplay
 				{
 					fragments = new ArrayList<Fragment>(Fragmentizer.removeSubstrings(FastaHandler.getFragments(file)));
 					origString = "";
+					fragments = new ArrayList<Fragment>(
+						Fragmentizer.removeSubstrings(FastaHandler.getFragmentsWithPositions(file)));
 					assembleFragments();
 				}
 				catch (IOException e)
