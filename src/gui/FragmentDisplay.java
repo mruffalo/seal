@@ -504,6 +504,7 @@ public class FragmentDisplay
 				try
 				{
 					fragments = new ArrayList<Fragment>(Fragmentizer.removeSubstrings(FastaHandler.getFragments(file)));
+					origString = "";
 					assembleFragments();
 				}
 				catch (IOException e)
