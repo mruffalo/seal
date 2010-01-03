@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import javax.print.attribute.standard.JobMessageFromOperator;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -117,6 +118,7 @@ public class FragmentDisplay
 		item.addActionListener(new OpenSequenceActionListener());
 		menu.add(item);
 		item = new JMenuItem("Generate...");
+		item.addActionListener(new GenerateFragmentsActionListener());
 		menu.add(item);
 		item = new JMenuItem("Export...");
 		item.addActionListener(new SaveSequenceActionListener());
@@ -518,6 +520,16 @@ public class FragmentDisplay
 					e.printStackTrace();
 				}
 			}
+		}
+	}
+	
+	private class GenerateFragmentsActionListener implements ActionListener
+	{
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			// TODO Show a panel here
+			JOptionPane.showMessageDialog(frame, "Would show a 'generate sequence' dialog now");
 		}
 	}
 	
