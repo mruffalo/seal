@@ -5,8 +5,9 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -290,6 +291,7 @@ public class FragmentDisplay
 		origString = stringField.getText();
 		table.clearSelection();
 		fragments = new ArrayList<Fragment>(Fragmentizer.fragmentizeForShotgun(origString, n, k, kt));
+		Collections.sort(fragments, new FragmentComparator());
 		tableModel.fireTableDataChanged();
 		selectedFragment = null;
 	}
@@ -507,6 +509,7 @@ public class FragmentDisplay
 					origString = "";
 					fragments = new ArrayList<Fragment>(
 						Fragmentizer.removeSubstrings(FastaHandler.getFragmentsWithPositions(file)));
+					Collections.sort(fragments, new FragmentComparator());
 					assembleFragments();
 				}
 				catch (IOException e)
@@ -515,6 +518,15 @@ public class FragmentDisplay
 					e.printStackTrace();
 				}
 			}
+		}
+	}
+	
+	private class FragmentComparator implements Comparator<Fragment>
+	{
+		@Override
+		public int compare(Fragment f1, Fragment f2)
+		{
+			return f1.string.compareTo(f2.string);
 		}
 	}
 	
