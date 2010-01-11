@@ -57,6 +57,10 @@ public class ImagePanel extends JPanel implements Scrollable
 		BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		
 		Graphics2D g2d = image.createGraphics();
+		
+		g2d.setColor(Color.WHITE);
+		g2d.fillRect(0, 0, width, height);
+		
 		Color red = new Color(255, 0, 0, 255);
 		g2d.setColor(red);
 		g2d.fill(new Rectangle2D.Float(0, 0, sequence.length() * scale, scale));
