@@ -21,8 +21,15 @@ public class SequenceGenerationFrame extends JFrame
 	{
 		panel = new JPanel(new GridBagLayout());
 		
-		ButtonGroup group = new ButtonGroup();
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.weightx = 0.5;
+		gbc.fill = GridBagConstraints.BOTH;
+		panel.add(getCharactersPanel(), gbc);
 		
+		gbc.gridx = 1;
+		panel.add(getSettingsPanel(), gbc);
+		
+		ButtonGroup group = new ButtonGroup();
 		List<JRadioButton> buttons = new ArrayList<JRadioButton>();
 		final int buttonCount = 4;
 		for (int i = 0; i < buttonCount; i++)
@@ -33,6 +40,8 @@ public class SequenceGenerationFrame extends JFrame
 		JPanel buttonPanel = new JPanel();
 		field = new JTextField();
 		field.setMinimumSize(new Dimension(200, 1));
+		field.setSize(new Dimension(200, 10));
+		field.setText("test");
 		buttonPanel.add(field);
 		
 		for (JRadioButton button : buttons)
@@ -41,15 +50,6 @@ public class SequenceGenerationFrame extends JFrame
 			buttonPanel.add(button);
 			button.addActionListener(new SetTextActionListener(button.getText()));
 		}
-		
-		GridBagConstraints gbc = new GridBagConstraints();
-		gbc.weightx = 0.5;
-		gbc.fill = GridBagConstraints.BOTH;
-		panel.add(getCharactersPanel(), gbc);
-		
-		gbc.gridx = 1;
-		gbc.fill = GridBagConstraints.BOTH;
-		panel.add(getSettingsPanel(), gbc);
 		
 		gbc = new GridBagConstraints();
 		gbc.gridy = 1;
@@ -65,14 +65,46 @@ public class SequenceGenerationFrame extends JFrame
 	public JComponent getCharactersPanel()
 	{
 		JPanel panel = new JPanel();
+		final JTextField customCharacters = new JTextField();
+		customCharacters.setEnabled(false);
+		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
 		panel.setBorder(BorderFactory.createTitledBorder("Characters"));
+		ButtonGroup group = new ButtonGroup();
+		
+		JRadioButton nucleotides = new JRadioButton("Nucleotides (ACGT)");
+		nucleotides.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent arg0)
+			{
+				customCharacters.setEnabled(false);
+			}
+		});
+		group.add(nucleotides);
+		panel.add(nucleotides);
+		
+		final JRadioButton custom = new JRadioButton("Custom:");
+		custom.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent arg0)
+			{
+				customCharacters.setEnabled(true);
+			}
+		});
+		group.add(custom);
+		panel.add(custom);
+		
+		panel.add(customCharacters);
 		return panel;
 	}
 	
 	public JComponent getSettingsPanel()
 	{
 		JPanel panel = new JPanel();
+		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
 		panel.setBorder(BorderFactory.createTitledBorder("Settings"));
+		
 		return panel;
 	}
 	
