@@ -105,6 +105,33 @@ public class SequenceGenerationFrame extends JFrame
 		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
 		panel.setBorder(BorderFactory.createTitledBorder("Settings"));
 		
+		JLabel nLabel = new JLabel("String Length");
+		panel.add(nLabel);
+		
+		SpinnerNumberModel mModel = new SpinnerNumberModel();
+		mModel.setMinimum(1);
+		mModel.setValue(50);
+		JSpinner mSpinner = new JSpinner(mModel);
+		panel.add(mSpinner);
+		
+		JLabel rLabel = new JLabel("Repeat Count");
+		panel.add(rLabel);
+		
+		SpinnerNumberModel rModel = new SpinnerNumberModel();
+		rModel.setMinimum(1);
+		rModel.setValue(2);
+		JSpinner rSpinner = new JSpinner(rModel);
+		panel.add(rSpinner);
+		
+		JLabel lLabel = new JLabel("Repeat Length");
+		panel.add(lLabel);
+		
+		SpinnerNumberModel lModel = new SpinnerNumberModel();
+		lModel.setMinimum(1);
+		lModel.setValue(5);
+		JSpinner lSpinner = new JSpinner(lModel);
+		panel.add(lSpinner);
+		
 		return panel;
 	}
 	
