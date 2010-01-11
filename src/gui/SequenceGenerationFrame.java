@@ -19,9 +19,6 @@ public class SequenceGenerationFrame extends JFrame
 	
 	public SequenceGenerationFrame()
 	{
-		GridBagConstraints gbc = new GridBagConstraints();
-		gbc.weightx = 0.5;
-		
 		panel = new JPanel(new GridBagLayout());
 		
 		ButtonGroup group = new ButtonGroup();
@@ -33,20 +30,50 @@ public class SequenceGenerationFrame extends JFrame
 			buttons.add(new JRadioButton(Integer.toString(i)));
 		}
 		
+		JPanel buttonPanel = new JPanel();
 		field = new JTextField();
-		field.setMinimumSize(new Dimension(200, 0));
-		panel.add(field);
+		field.setMinimumSize(new Dimension(200, 1));
+		buttonPanel.add(field);
 		
 		for (JRadioButton button : buttons)
 		{
 			group.add(button);
-			panel.add(button);
+			buttonPanel.add(button);
 			button.addActionListener(new SetTextActionListener(button.getText()));
 		}
+		
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.weightx = 0.5;
+		gbc.fill = GridBagConstraints.BOTH;
+		panel.add(getCharactersPanel(), gbc);
+		
+		gbc.gridx = 1;
+		gbc.fill = GridBagConstraints.BOTH;
+		panel.add(getSettingsPanel(), gbc);
+		
+		gbc = new GridBagConstraints();
+		gbc.gridy = 1;
+		gbc.gridwidth = 2;
+		gbc.fill = GridBagConstraints.BOTH;
+		panel.add(buttonPanel, gbc);
 		
 		this.add(panel);
 		this.pack();
 		this.setVisible(true);
+	}
+	
+	public JComponent getCharactersPanel()
+	{
+		JPanel panel = new JPanel();
+		panel.setBorder(BorderFactory.createTitledBorder("Characters"));
+		return panel;
+	}
+	
+	public JComponent getSettingsPanel()
+	{
+		JPanel panel = new JPanel();
+		panel.setBorder(BorderFactory.createTitledBorder("Settings"));
+		return panel;
 	}
 	
 	private class SetTextActionListener implements ActionListener
@@ -72,6 +99,7 @@ public class SequenceGenerationFrame extends JFrame
 	 */
 	public static void main(String[] args)
 	{
-		new SequenceGenerationFrame();
+		JFrame frame = new SequenceGenerationFrame();
+		frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
 	}
 }
