@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import javax.print.attribute.standard.JobMessageFromOperator;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -240,9 +239,9 @@ public class FragmentDisplay
 		return panel;
 	}
 	
-	private JPanel getFragmentDisplayPanel()
+	private JComponent getFragmentDisplayPanel()
 	{
-		JPanel panel = new JPanel(new GridBagLayout());
+		JPanel imagePanel = new JPanel(new GridBagLayout());
 		
 		origGrouped = Fragmentizer.groupByLine(fragments, FragmentPositionSource.ORIGINAL_SEQUENCE);
 		assembledGrouped = Fragmentizer.groupByLine(fragments, FragmentPositionSource.ASSEMBLED_SEQUENCE);
@@ -254,35 +253,28 @@ public class FragmentDisplay
 			FragmentPositionSource.ASSEMBLED_SEQUENCE, scale);
 		
 		GridBagConstraints constraints = new GridBagConstraints();
-		constraints.gridheight = 1;
-		constraints.weightx = 0.5;
+		constraints.weightx = 1.0;
 		constraints.weighty = 0.5;
-		constraints.gridwidth = 1;
 		constraints.ipadx = constraints.ipady = 2;
 		constraints.fill = GridBagConstraints.BOTH;
 		origImagePanel = new ImagePanel(origImage);
 		JScrollPane origImageScroller = new JScrollPane(origImagePanel);
-		panel.add(origImageScroller, constraints);
+		imagePanel.add(origImageScroller, constraints);
 		constraints.gridy = 1;
 		assembledImagePanel = new ImagePanel(assembledImage);
 		JScrollPane assembledImageScroller = new JScrollPane(assembledImagePanel);
-		panel.add(assembledImageScroller, constraints);
+		imagePanel.add(assembledImageScroller, constraints);
 		
-		constraints = new GridBagConstraints();
-		constraints.fill = GridBagConstraints.BOTH;
-		constraints.ipadx = constraints.ipady = 2;
-		constraints.gridheight = 2;
-		constraints.gridx = 1;
-		constraints.weightx = 0.5;
-		constraints.weighty = 1;
 		tableModel = new FragmentTableModel();
 		table = new JTable(tableModel);
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.getSelectionModel().addListSelectionListener(new FragmentRedrawSelectionListener());
 		
 		JScrollPane tableScroller = new JScrollPane(table);
-		panel.add(tableScroller, constraints);
-		return panel;
+		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, imagePanel, tableScroller);
+		Dimension minimumImageSize = new Dimension(200, 1);
+		imagePanel.setMinimumSize(minimumImageSize);
+		return splitPane;
 	}
 	
 	private void splitString()
@@ -529,7 +521,8 @@ public class FragmentDisplay
 		public void actionPerformed(ActionEvent e)
 		{
 			// TODO Show a panel here
-			JOptionPane.showMessageDialog(frame, "Would show a 'generate sequence' dialog now");
+			// JOptionPane.showMessageDialog(frame, "Would show a 'generate sequence' dialog now");
+			new SequenceGenerationFrame();
 		}
 	}
 	
