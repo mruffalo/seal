@@ -32,7 +32,6 @@ public class SequenceGenerationFrame extends JFrame
 		
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.weightx = 0.5;
-		gbc.weighty = 0.6;
 		gbc.fill = GridBagConstraints.BOTH;
 		panel.add(getCharactersPanel(), gbc);
 		
