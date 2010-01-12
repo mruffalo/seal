@@ -135,20 +135,7 @@ public class SequenceGenerationFrame extends JFrame
 		generateButtonPanel.setLayout(new BoxLayout(generateButtonPanel, BoxLayout.LINE_AXIS));
 		generateButtonPanel.add(Box.createHorizontalGlue());
 		JButton generateButton = new JButton("Generate");
-		generateButton.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent arg0)
-			{
-				int m = (Integer) mSpinner.getValue();
-				int r = (Integer) rSpinner.getValue();
-				int l = (Integer) lSpinner.getValue();
-				String characters = customCharacters.isEnabled() ? customCharacters.getText()
-						: SequenceGenerator.NUCLEOTIDES;
-				String string = generator.generateSequence(m, r, l, characters);
-				stringField.setText(string);
-			}
-		});
+		generateButton.addActionListener(new GenerateSequenceButtonActionListener(this));
 		generateButtonPanel.add(generateButton);
 		buttonPanel.add(generateButtonPanel);
 		buttonPanel.add(Box.createVerticalGlue());
@@ -177,6 +164,36 @@ public class SequenceGenerationFrame extends JFrame
 		
 		buttonPanel.add(copyButtonPanel);
 		return buttonPanel;
+	}
+	
+	private class GenerateSequenceButtonActionListener implements ActionListener
+	{
+		private final JFrame parent;
+		
+		public GenerateSequenceButtonActionListener(JFrame parent_)
+		{
+			parent = parent_;
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent arg0)
+		{
+			int m = (Integer) mSpinner.getValue();
+			int r = (Integer) rSpinner.getValue();
+			int l = (Integer) lSpinner.getValue();
+			String characters = customCharacters.isEnabled() ? customCharacters.getText()
+					: SequenceGenerator.NUCLEOTIDES;
+			if (characters.length() > 0)
+			{
+				String string = generator.generateSequence(m, r, l, characters);
+				stringField.setText(string);
+			}
+			else
+			{
+				JOptionPane.showMessageDialog(parent, "Can't generate a sequence from an empty set of characters.",
+					"Error", JOptionPane.ERROR_MESSAGE);
+			}
+		}
 	}
 	
 	/**
