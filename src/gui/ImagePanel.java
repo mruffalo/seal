@@ -34,6 +34,7 @@ public class ImagePanel extends JPanel implements Scrollable
 		setLayout(null);
 	}
 	
+	@Override
 	public void paintComponent(Graphics g)
 	{
 		g.drawImage(img, 0, 0, null);

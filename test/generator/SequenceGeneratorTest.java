@@ -2,18 +2,11 @@ package generator;
 
 import java.util.*;
 import static org.junit.Assert.*;
-import org.junit.Before;
 import org.junit.Test;
 import assembly.Fragment;
 
 public class SequenceGeneratorTest
 {
-	
-	@Before
-	public void setUp() throws Exception
-	{
-	}
-	
 	@Test
 	public void testFragmentizeForHybridization()
 	{

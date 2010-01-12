@@ -162,7 +162,7 @@ public class HybridizationSequenceAssembler implements SequenceAssembler
 		
 		protected class Path
 		{
-			
+			// Not yet implemented
 		}
 	}
 }
