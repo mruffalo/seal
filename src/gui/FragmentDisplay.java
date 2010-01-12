@@ -170,8 +170,7 @@ public class FragmentDisplay
 		gbc.weightx = 1;
 		gbc.gridwidth = 3;
 		gbc.gridy = 1;
-		stringField = new JTextField(
-			"vp8yp7894hp;ob7p985u6p;o34ig;oris;hvh7100*OYglicg7isdgvP(S&DGF:Kjh;kv83hawas5rf2$AD!)%8;oij45oc78GCG^*Aptin3;oFO*Tlivb;ou;34o58H{}GTDA%2o8ffd67gA");
+		stringField = new JTextField();
 		panel.add(stringField, gbc);
 		
 		gbc = new GridBagConstraints();
@@ -423,8 +422,16 @@ public class FragmentDisplay
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
-			splitString();
-			assembleFragments();
+			if (stringField.getText().length() > 0)
+			{
+				splitString();
+				assembleFragments();
+			}
+			else
+			{
+				JOptionPane.showMessageDialog(frame, "Can't split/assemble an empty string.", "Error",
+					JOptionPane.ERROR_MESSAGE);
+			}
 		}
 	}
 	
