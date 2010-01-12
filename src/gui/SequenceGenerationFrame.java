@@ -14,11 +14,13 @@ public class SequenceGenerationFrame extends JFrame
 	 */
 	private static final long serialVersionUID = 2041048037575448527L;
 	
+	private final FragmentDisplay fragmentDisplay;
 	private JPanel panel;
-	private JTextField field;
 	
-	public SequenceGenerationFrame()
+	public SequenceGenerationFrame(FragmentDisplay fragmentDisplay_)
 	{
+		fragmentDisplay = fragmentDisplay_;
+		setTitle("Sequence Generator");
 		panel = new JPanel(new GridBagLayout());
 		
 		GridBagConstraints gbc = new GridBagConstraints();
@@ -29,27 +31,31 @@ public class SequenceGenerationFrame extends JFrame
 		gbc.gridx = 1;
 		panel.add(getSettingsPanel(), gbc);
 		
-		ButtonGroup group = new ButtonGroup();
-		List<JRadioButton> buttons = new ArrayList<JRadioButton>();
-		final int buttonCount = 4;
-		for (int i = 0; i < buttonCount; i++)
-		{
-			buttons.add(new JRadioButton(Integer.toString(i)));
-		}
-		
 		JPanel buttonPanel = new JPanel();
-		field = new JTextField();
-		field.setMinimumSize(new Dimension(200, 1));
-		field.setSize(new Dimension(200, 10));
-		field.setText("test");
-		buttonPanel.add(field);
-		
-		for (JRadioButton button : buttons)
+		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.LINE_AXIS));
+		buttonPanel.add(Box.createHorizontalGlue());
+		JButton generateButton = new JButton("Generate");
+		generateButton.addActionListener(new ActionListener()
 		{
-			group.add(button);
-			buttonPanel.add(button);
-			button.addActionListener(new SetTextActionListener(button.getText()));
-		}
+			@Override
+			public void actionPerformed(ActionEvent arg0)
+			{
+				// TODO Auto-generated method stub
+			}
+		});
+		buttonPanel.add(generateButton);
+		buttonPanel.add(Box.createRigidArea(new Dimension(10, 0)));
+		JButton copyButton = new JButton("Copy to Fragment Display GUI");
+		copyButton.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent arg0)
+			{
+				// TODO Auto-generated method stub
+			}
+		});
+		copyButton.setEnabled(fragmentDisplay != null);
+		buttonPanel.add(copyButton);
 		
 		gbc = new GridBagConstraints();
 		gbc.gridy = 1;
@@ -105,8 +111,8 @@ public class SequenceGenerationFrame extends JFrame
 		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
 		panel.setBorder(BorderFactory.createTitledBorder("Settings"));
 		
-		JLabel nLabel = new JLabel("String Length");
-		panel.add(nLabel);
+		JLabel mLabel = new JLabel("String Length");
+		panel.add(mLabel);
 		
 		SpinnerNumberModel mModel = new SpinnerNumberModel();
 		mModel.setMinimum(1);
@@ -135,22 +141,6 @@ public class SequenceGenerationFrame extends JFrame
 		return panel;
 	}
 	
-	private class SetTextActionListener implements ActionListener
-	{
-		private final String string;
-		
-		public SetTextActionListener(String string_)
-		{
-			string = string_;
-		}
-		
-		@Override
-		public void actionPerformed(ActionEvent e)
-		{
-			field.setText(string);
-		}
-	}
-	
 	/**
 	 * Temporary
 	 * 
@@ -158,7 +148,7 @@ public class SequenceGenerationFrame extends JFrame
 	 */
 	public static void main(String[] args)
 	{
-		JFrame frame = new SequenceGenerationFrame();
+		JFrame frame = new SequenceGenerationFrame(null);
 		frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
 	}
 }

@@ -117,7 +117,7 @@ public class FragmentDisplay
 		item.addActionListener(new OpenSequenceActionListener());
 		menu.add(item);
 		item = new JMenuItem("Generate...");
-		item.addActionListener(new GenerateFragmentsActionListener());
+		item.addActionListener(new GenerateFragmentsActionListener(this));
 		menu.add(item);
 		item = new JMenuItem("Export...");
 		item.addActionListener(new SaveSequenceActionListener());
@@ -277,6 +277,12 @@ public class FragmentDisplay
 		return splitPane;
 	}
 	
+	private void setString(String string)
+	{
+		stringField.setText(string);
+		// TODO: Maybe clear fragments
+	}
+	
 	private void splitString()
 	{
 		n = (Integer) nSpinner.getValue();
@@ -429,7 +435,7 @@ public class FragmentDisplay
 				File file = fc.getSelectedFile();
 				try
 				{
-					stringField.setText(FastaHandler.getSequence(file));
+					setString(FastaHandler.getSequence(file));
 				}
 				catch (IOException e)
 				{
@@ -515,14 +521,24 @@ public class FragmentDisplay
 		}
 	}
 	
-	private class GenerateFragmentsActionListener implements ActionListener
+	private static class GenerateFragmentsActionListener implements ActionListener
 	{
+		/**
+		 * TODO: Improve handling/passing of this reference
+		 */
+		private final FragmentDisplay fragmentDisplay;
+		
+		public GenerateFragmentsActionListener(FragmentDisplay fragmentDisplay_)
+		{
+			fragmentDisplay = fragmentDisplay_;
+		}
+		
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
 			// TODO Show a panel here
 			// JOptionPane.showMessageDialog(frame, "Would show a 'generate sequence' dialog now");
-			new SequenceGenerationFrame();
+			new SequenceGenerationFrame(fragmentDisplay);
 		}
 	}
 	
