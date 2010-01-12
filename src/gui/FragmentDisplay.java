@@ -43,7 +43,7 @@ public class FragmentDisplay
 		}
 	}
 	
-	private JFrame frame;
+	JFrame frame;
 	private JTable table;
 	private FragmentTableModel tableModel;
 	private ImagePanel origImagePanel;
@@ -277,10 +277,15 @@ public class FragmentDisplay
 		return splitPane;
 	}
 	
-	private void setString(String string)
+	/**
+	 * XXX: This probably needs to be synchronized
+	 * 
+	 * @param string
+	 */
+	public void setString(String string)
 	{
 		stringField.setText(string);
-		// TODO: Maybe clear fragments
+		// TODO: Maybe clear fragments like splitString() does
 	}
 	
 	private void splitString()

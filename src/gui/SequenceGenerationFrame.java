@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import generator.*;
 
 public class SequenceGenerationFrame extends JFrame
 {
@@ -15,13 +16,19 @@ public class SequenceGenerationFrame extends JFrame
 	private static final long serialVersionUID = 2041048037575448527L;
 	
 	private final FragmentDisplay fragmentDisplay;
-	private JPanel panel;
+	private JTextField stringField;
+	private JSpinner mSpinner;
+	private JSpinner rSpinner;
+	private JSpinner lSpinner;
+	private SequenceGenerator generator;
 	
 	public SequenceGenerationFrame(FragmentDisplay fragmentDisplay_)
 	{
 		fragmentDisplay = fragmentDisplay_;
+		generator = new SeqGenSingleSequenceMultipleRepeats();
+		
 		setTitle("Sequence Generator");
-		panel = new JPanel(new GridBagLayout());
+		JPanel panel = new JPanel(new GridBagLayout());
 		
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.weightx = 0.5;
@@ -31,39 +38,17 @@ public class SequenceGenerationFrame extends JFrame
 		gbc.gridx = 1;
 		panel.add(getSettingsPanel(), gbc);
 		
-		JPanel buttonPanel = new JPanel();
-		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.LINE_AXIS));
-		buttonPanel.add(Box.createHorizontalGlue());
-		JButton generateButton = new JButton("Generate");
-		generateButton.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent arg0)
-			{
-				// TODO Auto-generated method stub
-			}
-		});
-		buttonPanel.add(generateButton);
-		buttonPanel.add(Box.createRigidArea(new Dimension(10, 0)));
-		JButton copyButton = new JButton("Copy to Fragment Display GUI");
-		copyButton.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent arg0)
-			{
-				// TODO Auto-generated method stub
-			}
-		});
-		copyButton.setEnabled(fragmentDisplay != null);
-		buttonPanel.add(copyButton);
-		
 		gbc = new GridBagConstraints();
 		gbc.gridy = 1;
 		gbc.gridwidth = 2;
 		gbc.fill = GridBagConstraints.BOTH;
-		panel.add(buttonPanel, gbc);
+		panel.add(getButtonPanel(), gbc);
 		
 		this.add(panel);
+		if (fragmentDisplay != null)
+		{
+			this.setLocationRelativeTo(fragmentDisplay.frame);
+		}
 		this.pack();
 		this.setVisible(true);
 	}
@@ -117,7 +102,7 @@ public class SequenceGenerationFrame extends JFrame
 		SpinnerNumberModel mModel = new SpinnerNumberModel();
 		mModel.setMinimum(1);
 		mModel.setValue(50);
-		JSpinner mSpinner = new JSpinner(mModel);
+		mSpinner = new JSpinner(mModel);
 		panel.add(mSpinner);
 		
 		JLabel rLabel = new JLabel("Repeat Count");
@@ -126,7 +111,7 @@ public class SequenceGenerationFrame extends JFrame
 		SpinnerNumberModel rModel = new SpinnerNumberModel();
 		rModel.setMinimum(1);
 		rModel.setValue(2);
-		JSpinner rSpinner = new JSpinner(rModel);
+		rSpinner = new JSpinner(rModel);
 		panel.add(rSpinner);
 		
 		JLabel lLabel = new JLabel("Repeat Length");
@@ -135,10 +120,59 @@ public class SequenceGenerationFrame extends JFrame
 		SpinnerNumberModel lModel = new SpinnerNumberModel();
 		lModel.setMinimum(1);
 		lModel.setValue(5);
-		JSpinner lSpinner = new JSpinner(lModel);
+		lSpinner = new JSpinner(lModel);
 		panel.add(lSpinner);
 		
 		return panel;
+	}
+	
+	public JComponent getButtonPanel()
+	{
+		JPanel buttonPanel = new JPanel();
+		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.PAGE_AXIS));
+		
+		JPanel generateButtonPanel = new JPanel();
+		generateButtonPanel.setLayout(new BoxLayout(generateButtonPanel, BoxLayout.LINE_AXIS));
+		generateButtonPanel.add(Box.createHorizontalGlue());
+		JButton generateButton = new JButton("Generate");
+		generateButton.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent arg0)
+			{
+				int m = (Integer) mSpinner.getValue();
+				int r = (Integer) rSpinner.getValue();
+				int l = (Integer) lSpinner.getValue();
+				String string = generator.generateSequence(m, r, l);
+				stringField.setText(string);
+			}
+		});
+		generateButtonPanel.add(generateButton);
+		buttonPanel.add(generateButtonPanel);
+		
+		JPanel textPanel = new JPanel();
+		textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.LINE_AXIS));
+		stringField = new JTextField();
+		textPanel.add(stringField);
+		buttonPanel.add(textPanel);
+		
+		JPanel copyButtonPanel = new JPanel();
+		copyButtonPanel.setLayout(new BoxLayout(copyButtonPanel, BoxLayout.LINE_AXIS));
+		copyButtonPanel.add(Box.createHorizontalGlue());
+		JButton copyButton = new JButton("Copy to Fragment Display GUI");
+		copyButton.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent arg0)
+			{
+				fragmentDisplay.setString(stringField.getText());
+			}
+		});
+		copyButton.setEnabled(fragmentDisplay != null);
+		copyButtonPanel.add(copyButton);
+		
+		buttonPanel.add(copyButtonPanel);
+		return buttonPanel;
 	}
 	
 	/**

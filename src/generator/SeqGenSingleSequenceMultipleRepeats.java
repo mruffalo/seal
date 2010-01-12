@@ -5,7 +5,6 @@ import java.util.Random;
 
 public class SeqGenSingleSequenceMultipleRepeats extends SequenceGenerator
 {
-	
 	@Override
 	public String generateSequence(int m, int r, int l)
 	{
