@@ -14,7 +14,7 @@ public class SequenceGenerationFrame extends JFrame
 	private static final long serialVersionUID = 2041048037575448527L;
 	
 	private final FragmentDisplay fragmentDisplay;
-	private JTextField stringField;
+	private JTextField stringArea;
 	private JSpinner mSpinner;
 	private JSpinner rSpinner;
 	private JSpinner lSpinner;
@@ -32,6 +32,7 @@ public class SequenceGenerationFrame extends JFrame
 		
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.weightx = 0.5;
+		gbc.weighty = 0.6;
 		gbc.fill = GridBagConstraints.BOTH;
 		panel.add(getCharactersPanel(), gbc);
 		
@@ -41,6 +42,7 @@ public class SequenceGenerationFrame extends JFrame
 		gbc = new GridBagConstraints();
 		gbc.gridy = 1;
 		gbc.gridwidth = 2;
+		gbc.weighty = 0.4;
 		gbc.fill = GridBagConstraints.BOTH;
 		panel.add(getButtonPanel(), gbc);
 		
@@ -142,8 +144,8 @@ public class SequenceGenerationFrame extends JFrame
 		
 		JPanel textPanel = new JPanel();
 		textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.LINE_AXIS));
-		stringField = new JTextField();
-		textPanel.add(stringField);
+		stringArea = new JTextField();
+		textPanel.add(stringArea);
 		buttonPanel.add(textPanel);
 		buttonPanel.add(Box.createVerticalGlue());
 		
@@ -156,7 +158,7 @@ public class SequenceGenerationFrame extends JFrame
 			@Override
 			public void actionPerformed(ActionEvent arg0)
 			{
-				fragmentDisplay.setString(stringField.getText());
+				fragmentDisplay.setString(stringArea.getText());
 			}
 		});
 		copyButton.setEnabled(fragmentDisplay != null);
@@ -186,7 +188,7 @@ public class SequenceGenerationFrame extends JFrame
 			if (characters.length() > 0)
 			{
 				String string = generator.generateSequence(m, r, l, characters);
-				stringField.setText(string);
+				stringArea.setText(string);
 			}
 			else
 			{
