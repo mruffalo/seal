@@ -2,8 +2,6 @@ package gui;
 
 import java.awt.*;
 import javax.swing.*;
-import java.util.List;
-import java.util.ArrayList;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import generator.*;
@@ -20,6 +18,8 @@ public class SequenceGenerationFrame extends JFrame
 	private JSpinner mSpinner;
 	private JSpinner rSpinner;
 	private JSpinner lSpinner;
+	private JRadioButton customButton;
+	private JTextField customCharacters;
 	private SequenceGenerator generator;
 	
 	public SequenceGenerationFrame(FragmentDisplay fragmentDisplay_)
@@ -56,13 +56,13 @@ public class SequenceGenerationFrame extends JFrame
 	public JComponent getCharactersPanel()
 	{
 		JPanel panel = new JPanel();
-		final JTextField customCharacters = new JTextField();
+		customCharacters = new JTextField();
 		customCharacters.setEnabled(false);
 		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
 		panel.setBorder(BorderFactory.createTitledBorder("Characters"));
 		ButtonGroup group = new ButtonGroup();
-		
 		JRadioButton nucleotides = new JRadioButton("Nucleotides (ACGT)");
+		nucleotides.setSelected(true);
 		nucleotides.addActionListener(new ActionListener()
 		{
 			@Override
@@ -74,8 +74,8 @@ public class SequenceGenerationFrame extends JFrame
 		group.add(nucleotides);
 		panel.add(nucleotides);
 		
-		final JRadioButton custom = new JRadioButton("Custom:");
-		custom.addActionListener(new ActionListener()
+		customButton = new JRadioButton("Custom:");
+		customButton.addActionListener(new ActionListener()
 		{
 			@Override
 			public void actionPerformed(ActionEvent arg0)
@@ -83,8 +83,8 @@ public class SequenceGenerationFrame extends JFrame
 				customCharacters.setEnabled(true);
 			}
 		});
-		group.add(custom);
-		panel.add(custom);
+		group.add(customButton);
+		panel.add(customButton);
 		
 		panel.add(customCharacters);
 		return panel;
@@ -143,18 +143,22 @@ public class SequenceGenerationFrame extends JFrame
 				int m = (Integer) mSpinner.getValue();
 				int r = (Integer) rSpinner.getValue();
 				int l = (Integer) lSpinner.getValue();
-				String string = generator.generateSequence(m, r, l);
+				String characters = customCharacters.isEnabled() ? customCharacters.getText()
+						: SequenceGenerator.NUCLEOTIDES;
+				String string = generator.generateSequence(m, r, l, characters);
 				stringField.setText(string);
 			}
 		});
 		generateButtonPanel.add(generateButton);
 		buttonPanel.add(generateButtonPanel);
+		buttonPanel.add(Box.createVerticalGlue());
 		
 		JPanel textPanel = new JPanel();
 		textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.LINE_AXIS));
 		stringField = new JTextField();
 		textPanel.add(stringField);
 		buttonPanel.add(textPanel);
+		buttonPanel.add(Box.createVerticalGlue());
 		
 		JPanel copyButtonPanel = new JPanel();
 		copyButtonPanel.setLayout(new BoxLayout(copyButtonPanel, BoxLayout.LINE_AXIS));

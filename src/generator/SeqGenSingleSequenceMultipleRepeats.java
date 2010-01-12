@@ -6,9 +6,9 @@ import java.util.Random;
 public class SeqGenSingleSequenceMultipleRepeats extends SequenceGenerator
 {
 	@Override
-	public String generateSequence(int m, int r, int l)
+	public String generateSequence(int m, int r, int l, String characters)
 	{
-		String repeatedSequence = generateSequence(SequenceGenerator.NUCLEOTIDES, l);
+		String repeatedSequence = generateSequence(characters, l);
 		Random random = new Random();
 		StringBuilder sb = new StringBuilder(m);
 		int[] repeatedSequenceIndices = new int[r];
@@ -20,7 +20,7 @@ public class SeqGenSingleSequenceMultipleRepeats extends SequenceGenerator
 				repeatedSequenceIndices[i] = random.nextInt(nonRepeatedLength);
 			}
 			Arrays.sort(repeatedSequenceIndices);
-			sb.append(generateSequence(SequenceGenerator.NUCLEOTIDES, nonRepeatedLength));
+			sb.append(generateSequence(characters, nonRepeatedLength));
 		}
 		int repeatStart = 0;
 		for (int i = 0; i < r; i++)

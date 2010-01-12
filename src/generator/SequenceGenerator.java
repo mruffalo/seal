@@ -42,5 +42,19 @@ public abstract class SequenceGenerator
 	 *            length of repeats
 	 * @return
 	 */
-	public abstract String generateSequence(int m, int r, int l);
+	public String generateSequence(int m, int r, int l)
+	{
+		return generateSequence(m, r, l, SequenceGenerator.NUCLEOTIDES);
+	}
+	
+	/**
+	 * @param m
+	 *            length of sequence
+	 * @param r
+	 *            number of repeats
+	 * @param l
+	 *            length of repeats
+	 * @return
+	 */
+	public abstract String generateSequence(int m, int r, int l, String characters);
 }
