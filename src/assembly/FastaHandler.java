@@ -177,19 +177,21 @@ public class FastaHandler
 			for (Fragment fragment : fragments)
 			{
 				output.write(String.format(">FRAGMENT_%d%n", i++));
-				output.write(fragment.string);
-				output.write(",");
+				StringBuilder sb = new StringBuilder();
+				sb.append(fragment.string);
+				sb.append(",");
 				Integer origPos = fragment.getPosition(FragmentPositionSource.ORIGINAL_SEQUENCE);
 				if (origPos != null)
 				{
-					output.write(origPos);
+					sb.append(origPos);
 				}
-				output.write(",");
+				sb.append(",");
 				Integer assembledPos = fragment.getPosition(FragmentPositionSource.ASSEMBLED_SEQUENCE);
 				if (assembledPos != null)
 				{
-					output.write(assembledPos);
+					sb.append(assembledPos);
 				}
+				output.write(sb.toString());
 				output.write(String.format("%n"));
 			}
 		}
