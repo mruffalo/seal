@@ -319,7 +319,7 @@ public class FragmentDisplay
 	}
 	
 	/**
-	 * XXX: Temporary
+	 * Temporary
 	 */
 	private static void printFragmentGraph(String string, List<List<Fragment>> grouped, FragmentPositionSource source)
 	{
@@ -493,7 +493,6 @@ public class FragmentDisplay
 				File file = fc.getSelectedFile();
 				try
 				{
-					// TODO: Make this a delimited file instead of using FastaHandler
 					FastaHandler.writeFragmentsWithPositions(fragments, file);
 				}
 				catch (IOException e)
@@ -548,8 +547,6 @@ public class FragmentDisplay
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
-			// TODO Show a panel here
-			// JOptionPane.showMessageDialog(frame, "Would show a 'generate sequence' dialog now");
 			new SequenceGenerationFrame(fragmentDisplay);
 		}
 	}
@@ -564,8 +561,6 @@ public class FragmentDisplay
 	}
 	
 	/**
-	 * XXX: Temporary
-	 * 
 	 * @param args
 	 */
 	public static void main(String[] args)
