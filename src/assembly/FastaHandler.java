@@ -7,6 +7,13 @@ public class FastaHandler
 {
 	public static final String FIELD_SEPARATOR = ",";
 	
+	/**
+	 * Does not actually operate on FASTA files due to position annotation
+	 * 
+	 * @param file
+	 * @return
+	 * @throws IOException
+	 */
 	public static List<Fragment> getFragmentsWithPositions(File file) throws IOException
 	{
 		BufferedReader input = null;
@@ -14,41 +21,32 @@ public class FastaHandler
 		try
 		{
 			String line;
-			StringBuilder sb = null;
 			input = new BufferedReader(new FileReader(file));
 			while ((line = input.readLine()) != null)
 			{
-				if (line.startsWith(">"))
+				if (!line.startsWith(">"))
 				{
-					if (sb != null)
+					String[] pieces = line.split(FastaHandler.FIELD_SEPARATOR);
+					Fragment f = new Fragment(pieces[0]);
+					try
 					{
-						String lines = sb.toString();
-						String[] pieces = lines.split(FastaHandler.FIELD_SEPARATOR);
-						Fragment f = new Fragment(pieces[0]);
-						try
-						{
-							Integer origPos = Integer.parseInt(pieces[1]);
-							f.setPosition(FragmentPositionSource.ORIGINAL_SEQUENCE, origPos);
-						}
-						catch (NumberFormatException e)
-						{
-							// don't care
-						}
-						try
-						{
-							Integer assembledPos = Integer.parseInt(pieces[2]);
-							f.setPosition(FragmentPositionSource.ASSEMBLED_SEQUENCE, assembledPos);
-						}
-						catch (NumberFormatException e)
-						{
-							// don't care
-						}
+						Integer origPos = Integer.parseInt(pieces[1]);
+						f.setPosition(FragmentPositionSource.ORIGINAL_SEQUENCE, origPos);
 					}
-					sb = new StringBuilder();
-				}
-				else
-				{
-					sb.append(line.trim());
+					catch (NumberFormatException e)
+					{
+						// don't care
+					}
+					try
+					{
+						Integer assembledPos = Integer.parseInt(pieces[2]);
+						f.setPosition(FragmentPositionSource.ASSEMBLED_SEQUENCE, assembledPos);
+					}
+					catch (NumberFormatException e)
+					{
+						// don't care
+					}
+					list.add(f);
 				}
 			}
 		}
@@ -171,7 +169,7 @@ public class FastaHandler
 		{
 			output = new BufferedWriter(new FileWriter(file));
 			output.write(String.format(">Data format:%n"));
-			output.write(String.format(">fragment%soriginal_position:%sassembled_position%n", FIELD_SEPARATOR,
+			output.write(String.format(">fragment%soriginal_position%sassembled_position%n", FIELD_SEPARATOR,
 				FIELD_SEPARATOR));
 			int i = 0;
 			for (Fragment fragment : fragments)

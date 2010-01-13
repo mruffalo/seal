@@ -516,7 +516,6 @@ public class FragmentDisplay
 				File file = fc.getSelectedFile();
 				try
 				{
-					fragments = new ArrayList<Fragment>(Fragmentizer.removeSubstrings(FastaHandler.getFragments(file)));
 					origString = "";
 					fragments = new ArrayList<Fragment>(
 						Fragmentizer.removeSubstrings(FastaHandler.getFragmentsWithPositions(file)));
