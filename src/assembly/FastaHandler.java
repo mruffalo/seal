@@ -28,23 +28,29 @@ public class FastaHandler
 				{
 					String[] pieces = line.split(FastaHandler.FIELD_SEPARATOR);
 					Fragment f = new Fragment(pieces[0]);
-					try
+					if (pieces.length > 1)
 					{
-						Integer origPos = Integer.parseInt(pieces[1]);
-						f.setPosition(FragmentPositionSource.ORIGINAL_SEQUENCE, origPos);
-					}
-					catch (NumberFormatException e)
-					{
-						// don't care
-					}
-					try
-					{
-						Integer assembledPos = Integer.parseInt(pieces[2]);
-						f.setPosition(FragmentPositionSource.ASSEMBLED_SEQUENCE, assembledPos);
-					}
-					catch (NumberFormatException e)
-					{
-						// don't care
+						try
+						{
+							Integer origPos = Integer.parseInt(pieces[1]);
+							f.setPosition(FragmentPositionSource.ORIGINAL_SEQUENCE, origPos);
+						}
+						catch (NumberFormatException e)
+						{
+							// don't care
+						}
+						if (pieces.length > 2)
+						{
+							try
+							{
+								Integer assembledPos = Integer.parseInt(pieces[2]);
+								f.setPosition(FragmentPositionSource.ASSEMBLED_SEQUENCE, assembledPos);
+							}
+							catch (NumberFormatException e)
+							{
+								// don't care
+							}
+						}
 					}
 					list.add(f);
 				}
