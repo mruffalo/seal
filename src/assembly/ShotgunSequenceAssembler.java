@@ -308,15 +308,25 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 			public String assembleString()
 			{
 				StringBuilder sb = new StringBuilder();
+				// Special case for no edges
+				if (getPathEdgeCount() == 0)
+				{
+					for (Vertex v : vertices.values())
+					{
+						disconnectedPathParents.add(v);
+					}
+				}
 				for (Vertex v : disconnectedPathParents)
 				{
-					/*
-					 * FIXME: Sometimes positions are not assigned. Implementing saving/loading
-					 * fragments in the GUI will really help in debugging this.
-					 */
 					int position = sb.length();
 					Edge e = vertexEdgeMap.get(v);
-					if (e != null)
+					if (e == null)
+					{
+						sb.append(v.fragment.string);
+						v.fragment.setPosition(FragmentPositionSource.ASSEMBLED_SEQUENCE, position);
+						position += v.fragment.string.length();
+					}
+					else
 					{
 						e.from.fragment.setPosition(FragmentPositionSource.ASSEMBLED_SEQUENCE, position);
 						sb.append(e.from.fragment.string);

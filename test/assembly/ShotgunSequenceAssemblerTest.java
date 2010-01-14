@@ -24,6 +24,12 @@ public class ShotgunSequenceAssemblerTest
 	private final String[] disconnectedStrings = { "AABB", "BBCC", "XXYY", "YYZZ" };
 	private List<Fragment> disconnectedList;
 	
+	/**
+	 * AA + BB + CC + DD
+	 */
+	private final String[] disjointStrings = { "AA", "BB", "CC", "DD" };
+	private List<Fragment> disjointList;
+	
 	@Before
 	public void setUp()
 	{
@@ -39,6 +45,12 @@ public class ShotgunSequenceAssemblerTest
 			temp.add(new Fragment(string));
 		}
 		disconnectedList = Collections.unmodifiableList(temp);
+		temp = new LinkedList<Fragment>();
+		for (String string : disjointStrings)
+		{
+			temp.add(new Fragment(string));
+		}
+		disjointList = Collections.unmodifiableList(temp);
 	}
 	
 	@Test
@@ -77,6 +89,12 @@ public class ShotgunSequenceAssemblerTest
 	public void testPrintDisconnectedSequence()
 	{
 		testAndPrintAssembly(disconnectedList);
+	}
+	
+	@Test
+	public void testPrintDisjointSequence()
+	{
+		testAndPrintAssembly(disjointList);
 	}
 	
 	public void testAndPrintAssembly(List<Fragment> list)

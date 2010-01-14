@@ -42,6 +42,15 @@ public class Fragment
 			return false;
 		}
 		Fragment that = (Fragment) o;
+		if (string == null)
+		{
+			return that.string == null;
+		}
+		return string.equals(that.string);
+	}
+	
+	public boolean equalsWithPositions(Fragment that)
+	{
 		if (!string.equals(that.string))
 		{
 			return false;

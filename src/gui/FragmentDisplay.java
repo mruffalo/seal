@@ -517,8 +517,8 @@ public class FragmentDisplay
 				try
 				{
 					origString = "";
-					fragments = new ArrayList<Fragment>(
-						Fragmentizer.removeSubstrings(FastaHandler.getFragmentsWithPositions(file)));
+					List<Fragment> rawFragments = FastaHandler.getFragmentsWithPositions(file);
+					fragments = new ArrayList<Fragment>(Fragmentizer.removeSubstrings(rawFragments));
 					Collections.sort(fragments, new FragmentComparator());
 					assembleFragments();
 				}
