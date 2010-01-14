@@ -24,10 +24,10 @@ public class SequenceGenerationFrame extends JFrame
 	
 	public SequenceGenerationFrame(FragmentDisplay fragmentDisplay_)
 	{
+		super("Sequence Generator");
 		fragmentDisplay = fragmentDisplay_;
 		generator = new SeqGenSingleSequenceMultipleRepeats();
 		
-		setTitle("Sequence Generator");
 		JPanel panel = new JPanel(new GridBagLayout());
 		
 		GridBagConstraints gbc = new GridBagConstraints();
