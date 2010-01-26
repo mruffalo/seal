@@ -1,6 +1,7 @@
 import generator.Fragmentizer;
 import java.io.*;
 import java.util.*;
+import utils.LicenseUtil;
 import assembly.*;
 
 public class ShotgunAssemblyFromFastaFile
@@ -11,6 +12,7 @@ public class ShotgunAssemblyFromFastaFile
 	 */
 	public static void main(String[] args)
 	{
+		LicenseUtil.printLicense();
 		if (args.length < 2)
 		{
 			System.err.printf("Usage: %s FastaFileContainingFragments OutputFastaFile%n",
