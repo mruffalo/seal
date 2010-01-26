@@ -65,6 +65,7 @@
 		<antcall target="clean"/>
 		<antcall target="build"/>
 		<mkdir dir="${distrib}"/>
+		<copy file="${version.properties.file}" todir="${build}/utils"/>
 		<jar destfile="${distrib}/${project.name}.jar" basedir="${build}" manifest="${manifest.file}"/>
 	</target>
 </project>
