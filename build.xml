@@ -1,10 +1,14 @@
 <project name="fragment-assembly" default="build" basedir=".">
 	<!-- set global properties for this build -->
 	<property name="project.name" value="fragment-assembly"/>
+	<property name="project.description" value="Fragment Assembly GUI"/>
 	<property name="src" location="src" />
 	<property name="build" location="build" />
 	<property name="distrib" location="distrib"/>
-	<property name="main-class" value="gui.FragmentDisplay"/>
+	<property name="manifest.template" location="${src}/manifest.template"/>
+	<property name="manifest.file" location="${src}/MANIFEST.MF"/>
+	<property name="version.properties.file" location="${src}/utils/version.properties"/>
+	<property name="main.class" value="gui.FragmentDisplay"/>
 
 	<target name="init">
 		<!-- Create the time stamp -->
@@ -41,15 +45,26 @@
 		<echo message="HEAD revision: ${head.revision}"/>
 	</target>
 
-	<target name="jar" description="create jar file" depends="git-rev-parse">
+	<target name="get-version">
+		<loadproperties>
+			<file file="${version.properties.file}"/>
+		</loadproperties>
+		<echo message="Software version ${software.version}"/>
+	</target>
+
+	<target name="generate-manifest" depends="git-rev-parse, get-version">
+		<copy file="${manifest.template}" tofile="${manifest.file}" overwrite="true"/>
+		<replace file="${manifest.file}" token="!!MAIN_CLASS!!" value="${main.class}"/>
+		<replace file="${manifest.file}" token="!!HEAD_REVISION!!" value="${head.revision}"/>
+		<replace file="${manifest.file}" token="!!VERSION_NUMBER!!" value="${software.version}"/>
+		<replace file="${manifest.file}" token="!!PROJECT_DESCRIPTION!!" value="${project.description}"/>
+		<replace file="${manifest.file}" token="!!PROJECT_NAME!!" value="${project.name}"/>
+	</target>
+
+	<target name="jar" description="create jar file" depends="generate-manifest">
 		<antcall target="clean"/>
 		<antcall target="build"/>
 		<mkdir dir="${distrib}"/>
-		<jar destfile="${distrib}/${project.name}.jar" basedir="${build}">
-		<manifest>
-			<attribute name="Main-Class" value="${main-class}"/>
-			<attribute name="Implementation-Version" value="${head.revision}"/>
-		</manifest>
-		</jar>
+		<jar destfile="${distrib}/${project.name}.jar" basedir="${build}" manifest="${manifest.file}"/>
 	</target>
 </project>

@@ -1,0 +1,5 @@
+Main-Class: !!MAIN_CLASS!!
+Specification-Title: !!PROJECT_DESCRIPTION!!
+Specification-Version: !!VERSION_NUMBER!!
+Implementation-Title: !!PROJECT_NAME!!
+Implementation-Version: !!HEAD_REVISION!!
