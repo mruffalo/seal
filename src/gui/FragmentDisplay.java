@@ -142,7 +142,8 @@ public class FragmentDisplay
 		bar.add(menu);
 		
 		menu = new JMenu("Help");
-		item = new JMenuItem("About");
+		item = new JMenuItem("About...");
+		item.addActionListener(new AboutBoxActionListener(this));
 		menu.add(item);
 		bar.add(menu);
 		
@@ -547,6 +548,25 @@ public class FragmentDisplay
 		public void actionPerformed(ActionEvent e)
 		{
 			new SequenceGenerationFrame(fragmentDisplay);
+		}
+	}
+	
+	private static class AboutBoxActionListener implements ActionListener
+	{
+		/**
+		 * TODO: Improve handling/passing of this reference
+		 */
+		private final FragmentDisplay fragmentDisplay;
+		
+		public AboutBoxActionListener(FragmentDisplay fragmentDisplay_)
+		{
+			fragmentDisplay = fragmentDisplay_;
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			new AboutFrame(fragmentDisplay);
 		}
 	}
 	
