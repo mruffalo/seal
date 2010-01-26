@@ -136,11 +136,6 @@ public class FragmentDisplay
 		menu.add(item);
 		bar.add(menu);
 		
-		menu = new JMenu("Settings");
-		item = new JMenuItem("Configure Fragment Display...");
-		menu.add(item);
-		bar.add(menu);
-		
 		menu = new JMenu("Help");
 		item = new JMenuItem("About...");
 		item.addActionListener(new AboutBoxActionListener(this));
