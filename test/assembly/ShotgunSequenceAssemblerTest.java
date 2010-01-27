@@ -30,6 +30,9 @@ public class ShotgunSequenceAssemblerTest
 	private final String[] disjointStrings = { "AA", "BB", "CC", "DD" };
 	private List<Fragment> disjointList;
 	
+	private final String[] badStrings = { "AAGGGGTATT", "ACACATTACG", "ATGACGGGTA", "CATTACGTGA", "CGGCAAACGT" };
+	private List<Fragment> badList;
+	
 	@Before
 	public void setUp()
 	{
@@ -51,6 +54,12 @@ public class ShotgunSequenceAssemblerTest
 			temp.add(new Fragment(string));
 		}
 		disjointList = Collections.unmodifiableList(temp);
+		temp = new LinkedList<Fragment>();
+		for (String string : badStrings)
+		{
+			temp.add(new Fragment(string));
+		}
+		badList = Collections.unmodifiableList(temp);
 	}
 	
 	@Test
@@ -95,6 +104,12 @@ public class ShotgunSequenceAssemblerTest
 	public void testPrintDisjointSequence()
 	{
 		testAndPrintAssembly(disjointList);
+	}
+	
+	@Test
+	public void testPrintBadSequence()
+	{
+		testAndPrintAssembly(badList);
 	}
 	
 	public void testAndPrintAssembly(List<Fragment> list)
