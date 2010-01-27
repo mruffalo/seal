@@ -30,10 +30,6 @@ public class Fragment
 		return string.hashCode();
 	}
 	
-	/**
-	 * <code>equals()</code> can be more strict than <code>hashCode()</code> without violating the
-	 * contract of these two methods. TODO: Examine this more thoroughly
-	 */
 	@Override
 	public boolean equals(Object o)
 	{
