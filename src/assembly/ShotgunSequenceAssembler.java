@@ -295,7 +295,7 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 			 * If this path is connected, this Set contains only one Vertex. Otherwise, the
 			 * assembled String is obtained by concatenating the paths starting at each Vertex here.
 			 */
-			private Set<Vertex> disconnectedPathParents = new HashSet<Vertex>(vertices.size());
+			private Set<Vertex> disconnectedPathParents = new HashSet<Vertex>(vertices.values());
 			
 			/**
 			 * Creates a String from the path (sequence of edges) contained in this object. This
@@ -308,14 +308,6 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 			public String assembleString()
 			{
 				StringBuilder sb = new StringBuilder();
-				// Special case for no edges
-				if (getPathEdgeCount() == 0)
-				{
-					for (Vertex v : vertices.values())
-					{
-						disconnectedPathParents.add(v);
-					}
-				}
 				for (Vertex v : disconnectedPathParents)
 				{
 					int position = sb.length();
@@ -400,7 +392,6 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 					 * requirement, but the tests pass.
 					 */
 					parentMap.put(toChild, parent);
-					disconnectedPathParents.add(parent);
 					disconnectedPathParents.remove(edge.to);
 					vertexEdgeMap.put(edge.from, edge);
 					return edgeAdded && sourceAdded && targetAdded;
