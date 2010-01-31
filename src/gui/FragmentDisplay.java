@@ -461,7 +461,7 @@ public class FragmentDisplay
 		public void actionPerformed(ActionEvent unused)
 		{
 			JFileChooser fc = new JFileChooser();
-			int returnVal = fc.showOpenDialog(frame);
+			int returnVal = fc.showSaveDialog(frame);
 			if (returnVal == JFileChooser.APPROVE_OPTION)
 			{
 				File file = fc.getSelectedFile();
@@ -484,7 +484,7 @@ public class FragmentDisplay
 		public void actionPerformed(ActionEvent unused)
 		{
 			JFileChooser fc = new JFileChooser();
-			int returnVal = fc.showOpenDialog(frame);
+			int returnVal = fc.showSaveDialog(frame);
 			if (returnVal == JFileChooser.APPROVE_OPTION)
 			{
 				File file = fc.getSelectedFile();
