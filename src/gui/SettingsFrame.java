@@ -1,6 +1,9 @@
 package gui;
 
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 public class SettingsFrame extends JFrame
@@ -13,8 +16,13 @@ public class SettingsFrame extends JFrame
 	{
 		super("Fragment Display Settings");
 		fragmentDisplay = fragmentDisplay_;
+		FragmentDisplaySettings settings = new FragmentDisplaySettings();
 		
 		panel = new JPanel();
+		panel.setLayout(new GridBagLayout());
+		GridBagConstraints gbc = new GridBagConstraints();
+		JLabel backgroundColorLabel = new JLabel("Background Color");
+		panel.add(backgroundColorLabel);
 		this.add(panel);
 		
 		this.setLocationRelativeTo(fragmentDisplay.frame);

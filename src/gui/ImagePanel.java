@@ -4,7 +4,6 @@ import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.List;
-import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.Scrollable;
 import assembly.*;
@@ -17,15 +16,13 @@ public class ImagePanel extends JPanel implements Scrollable
 	private static final long serialVersionUID = 3006769532505931833L;
 	
 	private Image img;
+	private FragmentDisplay fragmentDisplay;
 	
-	public ImagePanel(String img)
+	public ImagePanel(FragmentDisplay fragmentDisplay_, Image img_)
 	{
-		this(new ImageIcon(img).getImage());
-	}
-	
-	public ImagePanel(Image img)
-	{
-		this.img = img;
+		img = img_;
+		fragmentDisplay = fragmentDisplay_;
+		setBackground(fragmentDisplay.getSettings().backgroundColor);
 		Dimension size = new Dimension(img.getWidth(null), img.getHeight(null));
 		setPreferredSize(size);
 		setMinimumSize(size);
@@ -43,6 +40,7 @@ public class ImagePanel extends JPanel implements Scrollable
 	public void setImage(Image image)
 	{
 		img = image;
+		setBackground(fragmentDisplay.getSettings().backgroundColor);
 		setPreferredSize(new Dimension(img.getWidth(null), img.getHeight(null)));
 	}
 	

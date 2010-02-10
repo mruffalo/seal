@@ -72,6 +72,7 @@ public class FragmentDisplay
 	
 	public FragmentDisplay()
 	{
+		settings = new FragmentDisplaySettings();
 		fragments = new ArrayList<Fragment>();
 		origString = assembledString = "";
 		origGrouped = Fragmentizer.groupByLine(fragments, FragmentPositionSource.ORIGINAL_SEQUENCE);
@@ -259,11 +260,11 @@ public class FragmentDisplay
 		constraints.weighty = 0.5;
 		constraints.ipadx = constraints.ipady = 2;
 		constraints.fill = GridBagConstraints.BOTH;
-		origImagePanel = new ImagePanel(origImage);
+		origImagePanel = new ImagePanel(this, origImage);
 		JScrollPane origImageScroller = new JScrollPane(origImagePanel);
 		imagePanel.add(origImageScroller, constraints);
 		constraints.gridy = 1;
-		assembledImagePanel = new ImagePanel(assembledImage);
+		assembledImagePanel = new ImagePanel(this, assembledImage);
 		JScrollPane assembledImageScroller = new JScrollPane(assembledImagePanel);
 		imagePanel.add(assembledImageScroller, constraints);
 		
@@ -361,6 +362,11 @@ public class FragmentDisplay
 	public void setSettings(FragmentDisplaySettings settings_)
 	{
 		settings = settings_;
+	}
+	
+	public FragmentDisplaySettings getSettings()
+	{
+		return settings;
 	}
 	
 	/**
