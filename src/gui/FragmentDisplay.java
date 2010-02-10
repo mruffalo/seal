@@ -137,9 +137,15 @@ public class FragmentDisplay
 		menu.add(item);
 		bar.add(menu);
 		
+		menu = new JMenu("Settings");
+		item = new JMenuItem("Configure Fragment Display...");
+		item.addActionListener(new SettingsDialogActionListener(this));
+		menu.add(item);
+		bar.add(menu);
+		
 		menu = new JMenu("Help");
 		item = new JMenuItem("About...");
-		item.addActionListener(new AboutBoxActionListener(this));
+		item.addActionListener(new AboutDialogActionListener(this));
 		menu.add(item);
 		bar.add(menu);
 		
@@ -547,14 +553,33 @@ public class FragmentDisplay
 		}
 	}
 	
-	private static class AboutBoxActionListener implements ActionListener
+	private static class SettingsDialogActionListener implements ActionListener
 	{
 		/**
 		 * TODO: Improve handling/passing of this reference
 		 */
 		private final FragmentDisplay fragmentDisplay;
 		
-		public AboutBoxActionListener(FragmentDisplay fragmentDisplay_)
+		public SettingsDialogActionListener(FragmentDisplay fragmentDisplay_)
+		{
+			fragmentDisplay = fragmentDisplay_;
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent arg0)
+		{
+			new SettingsFrame(fragmentDisplay);
+		}
+	}
+	
+	private static class AboutDialogActionListener implements ActionListener
+	{
+		/**
+		 * TODO: Improve handling/passing of this reference
+		 */
+		private final FragmentDisplay fragmentDisplay;
+		
+		public AboutDialogActionListener(FragmentDisplay fragmentDisplay_)
 		{
 			fragmentDisplay = fragmentDisplay_;
 		}
