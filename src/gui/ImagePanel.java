@@ -46,25 +46,24 @@ public class ImagePanel extends JPanel implements Scrollable
 		setPreferredSize(new Dimension(img.getWidth(null), img.getHeight(null)));
 	}
 	
-	public static Image getFragmentGroupImage(String sequence, List<List<Fragment>> fragmentGroups, Fragment selected,
-		FragmentPositionSource source, int scale)
+	public static Image getFragmentGroupImage(FragmentDisplaySettings settings, String sequence,
+		List<List<Fragment>> fragmentGroups, Fragment selected, FragmentPositionSource source)
 	{
-		int width = sequence.length() * scale;
+		int width = sequence.length() * settings.scale;
 		if (width == 0)
 		{
 			width = 1;
 		}
-		int height = (fragmentGroups.size() * 2 + 1) * scale;
+		int height = (fragmentGroups.size() * 2 + 1) * settings.scale;
 		BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		
 		Graphics2D g2d = image.createGraphics();
 		
-		g2d.setColor(Color.WHITE);
+		g2d.setColor(settings.backgroundColor);
 		g2d.fillRect(0, 0, width, height);
 		
-		Color red = new Color(255, 0, 0, 255);
-		g2d.setColor(red);
-		g2d.fill(new Rectangle2D.Float(0, 0, sequence.length() * scale, scale));
+		g2d.setColor(settings.sequenceColor);
+		g2d.fill(new Rectangle2D.Float(0, 0, sequence.length() * settings.scale, settings.scale));
 		g2d.dispose();
 		
 		int i = 0;
@@ -73,11 +72,11 @@ public class ImagePanel extends JPanel implements Scrollable
 			for (Fragment fragment : list)
 			{
 				g2d = image.createGraphics();
-				Color color = fragment.equals(selected) ? new Color(0, 255, 0, 255) : new Color(0, 0, 0, 255);
+				Color color = fragment.equals(selected) ? settings.selectedColor : settings.fragmentColor;
 				g2d.setColor(color);
 				
-				g2d.fill(new Rectangle2D.Float(fragment.getPosition(source) * scale, (i + 1) * 2 * scale,
-					fragment.string.length() * scale, scale));
+				g2d.fill(new Rectangle2D.Float(fragment.getPosition(source) * settings.scale, (i + 1) * 2
+						* settings.scale, fragment.string.length() * settings.scale, settings.scale));
 				g2d.dispose();
 			}
 			i++;

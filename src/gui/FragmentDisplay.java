@@ -63,10 +63,10 @@ public class FragmentDisplay
 	private JSpinner nSpinner;
 	private JSpinner kSpinner;
 	private JSpinner ktSpinner;
-	private int scale = 2;
 	private int n;
 	private int k;
 	private int kt;
+	private FragmentDisplaySettings settings;
 	
 	Fragment selectedFragment = null;
 	
@@ -249,10 +249,10 @@ public class FragmentDisplay
 		assembledGrouped = Fragmentizer.groupByLine(fragments, FragmentPositionSource.ASSEMBLED_SEQUENCE);
 		printFragmentGraph(origString, origGrouped, FragmentPositionSource.ORIGINAL_SEQUENCE);
 		printFragmentGraph(assembledString, assembledGrouped, FragmentPositionSource.ASSEMBLED_SEQUENCE);
-		Image origImage = ImagePanel.getFragmentGroupImage(origString, origGrouped, null,
-			FragmentPositionSource.ORIGINAL_SEQUENCE, scale);
-		Image assembledImage = ImagePanel.getFragmentGroupImage(assembledString, assembledGrouped, null,
-			FragmentPositionSource.ASSEMBLED_SEQUENCE, scale);
+		Image origImage = ImagePanel.getFragmentGroupImage(settings, origString, origGrouped, null,
+			FragmentPositionSource.ORIGINAL_SEQUENCE);
+		Image assembledImage = ImagePanel.getFragmentGroupImage(settings, assembledString, assembledGrouped, null,
+			FragmentPositionSource.ASSEMBLED_SEQUENCE);
 		
 		GridBagConstraints constraints = new GridBagConstraints();
 		constraints.weightx = 1.0;
@@ -346,16 +346,21 @@ public class FragmentDisplay
 	
 	private void redrawImages()
 	{
-		Image origImage = ImagePanel.getFragmentGroupImage(origString, origGrouped, selectedFragment,
-			FragmentPositionSource.ORIGINAL_SEQUENCE, scale);
+		Image origImage = ImagePanel.getFragmentGroupImage(settings, origString, origGrouped, selectedFragment,
+			FragmentPositionSource.ORIGINAL_SEQUENCE);
 		origImagePanel.setImage(origImage);
 		origImagePanel.revalidate();
-		Image assembledImage = ImagePanel.getFragmentGroupImage(assembledString, assembledGrouped, selectedFragment,
-			FragmentPositionSource.ASSEMBLED_SEQUENCE, scale);
+		Image assembledImage = ImagePanel.getFragmentGroupImage(settings, assembledString, assembledGrouped,
+			selectedFragment, FragmentPositionSource.ASSEMBLED_SEQUENCE);
 		assembledImagePanel.setImage(assembledImage);
 		assembledImagePanel.revalidate();
 		
 		frame.repaint();
+	}
+	
+	public void setSettings(FragmentDisplaySettings settings_)
+	{
+		settings = settings_;
 	}
 	
 	/**
