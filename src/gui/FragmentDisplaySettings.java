@@ -1,14 +1,23 @@
 package gui;
 
 import java.awt.Color;
+import java.util.EnumMap;
+import java.util.Map;
 
 public class FragmentDisplaySettings implements Cloneable
 {
-	public Color backgroundColor = Color.WHITE;
-	public Color sequenceColor = Color.RED;
-	public Color fragmentColor = Color.BLACK;
-	public Color selectedColor = Color.GREEN;
-	public int scale = 2;
+	public Map<FragmentDisplayColor, Color> colors;
+	public int scale;
+	
+	public FragmentDisplaySettings()
+	{
+		colors = new EnumMap<FragmentDisplayColor, Color>(FragmentDisplayColor.class);
+		colors.put(FragmentDisplayColor.BACKGROUND, Color.WHITE);
+		colors.put(FragmentDisplayColor.SEQUENCE, Color.RED);
+		colors.put(FragmentDisplayColor.FRAGMENT, Color.BLACK);
+		colors.put(FragmentDisplayColor.SELECTED, Color.GREEN);
+		scale = 2;
+	}
 	
 	@Override
 	public FragmentDisplaySettings clone()

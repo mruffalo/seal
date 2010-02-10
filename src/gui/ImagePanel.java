@@ -22,7 +22,7 @@ public class ImagePanel extends JPanel implements Scrollable
 	{
 		img = img_;
 		fragmentDisplay = fragmentDisplay_;
-		setBackground(fragmentDisplay.getSettings().backgroundColor);
+		setBackground(fragmentDisplay.getSettings().colors.get(FragmentDisplayColor.BACKGROUND));
 		Dimension size = new Dimension(img.getWidth(null), img.getHeight(null));
 		setPreferredSize(size);
 		setMinimumSize(size);
@@ -40,7 +40,7 @@ public class ImagePanel extends JPanel implements Scrollable
 	public void setImage(Image image)
 	{
 		img = image;
-		setBackground(fragmentDisplay.getSettings().backgroundColor);
+		setBackground(fragmentDisplay.getSettings().colors.get(FragmentDisplayColor.BACKGROUND));
 		setPreferredSize(new Dimension(img.getWidth(null), img.getHeight(null)));
 	}
 	
@@ -57,10 +57,10 @@ public class ImagePanel extends JPanel implements Scrollable
 		
 		Graphics2D g2d = image.createGraphics();
 		
-		g2d.setColor(settings.backgroundColor);
+		g2d.setColor(settings.colors.get(FragmentDisplayColor.BACKGROUND));
 		g2d.fillRect(0, 0, width, height);
 		
-		g2d.setColor(settings.sequenceColor);
+		g2d.setColor(settings.colors.get(FragmentDisplayColor.SEQUENCE));
 		g2d.fill(new Rectangle2D.Float(0, 0, sequence.length() * settings.scale, settings.scale));
 		g2d.dispose();
 		
@@ -70,7 +70,8 @@ public class ImagePanel extends JPanel implements Scrollable
 			for (Fragment fragment : list)
 			{
 				g2d = image.createGraphics();
-				Color color = fragment.equals(selected) ? settings.selectedColor : settings.fragmentColor;
+				Color color = fragment.equals(selected) ? settings.colors.get(FragmentDisplayColor.SELECTED)
+						: settings.colors.get(FragmentDisplayColor.FRAGMENT);
 				g2d.setColor(color);
 				
 				g2d.fill(new Rectangle2D.Float(fragment.getPosition(source) * settings.scale, (i + 1) * 2
