@@ -8,26 +8,26 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.EnumMap;
 import java.util.Map;
+import javax.swing.JButton;
 import javax.swing.JColorChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 public class SettingsFrame extends JFrame
 {
 	private static final long serialVersionUID = 327328698365828620L;
+	private static final String CHOOSE_BUTTON_TEXT = "Choose...";
 	private final FragmentDisplay fragmentDisplay;
 	private JPanel panel;
 	private FragmentDisplaySettings settings;
-	private Map<FragmentDisplayColor, JLabel> map;
+	private Map<FragmentDisplayColor, JLabel> colorLabelMap;
 	
 	public SettingsFrame(FragmentDisplay fragmentDisplay_)
 	{
 		super("Fragment Display Settings");
 		fragmentDisplay = fragmentDisplay_;
-		map = new EnumMap<FragmentDisplayColor, JLabel>(FragmentDisplayColor.class);
+		colorLabelMap = new EnumMap<FragmentDisplayColor, JLabel>(FragmentDisplayColor.class);
 		settings = fragmentDisplay.getSettings().clone();
 		panel = new JPanel();
 		panel.setLayout(new GridBagLayout());
@@ -42,13 +42,18 @@ public class SettingsFrame extends JFrame
 		gbc.gridx = 1;
 		gbc.weightx = 0.2;
 		JLabel backgroundColorLabel = new JLabel();
-		map.put(FragmentDisplayColor.BACKGROUND, backgroundColorLabel);
+		colorLabelMap.put(FragmentDisplayColor.BACKGROUND, backgroundColorLabel);
 		backgroundColorLabel.setOpaque(true);
 		backgroundColorLabel.setBackground(settings.colors.get(FragmentDisplayColor.BACKGROUND));
 		Dimension sixteen = new Dimension(16, 16);
 		backgroundColorLabel.setMinimumSize(sixteen);
 		backgroundColorLabel.setPreferredSize(sixteen);
 		panel.add(backgroundColorLabel, gbc);
+		
+		gbc.gridx = 2;
+		JButton backgroundColorButton = new JButton(CHOOSE_BUTTON_TEXT);
+		backgroundColorButton.addActionListener(new ChooseColorButtonActionListener(FragmentDisplayColor.BACKGROUND));
+		panel.add(backgroundColorButton, gbc);
 		
 		gbc = new GridBagConstraints();
 		gbc.fill = GridBagConstraints.BOTH;
@@ -61,12 +66,17 @@ public class SettingsFrame extends JFrame
 		gbc.gridx = 1;
 		gbc.weightx = 0.2;
 		JLabel sequenceColorLabel = new JLabel();
-		map.put(FragmentDisplayColor.SEQUENCE, sequenceColorLabel);
+		colorLabelMap.put(FragmentDisplayColor.SEQUENCE, sequenceColorLabel);
 		sequenceColorLabel.setOpaque(true);
 		sequenceColorLabel.setBackground(settings.colors.get(FragmentDisplayColor.SEQUENCE));
 		sequenceColorLabel.setMinimumSize(sixteen);
 		sequenceColorLabel.setPreferredSize(sixteen);
 		panel.add(sequenceColorLabel, gbc);
+		
+		gbc.gridx = 2;
+		JButton sequenceColorButton = new JButton(CHOOSE_BUTTON_TEXT);
+		sequenceColorButton.addActionListener(new ChooseColorButtonActionListener(FragmentDisplayColor.SEQUENCE));
+		panel.add(sequenceColorButton, gbc);
 		
 		gbc = new GridBagConstraints();
 		gbc.fill = GridBagConstraints.BOTH;
@@ -79,12 +89,17 @@ public class SettingsFrame extends JFrame
 		gbc.gridx = 1;
 		gbc.weightx = 0.2;
 		JLabel fragmentColorLabel = new JLabel();
-		map.put(FragmentDisplayColor.FRAGMENT, fragmentColorLabel);
+		colorLabelMap.put(FragmentDisplayColor.FRAGMENT, fragmentColorLabel);
 		fragmentColorLabel.setOpaque(true);
 		fragmentColorLabel.setBackground(settings.colors.get(FragmentDisplayColor.FRAGMENT));
 		fragmentColorLabel.setMinimumSize(sixteen);
 		fragmentColorLabel.setPreferredSize(sixteen);
 		panel.add(fragmentColorLabel, gbc);
+		
+		gbc.gridx = 2;
+		JButton fragmentColorButton = new JButton(CHOOSE_BUTTON_TEXT);
+		fragmentColorButton.addActionListener(new ChooseColorButtonActionListener(FragmentDisplayColor.FRAGMENT));
+		panel.add(fragmentColorButton, gbc);
 		
 		gbc = new GridBagConstraints();
 		gbc.fill = GridBagConstraints.BOTH;
@@ -97,12 +112,17 @@ public class SettingsFrame extends JFrame
 		gbc.gridx = 1;
 		gbc.weightx = 0.2;
 		JLabel selectedColorLabel = new JLabel();
-		map.put(FragmentDisplayColor.SELECTED, selectedColorLabel);
+		colorLabelMap.put(FragmentDisplayColor.SELECTED, selectedColorLabel);
 		selectedColorLabel.setOpaque(true);
 		selectedColorLabel.setBackground(settings.colors.get(FragmentDisplayColor.SELECTED));
 		selectedColorLabel.setMinimumSize(sixteen);
 		selectedColorLabel.setPreferredSize(sixteen);
 		panel.add(selectedColorLabel, gbc);
+		
+		gbc.gridx = 2;
+		JButton selectedColorButton = new JButton(CHOOSE_BUTTON_TEXT);
+		selectedColorButton.addActionListener(new ChooseColorButtonActionListener(FragmentDisplayColor.SELECTED));
+		panel.add(selectedColorButton, gbc);
 		
 		this.add(panel);
 		this.setLocationRelativeTo(fragmentDisplay.frame);
@@ -113,7 +133,7 @@ public class SettingsFrame extends JFrame
 	private void setColor(FragmentDisplayColor fragmentDisplayColor, Color color)
 	{
 		settings.colors.put(fragmentDisplayColor, color);
-		map.get(fragmentDisplayColor).setBackground(color);
+		colorLabelMap.get(fragmentDisplayColor).setBackground(color);
 	}
 	
 	private class ChooseColorButtonActionListener implements ActionListener
