@@ -119,7 +119,7 @@ public class FragmentDisplay
 		item.addActionListener(new OpenSequenceActionListener());
 		menu.add(item);
 		item = new JMenuItem("Generate...");
-		item.addActionListener(new GenerateFragmentsActionListener(this));
+		item.addActionListener(new GenerateFragmentsActionListener());
 		menu.add(item);
 		item = new JMenuItem("Export...");
 		item.addActionListener(new SaveSequenceActionListener());
@@ -140,13 +140,13 @@ public class FragmentDisplay
 		
 		menu = new JMenu("Settings");
 		item = new JMenuItem("Configure Fragment Display...");
-		item.addActionListener(new SettingsDialogActionListener(this));
+		item.addActionListener(new SettingsDialogActionListener());
 		menu.add(item);
 		bar.add(menu);
 		
 		menu = new JMenu("Help");
 		item = new JMenuItem("About...");
-		item.addActionListener(new AboutDialogActionListener(this));
+		item.addActionListener(new AboutDialogActionListener());
 		menu.add(item);
 		bar.add(menu);
 		
@@ -545,60 +545,30 @@ public class FragmentDisplay
 		}
 	}
 	
-	private static class GenerateFragmentsActionListener implements ActionListener
+	private class GenerateFragmentsActionListener implements ActionListener
 	{
-		/**
-		 * TODO: Improve handling/passing of this reference
-		 */
-		private final FragmentDisplay fragmentDisplay;
-		
-		public GenerateFragmentsActionListener(FragmentDisplay fragmentDisplay_)
-		{
-			fragmentDisplay = fragmentDisplay_;
-		}
-		
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
-			new SequenceGenerationFrame(fragmentDisplay);
+			new SequenceGenerationFrame(FragmentDisplay.this);
 		}
 	}
 	
-	private static class SettingsDialogActionListener implements ActionListener
+	private class SettingsDialogActionListener implements ActionListener
 	{
-		/**
-		 * TODO: Improve handling/passing of this reference
-		 */
-		private final FragmentDisplay fragmentDisplay;
-		
-		public SettingsDialogActionListener(FragmentDisplay fragmentDisplay_)
-		{
-			fragmentDisplay = fragmentDisplay_;
-		}
-		
 		@Override
 		public void actionPerformed(ActionEvent arg0)
 		{
-			new SettingsFrame(fragmentDisplay);
+			new SettingsFrame(FragmentDisplay.this);
 		}
 	}
 	
-	private static class AboutDialogActionListener implements ActionListener
+	private class AboutDialogActionListener implements ActionListener
 	{
-		/**
-		 * TODO: Improve handling/passing of this reference
-		 */
-		private final FragmentDisplay fragmentDisplay;
-		
-		public AboutDialogActionListener(FragmentDisplay fragmentDisplay_)
-		{
-			fragmentDisplay = fragmentDisplay_;
-		}
-		
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
-			new AboutFrame(fragmentDisplay);
+			new AboutFrame(FragmentDisplay.this);
 		}
 	}
 	
