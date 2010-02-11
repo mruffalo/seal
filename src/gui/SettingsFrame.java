@@ -4,10 +4,13 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.EnumMap;
 import java.util.Map;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JColorChooser;
 import javax.swing.JFrame;
@@ -51,6 +54,7 @@ public class SettingsFrame extends JFrame
 		panel.add(backgroundColorLabel, gbc);
 		
 		gbc.gridx = 2;
+		gbc.fill = GridBagConstraints.NONE;
 		JButton backgroundColorButton = new JButton(CHOOSE_BUTTON_TEXT);
 		backgroundColorButton.addActionListener(new ChooseColorButtonActionListener(FragmentDisplayColor.BACKGROUND));
 		panel.add(backgroundColorButton, gbc);
@@ -74,6 +78,7 @@ public class SettingsFrame extends JFrame
 		panel.add(sequenceColorLabel, gbc);
 		
 		gbc.gridx = 2;
+		gbc.fill = GridBagConstraints.NONE;
 		JButton sequenceColorButton = new JButton(CHOOSE_BUTTON_TEXT);
 		sequenceColorButton.addActionListener(new ChooseColorButtonActionListener(FragmentDisplayColor.SEQUENCE));
 		panel.add(sequenceColorButton, gbc);
@@ -97,6 +102,7 @@ public class SettingsFrame extends JFrame
 		panel.add(fragmentColorLabel, gbc);
 		
 		gbc.gridx = 2;
+		gbc.fill = GridBagConstraints.NONE;
 		JButton fragmentColorButton = new JButton(CHOOSE_BUTTON_TEXT);
 		fragmentColorButton.addActionListener(new ChooseColorButtonActionListener(FragmentDisplayColor.FRAGMENT));
 		panel.add(fragmentColorButton, gbc);
@@ -120,9 +126,18 @@ public class SettingsFrame extends JFrame
 		panel.add(selectedColorLabel, gbc);
 		
 		gbc.gridx = 2;
+		gbc.fill = GridBagConstraints.NONE;
 		JButton selectedColorButton = new JButton(CHOOSE_BUTTON_TEXT);
 		selectedColorButton.addActionListener(new ChooseColorButtonActionListener(FragmentDisplayColor.SELECTED));
 		panel.add(selectedColorButton, gbc);
+		
+		gbc = new GridBagConstraints();
+		gbc.gridy = 4;
+		gbc.gridwidth = 3;
+		gbc.weightx = 1.0;
+		gbc.insets = new Insets(5, 0, 0, 0);
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		panel.add(createOkCancelButtonsPanel(), gbc);
 		
 		this.add(panel);
 		this.setLocationRelativeTo(fragmentDisplay.frame);
@@ -130,10 +145,48 @@ public class SettingsFrame extends JFrame
 		this.setVisible(true);
 	}
 	
+	private JPanel createOkCancelButtonsPanel()
+	{
+		JPanel panel = new JPanel();
+		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
+		panel.add(Box.createHorizontalGlue());
+		
+		JButton okButton = new JButton("OK");
+		okButton.addActionListener(new OkButtonActionListener());
+		panel.add(okButton);
+		
+		panel.add(Box.createHorizontalStrut(5));
+		
+		JButton cancelButton = new JButton("Cancel");
+		cancelButton.addActionListener(new CancelButtonActionListener());
+		panel.add(cancelButton);
+		
+		return panel;
+	}
+	
 	private void setColor(FragmentDisplayColor fragmentDisplayColor, Color color)
 	{
 		settings.colors.put(fragmentDisplayColor, color);
 		colorLabelMap.get(fragmentDisplayColor).setBackground(color);
+	}
+	
+	private class OkButtonActionListener implements ActionListener
+	{
+		@Override
+		public void actionPerformed(ActionEvent arg0)
+		{
+			fragmentDisplay.setSettings(settings);
+			SettingsFrame.this.dispose();
+		}
+	}
+	
+	private class CancelButtonActionListener implements ActionListener
+	{
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			SettingsFrame.this.dispose();
+		}
 	}
 	
 	private class ChooseColorButtonActionListener implements ActionListener
