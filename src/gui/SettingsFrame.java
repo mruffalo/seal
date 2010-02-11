@@ -4,11 +4,16 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.EnumMap;
 import java.util.Map;
+import javax.swing.JColorChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 public class SettingsFrame extends JFrame
 {
@@ -16,13 +21,13 @@ public class SettingsFrame extends JFrame
 	private final FragmentDisplay fragmentDisplay;
 	private JPanel panel;
 	private FragmentDisplaySettings settings;
-	private Map<FragmentDisplayColor, ColorDescriptor> map;
+	private Map<FragmentDisplayColor, JLabel> map;
 	
 	public SettingsFrame(FragmentDisplay fragmentDisplay_)
 	{
 		super("Fragment Display Settings");
 		fragmentDisplay = fragmentDisplay_;
-		map = new EnumMap<FragmentDisplayColor, ColorDescriptor>(FragmentDisplayColor.class);
+		map = new EnumMap<FragmentDisplayColor, JLabel>(FragmentDisplayColor.class);
 		settings = fragmentDisplay.getSettings().clone();
 		panel = new JPanel();
 		panel.setLayout(new GridBagLayout());
@@ -37,8 +42,7 @@ public class SettingsFrame extends JFrame
 		gbc.gridx = 1;
 		gbc.weightx = 0.2;
 		JLabel backgroundColorLabel = new JLabel();
-		map.put(FragmentDisplayColor.BACKGROUND, new ColorDescriptor(FragmentDisplayColor.BACKGROUND,
-			backgroundColorLabel));
+		map.put(FragmentDisplayColor.BACKGROUND, backgroundColorLabel);
 		backgroundColorLabel.setOpaque(true);
 		backgroundColorLabel.setBackground(settings.colors.get(FragmentDisplayColor.BACKGROUND));
 		Dimension sixteen = new Dimension(16, 16);
@@ -57,7 +61,7 @@ public class SettingsFrame extends JFrame
 		gbc.gridx = 1;
 		gbc.weightx = 0.2;
 		JLabel sequenceColorLabel = new JLabel();
-		map.put(FragmentDisplayColor.SEQUENCE, new ColorDescriptor(FragmentDisplayColor.SEQUENCE, sequenceColorLabel));
+		map.put(FragmentDisplayColor.SEQUENCE, sequenceColorLabel);
 		sequenceColorLabel.setOpaque(true);
 		sequenceColorLabel.setBackground(settings.colors.get(FragmentDisplayColor.SEQUENCE));
 		sequenceColorLabel.setMinimumSize(sixteen);
@@ -75,7 +79,7 @@ public class SettingsFrame extends JFrame
 		gbc.gridx = 1;
 		gbc.weightx = 0.2;
 		JLabel fragmentColorLabel = new JLabel();
-		map.put(FragmentDisplayColor.FRAGMENT, new ColorDescriptor(FragmentDisplayColor.FRAGMENT, fragmentColorLabel));
+		map.put(FragmentDisplayColor.FRAGMENT, fragmentColorLabel);
 		fragmentColorLabel.setOpaque(true);
 		fragmentColorLabel.setBackground(settings.colors.get(FragmentDisplayColor.FRAGMENT));
 		fragmentColorLabel.setMinimumSize(sixteen);
@@ -93,7 +97,7 @@ public class SettingsFrame extends JFrame
 		gbc.gridx = 1;
 		gbc.weightx = 0.2;
 		JLabel selectedColorLabel = new JLabel();
-		map.put(FragmentDisplayColor.SELECTED, new ColorDescriptor(FragmentDisplayColor.SELECTED, selectedColorLabel));
+		map.put(FragmentDisplayColor.SELECTED, selectedColorLabel);
 		selectedColorLabel.setOpaque(true);
 		selectedColorLabel.setBackground(settings.colors.get(FragmentDisplayColor.SELECTED));
 		selectedColorLabel.setMinimumSize(sixteen);
@@ -106,15 +110,27 @@ public class SettingsFrame extends JFrame
 		this.setVisible(true);
 	}
 	
-	private class ColorDescriptor
+	private void setColor(FragmentDisplayColor fragmentDisplayColor, Color color)
 	{
-		public final FragmentDisplayColor color;
-		public final JLabel colorLabel;
+		settings.colors.put(fragmentDisplayColor, color);
+		map.get(fragmentDisplayColor).setBackground(color);
+	}
+	
+	private class ChooseColorButtonActionListener implements ActionListener
+	{
+		private final FragmentDisplayColor fdc;
 		
-		public ColorDescriptor(FragmentDisplayColor color_, JLabel colorLabel_)
+		public ChooseColorButtonActionListener(FragmentDisplayColor fdc_)
 		{
-			color = color_;
-			colorLabel = colorLabel_;
+			fdc = fdc_;
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent arg0)
+		{
+			String title = String.format("Choose %s Color", fdc.getDescription());
+			Color newColor = JColorChooser.showDialog(SettingsFrame.this, title, settings.colors.get(fdc));
+			setColor(fdc, newColor);
 		}
 	}
 }
