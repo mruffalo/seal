@@ -2,11 +2,10 @@ package gui;
 
 import java.awt.Color;
 import java.util.EnumMap;
-import java.util.Map;
 
 public class FragmentDisplaySettings implements Cloneable
 {
-	public Map<FragmentDisplayColor, Color> colors;
+	public EnumMap<FragmentDisplayColor, Color> colors;
 	public int scale;
 	
 	public FragmentDisplaySettings()
@@ -24,7 +23,9 @@ public class FragmentDisplaySettings implements Cloneable
 	{
 		try
 		{
-			return (FragmentDisplaySettings) super.clone();
+			FragmentDisplaySettings fds = (FragmentDisplaySettings) super.clone();
+			fds.colors = colors.clone();
+			return fds;
 		}
 		catch (CloneNotSupportedException e)
 		{
