@@ -39,7 +39,10 @@ public class SettingsFrame extends JFrame
 		panel = new JPanel();
 		panel.setLayout(new GridBagLayout());
 		
+		final Insets two = new Insets(2, 2, 2, 2);
+		
 		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.insets = two;
 		gbc.fill = GridBagConstraints.BOTH;
 		gbc.weighty = 0.1;
 		gbc.weightx = 0.8;
@@ -64,6 +67,7 @@ public class SettingsFrame extends JFrame
 		panel.add(backgroundColorButton, gbc);
 		
 		gbc = new GridBagConstraints();
+		gbc.insets = two;
 		gbc.fill = GridBagConstraints.BOTH;
 		gbc.weighty = 0.1;
 		gbc.weightx = 0.8;
@@ -88,6 +92,7 @@ public class SettingsFrame extends JFrame
 		panel.add(sequenceColorButton, gbc);
 		
 		gbc = new GridBagConstraints();
+		gbc.insets = two;
 		gbc.fill = GridBagConstraints.BOTH;
 		gbc.weighty = 0.1;
 		gbc.weightx = 0.8;
@@ -112,6 +117,7 @@ public class SettingsFrame extends JFrame
 		panel.add(fragmentColorButton, gbc);
 		
 		gbc = new GridBagConstraints();
+		gbc.insets = two;
 		gbc.fill = GridBagConstraints.BOTH;
 		gbc.weighty = 0.1;
 		gbc.weightx = 0.8;
@@ -136,6 +142,7 @@ public class SettingsFrame extends JFrame
 		panel.add(selectedColorButton, gbc);
 		
 		gbc = new GridBagConstraints();
+		gbc.insets = two;
 		gbc.gridy = 4;
 		gbc.weightx = 0.2;
 		gbc.fill = GridBagConstraints.BOTH;
@@ -157,7 +164,7 @@ public class SettingsFrame extends JFrame
 		gbc.gridy = 5;
 		gbc.gridwidth = 3;
 		gbc.weightx = 1.0;
-		gbc.insets = new Insets(5, 0, 0, 0);
+		gbc.insets = new Insets(5, 2, 2, 2);
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		panel.add(createOkCancelButtonsPanel(), gbc);
 		
