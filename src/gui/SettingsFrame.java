@@ -16,6 +16,10 @@ import javax.swing.JColorChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 public class SettingsFrame extends JFrame
 {
@@ -133,6 +137,24 @@ public class SettingsFrame extends JFrame
 		
 		gbc = new GridBagConstraints();
 		gbc.gridy = 4;
+		gbc.weightx = 0.2;
+		gbc.fill = GridBagConstraints.BOTH;
+		JLabel scaleLabel = new JLabel("Scale (pixels)");
+		panel.add(scaleLabel, gbc);
+		
+		gbc.gridx = 1;
+		gbc.gridwidth = 2;
+		gbc.weightx = 0.8;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		SpinnerNumberModel scaleModel = new SpinnerNumberModel();
+		scaleModel.setMinimum(1);
+		scaleModel.setValue(settings.scale);
+		JSpinner scaleSpinner = new JSpinner(scaleModel);
+		scaleSpinner.addChangeListener(new ScaleSpinnerChangeListener());
+		panel.add(scaleSpinner, gbc);
+		
+		gbc = new GridBagConstraints();
+		gbc.gridy = 5;
 		gbc.gridwidth = 3;
 		gbc.weightx = 1.0;
 		gbc.insets = new Insets(5, 0, 0, 0);
@@ -168,6 +190,16 @@ public class SettingsFrame extends JFrame
 	{
 		settings.colors.put(fragmentDisplayColor, color);
 		colorLabelMap.get(fragmentDisplayColor).setBackground(color);
+	}
+	
+	private class ScaleSpinnerChangeListener implements ChangeListener
+	{
+		@Override
+		public void stateChanged(ChangeEvent e)
+		{
+			JSpinner scaleSpinner = (JSpinner) e.getSource();
+			settings.scale = (Integer) scaleSpinner.getValue();
+		}
 	}
 	
 	private class OkButtonActionListener implements ActionListener
