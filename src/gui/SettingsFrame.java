@@ -242,7 +242,10 @@ public class SettingsFrame extends JFrame
 		{
 			String title = String.format("Choose %s Color", fdc.getDescription());
 			Color newColor = JColorChooser.showDialog(SettingsFrame.this, title, settings.colors.get(fdc));
-			setColor(fdc, newColor);
+			if (newColor != null)
+			{
+				setColor(fdc, newColor);
+			}
 		}
 	}
 }
