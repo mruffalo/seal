@@ -30,7 +30,7 @@ public class SequenceGeneratorTest
 		int size = 10;
 		int length = 50;
 		List<Fragment> list = Fragmentizer.fragmentizeForShotgun(string, length, size, tolerance);
-		assertEquals(length, list.size());
+		assertTrue(length >= list.size());
 		for (Fragment fragment : list)
 		{
 			System.out.println(fragment);
@@ -41,7 +41,7 @@ public class SequenceGeneratorTest
 		size = 20;
 		length = 20;
 		list = Fragmentizer.fragmentizeForShotgun(string, length, size, tolerance);
-		assertEquals(length, list.size());
+		assertTrue(length >= list.size());
 		for (Fragment fragment : list)
 		{
 			System.out.println(fragment);
