@@ -67,6 +67,8 @@ public class FragmentDisplay
 	private int k;
 	private int kt;
 	private FragmentDisplaySettings settings;
+	private JScrollPane origImageScroller;
+	private JScrollPane assembledImageScroller;
 	
 	Fragment selectedFragment = null;
 	
@@ -261,11 +263,11 @@ public class FragmentDisplay
 		constraints.ipadx = constraints.ipady = 2;
 		constraints.fill = GridBagConstraints.BOTH;
 		origImagePanel = new ImagePanel(this, origImage);
-		JScrollPane origImageScroller = new JScrollPane(origImagePanel);
+		origImageScroller = new JScrollPane(origImagePanel);
 		imagePanel.add(origImageScroller, constraints);
 		constraints.gridy = 1;
 		assembledImagePanel = new ImagePanel(this, assembledImage);
-		JScrollPane assembledImageScroller = new JScrollPane(assembledImagePanel);
+		assembledImageScroller = new JScrollPane(assembledImagePanel);
 		imagePanel.add(assembledImageScroller, constraints);
 		
 		tableModel = new FragmentTableModel();
@@ -351,6 +353,8 @@ public class FragmentDisplay
 			FragmentPositionSource.ORIGINAL_SEQUENCE);
 		origImagePanel.setImage(origImage);
 		origImagePanel.revalidate();
+		origImageScroller.getViewport().setBackground(settings.colors.get(FragmentDisplayColor.BACKGROUND));
+		assembledImageScroller.getViewport().setBackground(settings.colors.get(FragmentDisplayColor.BACKGROUND));
 		Image assembledImage = ImagePanel.getFragmentGroupImage(settings, assembledString, assembledGrouped,
 			selectedFragment, FragmentPositionSource.ASSEMBLED_SEQUENCE);
 		assembledImagePanel.setImage(assembledImage);
@@ -362,6 +366,7 @@ public class FragmentDisplay
 	public void setSettings(FragmentDisplaySettings settings_)
 	{
 		settings = settings_;
+		redrawImages();
 	}
 	
 	public FragmentDisplaySettings getSettings()
