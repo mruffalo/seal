@@ -4,6 +4,8 @@ import generator.Fragmentizer;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -268,6 +270,53 @@ public class FragmentDisplay
 		constraints.gridy = 1;
 		assembledImagePanel = new ImagePanel(this, assembledImage);
 		assembledImageScroller = new JScrollPane(assembledImagePanel);
+		
+		final JScrollBar origImageScrollBar = origImageScroller.getHorizontalScrollBar();
+		final JScrollBar assembledImageScrollBar = assembledImageScroller.getHorizontalScrollBar();
+		
+		origImageScrollBar.addAdjustmentListener(new AdjustmentListener()
+		{
+			public void adjustmentValueChanged(AdjustmentEvent e)
+			{
+				if (!e.getValueIsAdjusting())
+				{
+					return;
+				}
+				
+				int range1 = origImageScrollBar.getMaximum() - origImageScrollBar.getMinimum()
+						- origImageScrollBar.getModel().getExtent();
+				int range2 = assembledImageScrollBar.getMaximum() - assembledImageScrollBar.getMinimum()
+						- assembledImageScrollBar.getModel().getExtent();
+				
+				double percent = (double) (origImageScrollBar.getValue()) / range1;
+				
+				int newVal = (int) (percent * range2);
+				assembledImageScrollBar.setValue(newVal);
+			}
+		});
+		
+		assembledImageScrollBar.addAdjustmentListener(new AdjustmentListener()
+		{
+			public void adjustmentValueChanged(AdjustmentEvent e)
+			{
+				if (!e.getValueIsAdjusting())
+				{
+					return;
+				}
+				
+				int range1 = origImageScrollBar.getMaximum() - origImageScrollBar.getMinimum()
+						- origImageScrollBar.getModel().getExtent();
+				int range2 = assembledImageScrollBar.getMaximum() - assembledImageScrollBar.getMinimum()
+						- assembledImageScrollBar.getModel().getExtent();
+				
+				double percent = (double) assembledImageScrollBar.getValue() / range2;
+				
+				int newVal = (int) (percent * range1);
+				
+				origImageScrollBar.setValue(newVal);
+			}
+		});
+		
 		imagePanel.add(assembledImageScroller, constraints);
 		
 		tableModel = new FragmentTableModel();
