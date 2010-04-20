@@ -102,7 +102,7 @@ public class SequenceGenerationFrame extends JFrame
 		
 		SpinnerNumberModel mModel = new SpinnerNumberModel();
 		mModel.setMinimum(1);
-		mModel.setValue(50);
+		mModel.setValue(250);
 		mSpinner = new JSpinner(mModel);
 		panel.add(mSpinner);
 		
