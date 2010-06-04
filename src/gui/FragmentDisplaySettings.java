@@ -11,9 +11,9 @@ public class FragmentDisplaySettings implements Cloneable
 	public FragmentDisplaySettings()
 	{
 		colors = new EnumMap<FragmentDisplayColor, Color>(FragmentDisplayColor.class);
-		colors.put(FragmentDisplayColor.BACKGROUND, Color.WHITE);
+		colors.put(FragmentDisplayColor.BACKGROUND, Color.BLACK);
 		colors.put(FragmentDisplayColor.SEQUENCE, Color.RED);
-		colors.put(FragmentDisplayColor.FRAGMENT, Color.BLACK);
+		colors.put(FragmentDisplayColor.FRAGMENT, Color.DARK_GRAY);
 		colors.put(FragmentDisplayColor.SELECTED, Color.GREEN);
 		scale = 2;
 	}
