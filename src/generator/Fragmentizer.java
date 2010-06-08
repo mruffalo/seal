@@ -20,10 +20,10 @@ public class Fragmentizer
 	 *         are entirely contained in another fragment <b>have already been filtered</b>. This
 	 *         means that you will probably get less than <code>n</code> fragments back.
 	 */
-	public static List<Fragment> fragmentizeForShotgun(String string, double n, int k, int kTolerance)
+	public static List<Fragment> fragmentizeForShotgun(String string, int n, int k, int kTolerance)
 	{
 		Random random = new Random();
-		LinkedList<Fragment> list = new LinkedList<Fragment>();
+		List<Fragment> list = new ArrayList<Fragment>(n);
 		for (int i = 0; i < n; i++)
 		{
 			int sizeAddition = kTolerance > 0 ? random.nextInt(kTolerance * 2) - kTolerance : 0;
@@ -45,7 +45,7 @@ public class Fragmentizer
 	 */
 	public static List<Fragment> removeSubstrings(List<Fragment> fragments)
 	{
-		List<Fragment> fixed = new LinkedList<Fragment>();
+		List<Fragment> fixed = new ArrayList<Fragment>(fragments.size());
 		Set<Fragment> nonDuplicates = new HashSet<Fragment>(fragments);
 		Set<Fragment> substrings = new HashSet<Fragment>();
 		for (Fragment first : nonDuplicates)
