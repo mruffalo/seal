@@ -1,10 +1,9 @@
 import java.io.*;
 import java.util.*;
-import utils.LicenseUtil;
 import assembly.*;
 import generator.*;
 
-public class GenerateSequenceToFastaFile
+public class FragmentizeSequenceFromFastaFile
 {
 	
 	/**
@@ -12,21 +11,21 @@ public class GenerateSequenceToFastaFile
 	 */
 	public static void main(String[] args)
 	{
-		LicenseUtil.printLicense();
 		if (args.length < 4)
 		{
 			System.err.printf("Usage: %s OutputFastaFile%n\tSequenceLength%n\tNumberOfRepeats%n\tRepeatLength%n",
 				GenerateSequenceToFastaFile.class.getCanonicalName());
 			return;
 		}
-		int m = Integer.parseInt(args[1]);
-		int r = Integer.parseInt(args[2]);
-		int l = Integer.parseInt(args[3]);
-		SequenceGenerator sg = new SeqGenSingleSequenceMultipleRepeats();
-		String string = sg.generateSequence(m, r, l);
+		int n = Integer.parseInt(args[1]);
+		int k = Integer.parseInt(args[2]);
+		int kTolerance = Integer.parseInt(args[3]);
+		String string = null;
 		try
 		{
-			FastaHandler.writeSequence(string, new File(args[0]));
+			string = FastaHandler.getSequence(new File(args[0]));
+			List<Fragment> fragments = Fragmentizer.fragmentizeForShotgun(string, n, k, kTolerance);
+			FastaHandler.writeFragments(fragments, new File(args[1]));
 		}
 		catch (IOException e)
 		{
