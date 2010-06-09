@@ -79,7 +79,6 @@ public class Fragmentizer
 	{
 		List<List<Fragment>> groupedList = new LinkedList<List<Fragment>>();
 		Set<Fragment> fragmentSet = new HashSet<Fragment>(fragments);
-		fragmentSet.addAll(fragments);
 		/*
 		 * The position of a fragment might be null if 'source' is ASSEMBLED_SEQUENCE and the
 		 * fragment was not used (e.g. if it was entirely contained in another fragment). Remove all
@@ -144,7 +143,7 @@ public class Fragmentizer
 	 */
 	public static List<String> fragmentizeForHybridization(String string, int k)
 	{
-		LinkedList<String> list = new LinkedList<String>();
+		ArrayList<String> list = new ArrayList<String>(string.length() - k);
 		for (int i = 0; i <= string.length() - k; i++)
 		{
 			list.add(string.substring(i, i + k));
