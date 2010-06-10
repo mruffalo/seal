@@ -26,26 +26,27 @@ public class SequenceGeneratorTest
 	{
 		String string = SequenceGenerator.generateSequence(SequenceGenerator.NUCLEOTIDES, 100);
 		System.out.println(string);
-		int tolerance = 2;
-		int size = 10;
-		int length = 50;
-		List<Fragment> list = Fragmentizer.fragmentizeForShotgun(string, length, size, tolerance);
-		assertTrue(length >= list.size());
+		Fragmentizer.Options o = new Fragmentizer.Options();
+		o.n = 50;
+		o.k = 10;
+		o.kv = 2;
+		List<Fragment> list = Fragmentizer.fragmentizeForShotgun(string, o);
+		assertTrue(o.n >= list.size());
 		for (Fragment fragment : list)
 		{
 			System.out.println(fragment);
-			assertTrue(Math.abs(fragment.string.length() - size) <= tolerance);
+			assertTrue(Math.abs(fragment.string.length() - o.k) <= o.kv);
 			assertTrue(string.contains(fragment.string));
 		}
-		tolerance = 4;
-		size = 20;
-		length = 20;
-		list = Fragmentizer.fragmentizeForShotgun(string, length, size, tolerance);
-		assertTrue(length >= list.size());
+		o.n = 20;
+		o.k = 20;
+		o.kv = 4;
+		list = Fragmentizer.fragmentizeForShotgun(string, o);
+		assertTrue(o.n >= list.size());
 		for (Fragment fragment : list)
 		{
 			System.out.println(fragment);
-			assertTrue(Math.abs(fragment.string.length() - size) <= tolerance);
+			assertTrue(Math.abs(fragment.string.length() - o.k) <= o.kv);
 			assertTrue(string.contains(fragment.string));
 		}
 	}

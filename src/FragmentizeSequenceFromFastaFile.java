@@ -13,18 +13,19 @@ public class FragmentizeSequenceFromFastaFile
 		if (args.length < 5)
 		{
 			System.err.printf(
-				"Usage: %s InputFastaFile OutputFastaFile%n\tNumberOfFragments%n\tFragmentSize%n\tFragmentSizeTolerance%n",
+				"Usage: %s InputFastaFile OutputFastaFile%n\tNumberOfFragments%n\tFragmentSize%n\tFragmentSizeVariance%n",
 				FragmentizeSequenceFromFastaFile.class.getCanonicalName());
 			return;
 		}
-		int n = Integer.parseInt(args[2]);
-		int k = Integer.parseInt(args[3]);
-		int kTolerance = Integer.parseInt(args[4]);
+		Fragmentizer.Options options = new Fragmentizer.Options();
+		options.n = Integer.parseInt(args[2]);
+		options.k = Integer.parseInt(args[3]);
+		options.kv = Integer.parseInt(args[4]);
 		String string = null;
 		try
 		{
 			string = FastaHandler.getSequence(new File(args[0]));
-			List<Fragment> fragments = Fragmentizer.fragmentizeForShotgun(string, n, k, kTolerance);
+			List<Fragment> fragments = Fragmentizer.fragmentizeForShotgun(string, options);
 			FastaHandler.writeFragments(fragments, new File(args[1]));
 		}
 		catch (IOException e)

@@ -64,10 +64,7 @@ public class FragmentDisplay
 	private JTextField assembledField;
 	private JSpinner nSpinner;
 	private JSpinner kSpinner;
-	private JSpinner ktSpinner;
-	private int n;
-	private int k;
-	private int kt;
+	private JSpinner kvSpinner;
 	private FragmentDisplaySettings settings;
 	private JScrollPane origImageScroller;
 	private JScrollPane assembledImageScroller;
@@ -193,8 +190,8 @@ public class FragmentDisplay
 		panel.add(kLabel, gbc);
 		
 		gbc.gridx = 2;
-		JLabel ktLabel = new JLabel("Size Leeway");
-		ktLabel.setToolTipText("Each fragment will be of length (fragment size) +/- (size leeway)");
+		JLabel ktLabel = new JLabel("Size Variance");
+		ktLabel.setToolTipText("Each fragment will be of length (fragment size) +/- (size variance)");
 		panel.add(ktLabel, gbc);
 		
 		gbc = new GridBagConstraints();
@@ -217,8 +214,8 @@ public class FragmentDisplay
 		gbc.gridx = 2;
 		SpinnerNumberModel ktModel = new SpinnerNumberModel();
 		ktModel.setMinimum(0);
-		ktSpinner = new JSpinner(ktModel);
-		panel.add(ktSpinner, gbc);
+		kvSpinner = new JSpinner(ktModel);
+		panel.add(kvSpinner, gbc);
 		
 		gbc = new GridBagConstraints();
 		gbc.gridy = 4;
@@ -344,12 +341,13 @@ public class FragmentDisplay
 	
 	private void splitString()
 	{
-		n = (Integer) nSpinner.getValue();
-		k = (Integer) kSpinner.getValue();
-		kt = (Integer) ktSpinner.getValue();
+		Fragmentizer.Options o = new Fragmentizer.Options();
+		o.n = (Integer) nSpinner.getValue();
+		o.k = (Integer) kSpinner.getValue();
+		o.kv = (Integer) kvSpinner.getValue();
 		origString = stringField.getText();
 		table.clearSelection();
-		fragments = new ArrayList<Fragment>(Fragmentizer.fragmentizeForShotgun(origString, n, k, kt));
+		fragments = new ArrayList<Fragment>(Fragmentizer.fragmentizeForShotgun(origString, o));
 		Collections.sort(fragments, new FragmentComparator());
 		tableModel.fireTableDataChanged();
 		selectedFragment = null;

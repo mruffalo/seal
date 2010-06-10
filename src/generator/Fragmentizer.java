@@ -6,28 +6,43 @@ import assembly.FragmentPositionSource;
 
 public class Fragmentizer
 {
+	public static class Options
+	{
+		/**
+		 * Number of fragments to read
+		 */
+		public int n;
+		/**
+		 * Approximate length of each fragment
+		 */
+		public int k;
+		/**
+		 * Variance in fragment size -- each fragment will be of length
+		 * <code>length ± lengthTolerance</code>
+		 */
+		public int kv;
+		
+	}
+	
 	/**
 	 * @param string
 	 *            String to fragmentize
 	 * @param n
 	 *            Number of fragments to read from <code>string</code>
 	 * @param k
-	 *            Approximate length of each fragment
 	 * @param kTolerance
-	 *            Leeway in fragment size -- each fragment will be of length
-	 *            <code>length ± lengthTolerance</code>
 	 * @return A list of fragments that were randomly read from the provided String. Fragments that
 	 *         are entirely contained in another fragment <b>have already been filtered</b>. This
 	 *         means that you will probably get less than <code>n</code> fragments back.
 	 */
-	public static List<Fragment> fragmentizeForShotgun(String string, int n, int k, int kTolerance)
+	public static List<Fragment> fragmentizeForShotgun(String string, Options o)
 	{
 		Random random = new Random();
-		List<Fragment> list = new ArrayList<Fragment>(n);
-		for (int i = 0; i < n; i++)
+		List<Fragment> list = new ArrayList<Fragment>(o.n);
+		for (int i = 0; i < o.n; i++)
 		{
-			int sizeAddition = kTolerance > 0 ? random.nextInt(kTolerance * 2) - kTolerance : 0;
-			int fragmentLength = k + sizeAddition;
+			int sizeAddition = o.kv > 0 ? random.nextInt(o.kv * 2) - o.kv : 0;
+			int fragmentLength = o.k + sizeAddition;
 			int index = random.nextInt(string.length() - fragmentLength);
 			Fragment f = new Fragment(string.substring(index, index + fragmentLength));
 			f.setPosition(FragmentPositionSource.ORIGINAL_SEQUENCE, index);
@@ -35,6 +50,11 @@ public class Fragmentizer
 		}
 		
 		return removeSubstrings(list);
+	}
+	
+	public static List<Fragment> fragmentizeWithErrors(String string, int n, int k, int kTolerance)
+	{
+		return null;
 	}
 	
 	/**
@@ -165,15 +185,16 @@ public class Fragmentizer
 	{
 		if (args.length < 4)
 		{
-			System.err.printf("*** Usage: %s string n k kTolerance", Fragmentizer.class.getCanonicalName());
+			System.err.printf("*** Usage: %s string n k kVariance", Fragmentizer.class.getCanonicalName());
 			System.exit(1);
 		}
 		String string = args[0];
-		int n = Integer.parseInt(args[1]);
-		int k = Integer.parseInt(args[2]);
-		int kTolerance = Integer.parseInt(args[3]);
+		Options options = new Options();
+		options.n = Integer.parseInt(args[1]);
+		options.k = Integer.parseInt(args[2]);
+		options.kv = Integer.parseInt(args[3]);
 		FragmentPositionSource source = FragmentPositionSource.ORIGINAL_SEQUENCE;
-		List<Fragment> fragments = fragmentizeForShotgun(string, n, k, kTolerance);
+		List<Fragment> fragments = fragmentizeForShotgun(string, options);
 		for (Fragment fragment : fragments)
 		{
 			System.out.printf("%5d: %s%n", fragment.getPosition(source), fragment.string);
