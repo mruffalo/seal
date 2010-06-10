@@ -190,9 +190,9 @@ public class FragmentDisplay
 		panel.add(kLabel, gbc);
 		
 		gbc.gridx = 2;
-		JLabel ktLabel = new JLabel("Size Variance");
-		ktLabel.setToolTipText("Each fragment will be of length (fragment size) +/- (size variance)");
-		panel.add(ktLabel, gbc);
+		JLabel kvLabel = new JLabel("Size Variance");
+		kvLabel.setToolTipText("Each fragment will be of length (fragment size) +/- (size variance), uniformly distributed");
+		panel.add(kvLabel, gbc);
 		
 		gbc = new GridBagConstraints();
 		gbc.fill = GridBagConstraints.BOTH;
@@ -212,9 +212,9 @@ public class FragmentDisplay
 		panel.add(kSpinner, gbc);
 		
 		gbc.gridx = 2;
-		SpinnerNumberModel ktModel = new SpinnerNumberModel();
-		ktModel.setMinimum(0);
-		kvSpinner = new JSpinner(ktModel);
+		SpinnerNumberModel kvModel = new SpinnerNumberModel();
+		kvModel.setMinimum(0);
+		kvSpinner = new JSpinner(kvModel);
 		panel.add(kvSpinner, gbc);
 		
 		gbc = new GridBagConstraints();
