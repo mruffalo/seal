@@ -1,6 +1,4 @@
 import java.io.*;
-import java.util.*;
-import utils.LicenseUtil;
 import assembly.*;
 import generator.*;
 
@@ -12,7 +10,6 @@ public class GenerateSequenceToFastaFile
 	 */
 	public static void main(String[] args)
 	{
-		LicenseUtil.printLicense();
 		if (args.length < 4)
 		{
 			System.err.printf("Usage: %s OutputFastaFile%n\tSequenceLength%n\tNumberOfRepeats%n\tRepeatLength%n",

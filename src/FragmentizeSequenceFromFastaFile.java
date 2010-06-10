@@ -11,15 +11,16 @@ public class FragmentizeSequenceFromFastaFile
 	 */
 	public static void main(String[] args)
 	{
-		if (args.length < 4)
+		if (args.length < 5)
 		{
-			System.err.printf("Usage: %s OutputFastaFile%n\tSequenceLength%n\tNumberOfRepeats%n\tRepeatLength%n",
-				GenerateSequenceToFastaFile.class.getCanonicalName());
+			System.err.printf(
+				"Usage: %s InputFastaFile OutputFastaFile%n\tSequenceLength%n\tNumberOfRepeats%n\tRepeatLength%n",
+				FragmentizeSequenceFromFastaFile.class.getCanonicalName());
 			return;
 		}
-		int n = Integer.parseInt(args[1]);
-		int k = Integer.parseInt(args[2]);
-		int kTolerance = Integer.parseInt(args[3]);
+		int n = Integer.parseInt(args[2]);
+		int k = Integer.parseInt(args[3]);
+		int kTolerance = Integer.parseInt(args[4]);
 		String string = null;
 		try
 		{
