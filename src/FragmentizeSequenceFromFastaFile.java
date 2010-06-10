@@ -5,7 +5,6 @@ import generator.*;
 
 public class FragmentizeSequenceFromFastaFile
 {
-	
 	/**
 	 * @param args
 	 */
@@ -14,7 +13,7 @@ public class FragmentizeSequenceFromFastaFile
 		if (args.length < 5)
 		{
 			System.err.printf(
-				"Usage: %s InputFastaFile OutputFastaFile%n\tSequenceLength%n\tNumberOfRepeats%n\tRepeatLength%n",
+				"Usage: %s InputFastaFile OutputFastaFile%n\tNumberOfFragments%n\tFragmentSize%n\tFragmentSizeTolerance%n",
 				FragmentizeSequenceFromFastaFile.class.getCanonicalName());
 			return;
 		}
