@@ -154,7 +154,13 @@ public class FastaHandler
 			int i = 0;
 			for (Fragment fragment : fragments)
 			{
-				output.write(String.format(">FRAGMENT_%d%n", i++));
+				output.write(String.format(">FRAGMENT_%d", i++));
+				Integer originalPosition = fragment.getPosition(FragmentPositionSource.ORIGINAL_SEQUENCE);
+				if (originalPosition != null)
+				{
+					output.write(String.format(":%d", originalPosition));
+				}
+				output.write(String.format("%n"));
 				output.write(fragment.string);
 				output.write(String.format("%n"));
 			}
