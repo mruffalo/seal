@@ -6,7 +6,8 @@ import java.util.Map;
 public class Fragment
 {
 	public final String string;
-	private Map<FragmentPositionSource, Integer> positions;
+	private final Map<FragmentPositionSource, Integer> positions;
+	private int readQuality;
 	
 	public Fragment(String string_)
 	{
@@ -65,6 +66,16 @@ public class Fragment
 			}
 		}
 		return true;
+	}
+	
+	public int getReadQuality()
+	{
+		return readQuality;
+	}
+	
+	public void setReadQuality(int readQuality_)
+	{
+		readQuality = readQuality_;
 	}
 	
 	@Override
