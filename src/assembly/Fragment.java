@@ -1,6 +1,8 @@
 package assembly;
 
+import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 
 public class Fragment
@@ -76,6 +78,18 @@ public class Fragment
 	public void setReadQuality(int readQuality_)
 	{
 		readQuality = readQuality_;
+	}
+	
+	/**
+	 * TODO: Determine parameters for this method
+	 * 
+	 * @return
+	 */
+	public List<Fragment> pairedEndClone()
+	{
+		List<Fragment> list = new ArrayList<Fragment>(2);
+		// TODO: this
+		return list;
 	}
 	
 	@Override
