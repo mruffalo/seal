@@ -9,12 +9,13 @@ public class Fragment
 {
 	public final String string;
 	private final Map<FragmentPositionSource, Integer> positions;
-	private int readQuality;
+	private final int[] readQuality;
 	
 	public Fragment(String string_)
 	{
 		string = string_;
 		positions = new EnumMap<FragmentPositionSource, Integer>(FragmentPositionSource.class);
+		readQuality = new int[string.length()];
 	}
 	
 	public Integer getPosition(FragmentPositionSource source)
@@ -70,14 +71,14 @@ public class Fragment
 		return true;
 	}
 	
-	public int getReadQuality()
+	public int getReadQuality(int index)
 	{
-		return readQuality;
+		return readQuality[index];
 	}
 	
-	public void setReadQuality(int readQuality_)
+	public void setReadQuality(int index, int quality)
 	{
-		readQuality = readQuality_;
+		readQuality[index] = quality;
 	}
 	
 	/**
