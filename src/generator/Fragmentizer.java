@@ -19,7 +19,7 @@ public class Fragmentizer
 		/**
 		 * Standard deviation of normally-distributed fragment size
 		 */
-		public int ksd;
+		public double ksd;
 	}
 	
 	/**
@@ -39,8 +39,7 @@ public class Fragmentizer
 		List<Fragment> list = new ArrayList<Fragment>(o.n);
 		for (int i = 0; i < o.n; i++)
 		{
-			// TODO: Make fragment size normally distributed
-			int sizeAddition = o.ksd > 0 ? random.nextInt(o.ksd * 2) - o.ksd : 0;
+			int sizeAddition = (int) (random.nextGaussian() * o.ksd);
 			int fragmentLength = o.k + sizeAddition;
 			int index = random.nextInt(string.length() - fragmentLength);
 			Fragment f = new Fragment(string.substring(index, index + fragmentLength));

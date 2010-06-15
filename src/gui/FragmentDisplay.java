@@ -212,8 +212,7 @@ public class FragmentDisplay
 		panel.add(kSpinner, gbc);
 		
 		gbc.gridx = 2;
-		SpinnerNumberModel ksdModel = new SpinnerNumberModel();
-		ksdModel.setMinimum(0);
+		SpinnerNumberModel ksdModel = new SpinnerNumberModel(0.0, 0.0, null, 0.5);
 		ksdSpinner = new JSpinner(ksdModel);
 		panel.add(ksdSpinner, gbc);
 		
@@ -344,7 +343,7 @@ public class FragmentDisplay
 		Fragmentizer.Options o = new Fragmentizer.Options();
 		o.n = (Integer) nSpinner.getValue();
 		o.k = (Integer) kSpinner.getValue();
-		o.ksd = (Integer) ksdSpinner.getValue();
+		o.ksd = (Double) ksdSpinner.getValue();
 		origString = stringField.getText();
 		table.clearSelection();
 		fragments = new ArrayList<Fragment>(Fragmentizer.fragmentizeForShotgun(origString, o));
