@@ -46,13 +46,7 @@ public class Fragmentizer
 			f.setPosition(FragmentPositionSource.ORIGINAL_SEQUENCE, index);
 			list.add(f);
 		}
-		
 		return removeSubstrings(list);
-	}
-	
-	public static List<Fragment> fragmentizeWithErrors(String string, int n, int k, int kTolerance)
-	{
-		return null;
 	}
 	
 	/**
