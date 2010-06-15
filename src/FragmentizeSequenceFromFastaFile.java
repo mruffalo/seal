@@ -14,14 +14,14 @@ public class FragmentizeSequenceFromFastaFile
 		if (args.length < 5)
 		{
 			System.err.printf(
-				"Usage: %s InputFastaFile OutputFastaFile%n\tNumberOfFragments%n\tFragmentSize%n\tFragmentSizeVariance%n",
+				"Usage: %s InputFastaFile OutputFastaFile%n\tNumberOfFragments%n\tFragmentSize%n\tFragmentSizeStdDev%n",
 				FragmentizeSequenceFromFastaFile.class.getCanonicalName());
 			return;
 		}
 		Fragmentizer.Options options = new Fragmentizer.Options();
 		options.n = Integer.parseInt(args[2]);
 		options.k = Integer.parseInt(args[3]);
-		options.ksd = Integer.parseInt(args[4]);
+		options.ksd = Double.parseDouble(args[4]);
 		String string = null;
 		try
 		{
