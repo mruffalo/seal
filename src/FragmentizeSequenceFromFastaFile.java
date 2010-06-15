@@ -1,5 +1,6 @@
 import java.io.*;
 import java.util.*;
+import utils.FastaHandler;
 import assembly.*;
 import generator.*;
 

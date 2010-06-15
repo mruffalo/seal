@@ -1,7 +1,9 @@
-package assembly;
+package utils;
 
 import java.util.*;
 import java.io.*;
+import assembly.Fragment;
+import assembly.FragmentPositionSource;
 
 public class FastaHandler
 {
