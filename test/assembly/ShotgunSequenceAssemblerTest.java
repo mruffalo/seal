@@ -155,7 +155,7 @@ public class ShotgunSequenceAssemblerTest
 		Fragmentizer.Options o = new Fragmentizer.Options();
 		o.n = 1000;
 		o.k = 50;
-		o.kv = 5;
+		o.ksd = 5;
 		List<Fragment> list = Fragmentizer.fragmentizeForShotgun(string, o);
 		assertTrue(list.size() <= 1000);
 		String assembled = sa.assembleSequence(list);
@@ -177,7 +177,7 @@ public class ShotgunSequenceAssemblerTest
 		Fragmentizer.Options o = new Fragmentizer.Options();
 		o.n = 50;
 		o.k = 10;
-		o.kv = 0;
+		o.ksd = 0;
 		List<Fragment> list = Fragmentizer.fragmentizeForShotgun(string, o);
 		String assembled = sa.assembleSequence(list);
 		ArrayList<ArrayList<Fragment>> fragmentCounts = new ArrayList<ArrayList<Fragment>>(assembled.length());

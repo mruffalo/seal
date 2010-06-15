@@ -17,11 +17,9 @@ public class Fragmentizer
 		 */
 		public int k;
 		/**
-		 * Variance in fragment size -- each fragment will be of length
-		 * <code>length ± lengthTolerance</code>
+		 * Standard deviation of normally-distributed fragment size
 		 */
-		public int kv;
-		
+		public int ksd;
 	}
 	
 	/**
@@ -41,7 +39,8 @@ public class Fragmentizer
 		List<Fragment> list = new ArrayList<Fragment>(o.n);
 		for (int i = 0; i < o.n; i++)
 		{
-			int sizeAddition = o.kv > 0 ? random.nextInt(o.kv * 2) - o.kv : 0;
+			// TODO: Make fragment size normally distributed
+			int sizeAddition = o.ksd > 0 ? random.nextInt(o.ksd * 2) - o.ksd : 0;
 			int fragmentLength = o.k + sizeAddition;
 			int index = random.nextInt(string.length() - fragmentLength);
 			Fragment f = new Fragment(string.substring(index, index + fragmentLength));
@@ -172,12 +171,8 @@ public class Fragmentizer
 	}
 	
 	/**
-	 * XXX: TEMPORARY method to output a <code>String</code> and its
-	 * <code>List&lt;Fragment&gt;</code> to <code>System.out</code>. Example output:
-	 * 
-	 * <pre>
-	 * 
-	 * </pre>
+	 * Output a <code>String</code> and its <code>List&lt;Fragment&gt;</code> to
+	 * <code>System.out</code>.
 	 * 
 	 * @param args
 	 */
@@ -192,7 +187,7 @@ public class Fragmentizer
 		Options options = new Options();
 		options.n = Integer.parseInt(args[1]);
 		options.k = Integer.parseInt(args[2]);
-		options.kv = Integer.parseInt(args[3]);
+		options.ksd = Integer.parseInt(args[3]);
 		FragmentPositionSource source = FragmentPositionSource.ORIGINAL_SEQUENCE;
 		List<Fragment> fragments = fragmentizeForShotgun(string, options);
 		for (Fragment fragment : fragments)

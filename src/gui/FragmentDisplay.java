@@ -64,7 +64,7 @@ public class FragmentDisplay
 	private JTextField assembledField;
 	private JSpinner nSpinner;
 	private JSpinner kSpinner;
-	private JSpinner kvSpinner;
+	private JSpinner ksdSpinner;
 	private FragmentDisplaySettings settings;
 	private JScrollPane origImageScroller;
 	private JScrollPane assembledImageScroller;
@@ -190,9 +190,9 @@ public class FragmentDisplay
 		panel.add(kLabel, gbc);
 		
 		gbc.gridx = 2;
-		JLabel kvLabel = new JLabel("Size Variance");
-		kvLabel.setToolTipText("Each fragment will be of length (fragment size) +/- (size variance), uniformly distributed");
-		panel.add(kvLabel, gbc);
+		JLabel ksdLabel = new JLabel("Size Std.Dev.");
+		ksdLabel.setToolTipText("Each fragment's size will be normally distributed with this standard deviation");
+		panel.add(ksdLabel, gbc);
 		
 		gbc = new GridBagConstraints();
 		gbc.fill = GridBagConstraints.BOTH;
@@ -212,10 +212,10 @@ public class FragmentDisplay
 		panel.add(kSpinner, gbc);
 		
 		gbc.gridx = 2;
-		SpinnerNumberModel kvModel = new SpinnerNumberModel();
-		kvModel.setMinimum(0);
-		kvSpinner = new JSpinner(kvModel);
-		panel.add(kvSpinner, gbc);
+		SpinnerNumberModel ksdModel = new SpinnerNumberModel();
+		ksdModel.setMinimum(0);
+		ksdSpinner = new JSpinner(ksdModel);
+		panel.add(ksdSpinner, gbc);
 		
 		gbc = new GridBagConstraints();
 		gbc.gridy = 4;
@@ -344,7 +344,7 @@ public class FragmentDisplay
 		Fragmentizer.Options o = new Fragmentizer.Options();
 		o.n = (Integer) nSpinner.getValue();
 		o.k = (Integer) kSpinner.getValue();
-		o.kv = (Integer) kvSpinner.getValue();
+		o.ksd = (Integer) ksdSpinner.getValue();
 		origString = stringField.getText();
 		table.clearSelection();
 		fragments = new ArrayList<Fragment>(Fragmentizer.fragmentizeForShotgun(origString, o));

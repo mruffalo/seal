@@ -20,7 +20,7 @@ public class FragmentizeSequenceFromFastaFile
 		Fragmentizer.Options options = new Fragmentizer.Options();
 		options.n = Integer.parseInt(args[2]);
 		options.k = Integer.parseInt(args[3]);
-		options.kv = Integer.parseInt(args[4]);
+		options.ksd = Integer.parseInt(args[4]);
 		String string = null;
 		try
 		{

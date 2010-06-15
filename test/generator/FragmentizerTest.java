@@ -58,24 +58,24 @@ public class FragmentizerTest
 		Fragmentizer.Options o = new Fragmentizer.Options();
 		o.n = 50;
 		o.k = 10;
-		o.kv = 2;
+		o.ksd = 2;
 		List<Fragment> list = Fragmentizer.fragmentizeForShotgun(string, o);
 		assertTrue(o.n >= list.size());
 		for (Fragment fragment : list)
 		{
 			System.out.println(fragment);
-			assertTrue(Math.abs(fragment.string.length() - o.k) <= o.kv);
+			assertTrue(Math.abs(fragment.string.length() - o.k) <= o.ksd);
 			assertTrue(string.contains(fragment.string));
 		}
 		o.n = 20;
 		o.k = 20;
-		o.kv = 4;
+		o.ksd = 4;
 		list = Fragmentizer.fragmentizeForShotgun(string, o);
 		assertTrue(o.n >= list.size());
 		for (Fragment fragment : list)
 		{
 			System.out.println(fragment);
-			assertTrue(Math.abs(fragment.string.length() - o.k) <= o.kv);
+			assertTrue(Math.abs(fragment.string.length() - o.k) <= o.ksd);
 			assertTrue(string.contains(fragment.string));
 		}
 	}
