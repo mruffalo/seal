@@ -75,7 +75,7 @@ public class ImagePanel extends JPanel implements Scrollable
 				g2d.setColor(color);
 				
 				g2d.fill(new Rectangle2D.Float(fragment.getPosition(source) * settings.scale, (i + 1) * 2
-						* settings.scale, fragment.string.length() * settings.scale, settings.scale));
+						* settings.scale, fragment.getString().length() * settings.scale, settings.scale));
 				g2d.dispose();
 			}
 			i++;

@@ -64,16 +64,16 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 				Vertex from = getVertex(first);
 				for (Fragment second : fragments)
 				{
-					if (!first.string.equals(second.string))
+					if (!first.getString().equals(second.getString()))
 					{
 						Vertex to = getVertex(second);
 						/*
 						 * TODO: Use a more efficient way of doing this, like suffix trees.
 						 */
-						for (int i = Math.min(first.string.length(), second.string.length()); i >= 0; i--)
+						for (int i = Math.min(first.getString().length(), second.getString().length()); i >= 0; i--)
 						{
-							String firstSuffix = first.string.substring(first.string.length() - i);
-							String secondPrefix = second.string.substring(0, i);
+							String firstSuffix = first.getString().substring(first.getString().length() - i);
+							String secondPrefix = second.getString().substring(0, i);
 							if (secondPrefix.equals(firstSuffix))
 							{
 								if (i > 0)
@@ -192,7 +192,7 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 				sb.append(String.format("%s%n", v.toString()));
 				for (Edge e : v.adj.values())
 				{
-					sb.append(String.format("\tEdge to %s, overlap %d%n", e.to.fragment.string, e.overlap));
+					sb.append(String.format("\tEdge to %s, overlap %d%n", e.to.fragment.getString(), e.overlap));
 				}
 			}
 			return sb.toString();
@@ -229,7 +229,7 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 			@Override
 			public String toString()
 			{
-				return String.format("Vertex \"%s\": %d edge(s)", fragment.string, adj.size());
+				return String.format("Vertex \"%s\": %d edge(s)", fragment.getString(), adj.size());
 			}
 		}
 		
@@ -259,7 +259,7 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 			@Override
 			public String toString()
 			{
-				return String.format("%s %d %s", from.fragment.string, overlap, to.fragment.string);
+				return String.format("%s %d %s", from.fragment.getString(), overlap, to.fragment.getString());
 			}
 		}
 		
@@ -314,24 +314,24 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 					Edge e = vertexEdgeMap.get(v);
 					if (e == null)
 					{
-						sb.append(v.fragment.string);
+						sb.append(v.fragment.getString());
 						v.fragment.setPosition(FragmentPositionSource.ASSEMBLED_SEQUENCE, position);
-						position += v.fragment.string.length();
+						position += v.fragment.getString().length();
 					}
 					else
 					{
 						e.from.fragment.setPosition(FragmentPositionSource.ASSEMBLED_SEQUENCE, position);
-						sb.append(e.from.fragment.string);
-						position += e.from.fragment.string.length() - e.overlap;
+						sb.append(e.from.fragment.getString());
+						position += e.from.fragment.getString().length() - e.overlap;
 						e.to.fragment.setPosition(FragmentPositionSource.ASSEMBLED_SEQUENCE, position);
-						sb.append(e.to.fragment.string.substring(e.overlap));
+						sb.append(e.to.fragment.getString().substring(e.overlap));
 						e = vertexEdgeMap.get(e.to);
 					}
 					while (e != null)
 					{
-						position += e.from.fragment.string.length() - e.overlap;
+						position += e.from.fragment.getString().length() - e.overlap;
 						e.to.fragment.setPosition(FragmentPositionSource.ASSEMBLED_SEQUENCE, position);
-						sb.append(e.to.fragment.string.substring(e.overlap));
+						sb.append(e.to.fragment.getString().substring(e.overlap));
 						e = vertexEdgeMap.get(e.to);
 					}
 				}

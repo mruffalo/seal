@@ -163,7 +163,7 @@ public class FastaHandler
 					output.write(String.format(":%d", originalPosition));
 				}
 				output.write(String.format("%n"));
-				output.write(fragment.string);
+				output.write(fragment.getString());
 				output.write(String.format("%n"));
 			}
 		}
@@ -190,7 +190,7 @@ public class FastaHandler
 			{
 				output.write(String.format(">FRAGMENT_%d%n", i++));
 				StringBuilder sb = new StringBuilder();
-				sb.append(fragment.string);
+				sb.append(fragment.getString());
 				sb.append(",");
 				Integer origPos = fragment.getPosition(FragmentPositionSource.ORIGINAL_SEQUENCE);
 				if (origPos != null)

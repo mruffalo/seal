@@ -7,7 +7,7 @@ import java.util.Map;
 
 public class Fragment
 {
-	public final String string;
+	private final String string;
 	private final Map<FragmentPositionSource, Integer> positions;
 	private final int[] readQuality;
 	
@@ -15,7 +15,7 @@ public class Fragment
 	{
 		string = string_;
 		positions = new EnumMap<FragmentPositionSource, Integer>(FragmentPositionSource.class);
-		readQuality = new int[string.length()];
+		readQuality = new int[getString().length()];
 	}
 	
 	public Integer getPosition(FragmentPositionSource source)
@@ -31,7 +31,7 @@ public class Fragment
 	@Override
 	public int hashCode()
 	{
-		return string.hashCode();
+		return getString().hashCode();
 	}
 	
 	@Override
@@ -42,16 +42,16 @@ public class Fragment
 			return false;
 		}
 		Fragment that = (Fragment) o;
-		if (string == null)
+		if (getString() == null)
 		{
-			return that.string == null;
+			return that.getString() == null;
 		}
-		return string.equals(that.string);
+		return getString().equals(that.getString());
 	}
 	
 	public boolean equalsWithPositions(Fragment that)
 	{
-		if (!string.equals(that.string))
+		if (!getString().equals(that.getString()))
 		{
 			return false;
 		}
@@ -95,6 +95,11 @@ public class Fragment
 	
 	@Override
 	public String toString()
+	{
+		return getString();
+	}
+
+	public String getString()
 	{
 		return string;
 	}

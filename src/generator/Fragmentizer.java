@@ -65,7 +65,7 @@ public class Fragmentizer
 			for (Fragment second : nonDuplicates)
 			{
 				// Filter out substrings
-				if (first.string.contains(second.string) && !first.string.equals(second.string))
+				if (first.getString().contains(second.getString()) && !first.getString().equals(second.getString()))
 				{
 					substrings.add(second);
 				}
@@ -120,7 +120,7 @@ public class Fragmentizer
 					if (fragment.getPosition(source) >= begin)
 					{
 						if (earliestFinish == null
-								|| (fragment.getPosition(source) + fragment.string.length()) < (earliestFinish.getPosition(source) + earliestFinish.string.length()))
+								|| (fragment.getPosition(source) + fragment.getString().length()) < (earliestFinish.getPosition(source) + earliestFinish.getString().length()))
 						{
 							earliestFinish = fragment;
 						}
@@ -137,7 +137,7 @@ public class Fragmentizer
 					 * +1 here ensures that successive fragments on one line are separated by a gap
 					 * of at least one character.
 					 */
-					begin = earliestFinish.getPosition(source) + earliestFinish.string.length() + 1;
+					begin = earliestFinish.getPosition(source) + earliestFinish.getString().length() + 1;
 					fragmentSet.remove(earliestFinish);
 				}
 			}
@@ -185,7 +185,7 @@ public class Fragmentizer
 		List<Fragment> fragments = fragmentizeForShotgun(string, options);
 		for (Fragment fragment : fragments)
 		{
-			System.out.printf("%5d: %s%n", fragment.getPosition(source), fragment.string);
+			System.out.printf("%5d: %s%n", fragment.getPosition(source), fragment.getString());
 		}
 		System.out.println();
 		System.out.println(string);
@@ -199,8 +199,8 @@ public class Fragmentizer
 				{
 					System.out.print(" ");
 				}
-				System.out.print(fragment.string);
-				begin = fragment.getPosition(source) + fragment.string.length();
+				System.out.print(fragment.getString());
+				begin = fragment.getPosition(source) + fragment.getString().length();
 			}
 			System.out.println();
 		}

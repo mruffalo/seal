@@ -362,7 +362,7 @@ public class FragmentDisplay
 		for (Fragment fragment : fragments)
 		{
 			System.out.printf("%5d: %s%n", fragment.getPosition(FragmentPositionSource.ORIGINAL_SEQUENCE),
-				fragment.string);
+				fragment.getString());
 		}
 		origGrouped = Fragmentizer.groupByLine(fragments, FragmentPositionSource.ORIGINAL_SEQUENCE);
 		assembledGrouped = Fragmentizer.groupByLine(fragments, FragmentPositionSource.ASSEMBLED_SEQUENCE);
@@ -387,8 +387,8 @@ public class FragmentDisplay
 				{
 					System.out.print(" ");
 				}
-				System.out.print(fragment.string);
-				begin = fragment.getPosition(source) + fragment.string.length();
+				System.out.print(fragment.getString());
+				begin = fragment.getPosition(source) + fragment.getString().length();
 			}
 			System.out.println();
 		}
@@ -449,7 +449,7 @@ public class FragmentDisplay
 			Fragment fragment = fragments.get(rowIndex);
 			if (columnIndex == 0)
 			{
-				return fragment.string;
+				return fragment.getString();
 			}
 			else
 			{
@@ -629,7 +629,7 @@ public class FragmentDisplay
 		@Override
 		public int compare(Fragment f1, Fragment f2)
 		{
-			return f1.string.compareTo(f2.string);
+			return f1.getString().compareTo(f2.getString());
 		}
 	}
 	
