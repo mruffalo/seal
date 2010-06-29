@@ -1,6 +1,7 @@
 package utils;
 
 import java.util.*;
+import java.util.regex.Pattern;
 import java.io.*;
 import assembly.Fragment;
 import assembly.FragmentPositionSource;
@@ -12,6 +13,13 @@ public class FastaHandler
 {
 	public static final String FIELD_SEPARATOR = ",";
 	
+	/*
+	 * TODO: Make sure that I'm remembering Java's regex syntax correctly
+	 */
+	private static final Pattern READ_HEADER_START = Pattern.compile("");
+	private static final Pattern QUALITY_HEADER_START = Pattern.compile("");
+	private static final Pattern DATA_CONTINUE = Pattern.compile("");
+	
 	private static enum State
 	{
 		READ_HEADER,
@@ -22,7 +30,8 @@ public class FastaHandler
 	
 	/**
 	 * Does not actually operate on FASTA files due to position annotation. TODO: fix this by moving
-	 * position annotation into fragment header
+	 * position annotation into fragment header here and in
+	 * {@link #writeFragmentsWithPositions(List, File)}
 	 * 
 	 * @param file
 	 * @return
@@ -188,6 +197,13 @@ public class FastaHandler
 		}
 	}
 	
+	/**
+	 * Doesn't actually write a valid FASTA file due to position annotations
+	 * 
+	 * @param fragments
+	 * @param file
+	 * @throws IOException
+	 */
 	public static void writeFragmentsWithPositions(List<Fragment> fragments, File file) throws IOException
 	{
 		BufferedWriter output = null;
