@@ -15,7 +15,7 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 	 * Assembles the given fragments into a String using greedy Hamiltonian path creation.
 	 */
 	@Override
-	public String assembleSequence(List<Fragment> fragments)
+	public String assembleSequence(List<? extends Fragment> fragments)
 	{
 		OverlapGraph graph = new OverlapGraph(fragments);
 		OverlapGraph.Path path = graph.createPath();
@@ -51,7 +51,7 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 		 *            {@link generator.Fragmentizer#removeSubstrings}</li>
 		 *            </ul>
 		 */
-		public OverlapGraph(List<Fragment> fragments)
+		public OverlapGraph(List<? extends Fragment> fragments)
 		{
 			vertices = new HashMap<Fragment, Vertex>(fragments.size());
 			queue = new PriorityQueue<Edge>();

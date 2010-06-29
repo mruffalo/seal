@@ -86,9 +86,9 @@ public class Fragment
 	 * 
 	 * @return
 	 */
-	public List<Fragment> pairedEndClone()
+	public List<? extends Fragment> pairedEndClone()
 	{
-		List<Fragment> list = new ArrayList<Fragment>(2);
+		List<? extends Fragment> list = new ArrayList<PairedEndFragment>(2);
 		// TODO: this
 		return list;
 	}
@@ -98,7 +98,7 @@ public class Fragment
 	{
 		return getString();
 	}
-
+	
 	public String getString()
 	{
 		return string;
