@@ -16,6 +16,15 @@ public class FastaHandler
 	 * @return
 	 * @throws IOException
 	 */
+	
+	private static enum State
+	{
+		READ_HEADER,
+		READ_DATA,
+		QUALITY_HEADER,
+		QUALITY_DATA;
+	}
+	
 	public static List<Fragment> getFragmentsWithPositions(File file) throws IOException
 	{
 		BufferedReader input = null;
