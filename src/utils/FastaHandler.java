@@ -16,9 +16,9 @@ public class FastaHandler
 	/*
 	 * TODO: Make sure that I'm remembering Java's regex syntax correctly
 	 */
-	private static final Pattern READ_HEADER_START = Pattern.compile("");
-	private static final Pattern QUALITY_HEADER_START = Pattern.compile("");
-	private static final Pattern DATA_CONTINUE = Pattern.compile("");
+	private static final Pattern READ_HEADER_START = Pattern.compile("^[@>]");
+	private static final Pattern QUALITY_HEADER_START = Pattern.compile("^\\+");
+	private static final Pattern DATA_CONTINUE = Pattern.compile("^[^@>]");
 	
 	private static enum State
 	{
