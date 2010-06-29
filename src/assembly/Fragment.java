@@ -7,9 +7,9 @@ import java.util.Map;
 
 public class Fragment
 {
-	private final String string;
-	private final Map<FragmentPositionSource, Integer> positions;
-	private final int[] readQuality;
+	protected final String string;
+	protected final Map<FragmentPositionSource, Integer> positions;
+	protected final int[] readQuality;
 	
 	public Fragment(String string_)
 	{
