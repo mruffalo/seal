@@ -5,17 +5,12 @@ import java.io.*;
 import assembly.Fragment;
 import assembly.FragmentPositionSource;
 
+/**
+ * TODO: Rename/refactor this to cover the FASTQ format
+ */
 public class FastaHandler
 {
 	public static final String FIELD_SEPARATOR = ",";
-	
-	/**
-	 * Does not actually operate on FASTA files due to position annotation
-	 * 
-	 * @param file
-	 * @return
-	 * @throws IOException
-	 */
 	
 	private static enum State
 	{
@@ -25,6 +20,14 @@ public class FastaHandler
 		QUALITY_DATA;
 	}
 	
+	/**
+	 * Does not actually operate on FASTA files due to position annotation. TODO: fix this by moving
+	 * position annotation into fragment header
+	 * 
+	 * @param file
+	 * @return
+	 * @throws IOException
+	 */
 	public static List<Fragment> getFragmentsWithPositions(File file) throws IOException
 	{
 		BufferedReader input = null;
