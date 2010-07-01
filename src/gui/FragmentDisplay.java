@@ -1,7 +1,8 @@
 package gui;
 
 import generator.Fragmentizer;
-import io.FastaHandler;
+import io.FastaReader;
+import io.FastaWriter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -513,7 +514,7 @@ public class FragmentDisplay
 				File file = fc.getSelectedFile();
 				try
 				{
-					setString(FastaHandler.getSequence(file));
+					setString(FastaReader.getSequence(file));
 				}
 				catch (IOException e)
 				{
@@ -536,7 +537,7 @@ public class FragmentDisplay
 				File file = fc.getSelectedFile();
 				try
 				{
-					FastaHandler.writeSequence(assembledString, file);
+					FastaWriter.writeSequence(assembledString, file);
 				}
 				catch (IOException e)
 				{
@@ -559,7 +560,7 @@ public class FragmentDisplay
 				File file = fc.getSelectedFile();
 				try
 				{
-					FastaHandler.writeFragmentsWithPositions(fragments, file);
+					FastaWriter.writeFragmentsWithPositions(fragments, file);
 				}
 				catch (IOException e)
 				{
@@ -583,7 +584,7 @@ public class FragmentDisplay
 				try
 				{
 					origString = "";
-					List<Fragment> rawFragments = FastaHandler.getFragmentsWithPositions(file);
+					List<Fragment> rawFragments = FastaReader.getFragmentsWithPositions(file);
 					fragments = new ArrayList<Fragment>(Fragmentizer.removeSubstrings(rawFragments));
 					Collections.sort(fragments, new FragmentComparator());
 					assembleFragments();

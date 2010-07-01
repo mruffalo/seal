@@ -1,4 +1,4 @@
-import io.FastaHandler;
+import io.FastaWriter;
 import java.io.*;
 import generator.*;
 
@@ -23,7 +23,7 @@ public class GenerateSequenceToFastaFile
 		String string = sg.generateSequence(m, r, l);
 		try
 		{
-			FastaHandler.writeSequence(string, new File(args[0]));
+			FastaWriter.writeSequence(string, new File(args[0]));
 		}
 		catch (IOException e)
 		{

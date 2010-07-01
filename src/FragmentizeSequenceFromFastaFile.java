@@ -1,4 +1,5 @@
-import io.FastaHandler;
+import io.FastaReader;
+import io.FastaWriter;
 import java.io.*;
 import java.util.*;
 import assembly.*;
@@ -25,9 +26,9 @@ public class FragmentizeSequenceFromFastaFile
 		String string = null;
 		try
 		{
-			string = FastaHandler.getSequence(new File(args[0]));
+			string = FastaReader.getSequence(new File(args[0]));
 			List<Fragment> fragments = Fragmentizer.fragmentizeForShotgun(string, options);
-			FastaHandler.writeFragments(fragments, new File(args[1]));
+			FastaWriter.writeFragments(fragments, new File(args[1]));
 		}
 		catch (IOException e)
 		{
