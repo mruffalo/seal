@@ -1,6 +1,7 @@
 package gui;
 
 import generator.Fragmentizer;
+import io.FastaHandler;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -15,7 +16,6 @@ import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
-import utils.FastaHandler;
 import utils.LicenseUtil;
 import assembly.*;
 

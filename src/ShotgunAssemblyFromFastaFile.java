@@ -1,7 +1,7 @@
 import generator.Fragmentizer;
+import io.FastaHandler;
 import java.io.*;
 import java.util.*;
-import utils.FastaHandler;
 import utils.LicenseUtil;
 import assembly.*;
 

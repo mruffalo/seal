@@ -1,5 +1,5 @@
+import io.FastaHandler;
 import java.io.*;
-import utils.FastaHandler;
 import generator.*;
 
 public class GenerateSequenceToFastaFile
