@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Reader;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
@@ -14,6 +15,38 @@ import assembly.FragmentPositionSource;
 
 public class FastaReader
 {
+	private BufferedReader source;
+	
+	public FastaReader(Reader in)
+	{
+		source = new BufferedReader(in);
+	}
+	
+	public Fragment readFragment()
+	{
+		Fragment f = null;
+		try
+		{
+			StringBuilder sb = new StringBuilder();
+			String line = null;
+			while ((line = source.readLine()) != null)
+			{
+				if (line.startsWith(">"))
+				{
+					break;
+				}
+				sb.append(line.trim());
+			}
+			f = new Fragment(sb.toString());
+		}
+		catch (IOException e)
+		{
+			System.err.println("Caught IOException:");
+			e.printStackTrace();
+		}
+		return f;
+	}
+	
 	public static String getSequence(File file) throws IOException
 	{
 		String sequence = null, temp = null;
