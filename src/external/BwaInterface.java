@@ -4,8 +4,11 @@ import generator.Fragmentizer;
 import generator.SeqGenSingleSequenceMultipleRepeats;
 import generator.SequenceGenerator;
 import io.FastaWriter;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.List;
 import assembly.Fragment;
 
@@ -26,12 +29,30 @@ public class BwaInterface
 	public void createIndex(File file)
 	{
 		ProcessBuilder pb = new ProcessBuilder(BWA_COMMAND, INDEX_COMMAND, file.getAbsolutePath());
+		pb.directory(file.getParentFile());
 		try
 		{
 			FastaWriter.writeSequence(sequence, file);
 			Process p = pb.start();
+			BufferedReader stdout = new BufferedReader(new InputStreamReader(p.getInputStream()));
+			BufferedReader stderr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+			String line = null;
+			while ((line = stdout.readLine()) != null)
+			{
+				System.out.println(line);
+			}
+			while ((line = stderr.readLine()) != null)
+			{
+				System.err.println(line);
+			}
+			p.waitFor();
 		}
 		catch (IOException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		catch (InterruptedException e)
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -58,7 +79,9 @@ public class BwaInterface
 		o.ksd = 10;
 		List<Fragment> list = Fragmentizer.fragmentizeForShotgun(sequence, o);
 		BwaInterface b = new BwaInterface(sequence, list);
-		b.createIndex(new File("sequence.fasta"));
+		File path = new File("data");
+		path.mkdirs();
+		b.createIndex(new File(path, "sequence.fasta"));
 		b.align();
 		b.readAlignment();
 	}
