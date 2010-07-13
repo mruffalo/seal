@@ -1,5 +1,6 @@
 package external;
 
+import generator.Fragmentizer;
 import generator.SeqGenSingleSequenceMultipleRepeats;
 import generator.SequenceGenerator;
 import io.FastaWriter;
@@ -13,12 +14,12 @@ public class BwaInterface
 	public static final String BWA_COMMAND = "bwa";
 	public static final String INDEX_COMMAND = "index";
 	
-	private String string;
+	private String sequence;
 	private List<Fragment> fragments;
 	
 	public BwaInterface(String string_, List<Fragment> fragments_)
 	{
-		string = string_;
+		sequence = string_;
 		fragments = fragments_;
 	}
 	
@@ -27,7 +28,7 @@ public class BwaInterface
 		ProcessBuilder pb = new ProcessBuilder(BWA_COMMAND, INDEX_COMMAND, file.getAbsolutePath());
 		try
 		{
-			FastaWriter.writeSequence(string, file);
+			FastaWriter.writeSequence(sequence, file);
 			Process p = pb.start();
 		}
 		catch (IOException e)
@@ -50,7 +51,15 @@ public class BwaInterface
 	public static void main(String args[])
 	{
 		SequenceGenerator g = new SeqGenSingleSequenceMultipleRepeats();
-		String string = g.generateSequence(100000, 0, 0);
-		System.out.println(string);
+		String sequence = g.generateSequence(100000, 0, 0);
+		Fragmentizer.Options o = new Fragmentizer.Options();
+		o.k = 100;
+		o.n = 1000;
+		o.ksd = 10;
+		List<Fragment> list = Fragmentizer.fragmentizeForShotgun(sequence, o);
+		BwaInterface b = new BwaInterface(sequence, list);
+		b.createIndex(new File("sequence.fasta"));
+		b.align();
+		b.readAlignment();
 	}
 }
