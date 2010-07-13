@@ -24,7 +24,7 @@ import assembly.Fragment;
  * 
  * @author mruffalo
  */
-public class BwaInterface
+public class BwaInterface implements AlignmentToolInterface
 {
 	public static final String BWA_COMMAND = "bwa";
 	public static final String INDEX_COMMAND = "index";
