@@ -13,7 +13,7 @@ import assembly.FragmentPositionSource;
 
 public class FastaReader
 {
-	private BufferedReader source;
+	private final BufferedReader source;
 	
 	public FastaReader(Reader in)
 	{
