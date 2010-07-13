@@ -1,10 +1,8 @@
 package io;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.LinkedList;
@@ -112,7 +110,7 @@ public class FastaReader
 	/**
 	 * Does not actually operate on FASTA files due to position annotation. TODO: fix this by moving
 	 * position annotation into fragment header here and in
-	 * {@link #writeFragmentsWithPositions(List, File)}
+	 * {@link FastaWriter#writeFragmentsWithPositions(List, File)}
 	 * 
 	 * @param file
 	 * @return
