@@ -28,4 +28,24 @@ public class PairedEndFragment extends Fragment
 			return string.substring(string.length() - length);
 		}
 	}
+	
+	@Override
+	public Integer getPosition(FragmentPositionSource source)
+	{
+		int rawPosition = positions.get(source);
+		if (atBeginningOfFragment)
+		{
+			return rawPosition;
+		}
+		else
+		{
+			return rawPosition + (string.length() - length);
+		}
+	}
+	
+	@Override
+	public void setPosition(FragmentPositionSource source, int value)
+	{
+		positions.put(source, value);
+	}
 }
