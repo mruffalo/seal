@@ -8,12 +8,15 @@ import java.io.Reader;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.regex.Matcher;
 import assembly.Fragment;
 import assembly.FragmentPositionSource;
 
 public class FastaReader
 {
 	private final BufferedReader source;
+	private Integer prevReadPosition = null;
+	private Integer prevAssembledPosition = null;
 	
 	public FastaReader(Reader in)
 	{
@@ -27,8 +30,15 @@ public class FastaReader
 		{
 			StringBuilder sb = new StringBuilder();
 			String line = null;
+			Integer readPosition = null;
+			Integer assembledPosition = null;
 			while ((line = source.readLine()) != null)
 			{
+				Matcher m = Constants.READ_POSITION_HEADER.matcher(line);
+				if (m.matches())
+				{
+					// 
+				}
 				if (line.startsWith(">"))
 				{
 					break;
@@ -146,7 +156,8 @@ public class FastaReader
 							try
 							{
 								Integer assembledPos = Integer.parseInt(pieces[2]);
-								f.setPosition(FragmentPositionSource.ASSEMBLED_SEQUENCE, assembledPos);
+								f.setPosition(FragmentPositionSource.ASSEMBLED_SEQUENCE,
+									assembledPos);
 							}
 							catch (NumberFormatException e)
 							{
