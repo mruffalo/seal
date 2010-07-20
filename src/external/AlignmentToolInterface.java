@@ -1,6 +1,6 @@
 package external;
 
-public interface AlignmentToolInterface
+public abstract class AlignmentToolInterface
 {
 	
 }

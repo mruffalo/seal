@@ -23,7 +23,7 @@ import assembly.Fragment;
  * 
  * @author mruffalo
  */
-public class BwaInterface implements AlignmentToolInterface
+public class BwaInterface extends AlignmentToolInterface
 {
 	public static final String BWA_COMMAND = "bwa";
 	public static final String INDEX_COMMAND = "index";
@@ -150,8 +150,8 @@ public class BwaInterface implements AlignmentToolInterface
 	}
 	
 	/**
-	 * Don't need to read fragments; we have those already. TODO: Move this logic into
-	 * {@link SamReader}
+	 * Don't need to read fragments; we have those already. TODO: Move this
+	 * logic into {@link SamReader}
 	 * 
 	 * @param sam_output
 	 */
