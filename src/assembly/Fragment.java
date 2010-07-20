@@ -4,14 +4,15 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import util.ropes.*;
 
 public class Fragment
 {
-	protected final String string;
+	protected final CharSequence string;
 	protected final Map<FragmentPositionSource, Integer> positions;
 	protected final int[] readQuality;
 	
-	public Fragment(String string_)
+	public Fragment(CharSequence string_)
 	{
 		string = string_;
 		positions = new EnumMap<FragmentPositionSource, Integer>(FragmentPositionSource.class);
@@ -60,8 +61,9 @@ public class Fragment
 			Integer thisPosition = this.getPosition(source);
 			Integer thatPosition = that.getPosition(source);
 			/*
-			 * Only compare positions that are present in both fragments. If a position has not been
-			 * assigned in one of the fragments, it doesn't count toward equality.
+			 * Only compare positions that are present in both fragments. If a
+			 * position has not been assigned in one of the fragments, it
+			 * doesn't count toward equality.
 			 */
 			if (thisPosition != null && thatPosition != null && thisPosition != thatPosition)
 			{
@@ -96,10 +98,10 @@ public class Fragment
 	@Override
 	public String toString()
 	{
-		return getString();
+		return getString().toString();
 	}
 	
-	public String getString()
+	public CharSequence getString()
 	{
 		return string;
 	}

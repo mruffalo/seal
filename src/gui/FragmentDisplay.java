@@ -58,8 +58,9 @@ public class FragmentDisplay
 	List<List<Fragment>> origGrouped;
 	List<List<Fragment>> assembledGrouped;
 	/**
-	 * Specify this as an ArrayList instead of a List to prevent accidentally storing a LinkedList.
-	 * Various parts of this code require random access, for which a LinkedList is badly suited.
+	 * Specify this as an ArrayList instead of a List to prevent accidentally
+	 * storing a LinkedList. Various parts of this code require random access,
+	 * for which a LinkedList is badly suited.
 	 */
 	private ArrayList<Fragment> fragments;
 	private JTextField stringField;
@@ -79,7 +80,8 @@ public class FragmentDisplay
 		fragments = new ArrayList<Fragment>();
 		origString = assembledString = "";
 		origGrouped = Fragmentizer.groupByLine(fragments, FragmentPositionSource.ORIGINAL_SEQUENCE);
-		assembledGrouped = Fragmentizer.groupByLine(fragments, FragmentPositionSource.ASSEMBLED_SEQUENCE);
+		assembledGrouped = Fragmentizer.groupByLine(fragments,
+			FragmentPositionSource.ASSEMBLED_SEQUENCE);
 		
 		frame = new JFrame("Fragment Display");
 		// frame.setBounds(25, 25, 320, 320);
@@ -249,13 +251,15 @@ public class FragmentDisplay
 		JPanel imagePanel = new JPanel(new GridBagLayout());
 		
 		origGrouped = Fragmentizer.groupByLine(fragments, FragmentPositionSource.ORIGINAL_SEQUENCE);
-		assembledGrouped = Fragmentizer.groupByLine(fragments, FragmentPositionSource.ASSEMBLED_SEQUENCE);
+		assembledGrouped = Fragmentizer.groupByLine(fragments,
+			FragmentPositionSource.ASSEMBLED_SEQUENCE);
 		printFragmentGraph(origString, origGrouped, FragmentPositionSource.ORIGINAL_SEQUENCE);
-		printFragmentGraph(assembledString, assembledGrouped, FragmentPositionSource.ASSEMBLED_SEQUENCE);
+		printFragmentGraph(assembledString, assembledGrouped,
+			FragmentPositionSource.ASSEMBLED_SEQUENCE);
 		Image origImage = ImagePanel.getFragmentGroupImage(settings, origString, origGrouped, null,
 			FragmentPositionSource.ORIGINAL_SEQUENCE);
-		Image assembledImage = ImagePanel.getFragmentGroupImage(settings, assembledString, assembledGrouped, null,
-			FragmentPositionSource.ASSEMBLED_SEQUENCE);
+		Image assembledImage = ImagePanel.getFragmentGroupImage(settings, assembledString,
+			assembledGrouped, null, FragmentPositionSource.ASSEMBLED_SEQUENCE);
 		
 		GridBagConstraints constraints = new GridBagConstraints();
 		constraints.weightx = 1.0;
@@ -283,7 +287,8 @@ public class FragmentDisplay
 				
 				int range1 = origImageScrollBar.getMaximum() - origImageScrollBar.getMinimum()
 						- origImageScrollBar.getModel().getExtent();
-				int range2 = assembledImageScrollBar.getMaximum() - assembledImageScrollBar.getMinimum()
+				int range2 = assembledImageScrollBar.getMaximum()
+						- assembledImageScrollBar.getMinimum()
 						- assembledImageScrollBar.getModel().getExtent();
 				
 				double percent = (double) (origImageScrollBar.getValue()) / range1;
@@ -304,7 +309,8 @@ public class FragmentDisplay
 				
 				int range1 = origImageScrollBar.getMaximum() - origImageScrollBar.getMinimum()
 						- origImageScrollBar.getModel().getExtent();
-				int range2 = assembledImageScrollBar.getMaximum() - assembledImageScrollBar.getMinimum()
+				int range2 = assembledImageScrollBar.getMaximum()
+						- assembledImageScrollBar.getMinimum()
 						- assembledImageScrollBar.getModel().getExtent();
 				
 				double percent = (double) assembledImageScrollBar.getValue() / range2;
@@ -323,7 +329,8 @@ public class FragmentDisplay
 		table.getSelectionModel().addListSelectionListener(new FragmentRedrawSelectionListener());
 		
 		JScrollPane tableScroller = new JScrollPane(table);
-		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, imagePanel, tableScroller);
+		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, imagePanel,
+			tableScroller);
 		Dimension minimumImageSize = new Dimension(200, 1);
 		imagePanel.setMinimumSize(minimumImageSize);
 		return splitPane;
@@ -362,20 +369,24 @@ public class FragmentDisplay
 		assembledField.setText(assembledString);
 		for (Fragment fragment : fragments)
 		{
-			System.out.printf("%5d: %s%n", fragment.getPosition(FragmentPositionSource.ORIGINAL_SEQUENCE),
+			System.out.printf("%5d: %s%n",
+				fragment.getPosition(FragmentPositionSource.ORIGINAL_SEQUENCE),
 				fragment.getString());
 		}
 		origGrouped = Fragmentizer.groupByLine(fragments, FragmentPositionSource.ORIGINAL_SEQUENCE);
-		assembledGrouped = Fragmentizer.groupByLine(fragments, FragmentPositionSource.ASSEMBLED_SEQUENCE);
+		assembledGrouped = Fragmentizer.groupByLine(fragments,
+			FragmentPositionSource.ASSEMBLED_SEQUENCE);
 		printFragmentGraph(origString, origGrouped, FragmentPositionSource.ORIGINAL_SEQUENCE);
-		printFragmentGraph(assembledString, assembledGrouped, FragmentPositionSource.ASSEMBLED_SEQUENCE);
+		printFragmentGraph(assembledString, assembledGrouped,
+			FragmentPositionSource.ASSEMBLED_SEQUENCE);
 		redrawImages();
 	}
 	
 	/**
 	 * Temporary
 	 */
-	private static void printFragmentGraph(String string, List<List<Fragment>> grouped, FragmentPositionSource source)
+	private static void printFragmentGraph(String string, List<List<Fragment>> grouped,
+		FragmentPositionSource source)
 	{
 		System.out.println();
 		System.out.println(string);
@@ -397,14 +408,16 @@ public class FragmentDisplay
 	
 	private void redrawImages()
 	{
-		Image origImage = ImagePanel.getFragmentGroupImage(settings, origString, origGrouped, selectedFragment,
-			FragmentPositionSource.ORIGINAL_SEQUENCE);
+		Image origImage = ImagePanel.getFragmentGroupImage(settings, origString, origGrouped,
+			selectedFragment, FragmentPositionSource.ORIGINAL_SEQUENCE);
 		origImagePanel.setImage(origImage);
 		origImagePanel.revalidate();
-		origImageScroller.getViewport().setBackground(settings.colors.get(FragmentDisplayColor.BACKGROUND));
-		assembledImageScroller.getViewport().setBackground(settings.colors.get(FragmentDisplayColor.BACKGROUND));
-		Image assembledImage = ImagePanel.getFragmentGroupImage(settings, assembledString, assembledGrouped,
-			selectedFragment, FragmentPositionSource.ASSEMBLED_SEQUENCE);
+		origImageScroller.getViewport().setBackground(
+			settings.colors.get(FragmentDisplayColor.BACKGROUND));
+		assembledImageScroller.getViewport().setBackground(
+			settings.colors.get(FragmentDisplayColor.BACKGROUND));
+		Image assembledImage = ImagePanel.getFragmentGroupImage(settings, assembledString,
+			assembledGrouped, selectedFragment, FragmentPositionSource.ASSEMBLED_SEQUENCE);
 		assembledImagePanel.setImage(assembledImage);
 		assembledImagePanel.revalidate();
 		
@@ -479,7 +492,8 @@ public class FragmentDisplay
 		@Override
 		public void valueChanged(ListSelectionEvent e)
 		{
-			selectedFragment = table.getSelectedRowCount() > 0 ? fragments.get(table.getSelectedRow()) : null;
+			selectedFragment = table.getSelectedRowCount() > 0 ? fragments.get(table.getSelectedRow())
+					: null;
 			redrawImages();
 		}
 	}
@@ -496,8 +510,8 @@ public class FragmentDisplay
 			}
 			else
 			{
-				JOptionPane.showMessageDialog(frame, "Can't split/assemble an empty string.", "Error",
-					JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(frame, "Can't split/assemble an empty string.",
+					"Error", JOptionPane.ERROR_MESSAGE);
 			}
 		}
 	}
@@ -630,7 +644,7 @@ public class FragmentDisplay
 		@Override
 		public int compare(Fragment f1, Fragment f2)
 		{
-			return f1.getString().compareTo(f2.getString());
+			return f1.getString().toString().compareTo(f2.getString().toString());
 		}
 	}
 	

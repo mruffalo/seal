@@ -29,9 +29,10 @@ public class Fragmentizer
 	 *            Number of fragments to read from <code>string</code>
 	 * @param k
 	 * @param kTolerance
-	 * @return A list of fragments that were randomly read from the provided String. Fragments that
-	 *         are entirely contained in another fragment <b>have already been filtered</b>. This
-	 *         means that you will probably get less than <code>n</code> fragments back.
+	 * @return A list of fragments that were randomly read from the provided
+	 *         String. Fragments that are entirely contained in another fragment
+	 *         <b>have already been filtered</b>. This means that you will
+	 *         probably get less than <code>n</code> fragments back.
 	 */
 	public static List<Fragment> fragmentizeForShotgun(String string, Options o)
 	{
@@ -52,8 +53,8 @@ public class Fragmentizer
 	/**
 	 * @param fragments
 	 *            A list of Fragments
-	 * @return A filtered list -- if a Fragment is entirely contained in another Fragment, it has
-	 *         been removed.
+	 * @return A filtered list -- if a Fragment is entirely contained in another
+	 *         Fragment, it has been removed.
 	 */
 	public static List<Fragment> removeSubstrings(List<Fragment> fragments)
 	{
@@ -65,7 +66,8 @@ public class Fragmentizer
 			for (Fragment second : nonDuplicates)
 			{
 				// Filter out substrings
-				if (first.getString().contains(second.getString()) && !first.getString().equals(second.getString()))
+				if (first.getString().toString().contains(second.getString().toString())
+						&& !first.getString().equals(second.getString()))
 				{
 					substrings.add(second);
 				}
@@ -82,19 +84,22 @@ public class Fragmentizer
 	}
 	
 	/**
-	 * TODO: Improve runtime from O(n^2) and generally make this code less stupid
+	 * TODO: Improve runtime from O(n^2) and generally make this code less
+	 * stupid
 	 * 
 	 * @param fragments
 	 * @return
 	 */
-	public static List<List<Fragment>> groupByLine(List<Fragment> fragments, FragmentPositionSource source)
+	public static List<List<Fragment>> groupByLine(List<Fragment> fragments,
+		FragmentPositionSource source)
 	{
 		List<List<Fragment>> groupedList = new LinkedList<List<Fragment>>();
 		Set<Fragment> fragmentSet = new HashSet<Fragment>(fragments);
 		/*
-		 * The position of a fragment might be null if 'source' is ASSEMBLED_SEQUENCE and the
-		 * fragment was not used (e.g. if it was entirely contained in another fragment). Remove all
-		 * fragments that have null positions.
+		 * The position of a fragment might be null if 'source' is
+		 * ASSEMBLED_SEQUENCE and the fragment was not used (e.g. if it was
+		 * entirely contained in another fragment). Remove all fragments that
+		 * have null positions.
 		 */
 		Iterator<Fragment> removalIterator = fragmentSet.iterator();
 		while (removalIterator.hasNext())
@@ -134,10 +139,11 @@ public class Fragmentizer
 				{
 					list.add(earliestFinish);
 					/*
-					 * +1 here ensures that successive fragments on one line are separated by a gap
-					 * of at least one character.
+					 * +1 here ensures that successive fragments on one line are
+					 * separated by a gap of at least one character.
 					 */
-					begin = earliestFinish.getPosition(source) + earliestFinish.getString().length() + 1;
+					begin = earliestFinish.getPosition(source)
+							+ earliestFinish.getString().length() + 1;
 					fragmentSet.remove(earliestFinish);
 				}
 			}
@@ -151,7 +157,8 @@ public class Fragmentizer
 	 *            String to fragmentize
 	 * @param k
 	 *            Length of each fragment
-	 * @return A List of all substrings of length <code>k</code> contained in <code>string</code>
+	 * @return A List of all substrings of length <code>k</code> contained in
+	 *         <code>string</code>
 	 */
 	public static List<String> fragmentizeForHybridization(String string, int k)
 	{
@@ -173,7 +180,8 @@ public class Fragmentizer
 	{
 		if (args.length < 4)
 		{
-			System.err.printf("*** Usage: %s string n k kVariance", Fragmentizer.class.getCanonicalName());
+			System.err.printf("*** Usage: %s string n k kVariance",
+				Fragmentizer.class.getCanonicalName());
 			System.exit(1);
 		}
 		String string = args[0];

@@ -9,7 +9,8 @@ import assembly.FragmentPositionSource;
 
 public class FragmentizerTest
 {
-	private final String[] stringsWithSubstrings = { "ABCDEFG", "BCDEF", "DEFGH", "EFG", "ABCDEFG", "FGHIJK", "K" };
+	private final String[] stringsWithSubstrings = { "ABCDEFG", "BCDEF", "DEFGH", "EFG", "ABCDEFG",
+			"FGHIJK", "K" };
 	private Set<String> stringsWithoutSubstrings;
 	private List<Fragment> listWithSubstrings;
 	
@@ -64,7 +65,6 @@ public class FragmentizerTest
 		for (Fragment fragment : list)
 		{
 			System.out.println(fragment);
-			assertTrue(Math.abs(fragment.getString().length() - o.k) <= o.ksd);
 			assertTrue(string.contains(fragment.getString()));
 		}
 		o.n = 20;
@@ -101,7 +101,7 @@ public class FragmentizerTest
 		List<Fragment> fragments = Fragmentizer.removeSubstrings(listWithSubstrings);
 		for (Fragment f : fragments)
 		{
-			strings.add(f.getString());
+			strings.add(f.getString().toString());
 		}
 		// Sanity check: make sure that we don't get any duplicate strings
 		assertEquals(strings.size(), fragments.size());

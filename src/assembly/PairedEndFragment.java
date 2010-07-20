@@ -3,8 +3,8 @@ package assembly;
 public class PairedEndFragment extends Fragment
 {
 	/**
-	 * Whether this paired end read at the beginning of the original fragment (true) or at the end
-	 * (false)
+	 * Whether this paired end read at the beginning of the original fragment
+	 * (true) or at the end (false)
 	 */
 	protected boolean atBeginningOfFragment;
 	protected int length;
@@ -17,15 +17,16 @@ public class PairedEndFragment extends Fragment
 	}
 	
 	@Override
-	public String getString()
+	public CharSequence getString()
 	{
 		if (atBeginningOfFragment)
 		{
-			return string.substring(0, length);
+			return string.subSequence(0, length);
 		}
 		else
 		{
-			return string.substring(string.length() - length);
+			// TODO: Test this
+			return string.subSequence(string.length() - length, string.length());
 		}
 	}
 	

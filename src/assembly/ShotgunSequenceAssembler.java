@@ -3,16 +3,18 @@ package assembly;
 import java.util.*;
 
 /**
- * Most or all data structures and operations in this class utilize HashMaps and HashSets instead of
- * Lists (see Vertex.adj). This incurs some (maybe significant) memory overhead, but in my opinion,
- * the constant access time is worth the tradeoff.
+ * Most or all data structures and operations in this class utilize HashMaps and
+ * HashSets instead of Lists (see Vertex.adj). This incurs some (maybe
+ * significant) memory overhead, but in my opinion, the constant access time is
+ * worth the tradeoff.
  * 
  * @author mruffalo
  */
 public class ShotgunSequenceAssembler implements SequenceAssembler
 {
 	/**
-	 * Assembles the given fragments into a String using greedy Hamiltonian path creation.
+	 * Assembles the given fragments into a String using greedy Hamiltonian path
+	 * creation.
 	 */
 	@Override
 	public String assembleSequence(List<? extends Fragment> fragments)
@@ -30,9 +32,10 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 	protected static class OverlapGraph
 	{
 		/**
-		 * The OverlapGraph stores the vertices as a (Hash)Map from Strings to Vertexes. This allows
-		 * constant-time retrieval of the overlap directly from the graph data structure. Each
-		 * Vertex also maps Strings to Edges for the same reason.
+		 * The OverlapGraph stores the vertices as a (Hash)Map from Strings to
+		 * Vertexes. This allows constant-time retrieval of the overlap directly
+		 * from the graph data structure. Each Vertex also maps Strings to Edges
+		 * for the same reason.
 		 */
 		private Map<Fragment, Vertex> vertices;
 		private Queue<Edge> queue;
@@ -43,11 +46,12 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 		 * @param fragments
 		 *            Note:
 		 *            <ul>
-		 *            <li>This overlap calculation <b>is case-sensitive</b>. It is assumed that all
-		 *            Strings in this list are case-normalized (either all lowercase or all
-		 *            uppercase).</li>
-		 *            <li>It is assumed that no fragment contains another fragment as a substring.
-		 *            If you are not sure that this is true, run your fragment list through
+		 *            <li>This overlap calculation <b>is case-sensitive</b>. It
+		 *            is assumed that all Strings in this list are
+		 *            case-normalized (either all lowercase or all uppercase).</li>
+		 *            <li>It is assumed that no fragment contains another
+		 *            fragment as a substring. If you are not sure that this is
+		 *            true, run your fragment list through
 		 *            {@link generator.Fragmentizer#removeSubstrings}</li>
 		 *            </ul>
 		 */
@@ -68,12 +72,15 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 					{
 						Vertex to = getVertex(second);
 						/*
-						 * TODO: Use a more efficient way of doing this, like suffix trees.
+						 * TODO: Use a more efficient way of doing this, like
+						 * suffix trees.
 						 */
-						for (int i = Math.min(first.getString().length(), second.getString().length()); i >= 0; i--)
+						for (int i = Math.min(first.getString().length(),
+							second.getString().length()); i >= 0; i--)
 						{
-							String firstSuffix = first.getString().substring(first.getString().length() - i);
-							String secondPrefix = second.getString().substring(0, i);
+							CharSequence firstSuffix = first.getString().subSequence(
+								first.getString().length() - i, first.getString().length());
+							CharSequence secondPrefix = second.getString().subSequence(0, i);
 							if (secondPrefix.equals(firstSuffix))
 							{
 								if (i > 0)
@@ -158,11 +165,11 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 		/**
 		 * @param from
 		 * @param to
-		 * @return The length of the longest String that is a suffix of <code>from</code> and a
-		 *         prefix of <code>to</code>.
+		 * @return The length of the longest String that is a suffix of
+		 *         <code>from</code> and a prefix of <code>to</code>.
 		 * @throws NullPointerException
-		 *             if <code>from</code> was not in the fragment list that was used to
-		 *             instantiate this Overlaps
+		 *             if <code>from</code> was not in the fragment list that
+		 *             was used to instantiate this Overlaps
 		 */
 		public Integer getOverlap(Fragment from, Fragment to)
 		{
@@ -178,9 +185,10 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 		}
 		
 		/**
-		 * TODO: Make this not cause <code>OutOfMemoryError</code>s when graphs are huge. This
-		 * return value must be printed to a terminal to be useful, so maybe consider just dumping
-		 * stuff to <code>System.out</code> instead of returning a String.
+		 * TODO: Make this not cause <code>OutOfMemoryError</code>s when graphs
+		 * are huge. This return value must be printed to a terminal to be
+		 * useful, so maybe consider just dumping stuff to
+		 * <code>System.out</code> instead of returning a String.
 		 * 
 		 * @return
 		 */
@@ -192,7 +200,8 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 				sb.append(String.format("%s%n", v.toString()));
 				for (Edge e : v.adj.values())
 				{
-					sb.append(String.format("\tEdge to %s, overlap %d%n", e.to.fragment.getString(), e.overlap));
+					sb.append(String.format("\tEdge to %s, overlap %d%n",
+						e.to.fragment.getString(), e.overlap));
 				}
 			}
 			return sb.toString();
@@ -202,9 +211,10 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 		{
 			public final Fragment fragment;
 			/**
-			 * This is the adjacency list of this Vertex, stored as a (Hash)Map from Fragments to
-			 * Edges. This allows constant-time lookup of an Edge from a Fragment, as opposed to
-			 * linear-time lookup if this were a List&lt;Vertex&gt;.
+			 * This is the adjacency list of this Vertex, stored as a (Hash)Map
+			 * from Fragments to Edges. This allows constant-time lookup of an
+			 * Edge from a Fragment, as opposed to linear-time lookup if this
+			 * were a List&lt;Vertex&gt;.
 			 */
 			protected final Map<Fragment, Edge> adj;
 			
@@ -247,8 +257,9 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 			}
 			
 			/**
-			 * Note: {@link java.util.PriorityQueue} returns the <b>minimum</b> priority. Since we
-			 * want the edge with the greatest weight, this comparison is inverted.
+			 * Note: {@link java.util.PriorityQueue} returns the <b>minimum</b>
+			 * priority. Since we want the edge with the greatest weight, this
+			 * comparison is inverted.
 			 */
 			@Override
 			public int compareTo(Edge o)
@@ -259,19 +270,21 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 			@Override
 			public String toString()
 			{
-				return String.format("%s %d %s", from.fragment.getString(), overlap, to.fragment.getString());
+				return String.format("%s %d %s", from.fragment.getString(), overlap,
+					to.fragment.getString());
 			}
 		}
 		
 		/**
-		 * This class wraps a sequence of edges, which describes a path through the graph.
+		 * This class wraps a sequence of edges, which describes a path through
+		 * the graph.
 		 */
 		protected class Path
 		{
 			/**
-			 * The insertion order of edges is not important, otherwise I would use a
-			 * {@link java.util.LinkedHashSet}. The crucial order is the path through the graph,
-			 * which is captured elsewhere.
+			 * The insertion order of edges is not important, otherwise I would
+			 * use a {@link java.util.LinkedHashSet}. The crucial order is the
+			 * path through the graph, which is captured elsewhere.
 			 * 
 			 * @see #vertexEdgeMap
 			 */
@@ -279,31 +292,35 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 			protected Set<Vertex> visitedSourceVertices = new HashSet<Vertex>(vertices.size());
 			protected Set<Vertex> visitedTargetVertices = new HashSet<Vertex>(vertices.size());
 			/**
-			 * Stores the parent of each disconnected segment of this path. Used for cycle
-			 * detection.
+			 * Stores the parent of each disconnected segment of this path. Used
+			 * for cycle detection.
 			 */
-			protected TwoWayMap<Vertex, Vertex> parentMap = new TwoWayHashMap<Vertex, Vertex>(vertices.size());
+			protected TwoWayMap<Vertex, Vertex> parentMap = new TwoWayHashMap<Vertex, Vertex>(
+				vertices.size());
 			/**
-			 * This, along with the disconnected path parents Vertex set, stores the path through
-			 * the graph. Each Vertex maps to the correct Edge, so you can always tell where to go
-			 * next from where you are.
+			 * This, along with the disconnected path parents Vertex set, stores
+			 * the path through the graph. Each Vertex maps to the correct Edge,
+			 * so you can always tell where to go next from where you are.
 			 * 
 			 * @see #assembleString()
 			 */
 			protected Map<Vertex, Edge> vertexEdgeMap = new HashMap<Vertex, Edge>(vertices.size());
 			/**
-			 * If this path is connected, this Set contains only one Vertex. Otherwise, the
-			 * assembled String is obtained by concatenating the paths starting at each Vertex here.
+			 * If this path is connected, this Set contains only one Vertex.
+			 * Otherwise, the assembled String is obtained by concatenating the
+			 * paths starting at each Vertex here.
 			 */
 			private Set<Vertex> disconnectedPathParents = new HashSet<Vertex>(vertices.values());
 			
 			/**
-			 * Creates a String from the path (sequence of edges) contained in this object. This
-			 * method is <b>not</b> responsible for creating an optimal or correct path -- it only
-			 * puts Edges together into a String. Path creation is contained in
+			 * Creates a String from the path (sequence of edges) contained in
+			 * this object. This method is <b>not</b> responsible for creating
+			 * an optimal or correct path -- it only puts Edges together into a
+			 * String. Path creation is contained in
 			 * {@link ShotgunSequenceAssembler#assembleSequence}.
 			 * 
-			 * @return A String specified by the Vertexes and Edges in this Path.
+			 * @return A String specified by the Vertexes and Edges in this
+			 *         Path.
 			 */
 			public String assembleString()
 			{
@@ -320,18 +337,23 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 					}
 					else
 					{
-						e.from.fragment.setPosition(FragmentPositionSource.ASSEMBLED_SEQUENCE, position);
+						e.from.fragment.setPosition(FragmentPositionSource.ASSEMBLED_SEQUENCE,
+							position);
 						sb.append(e.from.fragment.getString());
 						position += e.from.fragment.getString().length() - e.overlap;
-						e.to.fragment.setPosition(FragmentPositionSource.ASSEMBLED_SEQUENCE, position);
-						sb.append(e.to.fragment.getString().substring(e.overlap));
+						e.to.fragment.setPosition(FragmentPositionSource.ASSEMBLED_SEQUENCE,
+							position);
+						sb.append(e.to.fragment.getString().subSequence(e.overlap,
+							e.to.fragment.getString().length()));
 						e = vertexEdgeMap.get(e.to);
 					}
 					while (e != null)
 					{
 						position += e.from.fragment.getString().length() - e.overlap;
-						e.to.fragment.setPosition(FragmentPositionSource.ASSEMBLED_SEQUENCE, position);
-						sb.append(e.to.fragment.getString().substring(e.overlap));
+						e.to.fragment.setPosition(FragmentPositionSource.ASSEMBLED_SEQUENCE,
+							position);
+						sb.append(e.to.fragment.getString().subSequence(e.overlap,
+							e.to.fragment.getString().length()));
 						e = vertexEdgeMap.get(e.to);
 					}
 				}
@@ -340,7 +362,8 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 			
 			public int getPathVertexCount()
 			{
-				HashSet<Vertex> union = new HashSet<Vertex>(visitedSourceVertices.size() + visitedTargetVertices.size());
+				HashSet<Vertex> union = new HashSet<Vertex>(visitedSourceVertices.size()
+						+ visitedTargetVertices.size());
 				union.addAll(visitedSourceVertices);
 				union.addAll(visitedTargetVertices);
 				return union.size();
@@ -386,9 +409,10 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 						toChild = edge.to;
 					}
 					/*
-					 * A TwoWayMap does not allow duplicate values for the same reason that a Map
-					 * does not allow duplicate keys: the keys of the forward map are the values of
-					 * the reverse map and vice versa. This operation plays fast and loose with this
+					 * A TwoWayMap does not allow duplicate values for the same
+					 * reason that a Map does not allow duplicate keys: the keys
+					 * of the forward map are the values of the reverse map and
+					 * vice versa. This operation plays fast and loose with this
 					 * requirement, but the tests pass.
 					 */
 					parentMap.put(toChild, parent);
@@ -407,8 +431,8 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 			 * @return Whether this Edge is valid:
 			 *         <ul>
 			 *         <li>it must not already exist in this Path,</li>
-			 *         <li>its source and target Vertexes must not already be used for those
-			 *         purposes, and</li>
+			 *         <li>its source and target Vertexes must not already be
+			 *         used for those purposes, and</li>
 			 *         <li>it must not create a cycle.</li>
 			 *         </ul>
 			 */
@@ -424,10 +448,12 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 					boolean sourceUsed = visitedSourceVertices.contains(edge.from);
 					boolean targetUsed = visitedTargetVertices.contains(edge.to);
 					/*
-					 * This check is straightforward: this Edge creates a cycle if [pseudocode] to
-					 * == parent(from). Debugging this and implementing vertex parent tracking were
-					 * not straightforward, however. There are other cases that would cause cycles,
-					 * but those are caught by the above two checks (sourceUnused && targetUnused).
+					 * This check is straightforward: this Edge creates a cycle
+					 * if [pseudocode] to == parent(from). Debugging this and
+					 * implementing vertex parent tracking were not
+					 * straightforward, however. There are other cases that
+					 * would cause cycles, but those are caught by the above two
+					 * checks (sourceUnused && targetUnused).
 					 */
 					boolean createsCycle = edge.to.equals(parentMap.get(edge.from));
 					return !alreadyExists && !sourceUsed && !targetUsed && !createsCycle;
@@ -439,7 +465,8 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 			 *         <ul>
 			 *         <li>be connected,</li>
 			 *         <li>touch every vertex,</li>
-			 *         <li>and have one less edge than the parent Graph has Vertexes.</li>
+			 *         <li>and have one less edge than the parent Graph has
+			 *         Vertexes.</li>
 			 *         </ul>
 			 * @see #isConnected()
 			 */
@@ -448,7 +475,8 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 				int pathVertices = getPathVertexCount();
 				int pathEdges = getPathEdgeCount();
 				int graphVertices = getVertexCount();
-				return pathVertices == graphVertices && (pathEdges == graphVertices - 1) && isConnected();
+				return pathVertices == graphVertices && (pathEdges == graphVertices - 1)
+						&& isConnected();
 			}
 			
 			/**

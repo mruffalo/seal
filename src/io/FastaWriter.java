@@ -43,7 +43,8 @@ public class FastaWriter
 					output.write(String.format(":%d", originalPosition));
 				}
 				output.write(String.format("%n"));
-				output.write(fragment.getString());
+				// TODO: Improve this to be Rope-smart
+				output.write(fragment.getString().toString());
 				output.write(String.format("%n"));
 			}
 		}
@@ -63,15 +64,16 @@ public class FastaWriter
 	 * @param file
 	 * @throws IOException
 	 */
-	public static void writeFragmentsWithPositions(List<Fragment> fragments, File file) throws IOException
+	public static void writeFragmentsWithPositions(List<Fragment> fragments, File file)
+		throws IOException
 	{
 		BufferedWriter output = null;
 		try
 		{
 			output = new BufferedWriter(new FileWriter(file));
 			output.write(String.format(">Data format:%n"));
-			output.write(String.format(">fragment%soriginal_position%sassembled_position%n", Constants.FIELD_SEPARATOR,
-				Constants.FIELD_SEPARATOR));
+			output.write(String.format(">fragment%soriginal_position%sassembled_position%n",
+				Constants.FIELD_SEPARATOR, Constants.FIELD_SEPARATOR));
 			int i = 0;
 			for (Fragment fragment : fragments)
 			{
