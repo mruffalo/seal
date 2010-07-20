@@ -11,6 +11,7 @@ import java.util.Scanner;
 import java.util.regex.Matcher;
 import assembly.Fragment;
 import assembly.FragmentPositionSource;
+import util.ropes.*;
 
 public class FastaReader
 {
@@ -37,7 +38,7 @@ public class FastaReader
 				Matcher m = Constants.READ_POSITION_HEADER.matcher(line);
 				if (m.matches())
 				{
-					// 
+					//
 				}
 				if (line.startsWith(">"))
 				{
@@ -70,6 +71,34 @@ public class FastaReader
 					continue;
 				}
 				sequence = temp;
+			}
+		}
+		finally
+		{
+			if (input != null)
+			{
+				input.close();
+			}
+		}
+		return sequence;
+	}
+	
+	public static CharSequence getLargeSequence(File file) throws IOException
+	{
+		RopeBuilder rb = new RopeBuilder();
+		Rope sequence = rb.build("");
+		Scanner input = null;
+		try
+		{
+			input = new Scanner(new BufferedReader(new FileReader(file)));
+			while (input.hasNext())
+			{
+				String temp = input.next();
+				if (temp.startsWith(">"))
+				{
+					continue;
+				}
+				sequence = sequence.append(rb.build(temp));
 			}
 		}
 		finally

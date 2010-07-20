@@ -33,10 +33,10 @@ public class BwaInterface implements AlignmentToolInterface
 	
 	public static final int PHRED_MATCH_THRESHOLD = 35;
 	
-	private String sequence;
+	private CharSequence sequence;
 	private List<Fragment> fragments;
 	
-	public BwaInterface(String string_, List<Fragment> fragments_)
+	public BwaInterface(CharSequence string_, List<Fragment> fragments_)
 	{
 		sequence = string_;
 		fragments = fragments_;
@@ -213,7 +213,7 @@ public class BwaInterface implements AlignmentToolInterface
 			File sam_output = new File(path, "alignment.sam");
 			path.mkdirs();
 			System.out.print("Reading genome...");
-			String sequence = FastaReader.getSequence(genome);
+			CharSequence sequence = FastaReader.getLargeSequence(genome);
 			System.out.println("done.");
 			Fragmentizer.Options o = new Fragmentizer.Options();
 			o.k = 1000;

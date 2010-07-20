@@ -10,7 +10,7 @@ import assembly.FragmentPositionSource;
 
 public class FastaWriter
 {
-	public static void writeSequence(String sequence, File file) throws IOException
+	public static void writeSequence(CharSequence sequence, File file) throws IOException
 	{
 		BufferedWriter output = null;
 		try
