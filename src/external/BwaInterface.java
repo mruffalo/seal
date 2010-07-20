@@ -36,10 +36,21 @@ public class BwaInterface extends AlignmentToolInterface
 	private CharSequence sequence;
 	private List<Fragment> fragments;
 	
-	public BwaInterface(CharSequence string_, List<Fragment> fragments_)
+	private File genome;
+	private File reads;
+	private File binaryOutput;
+	private File samOutput;
+	
+	public BwaInterface(CharSequence string_, List<Fragment> fragments_, File genome_, File reads_,
+		File binaryOutput_, File samOutput_)
 	{
+		super();
 		sequence = string_;
 		fragments = fragments_;
+		genome = genome_;
+		reads = reads_;
+		binaryOutput = binaryOutput_;
+		samOutput = samOutput_;
 	}
 	
 	public void createIndex(File file)
@@ -75,10 +86,12 @@ public class BwaInterface extends AlignmentToolInterface
 		}
 	}
 	
-	public void align(File genome, File reads, File binary_output)
+	@Override
+	public void align()
 	{
+		System.out.print("Aligning reads...");
 		ProcessBuilder pb = new ProcessBuilder(BWA_COMMAND, ALIGN_COMMAND, "-f",
-			binary_output.getAbsolutePath(), genome.getAbsolutePath(), reads.getAbsolutePath());
+			binaryOutput.getAbsolutePath(), genome.getAbsolutePath(), reads.getAbsolutePath());
 		pb.directory(genome.getParentFile());
 		try
 		{
@@ -107,6 +120,7 @@ public class BwaInterface extends AlignmentToolInterface
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		System.out.println("done.");
 	}
 	
 	public void convertToSamFormat(File genome, File binary_output, File reads, File sam_output)
@@ -209,8 +223,8 @@ public class BwaInterface extends AlignmentToolInterface
 			File path = new File("data");
 			File genome = new File(path, "hg19.fa");
 			File reads = new File(path, "fragments.fasta");
-			File binary_output = new File(path, "alignment.sai");
-			File sam_output = new File(path, "alignment.sam");
+			File binaryOutput = new File(path, "alignment.sai");
+			File samOutput = new File(path, "alignment.sam");
 			path.mkdirs();
 			System.out.print("Reading genome...");
 			CharSequence sequence = FastaReader.getLargeSequence(genome);
@@ -222,21 +236,40 @@ public class BwaInterface extends AlignmentToolInterface
 			System.out.print("Reading fragments...");
 			List<Fragment> list = Fragmentizer.fragmentizeForShotgun(sequence, o);
 			System.out.println("done.");
-			BwaInterface b = new BwaInterface(sequence, list);
-			// b.createIndex(genome);
-			System.out.print("Aligning reads...");
-			b.align(genome, reads, binary_output);
-			System.out.println("done.");
-			System.out.print("Converting output to SAM format...");
-			b.convertToSamFormat(genome, binary_output, reads, sam_output);
-			System.out.println("done.");
-			System.out.print("Reading alignment...");
-			b.readAlignment(sam_output);
-			System.out.println("done.");
+			BwaInterface b = new BwaInterface(sequence, list, genome, reads, binaryOutput,
+				samOutput);
+			// b.preAlignmentProcessing();
+			b.align();
+			b.postAlignmentProcessing();
+			b.readAlignment();
 		}
 		catch (IOException e)
 		{
 			e.printStackTrace();
 		}
+	}
+	
+	@Override
+	public void preAlignmentProcessing()
+	{
+		System.out.print("Indexing genome...");
+		createIndex(genome);
+		System.out.println("done.");
+	}
+	
+	@Override
+	public void postAlignmentProcessing()
+	{
+		System.out.print("Converting output to SAM format...");
+		convertToSamFormat(genome, binaryOutput, reads, samOutput);
+		System.out.println("done.");
+	}
+	
+	@Override
+	public void readAlignment()
+	{
+		System.out.print("Reading alignment...");
+		readAlignment(samOutput);
+		System.out.println("done.");
 	}
 }
