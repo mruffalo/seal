@@ -1,8 +1,7 @@
 package external;
 
 import generator.Fragmentizer;
-import generator.SeqGenSingleSequenceMultipleRepeats;
-import generator.SequenceGenerator;
+import io.FastaReader;
 import io.FastaWriter;
 import io.SamReader;
 import java.io.BufferedReader;
@@ -203,23 +202,41 @@ public class BwaInterface implements AlignmentToolInterface
 	
 	public static void main(String args[])
 	{
-		SequenceGenerator g = new SeqGenSingleSequenceMultipleRepeats();
-		String sequence = g.generateSequence(100000, 0, 0);
-		Fragmentizer.Options o = new Fragmentizer.Options();
-		o.k = 100;
-		o.n = 1000;
-		o.ksd = 10;
-		List<Fragment> list = Fragmentizer.fragmentizeForShotgun(sequence, o);
-		BwaInterface b = new BwaInterface(sequence, list);
-		File path = new File("data");
-		File genome = new File(path, "genome.fasta");
-		File reads = new File(path, "fragments.fasta");
-		File binary_output = new File(path, "alignment.sai");
-		File sam_output = new File(path, "alignment.sam");
-		path.mkdirs();
-		b.createIndex(genome);
-		b.align(genome, reads, binary_output);
-		b.convertToSamFormat(genome, binary_output, reads, sam_output);
-		b.readAlignment(sam_output);
+		// SequenceGenerator g = new SeqGenSingleSequenceMultipleRepeats();
+		// String sequence = g.generateSequence(100000, 0, 0);
+		try
+		{
+			File path = new File("data");
+			File genome = new File(path, "hg19.fa");
+			File reads = new File(path, "fragments.fasta");
+			File binary_output = new File(path, "alignment.sai");
+			File sam_output = new File(path, "alignment.sam");
+			path.mkdirs();
+			System.out.print("Reading genome...");
+			String sequence = FastaReader.getSequence(genome);
+			System.out.println("done.");
+			Fragmentizer.Options o = new Fragmentizer.Options();
+			o.k = 1000;
+			o.n = 100000;
+			o.ksd = 10;
+			System.out.print("Reading fragments...");
+			List<Fragment> list = Fragmentizer.fragmentizeForShotgun(sequence, o);
+			System.out.println("done.");
+			BwaInterface b = new BwaInterface(sequence, list);
+			// b.createIndex(genome);
+			System.out.print("Aligning reads...");
+			b.align(genome, reads, binary_output);
+			System.out.println("done.");
+			System.out.print("Converting output to SAM format...");
+			b.convertToSamFormat(genome, binary_output, reads, sam_output);
+			System.out.println("done.");
+			System.out.print("Reading alignment...");
+			b.readAlignment(sam_output);
+			System.out.println("done.");
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
 	}
 }
