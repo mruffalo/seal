@@ -17,7 +17,7 @@ import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
-import utils.LicenseUtil;
+import util.LicenseUtil;
 import assembly.*;
 
 public class FragmentDisplay

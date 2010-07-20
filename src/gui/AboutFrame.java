@@ -5,7 +5,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import utils.VersionInfo;
+import util.VersionInfo;
 
 public class AboutFrame extends JFrame
 {

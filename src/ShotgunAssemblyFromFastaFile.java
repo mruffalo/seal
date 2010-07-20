@@ -3,7 +3,7 @@ import io.FastaReader;
 import io.FastaWriter;
 import java.io.*;
 import java.util.*;
-import utils.LicenseUtil;
+import util.LicenseUtil;
 import assembly.*;
 
 public class ShotgunAssemblyFromFastaFile
