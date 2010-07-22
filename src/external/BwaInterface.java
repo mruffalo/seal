@@ -166,15 +166,15 @@ public class BwaInterface extends AlignmentToolInterface
 	/**
 	 * Don't need to read fragments; we have those already. TODO: Move this
 	 * logic into {@link SamReader}
-	 * 
-	 * @param sam_output
 	 */
-	public void readAlignment(File sam_output)
+	public void readAlignment()
 	{
+		System.out.print("Reading alignment...");
 		int matches = 0;
+		int total = 0;
 		try
 		{
-			BufferedReader r = new BufferedReader(new FileReader(sam_output));
+			BufferedReader r = new BufferedReader(new FileReader(samOutput));
 			String line = null;
 			while ((line = r.readLine()) != null)
 			{
@@ -199,6 +199,7 @@ public class BwaInterface extends AlignmentToolInterface
 					System.out.println("Mismatch:");
 					System.out.printf("\t%s%n", line);
 				}
+				total++;
 			}
 		}
 		catch (FileNotFoundException e)
@@ -211,7 +212,9 @@ public class BwaInterface extends AlignmentToolInterface
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		System.out.println("done.");
 		System.out.printf("%d matches%n", matches);
+		System.out.printf("%d total fragments read%n", total);
 	}
 	
 	public static void main(String args[])
@@ -262,14 +265,6 @@ public class BwaInterface extends AlignmentToolInterface
 	{
 		System.out.print("Converting output to SAM format...");
 		convertToSamFormat(genome, binaryOutput, reads, samOutput);
-		System.out.println("done.");
-	}
-	
-	@Override
-	public void readAlignment()
-	{
-		System.out.print("Reading alignment...");
-		readAlignment(samOutput);
 		System.out.println("done.");
 	}
 }
