@@ -24,7 +24,7 @@ public abstract class SequenceGenerator
 	
 	/**
 	 * Controls whether debugging information will be printed to
-	 * <code>System.out</code>. TODO: Maybe allow a separte
+	 * <code>System.out</code>. TODO: Maybe allow a separate
 	 * {@link java.io.OutputStream} to be specified.
 	 * 
 	 * @param debugOutput_
