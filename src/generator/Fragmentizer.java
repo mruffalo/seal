@@ -20,6 +20,16 @@ public class Fragmentizer
 		 * Standard deviation of normally-distributed fragment size
 		 */
 		public double ksd;
+		/**
+		 * If a simulated read error occurs, another character will be randomly
+		 * sampled from this String
+		 */
+		public String allowedErrorCharacters;
+		/**
+		 * If this isn't null, the list will be passed to it in order to
+		 * introduce read errors
+		 */
+		public FragmentErrorGenerator errorGenerator;
 	}
 	
 	/**
