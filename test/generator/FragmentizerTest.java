@@ -54,7 +54,7 @@ public class FragmentizerTest
 	@Test
 	public void testFragmentizeForShotgun()
 	{
-		String string = SequenceGenerator.generateSequence(SequenceGenerator.NUCLEOTIDES, 100);
+		CharSequence string = SequenceGenerator.generateSequence(SequenceGenerator.NUCLEOTIDES, 100);
 		System.out.println(string);
 		Fragmentizer.Options o = new Fragmentizer.Options();
 		o.n = 50;
@@ -65,7 +65,7 @@ public class FragmentizerTest
 		for (Fragment fragment : list)
 		{
 			System.out.println(fragment);
-			assertTrue(string.contains(fragment.getString()));
+			assertTrue(string.toString().contains(fragment.getString()));
 		}
 		o.n = 20;
 		o.k = 20;
@@ -76,21 +76,21 @@ public class FragmentizerTest
 		{
 			System.out.println(fragment);
 			assertTrue(Math.abs(fragment.getString().length() - o.k) <= o.ksd);
-			assertTrue(string.contains(fragment.getString()));
+			assertTrue(string.toString().contains(fragment.getString()));
 		}
 	}
 	
 	@Test
 	public void testFragmentizeForHybridization()
 	{
-		String string = SequenceGenerator.generateSequence(SequenceGenerator.NUCLEOTIDES, 100);
+		CharSequence string = SequenceGenerator.generateSequence(SequenceGenerator.NUCLEOTIDES, 100);
 		int k = 5;
-		List<String> list = Fragmentizer.fragmentizeForHybridization(string, k);
+		List<Fragment> list = Fragmentizer.fragmentizeForHybridization(string, k);
 		assertEquals(string.length() - k + 1, list.size());
-		for (String fragment : list)
+		for (Fragment fragment : list)
 		{
-			assertEquals(k, fragment.length());
-			assertTrue(string.contains(fragment));
+			assertEquals(k, fragment.getString().length());
+			assertTrue(string.toString().contains(fragment.getString()));
 		}
 	}
 	

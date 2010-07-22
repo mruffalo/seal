@@ -6,9 +6,9 @@ import java.util.Random;
 public class SeqGenSingleSequenceMultipleRepeats extends SequenceGenerator
 {
 	@Override
-	public String generateSequence(int m, int r, int l, String characters)
+	public CharSequence generateSequence(int m, int r, int l, String characters)
 	{
-		String repeatedSequence = generateSequence(characters, l);
+		CharSequence repeatedSequence = generateSequence(characters, l);
 		Random random = new Random();
 		StringBuilder sb = new StringBuilder(m);
 		int[] repeatedSequenceIndices = new int[r];
@@ -55,7 +55,8 @@ public class SeqGenSingleSequenceMultipleRepeats extends SequenceGenerator
 	{
 		if (args.length < 3)
 		{
-			System.err.printf("*** Usage: %s m r l", SeqGenSingleSequenceMultipleRepeats.class.getCanonicalName());
+			System.err.printf("*** Usage: %s m r l",
+				SeqGenSingleSequenceMultipleRepeats.class.getCanonicalName());
 			System.exit(1);
 		}
 		int m = Integer.parseInt(args[0]);
@@ -63,6 +64,6 @@ public class SeqGenSingleSequenceMultipleRepeats extends SequenceGenerator
 		int l = Integer.parseInt(args[2]);
 		SequenceGenerator generator = new SeqGenSingleSequenceMultipleRepeats();
 		generator.setDebugOutput(true);
-		String generated = generator.generateSequence(m, r, l);
+		CharSequence generated = generator.generateSequence(m, r, l);
 	}
 }

@@ -30,7 +30,8 @@ public class ShotgunSequenceAssemblerTest
 	private final String[] disjointStrings = { "AA", "BB", "CC", "DD" };
 	private List<Fragment> disjointList;
 	
-	private final String[] badStrings = { "AAGGGGTATT", "ACACATTACG", "ATGACGGGTA", "CATTACGTGA", "CGGCAAACGT" };
+	private final String[] badStrings = { "AAGGGGTATT", "ACACATTACG", "ATGACGGGTA", "CATTACGTGA",
+			"CGGCAAACGT" };
 	private List<Fragment> badList;
 	
 	@Before
@@ -70,8 +71,8 @@ public class ShotgunSequenceAssemblerTest
 		System.out.println(assembled);
 		for (Fragment fragment : biggerList)
 		{
-			assertTrue(String.format("Fragment %s was not contained in assembled sequence %s", fragment.getString(),
-				assembled), assembled.contains(fragment.getString()));
+			assertTrue(String.format("Fragment %s was not contained in assembled sequence %s",
+				fragment.getString(), assembled), assembled.contains(fragment.getString()));
 		}
 	}
 	
@@ -83,8 +84,8 @@ public class ShotgunSequenceAssemblerTest
 		System.out.println(assembled);
 		for (Fragment fragment : disconnectedList)
 		{
-			assertTrue(String.format("Fragment %s was not contained in assembled sequence %s", fragment.getString(),
-				assembled), assembled.contains(fragment.getString()));
+			assertTrue(String.format("Fragment %s was not contained in assembled sequence %s",
+				fragment.getString(), assembled), assembled.contains(fragment.getString()));
 		}
 	}
 	
@@ -118,8 +119,8 @@ public class ShotgunSequenceAssemblerTest
 		String assembled = sa.assembleSequence(list);
 		for (Fragment fragment : list)
 		{
-			assertTrue(String.format("Fragment %s was not contained in assembled sequence %s", fragment.getString(),
-				assembled), assembled.contains(fragment.getString()));
+			assertTrue(String.format("Fragment %s was not contained in assembled sequence %s",
+				fragment.getString(), assembled), assembled.contains(fragment.getString()));
 			assertNotNull(fragment.getPosition(FragmentPositionSource.ASSEMBLED_SEQUENCE));
 		}
 		System.out.println();
@@ -132,7 +133,8 @@ public class ShotgunSequenceAssemblerTest
 			for (Fragment fragment : subList)
 			{
 				int position = fragment.getPosition(source);
-				String assembledSubstring = assembled.substring(position, fragment.getString().length() + position);
+				String assembledSubstring = assembled.substring(position,
+					fragment.getString().length() + position);
 				assertEquals(fragment.getString(), assembledSubstring);
 				for (int i = 0; i < fragment.getPosition(source) - begin; i++)
 				{
@@ -150,7 +152,7 @@ public class ShotgunSequenceAssemblerTest
 	{
 		SequenceAssembler sa = new ShotgunSequenceAssembler();
 		SequenceGenerator sg = new SeqGenSingleSequenceMultipleRepeats();
-		String string = sg.generateSequence(10000, 50, 10);
+		CharSequence string = sg.generateSequence(10000, 50, 10);
 		assertEquals(10000, string.length());
 		Fragmentizer.Options o = new Fragmentizer.Options();
 		o.n = 1000;
@@ -166,21 +168,23 @@ public class ShotgunSequenceAssemblerTest
 	}
 	
 	/**
-	 * Ensure that every character in the assembled string comes from at least one fragment.
+	 * Ensure that every character in the assembled string comes from at least
+	 * one fragment.
 	 */
 	@Test
 	public void testNoExtraCharacters()
 	{
 		SequenceAssembler sa = new ShotgunSequenceAssembler();
 		SequenceGenerator sg = new SeqGenSingleSequenceMultipleRepeats();
-		String string = sg.generateSequence(100, 0, 0);
+		CharSequence string = sg.generateSequence(100, 0, 0);
 		Fragmentizer.Options o = new Fragmentizer.Options();
 		o.n = 50;
 		o.k = 10;
 		o.ksd = 0;
 		List<Fragment> list = Fragmentizer.fragmentizeForShotgun(string, o);
 		String assembled = sa.assembleSequence(list);
-		ArrayList<ArrayList<Fragment>> fragmentCounts = new ArrayList<ArrayList<Fragment>>(assembled.length());
+		ArrayList<ArrayList<Fragment>> fragmentCounts = new ArrayList<ArrayList<Fragment>>(
+			assembled.length());
 		for (int i = 0; i < assembled.length(); i++)
 		{
 			fragmentCounts.add(new ArrayList<Fragment>());

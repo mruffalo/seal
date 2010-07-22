@@ -186,13 +186,14 @@ public class SequenceGenerationFrame extends JFrame
 					: SequenceGenerator.NUCLEOTIDES;
 			if (characters.length() > 0)
 			{
-				String string = generator.generateSequence(m, r, l, characters);
-				stringArea.setText(string);
+				CharSequence string = generator.generateSequence(m, r, l, characters);
+				stringArea.setText(string.toString());
 			}
 			else
 			{
-				JOptionPane.showMessageDialog(parent, "Can't generate a sequence from an empty set of characters.",
-					"Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(parent,
+					"Can't generate a sequence from an empty set of characters.", "Error",
+					JOptionPane.ERROR_MESSAGE);
 			}
 		}
 	}

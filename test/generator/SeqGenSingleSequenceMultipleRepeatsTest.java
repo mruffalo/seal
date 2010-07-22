@@ -9,7 +9,7 @@ public class SeqGenSingleSequenceMultipleRepeatsTest
 	public void testGenerateSequenceIntIntInt()
 	{
 		SequenceGenerator sg = new SeqGenSingleSequenceMultipleRepeats();
-		String string = sg.generateSequence(100, 4, 10);
+		CharSequence string = sg.generateSequence(100, 4, 10);
 		assertEquals(100, string.length());
 		System.out.println(string);
 		string = sg.generateSequence(10, 2, 5);

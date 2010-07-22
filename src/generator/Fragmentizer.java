@@ -29,9 +29,10 @@ public class Fragmentizer
 	 *            Number of fragments to read from <code>string</code>
 	 * @param k
 	 * @param kTolerance
-	 * @return A list of fragments that were randomly read from the provided String. Fragments that
-	 *         are entirely contained in another fragment <b>have already been filtered</b>. This
-	 *         means that you will probably get less than <code>n</code> fragments back.
+	 * @return A list of fragments that were randomly read from the provided
+	 *         String. Fragments that are entirely contained in another fragment
+	 *         <b>have already been filtered</b>. This means that you will
+	 *         probably get less than <code>n</code> fragments back.
 	 */
 	public static List<Fragment> fragmentizeForShotgun(CharSequence string, Options o)
 	{
@@ -52,8 +53,8 @@ public class Fragmentizer
 	/**
 	 * @param fragments
 	 *            A list of Fragments
-	 * @return A filtered list -- if a Fragment is entirely contained in another Fragment, it has
-	 *         been removed.
+	 * @return A filtered list -- if a Fragment is entirely contained in another
+	 *         Fragment, it has been removed.
 	 */
 	public static List<Fragment> removeSubstrings(List<Fragment> fragments)
 	{
@@ -83,7 +84,8 @@ public class Fragmentizer
 	}
 	
 	/**
-	 * TODO: Improve runtime from O(n^2) and generally make this code less stupid
+	 * TODO: Improve runtime from O(n^2) and generally make this code less
+	 * stupid
 	 * 
 	 * @param fragments
 	 * @return
@@ -94,9 +96,10 @@ public class Fragmentizer
 		List<List<Fragment>> groupedList = new LinkedList<List<Fragment>>();
 		Set<Fragment> fragmentSet = new HashSet<Fragment>(fragments);
 		/*
-		 * The position of a fragment might be null if 'source' is ASSEMBLED_SEQUENCE and the
-		 * fragment was not used (e.g. if it was entirely contained in another fragment). Remove all
-		 * fragments that have null positions.
+		 * The position of a fragment might be null if 'source' is
+		 * ASSEMBLED_SEQUENCE and the fragment was not used (e.g. if it was
+		 * entirely contained in another fragment). Remove all fragments that
+		 * have null positions.
 		 */
 		Iterator<Fragment> removalIterator = fragmentSet.iterator();
 		while (removalIterator.hasNext())
@@ -136,8 +139,8 @@ public class Fragmentizer
 				{
 					list.add(earliestFinish);
 					/*
-					 * +1 here ensures that successive fragments on one line are separated by a gap
-					 * of at least one character.
+					 * +1 here ensures that successive fragments on one line are
+					 * separated by a gap of at least one character.
 					 */
 					begin = earliestFinish.getPosition(source)
 							+ earliestFinish.getString().length() + 1;
@@ -154,14 +157,15 @@ public class Fragmentizer
 	 *            String to fragmentize
 	 * @param k
 	 *            Length of each fragment
-	 * @return A List of all substrings of length <code>k</code> contained in <code>string</code>
+	 * @return A List of all substrings of length <code>k</code> contained in
+	 *         <code>string</code>
 	 */
-	public static List<String> fragmentizeForHybridization(String string, int k)
+	public static List<Fragment> fragmentizeForHybridization(CharSequence string, int k)
 	{
-		ArrayList<String> list = new ArrayList<String>(string.length() - k);
+		ArrayList<Fragment> list = new ArrayList<Fragment>(string.length() - k);
 		for (int i = 0; i <= string.length() - k; i++)
 		{
-			list.add(string.substring(i, i + k));
+			list.add(new Fragment(string.subSequence(i, i + k)));
 		}
 		return list;
 	}

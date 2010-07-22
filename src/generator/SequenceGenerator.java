@@ -10,7 +10,7 @@ public abstract class SequenceGenerator
 	
 	protected boolean debugOutput;
 	
-	protected static String generateSequence(String sample, int m)
+	protected static CharSequence generateSequence(String sample, int m)
 	{
 		Random random = new Random();
 		StringBuilder sb = new StringBuilder(m);
@@ -19,12 +19,13 @@ public abstract class SequenceGenerator
 			int index = random.nextInt(sample.length());
 			sb.append(sample.substring(index, index + 1));
 		}
-		return sb.toString();
+		return sb;
 	}
 	
 	/**
-	 * Controls whether debugging information will be printed to <code>System.out</code>. TODO:
-	 * Maybe allow a separte {@link java.io.OutputStream} to be specified.
+	 * Controls whether debugging information will be printed to
+	 * <code>System.out</code>. TODO: Maybe allow a separte
+	 * {@link java.io.OutputStream} to be specified.
 	 * 
 	 * @param debugOutput_
 	 */
@@ -42,7 +43,7 @@ public abstract class SequenceGenerator
 	 *            length of repeats
 	 * @return
 	 */
-	public String generateSequence(int m, int r, int l)
+	public CharSequence generateSequence(int m, int r, int l)
 	{
 		return generateSequence(m, r, l, SequenceGenerator.NUCLEOTIDES);
 	}
@@ -56,5 +57,5 @@ public abstract class SequenceGenerator
 	 *            length of repeats
 	 * @return
 	 */
-	public abstract String generateSequence(int m, int r, int l, String characters);
+	public abstract CharSequence generateSequence(int m, int r, int l, String characters);
 }

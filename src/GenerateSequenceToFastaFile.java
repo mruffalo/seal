@@ -12,7 +12,8 @@ public class GenerateSequenceToFastaFile
 	{
 		if (args.length < 4)
 		{
-			System.err.printf("Usage: %s OutputFastaFile%n\tSequenceLength%n\tNumberOfRepeats%n\tRepeatLength%n",
+			System.err.printf(
+				"Usage: %s OutputFastaFile%n\tSequenceLength%n\tNumberOfRepeats%n\tRepeatLength%n",
 				GenerateSequenceToFastaFile.class.getCanonicalName());
 			return;
 		}
@@ -20,7 +21,7 @@ public class GenerateSequenceToFastaFile
 		int r = Integer.parseInt(args[2]);
 		int l = Integer.parseInt(args[3]);
 		SequenceGenerator sg = new SeqGenSingleSequenceMultipleRepeats();
-		String string = sg.generateSequence(m, r, l);
+		CharSequence string = sg.generateSequence(m, r, l);
 		try
 		{
 			FastaWriter.writeSequence(string, new File(args[0]));
