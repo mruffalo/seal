@@ -34,7 +34,7 @@ public class BwaInterface extends AlignmentToolInterface
 	public static final String SAM_SINGLE_END_COMMAND = "samse";
 	public static final String SAM_PAIRED_END_COMMAND = "sampe";
 
-	public static final int PHRED_MATCH_THRESHOLD = 35;
+	public static final int PHRED_MATCH_THRESHOLD = 0;
 
 	private CharSequence sequence;
 	private List<? extends Fragment> fragments;
@@ -199,8 +199,7 @@ public class BwaInterface extends AlignmentToolInterface
 				}
 				else
 				{
-					System.out.println("Mismatch:");
-					System.out.printf("\t%s%n", line);
+					System.out.println(line);
 				}
 				total++;
 			}
@@ -224,7 +223,7 @@ public class BwaInterface extends AlignmentToolInterface
 	{
 		SequenceGenerator g = new SeqGenSingleSequenceMultipleRepeats();
 		System.out.print("Generating sequence...");
-		CharSequence sequence = g.generateSequence(100000, 10, 100);
+		CharSequence sequence = g.generateSequence(1000, 10, 20);
 		System.out.println("done.");
 		File path = new File("data");
 		File genome = new File(path, "genome.fasta");
@@ -238,7 +237,7 @@ public class BwaInterface extends AlignmentToolInterface
 		 */
 		Fragmentizer.Options o = new Fragmentizer.Options();
 		o.k = 100;
-		o.n = 100000;
+		o.n = 500;
 		o.ksd = 10;
 		System.out.print("Reading fragments...");
 		List<? extends Fragment> list = Fragmentizer.fragmentize(sequence, o);
