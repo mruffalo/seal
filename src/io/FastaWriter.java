@@ -27,7 +27,8 @@ public class FastaWriter
 		}
 	}
 	
-	public static void writeFragments(List<Fragment> fragments, File file) throws IOException
+	public static void writeFragments(List<? extends Fragment> fragments, File file)
+		throws IOException
 	{
 		BufferedWriter output = null;
 		try

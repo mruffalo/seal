@@ -1,6 +1,9 @@
 package external;
 
 import generator.Fragmentizer;
+import generator.SeqGenSingleSequenceMultipleRepeats;
+import generator.SequenceGenerator;
+import generator.UniformErrorGenerator;
 import io.FastaReader;
 import io.FastaWriter;
 import io.SamReader;
@@ -34,15 +37,15 @@ public class BwaInterface extends AlignmentToolInterface
 	public static final int PHRED_MATCH_THRESHOLD = 35;
 	
 	private CharSequence sequence;
-	private List<Fragment> fragments;
+	private List<? extends Fragment> fragments;
 	
 	private File genome;
 	private File reads;
 	private File binaryOutput;
 	private File samOutput;
 	
-	public BwaInterface(CharSequence string_, List<Fragment> fragments_, File genome_, File reads_,
-		File binaryOutput_, File samOutput_)
+	public BwaInterface(CharSequence string_, List<? extends Fragment> fragments_, File genome_,
+		File reads_, File binaryOutput_, File samOutput_)
 	{
 		super();
 		sequence = string_;
@@ -219,37 +222,35 @@ public class BwaInterface extends AlignmentToolInterface
 	
 	public static void main(String args[])
 	{
-		// SequenceGenerator g = new SeqGenSingleSequenceMultipleRepeats();
-		// String sequence = g.generateSequence(100000, 0, 0);
-		try
-		{
-			File path = new File("data");
-			File genome = new File(path, "hg19.fa");
-			File reads = new File(path, "fragments.fasta");
-			File binaryOutput = new File(path, "alignment.sai");
-			File samOutput = new File(path, "alignment.sam");
-			path.mkdirs();
-			System.out.print("Reading genome...");
-			CharSequence sequence = FastaReader.getLargeSequence(genome);
-			System.out.println("done.");
-			Fragmentizer.Options o = new Fragmentizer.Options();
-			o.k = 1000;
-			o.n = 100000;
-			o.ksd = 10;
-			System.out.print("Reading fragments...");
-			List<Fragment> list = Fragmentizer.fragmentizeForShotgun(sequence, o);
-			System.out.println("done.");
-			BwaInterface b = new BwaInterface(sequence, list, genome, reads, binaryOutput,
-				samOutput);
-			// b.preAlignmentProcessing();
-			b.align();
-			b.postAlignmentProcessing();
-			b.readAlignment();
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
+		SequenceGenerator g = new SeqGenSingleSequenceMultipleRepeats();
+		CharSequence sequence = g.generateSequence(100000, 10, 100);
+		File path = new File("data");
+		File genome = new File(path, "genome.fasta");
+		File reads = new File(path, "fragments.fasta");
+		File binaryOutput = new File(path, "alignment.sai");
+		File samOutput = new File(path, "alignment.sam");
+		path.mkdirs();
+		/*
+		 * System.out.print("Reading genome..."); CharSequence sequence =
+		 * FastaReader.getLargeSequence(genome); System.out.println("done.");
+		 */
+		Fragmentizer.Options o = new Fragmentizer.Options();
+		o.k = 100;
+		o.n = 100000;
+		o.ksd = 10;
+		System.out.print("Reading fragments...");
+		List<? extends Fragment> list = Fragmentizer.fragmentizeForShotgun(sequence, o);
+		System.out.println("done.");
+		System.out.print("Introducing fragment read errors...");
+		UniformErrorGenerator eg = new UniformErrorGenerator();
+		eg.setErrorProbability(0.02);
+		list = eg.generateErrors(list, SequenceGenerator.NUCLEOTIDES);
+		System.out.println("done.");
+		BwaInterface b = new BwaInterface(sequence, list, genome, reads, binaryOutput, samOutput);
+		b.preAlignmentProcessing();
+		b.align();
+		b.postAlignmentProcessing();
+		b.readAlignment();
 	}
 	
 	@Override
