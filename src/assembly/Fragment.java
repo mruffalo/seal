@@ -27,7 +27,7 @@ public class Fragment implements Cloneable
 		return positions.get(source);
 	}
 	
-	public void setPosition(FragmentPositionSource source, int value)
+	public void setPosition(FragmentPositionSource source, Integer value)
 	{
 		positions.put(source, value);
 	}
@@ -107,5 +107,13 @@ public class Fragment implements Cloneable
 	public CharSequence getString()
 	{
 		return string;
+	}
+	
+	public void clonePositions(Fragment that)
+	{
+		for (FragmentPositionSource source : FragmentPositionSource.values())
+		{
+			this.setPosition(source, that.getPosition(source));
+		}
 	}
 }

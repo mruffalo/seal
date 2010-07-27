@@ -43,10 +43,4 @@ public class PairedEndFragment extends Fragment
 			return rawPosition + (string.length() - length);
 		}
 	}
-	
-	@Override
-	public void setPosition(FragmentPositionSource source, int value)
-	{
-		positions.put(source, value);
-	}
 }

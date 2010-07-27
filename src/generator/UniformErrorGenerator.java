@@ -49,6 +49,7 @@ public class UniformErrorGenerator extends FragmentErrorGenerator
 				}
 			}
 			Fragment errored = new Fragment(sb.toString());
+			errored.clonePositions(orig);
 			int quality = phredScaleProbability(errorProbability);
 			for (int i = 0; i < s.length(); i++)
 			{
