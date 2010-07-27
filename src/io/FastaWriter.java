@@ -43,6 +43,11 @@ public class FastaWriter
 				{
 					output.write(String.format(":%d", originalPosition));
 				}
+				Integer assembledPosition = fragment.getPosition(FragmentPositionSource.ASSEMBLED_SEQUENCE);
+				if (assembledPosition != null)
+				{
+					output.write(String.format(":%d", assembledPosition));
+				}
 				output.write(String.format("%n"));
 				// TODO: Improve this to be Rope-smart
 				output.write(fragment.getString().toString());
