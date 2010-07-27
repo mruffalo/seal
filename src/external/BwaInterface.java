@@ -241,7 +241,7 @@ public class BwaInterface extends AlignmentToolInterface
 		o.n = 100000;
 		o.ksd = 10;
 		System.out.print("Reading fragments...");
-		List<? extends Fragment> list = Fragmentizer.fragmentizeForShotgun(sequence, o);
+		List<? extends Fragment> list = Fragmentizer.fragmentize(sequence, o);
 		System.out.println("done.");
 		System.out.print("Introducing fragment read errors...");
 		UniformErrorGenerator eg = new UniformErrorGenerator();

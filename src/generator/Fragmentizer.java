@@ -40,6 +40,32 @@ public class Fragmentizer
 	 * @param k
 	 * @param kTolerance
 	 * @return A list of fragments that were randomly read from the provided
+	 *         string.
+	 */
+	public static List<Fragment> fragmentize(CharSequence string, Options o)
+	{
+		Random random = new Random();
+		List<Fragment> list = new ArrayList<Fragment>(o.n);
+		for (int i = 0; i < o.n; i++)
+		{
+			int sizeAddition = (int) (random.nextGaussian() * o.ksd);
+			int fragmentLength = o.k + sizeAddition;
+			int index = random.nextInt(string.length() - fragmentLength);
+			Fragment f = new Fragment(string.subSequence(index, index + fragmentLength));
+			f.setPosition(FragmentPositionSource.ORIGINAL_SEQUENCE, index);
+			list.add(f);
+		}
+		return list;
+	}
+	
+	/**
+	 * @param string
+	 *            String to fragmentize
+	 * @param n
+	 *            Number of fragments to read from <code>string</code>
+	 * @param k
+	 * @param kTolerance
+	 * @return A list of fragments that were randomly read from the provided
 	 *         String. Fragments that are entirely contained in another fragment
 	 *         <b>have already been filtered</b>. This means that you will
 	 *         probably get less than <code>n</code> fragments back.
