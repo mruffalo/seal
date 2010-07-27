@@ -51,9 +51,9 @@ class RopeUtilities
 			1779979416004714189l, 2880067194370816120l, 4660046610375530309l, 7540113804746346429l };
 	private static final short MAX_ROPE_DEPTH = 96;
 	private static final String SPACES = "                                                                                                                                                                                                        ";
-	
+
 	public static RopeUtilities INSTANCE = new RopeUtilities();
-	
+
 	/**
 	 * Rebalance a rope if the depth has exceeded MAX_ROPE_DEPTH. If the rope
 	 * depth is less than MAX_ROPE_DEPTH or if the rope is of unknown type, no
@@ -74,7 +74,7 @@ class RopeUtilities
 			return r;
 		}
 	}
-	
+
 	/**
 	 * Concatenate two ropes. Implements all recommended optimizations in
 	 * "Ropes: an Alternative to Strings".
@@ -119,10 +119,10 @@ class RopeUtilities
 						new FlatCharSequenceRope(cLeft.getRight().toString() + right.toString())));
 			}
 		}
-		
+
 		return this.autoRebalance(new ConcatenationRope(left, right));
 	}
-	
+
 	/**
 	 * Returns the depth of the specified rope.
 	 * 
@@ -142,7 +142,7 @@ class RopeUtilities
 			// throw new IllegalArgumentException("Bad rope");
 		}
 	}
-	
+
 	boolean isBalanced(final Rope r)
 	{
 		final byte depth = this.depth(r);
@@ -151,11 +151,11 @@ class RopeUtilities
 		// TODO: not necessarily valid w/e.g. padding char sequences.
 		return (RopeUtilities.FIBONACCI[depth + 2] <= r.length());
 	}
-	
+
 	public Rope rebalance(final Rope r)
 	{
 		// get all the nodes into a list
-		
+
 		final ArrayList<Rope> leafNodes = new ArrayList<Rope>();
 		final ArrayDeque<Rope> toExamine = new ArrayDeque<Rope>();
 		// begin a depth first loop.
@@ -177,7 +177,7 @@ class RopeUtilities
 		Rope result = merge(leafNodes, 0, leafNodes.size());
 		return result;
 	}
-	
+
 	private Rope merge(ArrayList<Rope> leafNodes, int start, int end)
 	{
 		int range = end - start;
@@ -193,7 +193,7 @@ class RopeUtilities
 					middle, end));
 		}
 	}
-	
+
 	/**
 	 * Visualize a rope.
 	 * 
@@ -204,7 +204,7 @@ class RopeUtilities
 	{
 		this.visualize(r, out, (byte) 0);
 	}
-	
+
 	public void visualize(final Rope r, final PrintStream out, final int depth)
 	{
 		if (r instanceof FlatRope)
@@ -229,7 +229,7 @@ class RopeUtilities
 			this.visualize(((ConcatenationRope) r).getRight(), out, depth + 1);
 		}
 	}
-	
+
 	public void stats(final Rope r, final PrintStream out)
 	{
 		int nonLeaf = 0;

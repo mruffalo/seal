@@ -36,7 +36,7 @@ import util.ropes.Rope;
 public final class ReverseRope extends AbstractRope
 {
 	private final Rope rope;
-	
+
 	/**
 	 * Constructs a new rope from an underlying rope.
 	 * <p>
@@ -50,19 +50,19 @@ public final class ReverseRope extends AbstractRope
 	{
 		this.rope = rope;
 	}
-	
+
 	@Override
 	public char charAt(final int index)
 	{
 		return this.rope.charAt(this.length() - index - 1);
 	}
-	
+
 	@Override
 	public byte depth()
 	{
 		return RopeUtilities.INSTANCE.depth(this.rope);
 	}
-	
+
 	@Override
 	public Iterator<Character> iterator(final int start)
 	{
@@ -71,19 +71,19 @@ public final class ReverseRope extends AbstractRope
 		return new Iterator<Character>()
 		{
 			int current = start;
-			
+
 			@Override
 			public boolean hasNext()
 			{
 				return this.current < ReverseRope.this.length();
 			}
-			
+
 			@Override
 			public Character next()
 			{
 				return ReverseRope.this.charAt(this.current++);
 			}
-			
+
 			@Override
 			public void remove()
 			{
@@ -91,19 +91,19 @@ public final class ReverseRope extends AbstractRope
 			}
 		};
 	}
-	
+
 	@Override
 	public int length()
 	{
 		return this.rope.length();
 	}
-	
+
 	@Override
 	public Rope reverse()
 	{
 		return this.rope;
 	}
-	
+
 	public Iterator<Character> reverseIterator(final int start)
 	{
 		if (start < 0 || start > this.length())
@@ -111,19 +111,19 @@ public final class ReverseRope extends AbstractRope
 		return new Iterator<Character>()
 		{
 			int current = ReverseRope.this.length() - start;
-			
+
 			@Override
 			public boolean hasNext()
 			{
 				return this.current > 0;
 			}
-			
+
 			@Override
 			public Character next()
 			{
 				return ReverseRope.this.charAt(--this.current);
 			}
-			
+
 			@Override
 			public void remove()
 			{
@@ -131,7 +131,7 @@ public final class ReverseRope extends AbstractRope
 			}
 		};
 	}
-	
+
 	@Override
 	public Rope subSequence(final int start, final int end)
 	{
@@ -139,13 +139,13 @@ public final class ReverseRope extends AbstractRope
 			return this;
 		return this.rope.subSequence(this.length() - end, this.length() - start).reverse();
 	}
-	
+
 	@Override
 	public void write(final Writer out) throws IOException
 	{
 		this.write(out, 0, this.length());
 	}
-	
+
 	@Override
 	public void write(final Writer out, final int offset, final int length) throws IOException
 	{

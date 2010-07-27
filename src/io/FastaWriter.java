@@ -26,7 +26,7 @@ public class FastaWriter
 			}
 		}
 	}
-	
+
 	public static void writeFragments(List<? extends Fragment> fragments, File file)
 		throws IOException
 	{
@@ -62,7 +62,7 @@ public class FastaWriter
 			}
 		}
 	}
-	
+
 	/**
 	 * Doesn't actually write a valid FASTA file due to position annotations
 	 * 

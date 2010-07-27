@@ -8,7 +8,7 @@ public class VersionInfo
 {
 	public static final String SOFTWARE_VERSION;
 	private static final String UNKNOWN_VERSION = "Unknown";
-	
+
 	static
 	{
 		InputStream istream = VersionInfo.class.getResourceAsStream("version.properties");

@@ -14,30 +14,30 @@ public class Fragment implements Cloneable
 	 * Array of Phred-scaled read quality values
 	 */
 	protected final int[] readQuality;
-	
+
 	public Fragment(CharSequence string_)
 	{
 		string = string_;
 		positions = new EnumMap<FragmentPositionSource, Integer>(FragmentPositionSource.class);
 		readQuality = new int[getString().length()];
 	}
-	
+
 	public Integer getPosition(FragmentPositionSource source)
 	{
 		return positions.get(source);
 	}
-	
+
 	public void setPosition(FragmentPositionSource source, Integer value)
 	{
 		positions.put(source, value);
 	}
-	
+
 	@Override
 	public int hashCode()
 	{
 		return getString().hashCode();
 	}
-	
+
 	@Override
 	public boolean equals(Object o)
 	{
@@ -52,7 +52,7 @@ public class Fragment implements Cloneable
 		}
 		return getString().equals(that.getString());
 	}
-	
+
 	public boolean equalsWithPositions(Fragment that)
 	{
 		if (!getString().equals(that.getString()))
@@ -75,17 +75,17 @@ public class Fragment implements Cloneable
 		}
 		return true;
 	}
-	
+
 	public int getReadQuality(int index)
 	{
 		return readQuality[index];
 	}
-	
+
 	public void setReadQuality(int index, int quality)
 	{
 		readQuality[index] = quality;
 	}
-	
+
 	/**
 	 * TODO: Determine parameters for this method
 	 * 
@@ -97,18 +97,18 @@ public class Fragment implements Cloneable
 		// TODO: this
 		return list;
 	}
-	
+
 	@Override
 	public String toString()
 	{
 		return getString().toString();
 	}
-	
+
 	public CharSequence getString()
 	{
 		return string;
 	}
-	
+
 	public void clonePositions(Fragment that)
 	{
 		for (FragmentPositionSource source : FragmentPositionSource.values())

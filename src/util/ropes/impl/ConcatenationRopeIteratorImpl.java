@@ -40,42 +40,42 @@ public class ConcatenationRopeIteratorImpl implements Iterator<Character>
 	private int currentRopePos;
 	private int skip;
 	private int currentAbsolutePos;
-	
+
 	public ConcatenationRopeIteratorImpl(final Rope rope)
 	{
 		this(rope, 0);
 	}
-	
+
 	public ConcatenationRopeIteratorImpl(final Rope rope, final int start)
 	{
 		this.toTraverse = new ArrayDeque<Rope>();
 		this.toTraverse.push(rope);
 		this.currentRope = null;
 		this.initialize();
-		
+
 		if (start < 0 || start > rope.length())
 		{
 			throw new IllegalArgumentException("Rope index out of range: " + start);
 		}
 		this.moveForward(start);
 	}
-	
+
 	public boolean canMoveBackwards(final int amount)
 	{
 		return (-1 <= (this.currentRopePos - amount));
 	}
-	
+
 	public int getPos()
 	{
 		return this.currentAbsolutePos;
 	}
-	
+
 	@Override
 	public boolean hasNext()
 	{
 		return this.currentRopePos < this.currentRope.length() - 1 || !this.toTraverse.isEmpty();
 	}
-	
+
 	/**
 	 * Initialize the currentRope and currentRopePos fields.
 	 */
@@ -99,7 +99,7 @@ public class ConcatenationRopeIteratorImpl implements Iterator<Character>
 		this.currentRopePos = -1;
 		this.currentAbsolutePos = -1;
 	}
-	
+
 	public void moveBackwards(final int amount)
 	{
 		if (!this.canMoveBackwards(amount))
@@ -107,7 +107,7 @@ public class ConcatenationRopeIteratorImpl implements Iterator<Character>
 		this.currentRopePos -= amount;
 		this.currentAbsolutePos -= amount;
 	}
-	
+
 	public void moveForward(final int amount)
 	{
 		this.currentAbsolutePos += amount;
@@ -127,7 +127,7 @@ public class ConcatenationRopeIteratorImpl implements Iterator<Character>
 				throw new IllegalArgumentException("Unable to move forward " + amount
 						+ ". Reached end of rope.");
 			}
-			
+
 			while (!this.toTraverse.isEmpty())
 			{
 				this.currentRope = this.toTraverse.pop();
@@ -144,7 +144,7 @@ public class ConcatenationRopeIteratorImpl implements Iterator<Character>
 			}
 		}
 	}
-	
+
 	@Override
 	public Character next()
 	{
@@ -152,13 +152,13 @@ public class ConcatenationRopeIteratorImpl implements Iterator<Character>
 		this.skip = 0;
 		return this.currentRope.charAt(this.currentRopePos);
 	}
-	
+
 	@Override
 	public void remove()
 	{
 		throw new UnsupportedOperationException("Rope iterator is read-only.");
 	}
-	
+
 	/*
 	 * (non-Javadoc)
 	 * @see org.ahmadsoft.ropes.impl.RopeIterators#skip(int)

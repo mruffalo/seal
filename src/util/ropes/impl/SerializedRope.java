@@ -46,14 +46,14 @@ final class SerializedRope implements Externalizable
 	 * The rope.
 	 */
 	private Rope rope;
-	
+
 	/**
 	 * Public no-arg constructor for use during serialization.
 	 */
 	public SerializedRope()
 	{
 	}
-	
+
 	/**
 	 * Create a new concatenation rope from two ropes.
 	 * 
@@ -66,7 +66,7 @@ final class SerializedRope implements Externalizable
 	{
 		this.rope = rope;
 	}
-	
+
 	@Override
 	public void readExternal(final ObjectInput in) throws IOException, ClassNotFoundException
 	{
@@ -74,14 +74,14 @@ final class SerializedRope implements Externalizable
 		// result in a FlatRope.
 		this.rope = Rope.BUILDER.build(in.readUTF());
 	}
-	
+
 	private Object readResolve() throws ObjectStreamException
 	{
 		// Substitute an instance of this class with the deserialized
 		// rope.
 		return this.rope;
 	}
-	
+
 	@Override
 	public void writeExternal(final ObjectOutput out) throws IOException
 	{

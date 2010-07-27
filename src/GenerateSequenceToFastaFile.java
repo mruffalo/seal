@@ -4,7 +4,7 @@ import generator.*;
 
 public class GenerateSequenceToFastaFile
 {
-	
+
 	/**
 	 * @param args
 	 */

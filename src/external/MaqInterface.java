@@ -7,19 +7,19 @@ public class MaqInterface extends AlignmentToolInterface
 	{
 		// TODO Auto-generated method stub
 	}
-	
+
 	@Override
 	public void postAlignmentProcessing()
 	{
 		// TODO Auto-generated method stub
 	}
-	
+
 	@Override
 	public void preAlignmentProcessing()
 	{
 		// TODO Auto-generated method stub
 	}
-	
+
 	@Override
 	public void readAlignment()
 	{

@@ -33,17 +33,17 @@ public class BwaInterface extends AlignmentToolInterface
 	public static final String ALIGN_COMMAND = "aln";
 	public static final String SAM_SINGLE_END_COMMAND = "samse";
 	public static final String SAM_PAIRED_END_COMMAND = "sampe";
-	
+
 	public static final int PHRED_MATCH_THRESHOLD = 35;
-	
+
 	private CharSequence sequence;
 	private List<? extends Fragment> fragments;
-	
+
 	private File genome;
 	private File reads;
 	private File binaryOutput;
 	private File samOutput;
-	
+
 	public BwaInterface(CharSequence string_, List<? extends Fragment> fragments_, File genome_,
 		File reads_, File binaryOutput_, File samOutput_)
 	{
@@ -55,7 +55,7 @@ public class BwaInterface extends AlignmentToolInterface
 		binaryOutput = binaryOutput_;
 		samOutput = samOutput_;
 	}
-	
+
 	public void createIndex(File file)
 	{
 		ProcessBuilder pb = new ProcessBuilder(BWA_COMMAND, INDEX_COMMAND, file.getAbsolutePath());
@@ -88,7 +88,7 @@ public class BwaInterface extends AlignmentToolInterface
 			e.printStackTrace();
 		}
 	}
-	
+
 	@Override
 	public void align()
 	{
@@ -125,7 +125,7 @@ public class BwaInterface extends AlignmentToolInterface
 		}
 		System.out.println("done.");
 	}
-	
+
 	public void convertToSamFormat(File genome, File binary_output, File reads, File sam_output)
 	{
 		ProcessBuilder pb = new ProcessBuilder(BWA_COMMAND, SAM_SINGLE_END_COMMAND,
@@ -165,7 +165,7 @@ public class BwaInterface extends AlignmentToolInterface
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * Don't need to read fragments; we have those already. TODO: Move this
 	 * logic into {@link SamReader}
@@ -219,7 +219,7 @@ public class BwaInterface extends AlignmentToolInterface
 		System.out.printf("%d matches%n", matches);
 		System.out.printf("%d total fragments read%n", total);
 	}
-	
+
 	public static void main(String args[])
 	{
 		SequenceGenerator g = new SeqGenSingleSequenceMultipleRepeats();
@@ -254,7 +254,7 @@ public class BwaInterface extends AlignmentToolInterface
 		b.postAlignmentProcessing();
 		b.readAlignment();
 	}
-	
+
 	@Override
 	public void preAlignmentProcessing()
 	{
@@ -262,7 +262,7 @@ public class BwaInterface extends AlignmentToolInterface
 		createIndex(genome);
 		System.out.println("done.");
 	}
-	
+
 	@Override
 	public void postAlignmentProcessing()
 	{

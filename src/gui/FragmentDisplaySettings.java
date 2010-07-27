@@ -7,7 +7,7 @@ public class FragmentDisplaySettings implements Cloneable
 {
 	public EnumMap<FragmentDisplayColor, Color> colors;
 	public int scale;
-	
+
 	public FragmentDisplaySettings()
 	{
 		colors = new EnumMap<FragmentDisplayColor, Color>(FragmentDisplayColor.class);
@@ -17,7 +17,7 @@ public class FragmentDisplaySettings implements Cloneable
 		colors.put(FragmentDisplayColor.SELECTED, Color.GREEN);
 		scale = 2;
 	}
-	
+
 	@Override
 	public FragmentDisplaySettings clone()
 	{

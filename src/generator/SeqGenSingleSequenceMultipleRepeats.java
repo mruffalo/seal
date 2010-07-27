@@ -44,7 +44,7 @@ public class SeqGenSingleSequenceMultipleRepeats extends SequenceGenerator
 		}
 		return string;
 	}
-	
+
 	/**
 	 * XXX: TEMPORARY
 	 * 

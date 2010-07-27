@@ -7,9 +7,9 @@ public abstract class SequenceGenerator
 	public static final String NUCLEOTIDES = "ACGT";
 	public static final String NUCLEIC_ACID_ALLOWED_CHARACTERS = "ACGTURYKMSWBDHVNX-";
 	public static final String AMINO_ACID_ALLOWED_CHARACTERS = "ABCDEFGHIKLMNOPQRSTUVWYZX*-";
-	
+
 	protected boolean debugOutput;
-	
+
 	protected static CharSequence generateSequence(String sample, int m)
 	{
 		Random random = new Random();
@@ -21,7 +21,7 @@ public abstract class SequenceGenerator
 		}
 		return sb;
 	}
-	
+
 	/**
 	 * Controls whether debugging information will be printed to
 	 * <code>System.out</code>. TODO: Maybe allow a separate
@@ -33,7 +33,7 @@ public abstract class SequenceGenerator
 	{
 		debugOutput = debugOutput_;
 	}
-	
+
 	/**
 	 * @param m
 	 *            length of sequence
@@ -47,7 +47,7 @@ public abstract class SequenceGenerator
 	{
 		return generateSequence(m, r, l, SequenceGenerator.NUCLEOTIDES);
 	}
-	
+
 	/**
 	 * @param m
 	 *            length of sequence

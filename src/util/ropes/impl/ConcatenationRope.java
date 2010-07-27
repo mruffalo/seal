@@ -38,7 +38,7 @@ public final class ConcatenationRope extends AbstractRope
 	private final Rope right;
 	private final byte depth;
 	private final int length;
-	
+
 	/**
 	 * Create a new concatenation rope from two ropes.
 	 * 
@@ -55,29 +55,29 @@ public final class ConcatenationRope extends AbstractRope
 			RopeUtilities.INSTANCE.depth(right)) + 1);
 		this.length = left.length() + right.length();
 	}
-	
+
 	@Override
 	public char charAt(final int index)
 	{
 		if (index >= this.length())
 			throw new IndexOutOfBoundsException("Rope index out of range: " + index);
-		
+
 		return (index < this.left.length() ? this.left.charAt(index) : this.right.charAt(index
 				- this.left.length()));
 	}
-	
+
 	@Override
 	public byte depth()
 	{
 		return this.depth;
 	}
-	
+
 	@Override
 	public CharSequence getForSequentialAccess()
 	{
 		return this.getForSequentialAccess(this);
 	}
-	
+
 	/*
 	 * Returns this object as a char sequence optimized for regular expression
 	 * searches. <p> <emph>This method is public only to facilitate unit
@@ -87,9 +87,9 @@ public final class ConcatenationRope extends AbstractRope
 	{
 		return new CharSequence()
 		{
-			
+
 			private final ConcatenationRopeIteratorImpl iterator = (ConcatenationRopeIteratorImpl) rope.iterator(0);
-			
+
 			@Override
 			public char charAt(final int index)
 			{
@@ -122,22 +122,22 @@ public final class ConcatenationRope extends AbstractRope
 					}
 				}
 			}
-			
+
 			@Override
 			public int length()
 			{
 				return rope.length();
 			}
-			
+
 			@Override
 			public CharSequence subSequence(final int start, final int end)
 			{
 				return rope.subSequence(start, end);
 			}
-			
+
 		};
 	}
-	
+
 	/**
 	 * Return the left-hand rope.
 	 * 
@@ -147,7 +147,7 @@ public final class ConcatenationRope extends AbstractRope
 	{
 		return this.left;
 	}
-	
+
 	/**
 	 * Return the right-hand rope.
 	 * 
@@ -157,7 +157,7 @@ public final class ConcatenationRope extends AbstractRope
 	{
 		return this.right;
 	}
-	
+
 	@Override
 	public Iterator<Character> iterator(final int start)
 	{
@@ -172,26 +172,26 @@ public final class ConcatenationRope extends AbstractRope
 			return new ConcatenationRopeIteratorImpl(this, start);
 		}
 	}
-	
+
 	@Override
 	public int length()
 	{
 		return this.length;
 	}
-	
+
 	@Override
 	public Rope rebalance()
 	{
 		return RopeUtilities.INSTANCE.rebalance(this);
 	}
-	
+
 	@Override
 	public Rope reverse()
 	{
 		return RopeUtilities.INSTANCE.concatenate(this.getRight().reverse(),
 			this.getLeft().reverse());
 	}
-	
+
 	@Override
 	public Iterator<Character> reverseIterator(final int start)
 	{
@@ -206,7 +206,7 @@ public final class ConcatenationRope extends AbstractRope
 			return new ConcatenationRopeReverseIteratorImpl(this, start);
 		}
 	}
-	
+
 	@Override
 	public Rope subSequence(final int start, final int end)
 	{
@@ -222,14 +222,14 @@ public final class ConcatenationRope extends AbstractRope
 		return RopeUtilities.INSTANCE.concatenate(this.left.subSequence(start, l),
 			this.right.subSequence(0, end - l));
 	}
-	
+
 	@Override
 	public void write(final Writer out) throws IOException
 	{
 		this.left.write(out);
 		this.right.write(out);
 	}
-	
+
 	@Override
 	public void write(final Writer out, final int offset, final int length) throws IOException
 	{

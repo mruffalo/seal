@@ -8,7 +8,7 @@ import assembly.*;
 
 public class ShotgunAssemblyFromFastaFile
 {
-	
+
 	/**
 	 * @param args
 	 */
@@ -23,14 +23,16 @@ public class ShotgunAssemblyFromFastaFile
 		}
 		try
 		{
-			List<Fragment> fragments = Fragmentizer.removeSubstrings(FastaReader.getFragments(new File(args[0])));
+			List<Fragment> fragments = Fragmentizer.removeSubstrings(FastaReader.getFragments(new File(
+				args[0])));
 			System.out.printf("Fragments read from FASTA file at %s%n", args[0]);
 			SequenceAssembler sa = new ShotgunSequenceAssembler();
 			long begin = System.nanoTime();
 			String assembled = sa.assembleSequence(fragments);
 			long end = System.nanoTime();
 			FastaWriter.writeSequence(assembled, new File(args[1]));
-			System.out.printf("Assembled sequence (length %d) written to %s%n", assembled.length(), args[1]);
+			System.out.printf("Assembled sequence (length %d) written to %s%n", assembled.length(),
+				args[1]);
 			System.out.printf("Total time: %dns%n", end - begin);
 		}
 		catch (IOException e)

@@ -39,26 +39,26 @@ import util.ropes.Rope;
 public abstract class AbstractRope implements Rope
 {
 	protected int hashCode = 0;
-	
+
 	@Override
 	public Rope append(final char c)
 	{
 		return RopeUtilities.INSTANCE.concatenate(this, Rope.BUILDER.build(String.valueOf(c)));
 	}
-	
+
 	@Override
 	public Rope append(final CharSequence suffix)
 	{
 		return RopeUtilities.INSTANCE.concatenate(this, Rope.BUILDER.build(suffix));
 	}
-	
+
 	@Override
 	public Rope append(final CharSequence csq, final int start, final int end)
 	{
 		return RopeUtilities.INSTANCE.concatenate(this, Rope.BUILDER.build(csq).subSequence(start,
 			end));
 	}
-	
+
 	@Override
 	public int compareTo(final CharSequence sequence)
 	{
@@ -73,7 +73,7 @@ public abstract class AbstractRope implements Rope
 		}
 		return this.length() - sequence.length();
 	}
-	
+
 	@Override
 	public Rope delete(final int start, final int end)
 	{
@@ -81,13 +81,13 @@ public abstract class AbstractRope implements Rope
 			return this;
 		return this.subSequence(0, start).append(this.subSequence(end, this.length()));
 	}
-	
+
 	/*
 	 * The depth of the current rope, as defined in
 	 * "Ropes: an Alternative to Strings".
 	 */
 	public abstract byte depth();
-	
+
 	@Override
 	public boolean equals(final Object other)
 	{
@@ -98,7 +98,7 @@ public abstract class AbstractRope implements Rope
 				return false;
 			final Iterator<Character> i1 = this.iterator();
 			final Iterator<Character> i2 = rope.iterator();
-			
+
 			while (i1.hasNext())
 			{
 				final char a = i1.next();
@@ -110,7 +110,7 @@ public abstract class AbstractRope implements Rope
 		}
 		return false;
 	}
-	
+
 	/**
 	 * A utility method that returns an instance of this rope optimized for
 	 * sequential access.
@@ -121,7 +121,7 @@ public abstract class AbstractRope implements Rope
 	{
 		return this;
 	}
-	
+
 	@Override
 	public int hashCode()
 	{
@@ -142,7 +142,7 @@ public abstract class AbstractRope implements Rope
 		}
 		return this.hashCode;
 	}
-	
+
 	@Override
 	public int indexOf(final char ch)
 	{
@@ -155,13 +155,13 @@ public abstract class AbstractRope implements Rope
 		}
 		return -1;
 	}
-	
+
 	@Override
 	public boolean startsWith(CharSequence prefix)
 	{
 		return startsWith(prefix, 0);
 	}
-	
+
 	@Override
 	public boolean startsWith(CharSequence prefix, int offset)
 	{
@@ -169,7 +169,7 @@ public abstract class AbstractRope implements Rope
 			throw new IndexOutOfBoundsException("Rope offset out of range: " + offset);
 		if (offset + prefix.length() > this.length())
 			return false;
-		
+
 		int x = 0;
 		for (Iterator<Character> i = this.iterator(offset); i.hasNext() && x < prefix.length();)
 		{
@@ -178,19 +178,19 @@ public abstract class AbstractRope implements Rope
 		}
 		return true;
 	}
-	
+
 	@Override
 	public boolean endsWith(CharSequence suffix)
 	{
 		return endsWith(suffix, 0);
 	}
-	
+
 	@Override
 	public boolean endsWith(CharSequence suffix, int offset)
 	{
 		return startsWith(suffix, length() - suffix.length() - offset);
 	}
-	
+
 	@Override
 	public int indexOf(final char ch, final int fromIndex)
 	{
@@ -205,31 +205,31 @@ public abstract class AbstractRope implements Rope
 		}
 		return -1;
 	}
-	
+
 	@Override
 	public int indexOf(final CharSequence sequence)
 	{
 		return this.indexOf(sequence, 0);
 	}
-	
+
 	@Override
 	public int indexOf(final CharSequence sequence, final int fromIndex)
 	{
 		final CharSequence me = this.getForSequentialAccess();
-		
+
 		// Implementation of Boyer-Moore-Horspool algorithm with
 		// special support for unicode.
-		
+
 		// step 0. sanity check.
 		final int length = sequence.length();
 		if (length == 0)
 			return -1;
 		if (length == 1)
 			return this.indexOf(sequence.charAt(0), fromIndex);
-		
+
 		final int[] bcs = new int[256]; // bad character shift
 		Arrays.fill(bcs, length);
-		
+
 		// step 1. preprocessing.
 		for (int j = 0; j < length - 1; ++j)
 		{
@@ -237,7 +237,7 @@ public abstract class AbstractRope implements Rope
 			final int l = (c & 0xFF);
 			bcs[l] = Math.min(length - j - 1, bcs[l]);
 		}
-		
+
 		// step 2. search.
 		for (int j = fromIndex + length - 1; j < this.length();)
 		{
@@ -255,12 +255,12 @@ public abstract class AbstractRope implements Rope
 				--x;
 				--y;
 			}
-			
+
 		}
-		
+
 		return -1;
 	}
-	
+
 	@Override
 	public Rope insert(final int dstOffset, final CharSequence s)
 	{
@@ -275,13 +275,13 @@ public abstract class AbstractRope implements Rope
 		return this.subSequence(0, dstOffset).append(r).append(
 			this.subSequence(dstOffset, this.length()));
 	}
-	
+
 	@Override
 	public Iterator<Character> iterator()
 	{
 		return this.iterator(0);
 	}
-	
+
 	@Override
 	public Rope trimStart()
 	{
@@ -297,37 +297,37 @@ public abstract class AbstractRope implements Rope
 		else
 			return this.subSequence(index, this.length());
 	}
-	
+
 	@Override
 	public Matcher matcher(final Pattern pattern)
 	{
 		return pattern.matcher(this.getForSequentialAccess());
 	}
-	
+
 	@Override
 	public boolean matches(final Pattern regex)
 	{
 		return regex.matcher(this.getForSequentialAccess()).matches();
 	}
-	
+
 	@Override
 	public boolean matches(final String regex)
 	{
 		return Pattern.matches(regex, this.getForSequentialAccess());
 	}
-	
+
 	@Override
 	public Rope rebalance()
 	{
 		return this;
 	}
-	
+
 	@Override
 	public Iterator<Character> reverseIterator()
 	{
 		return this.reverseIterator(0);
 	}
-	
+
 	@Override
 	public Rope trimEnd()
 	{
@@ -344,7 +344,7 @@ public abstract class AbstractRope implements Rope
 		else
 			return this.subSequence(0, index);
 	}
-	
+
 	@Override
 	public String toString()
 	{
@@ -360,24 +360,24 @@ public abstract class AbstractRope implements Rope
 		}
 		return out.toString();
 	}
-	
+
 	@Override
 	public Rope trim()
 	{
 		return this.trimStart().trimEnd();
 	}
-	
+
 	public Object writeReplace() throws ObjectStreamException
 	{
 		return new SerializedRope(this);
 	}
-	
+
 	@Override
 	public Rope padStart(final int toWidth)
 	{
 		return padStart(toWidth, ' ');
 	}
-	
+
 	@Override
 	public Rope padStart(final int toWidth, final char padChar)
 	{
@@ -387,13 +387,13 @@ public abstract class AbstractRope implements Rope
 		return RopeUtilities.INSTANCE.concatenate(Rope.BUILDER.build(new RepeatedCharacterSequence(
 			padChar, toPad)), this);
 	}
-	
+
 	@Override
 	public Rope padEnd(final int toWidth)
 	{
 		return padEnd(toWidth, ' ');
 	}
-	
+
 	@Override
 	public Rope padEnd(final int toWidth, final char padChar)
 	{
@@ -403,7 +403,7 @@ public abstract class AbstractRope implements Rope
 		return RopeUtilities.INSTANCE.concatenate(this,
 			Rope.BUILDER.build(new RepeatedCharacterSequence(padChar, toPad)));
 	}
-	
+
 	@Override
 	public boolean isEmpty()
 	{

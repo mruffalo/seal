@@ -43,7 +43,7 @@ public final class RopeBuilder
 	{
 		return new FlatCharArrayRope(sequence);
 	}
-	
+
 	/**
 	 * Construct a rope from an underlying character sequence.
 	 * 

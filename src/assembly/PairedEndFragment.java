@@ -8,14 +8,14 @@ public class PairedEndFragment extends Fragment
 	 */
 	protected boolean atBeginningOfFragment;
 	protected int length;
-	
+
 	public PairedEndFragment(String string, boolean atBeginningOfFragment_, int length_)
 	{
 		super(string);
 		atBeginningOfFragment = atBeginningOfFragment_;
 		length_ = length;
 	}
-	
+
 	@Override
 	public CharSequence getString()
 	{
@@ -29,7 +29,7 @@ public class PairedEndFragment extends Fragment
 			return string.subSequence(string.length() - length, string.length());
 		}
 	}
-	
+
 	@Override
 	public Integer getPosition(FragmentPositionSource source)
 	{

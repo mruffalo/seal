@@ -18,12 +18,12 @@ public class FastaReader
 	private final BufferedReader source;
 	private Integer prevReadPosition = null;
 	private Integer prevAssembledPosition = null;
-	
+
 	public FastaReader(Reader in)
 	{
 		source = new BufferedReader(in);
 	}
-	
+
 	public Fragment readFragment()
 	{
 		Fragment f = null;
@@ -55,7 +55,7 @@ public class FastaReader
 		}
 		return f;
 	}
-	
+
 	public static String getSequence(File file) throws IOException
 	{
 		String sequence = null, temp = null;
@@ -82,7 +82,7 @@ public class FastaReader
 		}
 		return sequence;
 	}
-	
+
 	public static CharSequence getLargeSequence(File file) throws IOException
 	{
 		RopeBuilder rb = new RopeBuilder();
@@ -110,7 +110,7 @@ public class FastaReader
 		}
 		return sequence;
 	}
-	
+
 	public static List<Fragment> getFragments(File file) throws IOException
 	{
 		BufferedReader input = null;
@@ -145,11 +145,11 @@ public class FastaReader
 		}
 		return list;
 	}
-	
+
 	/**
-	 * Does not actually operate on FASTA files due to position annotation. TODO: fix this by moving
-	 * position annotation into fragment header here and in
-	 * {@link FastaWriter#writeFragmentsWithPositions(List, File)}
+	 * Does not actually operate on FASTA files due to position annotation.
+	 * TODO: fix this by moving position annotation into fragment header here
+	 * and in {@link FastaWriter#writeFragmentsWithPositions(List, File)}
 	 * 
 	 * @param file
 	 * @return

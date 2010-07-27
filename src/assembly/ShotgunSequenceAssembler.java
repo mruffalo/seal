@@ -28,7 +28,7 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 		}
 		return path.assembleString();
 	}
-	
+
 	protected static class OverlapGraph
 	{
 		/**
@@ -39,7 +39,7 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 		 */
 		private Map<Fragment, Vertex> vertices;
 		private Queue<Edge> queue;
-		
+
 		/**
 		 * Ω(n^2).
 		 * 
@@ -95,17 +95,17 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 				}
 			}
 		}
-		
+
 		public Vertex addVertex(Fragment fragment)
 		{
 			return vertices.put(fragment, new Vertex(fragment));
 		}
-		
+
 		public Vertex getVertex(Fragment fragment)
 		{
 			return vertices.get(fragment);
 		}
-		
+
 		/**
 		 * @return The OverlapEdge with the highest overlap value.
 		 */
@@ -113,7 +113,7 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 		{
 			return queue.poll();
 		}
-		
+
 		/**
 		 * O(V + E)
 		 */
@@ -131,27 +131,27 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 				}
 			}
 		}
-		
+
 		public boolean hasMoreEdges()
 		{
 			return !queue.isEmpty();
 		}
-		
+
 		public int getVertexCount()
 		{
 			return vertices.size();
 		}
-		
+
 		public Path createPath()
 		{
 			return new Path();
 		}
-		
+
 		public Collection<Vertex> getVertices()
 		{
 			return Collections.unmodifiableCollection(vertices.values());
 		}
-		
+
 		public int getEdgeCount()
 		{
 			int count = 0;
@@ -161,7 +161,7 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 			}
 			return count;
 		}
-		
+
 		/**
 		 * @param from
 		 * @param to
@@ -183,7 +183,7 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 				return e.overlap;
 			}
 		}
-		
+
 		/**
 		 * TODO: Make this not cause <code>OutOfMemoryError</code>s when graphs
 		 * are huge. This return value must be printed to a terminal to be
@@ -206,7 +206,7 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 			}
 			return sb.toString();
 		}
-		
+
 		protected class Vertex
 		{
 			public final Fragment fragment;
@@ -217,45 +217,45 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 			 * were a List&lt;Vertex&gt;.
 			 */
 			protected final Map<Fragment, Edge> adj;
-			
+
 			public Vertex(Fragment fragment_)
 			{
 				adj = new HashMap<Fragment, Edge>();
 				fragment = fragment_;
 			}
-			
+
 			public Edge addEdge(Vertex to, int overlap)
 			{
 				Edge e = new Edge(this, overlap, to);
 				adj.put(to.fragment, e);
 				return e;
 			}
-			
+
 			public Edge getEdge(Fragment fragment)
 			{
 				return adj.get(fragment);
 			}
-			
+
 			@Override
 			public String toString()
 			{
 				return String.format("Vertex \"%s\": %d edge(s)", fragment.getString(), adj.size());
 			}
 		}
-		
+
 		protected class Edge implements Comparable<Edge>
 		{
 			public final Vertex from;
 			public final int overlap;
 			public final Vertex to;
-			
+
 			public Edge(Vertex from_, int weight_, Vertex to_)
 			{
 				from = from_;
 				overlap = weight_;
 				to = to_;
 			}
-			
+
 			/**
 			 * Note: {@link java.util.PriorityQueue} returns the <b>minimum</b>
 			 * priority. Since we want the edge with the greatest weight, this
@@ -266,7 +266,7 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 			{
 				return new Integer(o.overlap).compareTo(overlap);
 			}
-			
+
 			@Override
 			public String toString()
 			{
@@ -274,7 +274,7 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 					to.fragment.getString());
 			}
 		}
-		
+
 		/**
 		 * This class wraps a sequence of edges, which describes a path through
 		 * the graph.
@@ -311,7 +311,7 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 			 * paths starting at each Vertex here.
 			 */
 			private Set<Vertex> disconnectedPathParents = new HashSet<Vertex>(vertices.values());
-			
+
 			/**
 			 * Creates a String from the path (sequence of edges) contained in
 			 * this object. This method is <b>not</b> responsible for creating
@@ -359,7 +359,7 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 				}
 				return sb.toString();
 			}
-			
+
 			public int getPathVertexCount()
 			{
 				HashSet<Vertex> union = new HashSet<Vertex>(visitedSourceVertices.size()
@@ -368,7 +368,7 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 				union.addAll(visitedTargetVertices);
 				return union.size();
 			}
-			
+
 			/**
 			 * (protected) Accessor only used for unit testing
 			 * 
@@ -378,12 +378,12 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 			{
 				return Collections.unmodifiableSet(disconnectedPathParents);
 			}
-			
+
 			public int getPathEdgeCount()
 			{
 				return edges.size();
 			}
-			
+
 			/**
 			 * Adds an edge to the path, if it's valid.
 			 * 
@@ -425,7 +425,7 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 					return false;
 				}
 			}
-			
+
 			/**
 			 * @param edge
 			 * @return Whether this Edge is valid:
@@ -459,7 +459,7 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 					return !alreadyExists && !sourceUsed && !targetUsed && !createsCycle;
 				}
 			}
-			
+
 			/**
 			 * @return Whether this path is Hamiltonian. It must
 			 *         <ul>
@@ -478,7 +478,7 @@ public class ShotgunSequenceAssembler implements SequenceAssembler
 				return pathVertices == graphVertices && (pathEdges == graphVertices - 1)
 						&& isConnected();
 			}
-			
+
 			/**
 			 * @return Whether this Path represents a continuous list of Edges.
 			 */

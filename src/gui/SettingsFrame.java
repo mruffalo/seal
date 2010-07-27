@@ -29,7 +29,7 @@ public class SettingsFrame extends JFrame
 	private JPanel panel;
 	private FragmentDisplaySettings settings;
 	private Map<FragmentDisplayColor, JLabel> colorLabelMap;
-	
+
 	public SettingsFrame(FragmentDisplay fragmentDisplay_)
 	{
 		super("Fragment Display Settings");
@@ -38,9 +38,9 @@ public class SettingsFrame extends JFrame
 		settings = fragmentDisplay.getSettings().clone();
 		panel = new JPanel();
 		panel.setLayout(new GridBagLayout());
-		
+
 		final Insets two = new Insets(2, 2, 2, 2);
-		
+
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.insets = two;
 		gbc.fill = GridBagConstraints.BOTH;
@@ -48,7 +48,7 @@ public class SettingsFrame extends JFrame
 		gbc.weightx = 0.8;
 		JLabel backgroundColorText = new JLabel("Background Color");
 		panel.add(backgroundColorText, gbc);
-		
+
 		gbc.gridx = 1;
 		gbc.weightx = 0.2;
 		JLabel backgroundColorLabel = new JLabel();
@@ -59,13 +59,14 @@ public class SettingsFrame extends JFrame
 		backgroundColorLabel.setMinimumSize(sixteen);
 		backgroundColorLabel.setPreferredSize(sixteen);
 		panel.add(backgroundColorLabel, gbc);
-		
+
 		gbc.gridx = 2;
 		gbc.fill = GridBagConstraints.NONE;
 		JButton backgroundColorButton = new JButton(CHOOSE_BUTTON_TEXT);
-		backgroundColorButton.addActionListener(new ChooseColorButtonActionListener(FragmentDisplayColor.BACKGROUND));
+		backgroundColorButton.addActionListener(new ChooseColorButtonActionListener(
+			FragmentDisplayColor.BACKGROUND));
 		panel.add(backgroundColorButton, gbc);
-		
+
 		gbc = new GridBagConstraints();
 		gbc.insets = two;
 		gbc.fill = GridBagConstraints.BOTH;
@@ -74,7 +75,7 @@ public class SettingsFrame extends JFrame
 		gbc.gridy = 1;
 		JLabel sequenceColorText = new JLabel("Sequence Color");
 		panel.add(sequenceColorText, gbc);
-		
+
 		gbc.gridx = 1;
 		gbc.weightx = 0.2;
 		JLabel sequenceColorLabel = new JLabel();
@@ -84,13 +85,14 @@ public class SettingsFrame extends JFrame
 		sequenceColorLabel.setMinimumSize(sixteen);
 		sequenceColorLabel.setPreferredSize(sixteen);
 		panel.add(sequenceColorLabel, gbc);
-		
+
 		gbc.gridx = 2;
 		gbc.fill = GridBagConstraints.NONE;
 		JButton sequenceColorButton = new JButton(CHOOSE_BUTTON_TEXT);
-		sequenceColorButton.addActionListener(new ChooseColorButtonActionListener(FragmentDisplayColor.SEQUENCE));
+		sequenceColorButton.addActionListener(new ChooseColorButtonActionListener(
+			FragmentDisplayColor.SEQUENCE));
 		panel.add(sequenceColorButton, gbc);
-		
+
 		gbc = new GridBagConstraints();
 		gbc.insets = two;
 		gbc.fill = GridBagConstraints.BOTH;
@@ -99,7 +101,7 @@ public class SettingsFrame extends JFrame
 		gbc.gridy = 2;
 		JLabel fragmentColorText = new JLabel("Fragment Color");
 		panel.add(fragmentColorText, gbc);
-		
+
 		gbc.gridx = 1;
 		gbc.weightx = 0.2;
 		JLabel fragmentColorLabel = new JLabel();
@@ -109,13 +111,14 @@ public class SettingsFrame extends JFrame
 		fragmentColorLabel.setMinimumSize(sixteen);
 		fragmentColorLabel.setPreferredSize(sixteen);
 		panel.add(fragmentColorLabel, gbc);
-		
+
 		gbc.gridx = 2;
 		gbc.fill = GridBagConstraints.NONE;
 		JButton fragmentColorButton = new JButton(CHOOSE_BUTTON_TEXT);
-		fragmentColorButton.addActionListener(new ChooseColorButtonActionListener(FragmentDisplayColor.FRAGMENT));
+		fragmentColorButton.addActionListener(new ChooseColorButtonActionListener(
+			FragmentDisplayColor.FRAGMENT));
 		panel.add(fragmentColorButton, gbc);
-		
+
 		gbc = new GridBagConstraints();
 		gbc.insets = two;
 		gbc.fill = GridBagConstraints.BOTH;
@@ -124,7 +127,7 @@ public class SettingsFrame extends JFrame
 		gbc.gridy = 3;
 		JLabel selectedColorText = new JLabel("Selected Color");
 		panel.add(selectedColorText, gbc);
-		
+
 		gbc.gridx = 1;
 		gbc.weightx = 0.2;
 		JLabel selectedColorLabel = new JLabel();
@@ -134,13 +137,14 @@ public class SettingsFrame extends JFrame
 		selectedColorLabel.setMinimumSize(sixteen);
 		selectedColorLabel.setPreferredSize(sixteen);
 		panel.add(selectedColorLabel, gbc);
-		
+
 		gbc.gridx = 2;
 		gbc.fill = GridBagConstraints.NONE;
 		JButton selectedColorButton = new JButton(CHOOSE_BUTTON_TEXT);
-		selectedColorButton.addActionListener(new ChooseColorButtonActionListener(FragmentDisplayColor.SELECTED));
+		selectedColorButton.addActionListener(new ChooseColorButtonActionListener(
+			FragmentDisplayColor.SELECTED));
 		panel.add(selectedColorButton, gbc);
-		
+
 		gbc = new GridBagConstraints();
 		gbc.insets = two;
 		gbc.gridy = 4;
@@ -148,7 +152,7 @@ public class SettingsFrame extends JFrame
 		gbc.fill = GridBagConstraints.BOTH;
 		JLabel scaleLabel = new JLabel("Scale (pixels)");
 		panel.add(scaleLabel, gbc);
-		
+
 		gbc.gridx = 1;
 		gbc.gridwidth = 2;
 		gbc.weightx = 0.8;
@@ -159,7 +163,7 @@ public class SettingsFrame extends JFrame
 		JSpinner scaleSpinner = new JSpinner(scaleModel);
 		scaleSpinner.addChangeListener(new ScaleSpinnerChangeListener());
 		panel.add(scaleSpinner, gbc);
-		
+
 		gbc = new GridBagConstraints();
 		gbc.gridy = 5;
 		gbc.gridwidth = 3;
@@ -167,38 +171,38 @@ public class SettingsFrame extends JFrame
 		gbc.insets = new Insets(5, 2, 2, 2);
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		panel.add(createOkCancelButtonsPanel(), gbc);
-		
+
 		this.add(panel);
 		this.setLocationRelativeTo(fragmentDisplay.frame);
 		this.pack();
 		this.setVisible(true);
 	}
-	
+
 	private JPanel createOkCancelButtonsPanel()
 	{
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
 		panel.add(Box.createHorizontalGlue());
-		
+
 		JButton okButton = new JButton("OK");
 		okButton.addActionListener(new OkButtonActionListener());
 		panel.add(okButton);
-		
+
 		panel.add(Box.createHorizontalStrut(5));
-		
+
 		JButton cancelButton = new JButton("Cancel");
 		cancelButton.addActionListener(new CancelButtonActionListener());
 		panel.add(cancelButton);
-		
+
 		return panel;
 	}
-	
+
 	private void setColor(FragmentDisplayColor fragmentDisplayColor, Color color)
 	{
 		settings.colors.put(fragmentDisplayColor, color);
 		colorLabelMap.get(fragmentDisplayColor).setBackground(color);
 	}
-	
+
 	private class ScaleSpinnerChangeListener implements ChangeListener
 	{
 		@Override
@@ -208,7 +212,7 @@ public class SettingsFrame extends JFrame
 			settings.scale = (Integer) scaleSpinner.getValue();
 		}
 	}
-	
+
 	private class OkButtonActionListener implements ActionListener
 	{
 		@Override
@@ -218,7 +222,7 @@ public class SettingsFrame extends JFrame
 			SettingsFrame.this.dispose();
 		}
 	}
-	
+
 	private class CancelButtonActionListener implements ActionListener
 	{
 		@Override
@@ -227,21 +231,22 @@ public class SettingsFrame extends JFrame
 			SettingsFrame.this.dispose();
 		}
 	}
-	
+
 	private class ChooseColorButtonActionListener implements ActionListener
 	{
 		private final FragmentDisplayColor fdc;
-		
+
 		public ChooseColorButtonActionListener(FragmentDisplayColor fdc_)
 		{
 			fdc = fdc_;
 		}
-		
+
 		@Override
 		public void actionPerformed(ActionEvent arg0)
 		{
 			String title = String.format("Choose %s Color", fdc.getDescription());
-			Color newColor = JColorChooser.showDialog(SettingsFrame.this, title, settings.colors.get(fdc));
+			Color newColor = JColorChooser.showDialog(SettingsFrame.this, title,
+				settings.colors.get(fdc));
 			if (newColor != null)
 			{
 				setColor(fdc, newColor);

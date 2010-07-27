@@ -31,7 +31,7 @@ public class Fragmentizer
 		 */
 		public FragmentErrorGenerator errorGenerator;
 	}
-	
+
 	/**
 	 * @param string
 	 *            String to fragmentize
@@ -57,7 +57,7 @@ public class Fragmentizer
 		}
 		return list;
 	}
-	
+
 	/**
 	 * @param string
 	 *            String to fragmentize
@@ -85,7 +85,7 @@ public class Fragmentizer
 		}
 		return removeSubstrings(list);
 	}
-	
+
 	/**
 	 * @param fragments
 	 *            A list of Fragments
@@ -118,7 +118,7 @@ public class Fragmentizer
 		}
 		return fixed;
 	}
-	
+
 	/**
 	 * TODO: Improve runtime from O(n^2) and generally make this code less
 	 * stupid
@@ -187,7 +187,7 @@ public class Fragmentizer
 		}
 		return groupedList;
 	}
-	
+
 	/**
 	 * @param string
 	 *            String to fragmentize
@@ -205,7 +205,7 @@ public class Fragmentizer
 		}
 		return list;
 	}
-	
+
 	/**
 	 * Output a <code>String</code> and its <code>List&lt;Fragment&gt;</code> to
 	 * <code>System.out</code>.

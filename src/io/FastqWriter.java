@@ -10,7 +10,6 @@ import assembly.FragmentPositionSource;
 
 public class FastqWriter
 {
-	
 	public static void writeFragments(List<? extends Fragment> fragments, File file)
 		throws IOException
 	{
