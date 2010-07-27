@@ -6,10 +6,13 @@ import java.util.List;
 import java.util.Map;
 import util.ropes.*;
 
-public class Fragment
+public class Fragment implements Cloneable
 {
 	protected final CharSequence string;
 	protected final Map<FragmentPositionSource, Integer> positions;
+	/**
+	 * Array of Phred-scaled read quality values
+	 */
 	protected final int[] readQuality;
 	
 	public Fragment(CharSequence string_)

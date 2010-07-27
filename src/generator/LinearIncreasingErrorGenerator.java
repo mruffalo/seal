@@ -3,7 +3,7 @@ package generator;
 import java.util.List;
 import assembly.Fragment;
 
-public class LinearIncreasingErrorGenerator implements FragmentErrorGenerator
+public class LinearIncreasingErrorGenerator extends FragmentErrorGenerator
 {
 	@Override
 	public List<? extends Fragment> generateErrors(List<? extends Fragment> fragments,

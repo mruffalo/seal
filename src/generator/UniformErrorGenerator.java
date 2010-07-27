@@ -1,9 +1,11 @@
 package generator;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import assembly.Fragment;
 
-public class UniformErrorGenerator implements FragmentErrorGenerator
+public class UniformErrorGenerator extends FragmentErrorGenerator
 {
 	private double errorProbability;
 	
@@ -29,7 +31,31 @@ public class UniformErrorGenerator implements FragmentErrorGenerator
 	public List<? extends Fragment> generateErrors(List<? extends Fragment> fragments,
 		String allowedCharacters)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		Random r = new Random();
+		List<Fragment> list = new ArrayList<Fragment>(fragments.size());
+		for (Fragment orig : fragments)
+		{
+			String s = orig.toString();
+			StringBuilder sb = new StringBuilder();
+			for (int i = 0; i < s.length(); i++)
+			{
+				if (r.nextDouble() <= errorProbability)
+				{
+					sb.append(chooseRandomCharacter(allowedCharacters));
+				}
+				else
+				{
+					sb.append(s.charAt(i));
+				}
+			}
+			Fragment errored = new Fragment(sb.toString());
+			int quality = phredScaleProbability(errorProbability);
+			for (int i = 0; i < s.length(); i++)
+			{
+				errored.setReadQuality(i, quality);
+			}
+			list.add(errored);
+		}
+		return list;
 	}
 }
