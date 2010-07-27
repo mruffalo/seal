@@ -223,7 +223,9 @@ public class BwaInterface extends AlignmentToolInterface
 	public static void main(String args[])
 	{
 		SequenceGenerator g = new SeqGenSingleSequenceMultipleRepeats();
+		System.out.print("Generating sequence...");
 		CharSequence sequence = g.generateSequence(100000, 10, 100);
+		System.out.println("done.");
 		File path = new File("data");
 		File genome = new File(path, "genome.fasta");
 		File reads = new File(path, "fragments.fasta");
