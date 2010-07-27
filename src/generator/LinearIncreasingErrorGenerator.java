@@ -6,8 +6,10 @@ import assembly.Fragment;
 public class LinearIncreasingErrorGenerator implements FragmentErrorGenerator
 {
 	@Override
-	public void generateErrors(List<Fragment> fragments, String allowedCharacters)
+	public List<? extends Fragment> generateErrors(List<? extends Fragment> fragments,
+		String allowedCharacters)
 	{
 		// TODO Auto-generated method stub
+		return null;
 	}
 }

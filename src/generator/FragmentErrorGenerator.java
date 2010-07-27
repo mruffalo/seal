@@ -5,5 +5,6 @@ import java.util.List;
 
 public interface FragmentErrorGenerator
 {
-	public void generateErrors(List<Fragment> fragments, String allowedCharacters);
+	public List<? extends Fragment> generateErrors(List<? extends Fragment> fragments,
+		String allowedCharacters);
 }

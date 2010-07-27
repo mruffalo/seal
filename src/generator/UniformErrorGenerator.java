@@ -3,7 +3,7 @@ package generator;
 import java.util.List;
 import assembly.Fragment;
 
-public class GaussianUniformErrorGenerator implements FragmentErrorGenerator
+public class UniformErrorGenerator implements FragmentErrorGenerator
 {
 	@Override
 	public List<? extends Fragment> generateErrors(List<? extends Fragment> fragments,
