@@ -37,16 +37,16 @@ public class FastaWriter
 			int i = 0;
 			for (Fragment fragment : fragments)
 			{
-				output.write(String.format(">FRAGMENT_%d", i++));
+				output.write(String.format(">%d", i++));
 				Integer originalPosition = fragment.getPosition(FragmentPositionSource.ORIGINAL_SEQUENCE);
 				if (originalPosition != null)
 				{
-					output.write(String.format(":%d", originalPosition));
+					output.write(String.format(":READ_POS=%d", originalPosition));
 				}
 				Integer assembledPosition = fragment.getPosition(FragmentPositionSource.ASSEMBLED_SEQUENCE);
 				if (assembledPosition != null)
 				{
-					output.write(String.format(":%d", assembledPosition));
+					output.write(String.format(",%d", assembledPosition));
 				}
 				output.write(String.format("%n"));
 				// TODO: Improve this to be Rope-smart

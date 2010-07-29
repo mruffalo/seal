@@ -574,7 +574,7 @@ public class FragmentDisplay
 				File file = fc.getSelectedFile();
 				try
 				{
-					FastaWriter.writeFragmentsWithPositions(fragments, file);
+					FastaWriter.writeFragments(fragments, file);
 				}
 				catch (IOException e)
 				{
@@ -598,7 +598,7 @@ public class FragmentDisplay
 				try
 				{
 					origString = "";
-					List<Fragment> rawFragments = FastaReader.getFragmentsWithPositions(file);
+					List<Fragment> rawFragments = FastaReader.getFragments(file);
 					fragments = new ArrayList<Fragment>(Fragmentizer.removeSubstrings(rawFragments));
 					Collections.sort(fragments, new FragmentComparator());
 					assembleFragments();

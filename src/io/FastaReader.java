@@ -120,81 +120,32 @@ public class FastaReader
 			String line;
 			StringBuilder sb = null;
 			input = new BufferedReader(new FileReader(file));
+			Integer prevOrigPosition = null;
+			Integer prevAssembledPosition = null;
 			while ((line = input.readLine()) != null)
 			{
 				if (line.startsWith(">"))
 				{
 					if (sb != null)
 					{
+						Fragment f = new Fragment(sb.toString());
+						f.setPosition(FragmentPositionSource.ORIGINAL_SEQUENCE, prevOrigPosition);
+						f.setPosition(FragmentPositionSource.ASSEMBLED_SEQUENCE,
+							prevAssembledPosition);
 						list.add(new Fragment(sb.toString()));
+						prevOrigPosition = prevAssembledPosition = null;
+					}
+					Matcher m = Constants.READ_POSITION_HEADER.matcher(line);
+					if (m.matches())
+					{
+						prevOrigPosition = Integer.parseInt(m.group(2));
+						prevAssembledPosition = Integer.parseInt(m.group(4));
 					}
 					sb = new StringBuilder();
 				}
 				else
 				{
 					sb.append(line.trim());
-				}
-			}
-		}
-		finally
-		{
-			if (input != null)
-			{
-				input.close();
-			}
-		}
-		return list;
-	}
-
-	/**
-	 * Does not actually operate on FASTA files due to position annotation.
-	 * TODO: fix this by moving position annotation into fragment header here
-	 * and in {@link FastaWriter#writeFragmentsWithPositions(List, File)}
-	 * 
-	 * @param file
-	 * @return
-	 * @throws IOException
-	 */
-	public static List<Fragment> getFragmentsWithPositions(File file) throws IOException
-	{
-		BufferedReader input = null;
-		List<Fragment> list = new LinkedList<Fragment>();
-		try
-		{
-			String line;
-			input = new BufferedReader(new FileReader(file));
-			while ((line = input.readLine()) != null)
-			{
-				if (!line.startsWith(">"))
-				{
-					String[] pieces = line.split(Constants.FIELD_SEPARATOR);
-					Fragment f = new Fragment(pieces[0]);
-					if (pieces.length > 1)
-					{
-						try
-						{
-							Integer origPos = Integer.parseInt(pieces[1]);
-							f.setPosition(FragmentPositionSource.ORIGINAL_SEQUENCE, origPos);
-						}
-						catch (NumberFormatException e)
-						{
-							// don't care
-						}
-						if (pieces.length > 2)
-						{
-							try
-							{
-								Integer assembledPos = Integer.parseInt(pieces[2]);
-								f.setPosition(FragmentPositionSource.ASSEMBLED_SEQUENCE,
-									assembledPos);
-							}
-							catch (NumberFormatException e)
-							{
-								// don't care
-							}
-						}
-					}
-					list.add(f);
 				}
 			}
 		}

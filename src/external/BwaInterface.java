@@ -4,7 +4,7 @@ import generator.Fragmentizer;
 import generator.SeqGenSingleSequenceMultipleRepeats;
 import generator.SequenceGenerator;
 import generator.UniformErrorGenerator;
-import io.FastaReader;
+import io.Constants;
 import io.FastaWriter;
 import io.FastqWriter;
 import io.SamReader;
@@ -16,15 +16,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
+import java.util.regex.Matcher;
 import assembly.Fragment;
 
 /**
- * TODO:
- * <ul>
- * <li>Generalize this code into an (actual Java) interface</li>
- * <li>Use the FASTQ format instead</li>
- * </ul>
- * 
  * @author mruffalo
  */
 public class BwaInterface extends AlignmentToolInterface
@@ -80,12 +75,10 @@ public class BwaInterface extends AlignmentToolInterface
 		}
 		catch (IOException e)
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		catch (InterruptedException e)
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -116,12 +109,10 @@ public class BwaInterface extends AlignmentToolInterface
 		}
 		catch (IOException e)
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		catch (InterruptedException e)
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		System.out.println("done.");
@@ -157,12 +148,10 @@ public class BwaInterface extends AlignmentToolInterface
 		}
 		catch (IOException e)
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		catch (InterruptedException e)
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -192,7 +181,12 @@ public class BwaInterface extends AlignmentToolInterface
 				{
 					continue;
 				}
-				int readPosition = Integer.parseInt(pieces[0].split(":")[1]);
+				int readPosition = -1;
+				Matcher m = Constants.READ_POSITION_HEADER.matcher(pieces[0]);
+				if (m.matches())
+				{
+					readPosition = Integer.parseInt(m.group(2));
+				}
 				int alignedPosition = Integer.parseInt(pieces[3]) - 1;
 				int phredProbability = Integer.parseInt(pieces[4]);
 				if (readPosition == alignedPosition && phredProbability >= PHRED_MATCH_THRESHOLD)
@@ -208,12 +202,10 @@ public class BwaInterface extends AlignmentToolInterface
 		}
 		catch (FileNotFoundException e)
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		catch (IOException e)
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		System.out.println("done.");
@@ -240,13 +232,13 @@ public class BwaInterface extends AlignmentToolInterface
 		Fragmentizer.Options o = new Fragmentizer.Options();
 		o.k = 100;
 		o.n = 500;
-		o.ksd = 10;
+		o.ksd = 3;
 		System.out.print("Reading fragments...");
 		List<? extends Fragment> list = Fragmentizer.fragmentize(sequence, o);
 		System.out.println("done.");
 		System.out.print("Introducing fragment read errors...");
 		UniformErrorGenerator eg = new UniformErrorGenerator();
-		eg.setErrorProbability(0.02);
+		eg.setErrorProbability(0.05);
 		list = eg.generateErrors(list, SequenceGenerator.NUCLEOTIDES);
 		System.out.println("done.");
 		BwaInterface b = new BwaInterface(sequence, list, genome, reads, binaryOutput, samOutput);

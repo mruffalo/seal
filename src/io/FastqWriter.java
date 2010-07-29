@@ -34,18 +34,17 @@ public class FastqWriter
 			for (Fragment fragment : fragments)
 			{
 				StringBuilder fragmentIdentifier = new StringBuilder();
-				fragmentIdentifier.append("FRAGMENT_");
 				fragmentIdentifier.append(i++);
 				Integer originalPosition = fragment.getPosition(FragmentPositionSource.ORIGINAL_SEQUENCE);
 				if (originalPosition != null)
 				{
-					fragmentIdentifier.append(":");
+					fragmentIdentifier.append(":READ_POS=");
 					fragmentIdentifier.append(originalPosition);
 				}
 				Integer assembledPosition = fragment.getPosition(FragmentPositionSource.ASSEMBLED_SEQUENCE);
 				if (assembledPosition != null)
 				{
-					fragmentIdentifier.append(":");
+					fragmentIdentifier.append(",");
 					fragmentIdentifier.append(assembledPosition);
 				}
 				output.write(String.format("@%s%n", fragmentIdentifier.toString()));
