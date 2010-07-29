@@ -6,6 +6,7 @@ import generator.SequenceGenerator;
 import generator.UniformErrorGenerator;
 import io.FastaReader;
 import io.FastaWriter;
+import io.FastqWriter;
 import io.SamReader;
 import java.io.BufferedReader;
 import java.io.File;
@@ -98,7 +99,7 @@ public class BwaInterface extends AlignmentToolInterface
 		pb.directory(genome.getParentFile());
 		try
 		{
-			FastaWriter.writeFragments(fragments, reads);
+			FastqWriter.writeFragments(fragments, reads);
 			Process p = pb.start();
 			BufferedReader stdout = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			BufferedReader stderr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
@@ -138,7 +139,7 @@ public class BwaInterface extends AlignmentToolInterface
 		pb.directory(genome.getParentFile());
 		try
 		{
-			FastaWriter.writeFragments(fragments, reads);
+			FastqWriter.writeFragments(fragments, reads);
 			Process p = pb.start();
 			BufferedReader stdout = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			BufferedReader stderr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
@@ -170,6 +171,7 @@ public class BwaInterface extends AlignmentToolInterface
 	 * Don't need to read fragments; we have those already. TODO: Move this
 	 * logic into {@link SamReader}
 	 */
+	@Override
 	public void readAlignment()
 	{
 		System.out.print("Reading alignment...");
@@ -227,7 +229,7 @@ public class BwaInterface extends AlignmentToolInterface
 		System.out.println("done.");
 		File path = new File("data");
 		File genome = new File(path, "genome.fasta");
-		File reads = new File(path, "fragments.fasta");
+		File reads = new File(path, "fragments.fastq");
 		File binaryOutput = new File(path, "alignment.sai");
 		File samOutput = new File(path, "alignment.sam");
 		path.mkdirs();
