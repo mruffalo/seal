@@ -23,6 +23,6 @@ public abstract class FragmentErrorGenerator
 
 	public int phredScaleProbability(double errorProbability)
 	{
-		return -10 * ((int) Math.log10(errorProbability));
+		return (int) (-10 * Math.log10(errorProbability));
 	}
 }

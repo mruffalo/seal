@@ -32,6 +32,7 @@ public class UniformErrorGenerator extends FragmentErrorGenerator
 		String allowedCharacters)
 	{
 		Random r = new Random();
+		int quality = phredScaleProbability(errorProbability);
 		List<Fragment> list = new ArrayList<Fragment>(fragments.size());
 		for (Fragment orig : fragments)
 		{
@@ -50,7 +51,6 @@ public class UniformErrorGenerator extends FragmentErrorGenerator
 			}
 			Fragment errored = new Fragment(sb.toString());
 			errored.clonePositions(orig);
-			int quality = phredScaleProbability(errorProbability);
 			for (int i = 0; i < s.length(); i++)
 			{
 				errored.setReadQuality(i, quality);
