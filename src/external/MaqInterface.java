@@ -27,8 +27,6 @@ public class MaqInterface extends AlignmentToolInterface
 	public static final String SAM_SINGLE_END_COMMAND = "samse";
 	public static final String SAM_PAIRED_END_COMMAND = "sampe";
 
-	public static final int PHRED_MATCH_THRESHOLD = 0;
-
 	private CharSequence sequence;
 	private List<? extends Fragment> fragments;
 

@@ -4,6 +4,8 @@ import java.io.File;
 
 public abstract class AlignmentToolInterface
 {
+	public static final int PHRED_MATCH_THRESHOLD = 0;
+
 	protected static class GenomeDescriptor
 	{
 		public File genome;
