@@ -38,19 +38,19 @@ public class BwaInterface extends AlignmentToolInterface
 
 	private File genome;
 	private File reads;
-	private File binaryOutput;
-	private File samOutput;
+	private File binary_output;
+	private File sam_output;
 
 	public BwaInterface(CharSequence string_, List<? extends Fragment> fragments_, File genome_,
-		File reads_, File binaryOutput_, File samOutput_)
+		File reads_, File binary_output_, File sam_output_)
 	{
 		super();
 		sequence = string_;
 		fragments = fragments_;
 		genome = genome_;
 		reads = reads_;
-		binaryOutput = binaryOutput_;
-		samOutput = samOutput_;
+		binary_output = binary_output_;
+		sam_output = sam_output_;
 	}
 
 	public void createIndex(File file)
@@ -89,7 +89,7 @@ public class BwaInterface extends AlignmentToolInterface
 	{
 		System.out.print("Aligning reads...");
 		ProcessBuilder pb = new ProcessBuilder(BWA_COMMAND, ALIGN_COMMAND, "-f",
-			binaryOutput.getAbsolutePath(), genome.getAbsolutePath(), reads.getAbsolutePath());
+			binary_output.getAbsolutePath(), genome.getAbsolutePath(), reads.getAbsolutePath());
 		pb.directory(genome.getParentFile());
 		try
 		{
@@ -169,7 +169,7 @@ public class BwaInterface extends AlignmentToolInterface
 		int total = 0;
 		try
 		{
-			BufferedReader r = new BufferedReader(new FileReader(samOutput));
+			BufferedReader r = new BufferedReader(new FileReader(sam_output));
 			String line = null;
 			while ((line = r.readLine()) != null)
 			{
@@ -226,7 +226,7 @@ public class BwaInterface extends AlignmentToolInterface
 	public void postAlignmentProcessing()
 	{
 		System.out.print("Converting output to SAM format...");
-		convertToSamFormat(genome, binaryOutput, reads, samOutput);
+		convertToSamFormat(genome, binary_output, reads, sam_output);
 		System.out.println("done.");
 	}
 }

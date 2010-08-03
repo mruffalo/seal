@@ -19,6 +19,11 @@ import java.util.List;
 import java.util.regex.Matcher;
 import assembly.Fragment;
 
+/**
+ * TODO: Clean up local variables vs. method parameters
+ * 
+ * @author mruffalo
+ */
 public class MaqInterface extends AlignmentToolInterface
 {
 	public static final String MAQ_COMMAND = "maq";
@@ -38,12 +43,13 @@ public class MaqInterface extends AlignmentToolInterface
 	private File sam_output;
 
 	public MaqInterface(CharSequence string_, List<? extends Fragment> fragments_, File genome_,
-		File reads_, File binary_reads_, File binaryOutput_, File sam_output_)
+		File binary_genome_, File reads_, File binary_reads_, File binaryOutput_, File sam_output_)
 	{
 		super();
 		sequence = string_;
 		fragments = fragments_;
 		genome = genome_;
+		binary_genome = binary_genome_;
 		reads = reads_;
 		binary_reads = binary_reads_;
 		binary_output = binaryOutput_;
@@ -54,7 +60,7 @@ public class MaqInterface extends AlignmentToolInterface
 	public void align()
 	{
 		System.out.print("Aligning reads...");
-		ProcessBuilder pb = new ProcessBuilder(MAQ_COMMAND, ALIGN_COMMAND, "-f",
+		ProcessBuilder pb = new ProcessBuilder(MAQ_COMMAND, ALIGN_COMMAND, sam_output.getAbsolutePath(),
 			binary_output.getAbsolutePath(), genome.getAbsolutePath(), reads.getAbsolutePath());
 		pb.directory(genome.getParentFile());
 		try
@@ -134,7 +140,7 @@ public class MaqInterface extends AlignmentToolInterface
 	 * @param reads
 	 * @param binary_reads
 	 */
-	public void convertFastqToBfq(File reads, File binary_reads)
+	public void convertFastqToBfq(File reads, File binary_reads, File genome, File binary_genome)
 	{
 		ProcessBuilder pb = new ProcessBuilder(MAQ_COMMAND, FASTQ_TO_BFQ_COMMAND,
 			genome.getAbsolutePath(), binary_genome.getAbsolutePath());
@@ -230,7 +236,7 @@ public class MaqInterface extends AlignmentToolInterface
 	public void preAlignmentProcessing()
 	{
 		System.out.print("Converting FASTQ output to BFQ...");
-		convertFastqToBfq(reads, binary_reads);
+		convertFastqToBfq(reads, binary_reads, genome, binary_genome);
 		System.out.println("done.");
 	}
 

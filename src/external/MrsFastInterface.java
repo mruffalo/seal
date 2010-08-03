@@ -31,19 +31,19 @@ public class MrsFastInterface extends AlignmentToolInterface
 
 	private File genome;
 	private File reads;
-	private File binaryOutput;
+	private File binary_output;
 	private File sam_output;
 
 	public MrsFastInterface(CharSequence string_, List<? extends Fragment> fragments_,
-		File genome_, File reads_, File binaryOutput_, File samOutput_)
+		File genome_, File reads_, File binary_output_, File sam_output_)
 	{
 		super();
 		sequence = string_;
 		fragments = fragments_;
 		genome = genome_;
 		reads = reads_;
-		binaryOutput = binaryOutput_;
-		sam_output = samOutput_;
+		binary_output = binary_output_;
+		sam_output = sam_output_;
 	}
 
 	public void createIndex(File file)

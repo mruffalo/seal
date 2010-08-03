@@ -46,10 +46,11 @@ public abstract class AlignmentToolInterface
 		System.out.println("done.");
 		File path = new File("data");
 		File genome = new File(path, "genome.fasta");
+		File binary_genome = new File(path, "genome.bfa");
 		File reads = new File(path, "fragments.fastq");
-		File binaryReads = new File(path, "fragments.bfq");
-		File binaryOutput = new File(path, "alignment.sai");
-		File samOutput = new File(path, "alignment.sam");
+		File binary_reads = new File(path, "fragments.bfq");
+		File binary_output = new File(path, "alignment.sai");
+		File sam_output = new File(path, "alignment.sam");
 		path.mkdirs();
 		/*
 		 * System.out.print("Reading genome..."); CharSequence sequence =
@@ -69,20 +70,20 @@ public abstract class AlignmentToolInterface
 		System.out.println("done.");
 
 		MrsFastInterface mrsFast = new MrsFastInterface(sequence, list, genome, reads,
-			binaryOutput, samOutput);
+			binary_output, sam_output);
 		mrsFast.preAlignmentProcessing();
 		mrsFast.align();
 		mrsFast.postAlignmentProcessing();
 		mrsFast.readAlignment();
 
-		MaqInterface m = new MaqInterface(sequence, list, genome, reads, binaryReads, binaryOutput,
-			samOutput);
+		MaqInterface m = new MaqInterface(sequence, list, genome, binary_genome, reads, binary_reads,
+			binary_output, sam_output);
 		m.preAlignmentProcessing();
 		m.align();
 		m.postAlignmentProcessing();
 		m.readAlignment();
 
-		BwaInterface b = new BwaInterface(sequence, list, genome, reads, binaryOutput, samOutput);
+		BwaInterface b = new BwaInterface(sequence, list, genome, reads, binary_output, sam_output);
 		b.preAlignmentProcessing();
 		b.align();
 		b.postAlignmentProcessing();
