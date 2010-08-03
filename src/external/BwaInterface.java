@@ -20,6 +20,9 @@ import java.util.regex.Matcher;
 import assembly.Fragment;
 
 /**
+ * TODO: Move some of this code into the general {@link AlignmentToolInterface}
+ * class
+ * 
  * @author mruffalo
  */
 public class BwaInterface extends AlignmentToolInterface
@@ -217,7 +220,7 @@ public class BwaInterface extends AlignmentToolInterface
 	{
 		SequenceGenerator g = new SeqGenSingleSequenceMultipleRepeats();
 		System.out.print("Generating sequence...");
-		CharSequence sequence = g.generateSequence(1000, 10, 20);
+		CharSequence sequence = g.generateSequence(10000, 10, 20);
 		System.out.println("done.");
 		File path = new File("data");
 		File genome = new File(path, "genome.fasta");
@@ -231,7 +234,7 @@ public class BwaInterface extends AlignmentToolInterface
 		 */
 		Fragmentizer.Options o = new Fragmentizer.Options();
 		o.k = 100;
-		o.n = 500;
+		o.n = 750;
 		o.ksd = 3;
 		System.out.print("Reading fragments...");
 		List<? extends Fragment> list = Fragmentizer.fragmentize(sequence, o);
