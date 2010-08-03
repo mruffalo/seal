@@ -23,14 +23,15 @@ public class MaqInterface extends AlignmentToolInterface
 {
 	public static final String MAQ_COMMAND = "maq";
 	public static final String FASTQ_TO_BFQ_COMMAND = "fastq2bfq";
+	public static final String FASTA_TO_BFA_COMMAND = "fastq2bfq";
 	public static final String ALIGN_COMMAND = "map";
-	public static final String SAM_SINGLE_END_COMMAND = "samse";
-	public static final String SAM_PAIRED_END_COMMAND = "sampe";
+	public static final String ASSEMBLE_COMMAND = "assemble";
 
 	private CharSequence sequence;
 	private List<? extends Fragment> fragments;
 
 	private File genome;
+	private File binary_genome;
 	private File reads;
 	private File binary_reads;
 	private File binary_output;
@@ -84,16 +85,17 @@ public class MaqInterface extends AlignmentToolInterface
 		System.out.println("done.");
 	}
 
-	public void convertFastqToBfq(File reads, File binary_reads)
+	/**
+	 * TODO: Duplicate much less code here and in
+	 * {@link #convertFastqToBfq(File, File)}
+	 * 
+	 * @param genome
+	 * @param binary_genome
+	 */
+	public void convertFastaToBfa(File genome, File binary_genome)
 	{
-
-	}
-
-	public void convertToSamFormat(File genome, File binary_output, File reads, File sam_output)
-	{
-		ProcessBuilder pb = new ProcessBuilder(MAQ_COMMAND, SAM_SINGLE_END_COMMAND,
-			genome.getAbsolutePath(), binary_output.getAbsolutePath(), reads.getAbsolutePath(),
-			sam_output.getAbsolutePath());
+		ProcessBuilder pb = new ProcessBuilder(MAQ_COMMAND, FASTA_TO_BFA_COMMAND,
+			genome.getAbsolutePath(), binary_genome.getAbsolutePath());
 		for (String arg : pb.command())
 		{
 			System.err.println(arg);
@@ -101,15 +103,55 @@ public class MaqInterface extends AlignmentToolInterface
 		pb.directory(genome.getParentFile());
 		try
 		{
-			FastqWriter.writeFragments(fragments, reads);
 			Process p = pb.start();
 			BufferedReader stdout = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			BufferedReader stderr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
 			String line = null;
-			FileWriter w = new FileWriter(sam_output);
 			while ((line = stdout.readLine()) != null)
 			{
-				w.write(String.format("%s%n", line));
+				System.err.println(line);
+			}
+			while ((line = stderr.readLine()) != null)
+			{
+				System.err.println(line);
+			}
+			p.waitFor();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+		catch (InterruptedException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * TODO: Duplicate much less code here and in
+	 * {@link #convertFastaToBfa(File, File)}
+	 * 
+	 * @param reads
+	 * @param binary_reads
+	 */
+	public void convertFastqToBfq(File reads, File binary_reads)
+	{
+		ProcessBuilder pb = new ProcessBuilder(MAQ_COMMAND, FASTQ_TO_BFQ_COMMAND,
+			genome.getAbsolutePath(), binary_genome.getAbsolutePath());
+		for (String arg : pb.command())
+		{
+			System.err.println(arg);
+		}
+		pb.directory(genome.getParentFile());
+		try
+		{
+			Process p = pb.start();
+			BufferedReader stdout = new BufferedReader(new InputStreamReader(p.getInputStream()));
+			BufferedReader stderr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+			String line = null;
+			while ((line = stdout.readLine()) != null)
+			{
+				System.err.println(line);
 			}
 			while ((line = stderr.readLine()) != null)
 			{
@@ -192,12 +234,13 @@ public class MaqInterface extends AlignmentToolInterface
 		System.out.println("done.");
 	}
 
+	/**
+	 * XXX: Do this
+	 */
 	@Override
 	public void postAlignmentProcessing()
 	{
-		System.out.print("Converting output to SAM format...");
-		convertToSamFormat(genome, binary_output, reads, sam_output);
-		System.out.println("done.");
+
 	}
 
 	public static void main(String args[])
