@@ -22,7 +22,7 @@ import assembly.Fragment;
 public class MaqInterface extends AlignmentToolInterface
 {
 	public static final String MAQ_COMMAND = "maq";
-	public static final String INDEX_COMMAND = "index";
+	public static final String FASTQ_TO_BFQ_COMMAND = "fastq2bfq";
 	public static final String ALIGN_COMMAND = "map";
 	public static final String SAM_SINGLE_END_COMMAND = "samse";
 	public static final String SAM_PAIRED_END_COMMAND = "sampe";
@@ -34,52 +34,21 @@ public class MaqInterface extends AlignmentToolInterface
 
 	private File genome;
 	private File reads;
-	private File binaryReads;
-	private File binaryOutput;
-	private File samOutput;
+	private File binary_reads;
+	private File binary_output;
+	private File sam_output;
 
 	public MaqInterface(CharSequence string_, List<? extends Fragment> fragments_, File genome_,
-		File reads_, File binaryReads_, File binaryOutput_, File samOutput_)
+		File reads_, File binary_reads_, File binaryOutput_, File sam_output_)
 	{
 		super();
 		sequence = string_;
 		fragments = fragments_;
 		genome = genome_;
 		reads = reads_;
-		binaryReads = binaryReads_;
-		binaryOutput = binaryOutput_;
-		samOutput = samOutput_;
-	}
-
-	public void createIndex(File file)
-	{
-		ProcessBuilder pb = new ProcessBuilder(MAQ_COMMAND, INDEX_COMMAND, file.getAbsolutePath());
-		pb.directory(file.getParentFile());
-		try
-		{
-			FastaWriter.writeSequence(sequence, file);
-			Process p = pb.start();
-			BufferedReader stdout = new BufferedReader(new InputStreamReader(p.getInputStream()));
-			BufferedReader stderr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-			String line = null;
-			while ((line = stdout.readLine()) != null)
-			{
-				System.out.println(line);
-			}
-			while ((line = stderr.readLine()) != null)
-			{
-				System.err.println(line);
-			}
-			p.waitFor();
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-		catch (InterruptedException e)
-		{
-			e.printStackTrace();
-		}
+		binary_reads = binary_reads_;
+		binary_output = binaryOutput_;
+		sam_output = sam_output_;
 	}
 
 	@Override
@@ -87,7 +56,7 @@ public class MaqInterface extends AlignmentToolInterface
 	{
 		System.out.print("Aligning reads...");
 		ProcessBuilder pb = new ProcessBuilder(MAQ_COMMAND, ALIGN_COMMAND, "-f",
-			binaryOutput.getAbsolutePath(), genome.getAbsolutePath(), reads.getAbsolutePath());
+			binary_output.getAbsolutePath(), genome.getAbsolutePath(), reads.getAbsolutePath());
 		pb.directory(genome.getParentFile());
 		try
 		{
@@ -115,6 +84,11 @@ public class MaqInterface extends AlignmentToolInterface
 			e.printStackTrace();
 		}
 		System.out.println("done.");
+	}
+
+	public void convertFastqToBfq(File reads, File binary_reads)
+	{
+
 	}
 
 	public void convertToSamFormat(File genome, File binary_output, File reads, File sam_output)
@@ -167,7 +141,7 @@ public class MaqInterface extends AlignmentToolInterface
 		int total = 0;
 		try
 		{
-			BufferedReader r = new BufferedReader(new FileReader(samOutput));
+			BufferedReader r = new BufferedReader(new FileReader(sam_output));
 			String line = null;
 			while ((line = r.readLine()) != null)
 			{
@@ -212,6 +186,22 @@ public class MaqInterface extends AlignmentToolInterface
 		System.out.printf("%d total fragments read%n", total);
 	}
 
+	@Override
+	public void preAlignmentProcessing()
+	{
+		System.out.print("Converting FASTQ output to BFQ...");
+		convertFastqToBfq(reads, binary_reads);
+		System.out.println("done.");
+	}
+
+	@Override
+	public void postAlignmentProcessing()
+	{
+		System.out.print("Converting output to SAM format...");
+		convertToSamFormat(genome, binary_output, reads, sam_output);
+		System.out.println("done.");
+	}
+
 	public static void main(String args[])
 	{
 		SequenceGenerator g = new SeqGenSingleSequenceMultipleRepeats();
@@ -247,21 +237,5 @@ public class MaqInterface extends AlignmentToolInterface
 		m.align();
 		m.postAlignmentProcessing();
 		m.readAlignment();
-	}
-
-	@Override
-	public void preAlignmentProcessing()
-	{
-		System.out.print("Indexing genome...");
-		createIndex(genome);
-		System.out.println("done.");
-	}
-
-	@Override
-	public void postAlignmentProcessing()
-	{
-		System.out.print("Converting output to SAM format...");
-		convertToSamFormat(genome, binaryOutput, reads, samOutput);
-		System.out.println("done.");
 	}
 }
