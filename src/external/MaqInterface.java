@@ -242,41 +242,4 @@ public class MaqInterface extends AlignmentToolInterface
 	{
 
 	}
-
-	public static void main(String args[])
-	{
-		SequenceGenerator g = new SeqGenSingleSequenceMultipleRepeats();
-		System.out.print("Generating sequence...");
-		CharSequence sequence = g.generateSequence(10000, 10, 20);
-		System.out.println("done.");
-		File path = new File("data");
-		File genome = new File(path, "genome.fasta");
-		File reads = new File(path, "fragments.fastq");
-		File binaryReads = new File(path, "fragments.bfq");
-		File binaryOutput = new File(path, "alignment.sai");
-		File samOutput = new File(path, "alignment.sam");
-		path.mkdirs();
-		/*
-		 * System.out.print("Reading genome..."); CharSequence sequence =
-		 * FastaReader.getLargeSequence(genome); System.out.println("done.");
-		 */
-		Fragmentizer.Options o = new Fragmentizer.Options();
-		o.k = 60;
-		o.n = 750;
-		o.ksd = 1;
-		System.out.print("Reading fragments...");
-		List<? extends Fragment> list = Fragmentizer.fragmentize(sequence, o);
-		System.out.println("done.");
-		System.out.print("Introducing fragment read errors...");
-		UniformErrorGenerator eg = new UniformErrorGenerator();
-		eg.setErrorProbability(0.05);
-		list = eg.generateErrors(list, SequenceGenerator.NUCLEOTIDES);
-		System.out.println("done.");
-		MaqInterface m = new MaqInterface(sequence, list, genome, reads, binaryReads, binaryOutput,
-			samOutput);
-		m.preAlignmentProcessing();
-		m.align();
-		m.postAlignmentProcessing();
-		m.readAlignment();
-	}
 }
