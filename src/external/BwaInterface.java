@@ -214,6 +214,22 @@ public class BwaInterface extends AlignmentToolInterface
 		System.out.printf("%d total fragments read%n", total);
 	}
 
+	@Override
+	public void preAlignmentProcessing()
+	{
+		System.out.print("Indexing genome...");
+		createIndex(genome);
+		System.out.println("done.");
+	}
+
+	@Override
+	public void postAlignmentProcessing()
+	{
+		System.out.print("Converting output to SAM format...");
+		convertToSamFormat(genome, binaryOutput, reads, samOutput);
+		System.out.println("done.");
+	}
+
 	public static void main(String args[])
 	{
 		SequenceGenerator g = new SeqGenSingleSequenceMultipleRepeats();
@@ -247,21 +263,5 @@ public class BwaInterface extends AlignmentToolInterface
 		b.align();
 		b.postAlignmentProcessing();
 		b.readAlignment();
-	}
-
-	@Override
-	public void preAlignmentProcessing()
-	{
-		System.out.print("Indexing genome...");
-		createIndex(genome);
-		System.out.println("done.");
-	}
-
-	@Override
-	public void postAlignmentProcessing()
-	{
-		System.out.print("Converting output to SAM format...");
-		convertToSamFormat(genome, binaryOutput, reads, samOutput);
-		System.out.println("done.");
 	}
 }
