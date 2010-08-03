@@ -21,6 +21,7 @@ import assembly.Fragment;
 
 public class MrsFastInterface extends AlignmentToolInterface
 {
+	public static final String SEQ_OPTION = "--seq";
 	public static final String MRSFAST_COMMAND = "mrsfast";
 	public static final String INDEX_COMMAND = "--index";
 	public static final String SEARCH_COMMAND = "--search";
@@ -31,7 +32,7 @@ public class MrsFastInterface extends AlignmentToolInterface
 	private File genome;
 	private File reads;
 	private File binaryOutput;
-	private File samOutput;
+	private File sam_output;
 
 	public MrsFastInterface(CharSequence string_, List<? extends Fragment> fragments_,
 		File genome_, File reads_, File binaryOutput_, File samOutput_)
@@ -42,7 +43,7 @@ public class MrsFastInterface extends AlignmentToolInterface
 		genome = genome_;
 		reads = reads_;
 		binaryOutput = binaryOutput_;
-		samOutput = samOutput_;
+		sam_output = samOutput_;
 	}
 
 	public void createIndex(File file)
@@ -81,8 +82,9 @@ public class MrsFastInterface extends AlignmentToolInterface
 	public void align()
 	{
 		System.out.print("Aligning reads...");
-		ProcessBuilder pb = new ProcessBuilder(MRSFAST_COMMAND, SEARCH_COMMAND, "-f",
-			binaryOutput.getAbsolutePath(), genome.getAbsolutePath(), reads.getAbsolutePath());
+		ProcessBuilder pb = new ProcessBuilder(MRSFAST_COMMAND, SEARCH_COMMAND,
+			genome.getAbsolutePath(), SEQ_OPTION, reads.getAbsolutePath(), "-o",
+			sam_output.getAbsolutePath());
 		pb.directory(genome.getParentFile());
 		try
 		{
@@ -124,7 +126,7 @@ public class MrsFastInterface extends AlignmentToolInterface
 		int total = 0;
 		try
 		{
-			BufferedReader r = new BufferedReader(new FileReader(samOutput));
+			BufferedReader r = new BufferedReader(new FileReader(sam_output));
 			String line = null;
 			while ((line = r.readLine()) != null)
 			{
@@ -165,8 +167,8 @@ public class MrsFastInterface extends AlignmentToolInterface
 			e.printStackTrace();
 		}
 		System.out.println("done.");
-		System.out.printf("%d matches%n", matches);
-		System.out.printf("%d total fragments read%n", total);
+		System.out.printf("%d matches / %d total fragments read (%f)%n", matches, total,
+			(double) matches / (double) total);
 	}
 
 	@Override
