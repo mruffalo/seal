@@ -26,7 +26,7 @@ public abstract class AlignmentToolInterface
 
 	public abstract void postAlignmentProcessing();
 
-	public abstract void readAlignment();
+	public abstract int readAlignment();
 
 	protected GenomeDescriptor processHumanGenome()
 	{
@@ -43,6 +43,7 @@ public abstract class AlignmentToolInterface
 		SequenceGenerator g = new SeqGenSingleSequenceMultipleRepeats();
 		System.out.print("Generating sequence...");
 		CharSequence sequence = g.generateSequence(10000, 10, 20);
+		int matches = 0;
 		System.out.println("done.");
 		File path = new File("data");
 		File genome = new File(path, "genome.fasta");
@@ -57,9 +58,10 @@ public abstract class AlignmentToolInterface
 		 * FastaReader.getLargeSequence(genome); System.out.println("done.");
 		 */
 		Fragmentizer.Options o = new Fragmentizer.Options();
-		o.k = 100;
+		o.k = 50;
 		o.n = 750;
 		o.ksd = 3;
+
 		System.out.print("Reading fragments...");
 		List<? extends Fragment> list = Fragmentizer.fragmentize(sequence, o);
 		System.out.println("done.");
@@ -74,19 +76,25 @@ public abstract class AlignmentToolInterface
 		mrsFast.preAlignmentProcessing();
 		mrsFast.align();
 		mrsFast.postAlignmentProcessing();
-		mrsFast.readAlignment();
+		matches = mrsFast.readAlignment();
+		System.out.printf("%d matches / %d total fragments generated (%f)%n", matches, o.n,
+			(double) matches / (double) o.n);
 
-		MaqInterface m = new MaqInterface(sequence, list, genome, binary_genome, reads, binary_reads,
-			binary_output, sam_output);
+		MaqInterface m = new MaqInterface(sequence, list, genome, binary_genome, reads,
+			binary_reads, binary_output, sam_output);
 		m.preAlignmentProcessing();
 		m.align();
 		m.postAlignmentProcessing();
-		m.readAlignment();
+		matches = m.readAlignment();
+		System.out.printf("%d matches / %d total fragments generated (%f)%n", matches, o.n,
+			(double) matches / (double) o.n);
 
 		BwaInterface b = new BwaInterface(sequence, list, genome, reads, binary_output, sam_output);
 		b.preAlignmentProcessing();
 		b.align();
 		b.postAlignmentProcessing();
-		b.readAlignment();
+		matches = b.readAlignment();
+		System.out.printf("%d matches / %d total fragments generated (%f)%n", matches, o.n,
+			(double) matches / (double) o.n);
 	}
 }

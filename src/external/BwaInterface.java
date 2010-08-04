@@ -162,7 +162,7 @@ public class BwaInterface extends AlignmentToolInterface
 	 * logic into {@link SamReader}
 	 */
 	@Override
-	public void readAlignment()
+	public int readAlignment()
 	{
 		System.out.print("Reading alignment...");
 		int matches = 0;
@@ -210,8 +210,9 @@ public class BwaInterface extends AlignmentToolInterface
 			e.printStackTrace();
 		}
 		System.out.println("done.");
-		System.out.printf("%d matches%n", matches);
-		System.out.printf("%d total fragments read%n", total);
+		System.out.printf("%d matches / %d total fragments read (%f)%n", matches, total,
+			(double) matches / (double) total);
+		return matches;
 	}
 
 	@Override

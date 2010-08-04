@@ -60,8 +60,9 @@ public class MaqInterface extends AlignmentToolInterface
 	public void align()
 	{
 		System.out.print("Aligning reads...");
-		ProcessBuilder pb = new ProcessBuilder(MAQ_COMMAND, ALIGN_COMMAND, sam_output.getAbsolutePath(),
-			binary_output.getAbsolutePath(), genome.getAbsolutePath(), reads.getAbsolutePath());
+		ProcessBuilder pb = new ProcessBuilder(MAQ_COMMAND, ALIGN_COMMAND,
+			sam_output.getAbsolutePath(), binary_output.getAbsolutePath(),
+			genome.getAbsolutePath(), reads.getAbsolutePath());
 		pb.directory(genome.getParentFile());
 		try
 		{
@@ -180,7 +181,7 @@ public class MaqInterface extends AlignmentToolInterface
 	 * logic into {@link SamReader}
 	 */
 	@Override
-	public void readAlignment()
+	public int readAlignment()
 	{
 		System.out.print("Reading alignment...");
 		int matches = 0;
@@ -228,8 +229,9 @@ public class MaqInterface extends AlignmentToolInterface
 			e.printStackTrace();
 		}
 		System.out.println("done.");
-		System.out.printf("%d matches%n", matches);
-		System.out.printf("%d total fragments read%n", total);
+		System.out.printf("%d matches / %d total fragments read (%f)%n", matches, total,
+			(double) matches / (double) total);
+		return matches;
 	}
 
 	@Override
