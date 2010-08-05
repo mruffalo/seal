@@ -6,24 +6,24 @@ import java.util.Random;
 public class SeqGenSingleSequenceMultipleRepeats extends SequenceGenerator
 {
 	@Override
-	public CharSequence generateSequence(int m, int r, int l, String characters)
+	public CharSequence generateSequence(Options o)
 	{
-		CharSequence repeatedSequence = generateSequence(characters, l);
+		CharSequence repeatedSequence = generateSequence(o.characters, o.repeatLength);
 		Random random = new Random();
-		StringBuilder sb = new StringBuilder(m);
-		int[] repeatedSequenceIndices = new int[r];
-		int nonRepeatedLength = m - r * l;
+		StringBuilder sb = new StringBuilder(o.length);
+		int[] repeatedSequenceIndices = new int[o.repeatCount];
+		int nonRepeatedLength = o.length - o.repeatCount * o.repeatLength;
 		if (nonRepeatedLength > 0)
 		{
-			for (int i = 0; i < r; i++)
+			for (int i = 0; i < o.repeatCount; i++)
 			{
 				repeatedSequenceIndices[i] = random.nextInt(nonRepeatedLength);
 			}
 			Arrays.sort(repeatedSequenceIndices);
-			sb.append(generateSequence(characters, nonRepeatedLength));
+			sb.append(generateSequence(o.characters, nonRepeatedLength));
 		}
 		int repeatStart = 0;
-		for (int i = 0; i < r; i++)
+		for (int i = 0; i < o.repeatCount; i++)
 		{
 			if (debugOutput)
 			{
@@ -34,7 +34,7 @@ public class SeqGenSingleSequenceMultipleRepeats extends SequenceGenerator
 				System.out.print(repeatedSequence);
 				repeatStart = repeatedSequenceIndices[i];
 			}
-			sb.insert(i * l + repeatedSequenceIndices[i], repeatedSequence);
+			sb.insert(i * o.repeatLength + repeatedSequenceIndices[i], repeatedSequence);
 		}
 		String string = sb.toString();
 		if (debugOutput)
@@ -46,7 +46,7 @@ public class SeqGenSingleSequenceMultipleRepeats extends SequenceGenerator
 	}
 
 	/**
-	 * XXX: TEMPORARY
+	 * Standalone debug method
 	 * 
 	 * @param args
 	 */

@@ -15,7 +15,7 @@ public abstract class SequenceGenerator
 		/**
 		 * Characters in the generated sequence come from here
 		 */
-		public String characters;
+		public String characters = NUCLEOTIDES;
 		public int length;
 		public int repeatCount;
 		public int repeatLength;
@@ -61,7 +61,11 @@ public abstract class SequenceGenerator
 	 */
 	public CharSequence generateSequence(int m, int r, int l)
 	{
-		return generateSequence(m, r, l, SequenceGenerator.NUCLEOTIDES);
+		Options o = new Options();
+		o.length = m;
+		o.repeatCount = r;
+		o.repeatLength = l;
+		return generateSequence(o);
 	}
 
 	/**
@@ -73,5 +77,5 @@ public abstract class SequenceGenerator
 	 *            length of repeats
 	 * @return
 	 */
-	public abstract CharSequence generateSequence(int m, int r, int l, String characters);
+	public abstract CharSequence generateSequence(Options o);
 }

@@ -179,14 +179,15 @@ public class SequenceGenerationFrame extends JFrame
 		@Override
 		public void actionPerformed(ActionEvent arg0)
 		{
-			int m = (Integer) mSpinner.getValue();
-			int r = (Integer) rSpinner.getValue();
-			int l = (Integer) lSpinner.getValue();
-			String characters = customCharacters.isEnabled() ? customCharacters.getText()
+			SequenceGenerator.Options o = new SequenceGenerator.Options();
+			o.length = (Integer) mSpinner.getValue();
+			o.repeatCount = (Integer) rSpinner.getValue();
+			o.repeatLength = (Integer) lSpinner.getValue();
+			o.characters = customCharacters.isEnabled() ? customCharacters.getText()
 					: SequenceGenerator.NUCLEOTIDES;
-			if (characters.length() > 0)
+			if (o.characters.length() > 0)
 			{
-				CharSequence string = generator.generateSequence(m, r, l, characters);
+				CharSequence string = generator.generateSequence(o);
 				stringArea.setText(string.toString());
 			}
 			else
