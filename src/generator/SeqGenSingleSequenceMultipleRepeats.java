@@ -65,7 +65,7 @@ public class SeqGenSingleSequenceMultipleRepeats extends SequenceGenerator
 	{
 		if (args.length < 3)
 		{
-			System.err.printf("*** Usage: %s m r l",
+			System.err.printf("*** Usage: %s m r l e",
 				SeqGenSingleSequenceMultipleRepeats.class.getCanonicalName());
 			System.exit(1);
 		}
@@ -73,6 +73,7 @@ public class SeqGenSingleSequenceMultipleRepeats extends SequenceGenerator
 		o.length = Integer.parseInt(args[0]);
 		o.repeatCount = Integer.parseInt(args[1]);
 		o.repeatLength = Integer.parseInt(args[2]);
+		o.errorProbability = Double.parseDouble(args[3]);
 		SequenceGenerator generator = new SeqGenSingleSequenceMultipleRepeats();
 		generator.setVerboseOutput(true);
 		CharSequence generated = generator.generateSequence(o);

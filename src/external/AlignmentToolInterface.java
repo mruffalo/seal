@@ -51,6 +51,7 @@ public abstract class AlignmentToolInterface
 		sgo.length = 10000;
 		sgo.repeatCount = 10;
 		sgo.repeatLength = 200;
+		sgo.errorProbability = 0.01;
 		System.out.print("Generating sequence...");
 		CharSequence sequence = g.generateSequence(sgo);
 		int matches = 0;
