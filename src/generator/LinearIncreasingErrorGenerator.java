@@ -12,4 +12,11 @@ public class LinearIncreasingErrorGenerator extends FragmentErrorGenerator
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+	public Fragment generateErrors(Fragment fragment, String allowedCharacters)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

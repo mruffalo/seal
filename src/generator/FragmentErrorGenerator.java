@@ -13,6 +13,8 @@ public abstract class FragmentErrorGenerator
 		characterChoiceRandomizer = new Random();
 	}
 
+	public abstract Fragment generateErrors(Fragment fragment, String allowedCharacters);
+
 	public abstract List<? extends Fragment> generateErrors(List<? extends Fragment> fragments,
 		String allowedCharacters);
 
