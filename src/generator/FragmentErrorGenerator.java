@@ -8,6 +8,7 @@ public abstract class FragmentErrorGenerator
 {
 	private Random characterChoiceRandomizer;
 	protected String allowedCharacters;
+	protected boolean verbose;
 
 	public FragmentErrorGenerator(String allowedCharacters_)
 	{
@@ -29,5 +30,10 @@ public abstract class FragmentErrorGenerator
 	public int phredScaleProbability(double errorProbability)
 	{
 		return (int) (-10 * Math.log10(errorProbability));
+	}
+
+	public void setVerbose(boolean verbose_)
+	{
+		verbose = verbose_;
 	}
 }

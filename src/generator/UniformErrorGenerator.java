@@ -51,17 +51,31 @@ public class UniformErrorGenerator extends FragmentErrorGenerator
 	@Override
 	public CharSequence generateErrors(CharSequence s)
 	{
+		if (verbose)
+		{
+			System.err.println();
+			System.err.printf("Original sequence: %s%n", s);
+			System.err.print("                   ");
+		}
 		StringBuilder sb = new StringBuilder(s.length());
+		StringBuilder errorIndicator = new StringBuilder(s.length());
 		for (int i = 0; i < s.length(); i++)
 		{
 			if (r.nextDouble() <= errorProbability)
 			{
 				sb.append(chooseRandomCharacter(allowedCharacters));
+				errorIndicator.append("X");
 			}
 			else
 			{
 				sb.append(s.charAt(i));
+				errorIndicator.append(" ");
 			}
+		}
+		if (verbose)
+		{
+			System.err.println(errorIndicator.toString());
+			System.err.printf("New sequence:      %s%n%n", sb.toString());
 		}
 		return sb;
 	}
