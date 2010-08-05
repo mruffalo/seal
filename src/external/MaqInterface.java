@@ -1,18 +1,12 @@
 package external;
 
-import generator.Fragmentizer;
-import generator.SeqGenSingleSequenceMultipleRepeats;
-import generator.SequenceGenerator;
-import generator.UniformErrorGenerator;
 import io.Constants;
-import io.FastaWriter;
 import io.FastqWriter;
 import io.SamReader;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;

@@ -11,6 +11,12 @@ public class UniformErrorGenerator extends FragmentErrorGenerator
 	private int phredScaledErrorProbability;
 	private Random r = new Random();
 
+	public UniformErrorGenerator(String allowedCharacters_, double errorProbability_)
+	{
+		super(allowedCharacters_);
+		errorProbability = errorProbability_;
+	}
+
 	public void setErrorProbability(double errorProbability_)
 	{
 		if (errorProbability_ <= 1.0 && errorProbability_ >= 0.0)
@@ -31,23 +37,21 @@ public class UniformErrorGenerator extends FragmentErrorGenerator
 	}
 
 	@Override
-	public List<? extends Fragment> generateErrors(List<? extends Fragment> fragments,
-		String allowedCharacters)
+	public List<? extends Fragment> generateErrors(List<? extends Fragment> fragments)
 	{
 		r = new Random();
 		List<Fragment> list = new ArrayList<Fragment>(fragments.size());
 		for (Fragment fragment : fragments)
 		{
-			list.add(generateErrors(fragment, allowedCharacters));
+			list.add(generateErrors(fragment));
 		}
 		return list;
 	}
 
 	@Override
-	public Fragment generateErrors(Fragment fragment, String allowedCharacters)
+	public CharSequence generateErrors(CharSequence s)
 	{
-		String s = fragment.toString();
-		StringBuilder sb = new StringBuilder();
+		StringBuilder sb = new StringBuilder(s.length());
 		for (int i = 0; i < s.length(); i++)
 		{
 			if (r.nextDouble() <= errorProbability)
@@ -59,7 +63,14 @@ public class UniformErrorGenerator extends FragmentErrorGenerator
 				sb.append(s.charAt(i));
 			}
 		}
-		Fragment errored = new Fragment(sb.toString());
+		return sb;
+	}
+
+	@Override
+	public Fragment generateErrors(Fragment fragment)
+	{
+		String s = fragment.toString();
+		Fragment errored = new Fragment(generateErrors(s).toString());
 		errored.clonePositions(fragment);
 		for (int i = 0; i < s.length(); i++)
 		{

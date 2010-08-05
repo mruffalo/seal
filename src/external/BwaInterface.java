@@ -1,9 +1,5 @@
 package external;
 
-import generator.Fragmentizer;
-import generator.SeqGenSingleSequenceMultipleRepeats;
-import generator.SequenceGenerator;
-import generator.UniformErrorGenerator;
 import io.Constants;
 import io.FastaWriter;
 import io.FastqWriter;

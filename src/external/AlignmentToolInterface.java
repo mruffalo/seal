@@ -66,9 +66,8 @@ public abstract class AlignmentToolInterface
 		List<? extends Fragment> list = Fragmentizer.fragmentize(sequence, o);
 		System.out.println("done.");
 		System.out.print("Introducing fragment read errors...");
-		UniformErrorGenerator eg = new UniformErrorGenerator();
-		eg.setErrorProbability(0.02);
-		list = eg.generateErrors(list, SequenceGenerator.NUCLEOTIDES);
+		UniformErrorGenerator eg = new UniformErrorGenerator(SequenceGenerator.NUCLEOTIDES, 0.02);
+		list = eg.generateErrors(list);
 		System.out.println("done.");
 
 		/*
