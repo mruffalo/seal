@@ -19,7 +19,7 @@ public class OverlapGraphTest
 	 */
 	private final String[] biggerStrings = { "ACTGAC", "ACCTG", "CTGCA", "GCATT", "ATTT", "TTCA" };
 	private List<Fragment> biggerList;
-	
+
 	@Before
 	public void setUp()
 	{
@@ -36,10 +36,11 @@ public class OverlapGraphTest
 		}
 		biggerList = Collections.unmodifiableList(temp);
 	}
-	
+
 	/**
-	 * Make sure that the constructor doesn't throw an exception or anything else nasty. Also verify
-	 * basic stuff like creating the right number of vertices and edges.
+	 * Make sure that the constructor doesn't throw an exception or anything
+	 * else nasty. Also verify basic stuff like creating the right number of
+	 * vertices and edges.
 	 */
 	@Test
 	public void testOverlapGraph()
@@ -52,7 +53,7 @@ public class OverlapGraphTest
 		assertEquals(14, graph.getEdgeCount());
 		System.out.println(graph.dump());
 	}
-	
+
 	@Test
 	public void testGetHeaviestEdge()
 	{
@@ -67,27 +68,27 @@ public class OverlapGraphTest
 		}
 		assertEquals(i, 4);
 	}
-	
+
 	@Test
 	public void testGetOverlap()
 	{
 		OverlapGraph graph = new OverlapGraph(basicList);
 		/*
-		 * This may seem counter-intuitive, but vertices in the overlap graph do not have edges that
-		 * point to themselves.
+		 * This may seem counter-intuitive, but vertices in the overlap graph do
+		 * not have edges that point to themselves.
 		 */
 		assertEquals(new Integer(0), graph.getOverlap(new Fragment("ATCAT"), new Fragment("ATCAT")));
 		assertEquals(new Integer(3), graph.getOverlap(new Fragment("ATCAT"), new Fragment("CATG")));
 		assertEquals(new Integer(0), graph.getOverlap(new Fragment("CATG"), new Fragment("ATCAT")));
 	}
-	
+
 	@Test(expected = NullPointerException.class)
 	public void testUnexpectedString()
 	{
 		OverlapGraph graph = new OverlapGraph(basicList);
 		graph.getOverlap(new Fragment("not present"), new Fragment("whatever"));
 	}
-	
+
 	@Test
 	public void testResetEdgeQueue()
 	{
@@ -97,7 +98,8 @@ public class OverlapGraphTest
 		for (i = 0; graph.hasMoreEdges(); i++)
 		{
 			Edge overlapEdge = graph.getHeaviestEdge();
-			assertTrue("Currrent overlap was greater than previous.", overlapEdge.overlap <= lastOverlap);
+			assertTrue("Currrent overlap was greater than previous.",
+				overlapEdge.overlap <= lastOverlap);
 			lastOverlap = overlapEdge.overlap;
 		}
 		assertEquals(i, 4);

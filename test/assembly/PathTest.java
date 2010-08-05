@@ -19,13 +19,13 @@ public class PathTest
 	 */
 	private final String[] biggerStrings = { "ACTGAC", "ACCTG", "CTGCA", "GCATT", "ATTT", "TTCA" };
 	private List<Fragment> biggerList;
-	
+
 	/**
 	 * AABBCC + XXYYZZ
 	 */
 	private final String[] disconnectedStrings = { "AABB", "BBCC", "XXYY", "YYZZ" };
 	private List<Fragment> disconnectedList;
-	
+
 	@Before
 	public void setUp()
 	{
@@ -48,7 +48,7 @@ public class PathTest
 		}
 		disconnectedList = Collections.unmodifiableList(temp);
 	}
-	
+
 	@Test
 	public void testAssembleSequence()
 	{
@@ -70,10 +70,11 @@ public class PathTest
 		}
 		assertEquals(graph.getVertexCount(), path.getPathVertexCount());
 		assertEquals(2, path.getPathEdgeCount());
-		assertTrue("Path was not Hamiltonian after adding all available edges", path.isHamiltonian());
+		assertTrue("Path was not Hamiltonian after adding all available edges",
+			path.isHamiltonian());
 		assertEquals("ATCATGATACTA", path.assembleString());
 	}
-	
+
 	@Test
 	public void testAssembleBiggerSequence()
 	{
@@ -99,7 +100,7 @@ public class PathTest
 		assertEquals(5, path.getPathEdgeCount());
 		assertEquals("ACTGACCTGCATTTCA", path.assembleString());
 	}
-	
+
 	@Test
 	public void testAssembleDisconnectedSequence()
 	{
@@ -126,7 +127,7 @@ public class PathTest
 		assertEquals(2, path.getPathEdgeCount());
 		System.out.printf("Assembled string: %s%n", path.assembleString());
 	}
-	
+
 	@Test
 	public void testGetEdgeVertexCounts()
 	{
@@ -144,7 +145,7 @@ public class PathTest
 			assertEquals(i, path.getPathEdgeCount());
 		}
 	}
-	
+
 	@Test
 	public void testAssembleEmptySequence()
 	{

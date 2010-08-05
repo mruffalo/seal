@@ -26,7 +26,7 @@ public class SeqGenSingleSequenceMultipleRepeats extends SequenceGenerator
 		int repeatStart = 0;
 		for (int i = 0; i < o.repeatCount; i++)
 		{
-			if (debugOutput)
+			if (verbose)
 			{
 				for (int j = 0; j < repeatedSequenceIndices[i] - repeatStart; j++)
 				{
@@ -47,7 +47,7 @@ public class SeqGenSingleSequenceMultipleRepeats extends SequenceGenerator
 			sb.insert(i * o.repeatLength + repeatedSequenceIndices[i], currentRepeatedSequence);
 		}
 		String string = sb.toString();
-		if (debugOutput)
+		if (verbose)
 		{
 			System.out.println();
 			System.out.println(string);
@@ -69,11 +69,12 @@ public class SeqGenSingleSequenceMultipleRepeats extends SequenceGenerator
 				SeqGenSingleSequenceMultipleRepeats.class.getCanonicalName());
 			System.exit(1);
 		}
-		int m = Integer.parseInt(args[0]);
-		int r = Integer.parseInt(args[1]);
-		int l = Integer.parseInt(args[2]);
+		Options o = new Options();
+		o.length = Integer.parseInt(args[0]);
+		o.repeatCount = Integer.parseInt(args[1]);
+		o.repeatLength = Integer.parseInt(args[2]);
 		SequenceGenerator generator = new SeqGenSingleSequenceMultipleRepeats();
-		generator.setDebugOutput(true);
-		CharSequence generated = generator.generateSequence(m, r, l);
+		generator.setVerboseOutput(true);
+		CharSequence generated = generator.generateSequence(o);
 	}
 }

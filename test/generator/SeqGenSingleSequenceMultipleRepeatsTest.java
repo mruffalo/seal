@@ -9,10 +9,18 @@ public class SeqGenSingleSequenceMultipleRepeatsTest
 	public void testGenerateSequenceIntIntInt()
 	{
 		SequenceGenerator sg = new SeqGenSingleSequenceMultipleRepeats();
-		CharSequence string = sg.generateSequence(100, 4, 10);
+		SequenceGenerator.Options o = new SequenceGenerator.Options();
+		o.length = 100;
+		o.repeatCount = 4;
+		o.repeatLength = 10;
+		CharSequence string = sg.generateSequence(o);
 		assertEquals(100, string.length());
 		System.out.println(string);
-		string = sg.generateSequence(10, 2, 5);
+		o = new SequenceGenerator.Options();
+		o.length = 10;
+		o.repeatCount = 2;
+		o.repeatLength = 5;
+		string = sg.generateSequence(o);
 		assertEquals(10, string.length());
 		System.out.println(string);
 	}

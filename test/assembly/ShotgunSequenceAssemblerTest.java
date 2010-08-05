@@ -23,17 +23,17 @@ public class ShotgunSequenceAssemblerTest
 	 */
 	private final String[] disconnectedStrings = { "AABB", "BBCC", "XXYY", "YYZZ" };
 	private List<Fragment> disconnectedList;
-	
+
 	/**
 	 * AA + BB + CC + DD
 	 */
 	private final String[] disjointStrings = { "AA", "BB", "CC", "DD" };
 	private List<Fragment> disjointList;
-	
+
 	private final String[] badStrings = { "AAGGGGTATT", "ACACATTACG", "ATGACGGGTA", "CATTACGTGA",
 			"CGGCAAACGT" };
 	private List<Fragment> badList;
-	
+
 	@Before
 	public void setUp()
 	{
@@ -62,7 +62,7 @@ public class ShotgunSequenceAssemblerTest
 		}
 		badList = Collections.unmodifiableList(temp);
 	}
-	
+
 	@Test
 	public void testAssembleSequence()
 	{
@@ -75,7 +75,7 @@ public class ShotgunSequenceAssemblerTest
 				fragment.getString(), assembled), assembled.contains(fragment.getString()));
 		}
 	}
-	
+
 	@Test
 	public void testAssembleDisconnectedSequence()
 	{
@@ -88,31 +88,31 @@ public class ShotgunSequenceAssemblerTest
 				fragment.getString(), assembled), assembled.contains(fragment.getString()));
 		}
 	}
-	
+
 	@Test
 	public void testPrintBiggerSequence()
 	{
 		testAndPrintAssembly(biggerList);
 	}
-	
+
 	@Test
 	public void testPrintDisconnectedSequence()
 	{
 		testAndPrintAssembly(disconnectedList);
 	}
-	
+
 	@Test
 	public void testPrintDisjointSequence()
 	{
 		testAndPrintAssembly(disjointList);
 	}
-	
+
 	@Test
 	public void testPrintBadSequence()
 	{
 		testAndPrintAssembly(badList);
 	}
-	
+
 	public void testAndPrintAssembly(List<Fragment> list)
 	{
 		SequenceAssembler sa = new ShotgunSequenceAssembler();
@@ -146,19 +146,23 @@ public class ShotgunSequenceAssemblerTest
 			System.out.println();
 		}
 	}
-	
+
 	@Test
 	public void testWithGeneratedSequence()
 	{
 		SequenceAssembler sa = new ShotgunSequenceAssembler();
 		SequenceGenerator sg = new SeqGenSingleSequenceMultipleRepeats();
-		CharSequence string = sg.generateSequence(10000, 50, 10);
+		SequenceGenerator.Options sgo = new SequenceGenerator.Options();
+		sgo.length = 10000;
+		sgo.repeatCount = 50;
+		sgo.repeatLength = 10;
+		CharSequence string = sg.generateSequence(sgo);
 		assertEquals(10000, string.length());
-		Fragmentizer.Options o = new Fragmentizer.Options();
-		o.n = 1000;
-		o.k = 50;
-		o.ksd = 5;
-		List<Fragment> list = Fragmentizer.fragmentizeForShotgun(string, o);
+		Fragmentizer.Options fo = new Fragmentizer.Options();
+		fo.n = 1000;
+		fo.k = 50;
+		fo.ksd = 5;
+		List<Fragment> list = Fragmentizer.fragmentizeForShotgun(string, fo);
 		assertTrue(list.size() <= 1000);
 		String assembled = sa.assembleSequence(list);
 		for (Fragment fragment : list)
@@ -166,7 +170,7 @@ public class ShotgunSequenceAssemblerTest
 			assertTrue(assembled.contains(fragment.getString()));
 		}
 	}
-	
+
 	/**
 	 * Ensure that every character in the assembled string comes from at least
 	 * one fragment.
@@ -176,12 +180,14 @@ public class ShotgunSequenceAssemblerTest
 	{
 		SequenceAssembler sa = new ShotgunSequenceAssembler();
 		SequenceGenerator sg = new SeqGenSingleSequenceMultipleRepeats();
-		CharSequence string = sg.generateSequence(100, 0, 0);
-		Fragmentizer.Options o = new Fragmentizer.Options();
-		o.n = 50;
-		o.k = 10;
-		o.ksd = 0;
-		List<Fragment> list = Fragmentizer.fragmentizeForShotgun(string, o);
+		SequenceGenerator.Options sgo = new SequenceGenerator.Options();
+		sgo.length = 100;
+		CharSequence string = sg.generateSequence(sgo);
+		Fragmentizer.Options fo = new Fragmentizer.Options();
+		fo.n = 50;
+		fo.k = 10;
+		fo.ksd = 0;
+		List<Fragment> list = Fragmentizer.fragmentizeForShotgun(string, fo);
 		String assembled = sa.assembleSequence(list);
 		ArrayList<ArrayList<Fragment>> fragmentCounts = new ArrayList<ArrayList<Fragment>>(
 			assembled.length());

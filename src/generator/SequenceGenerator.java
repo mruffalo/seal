@@ -8,7 +8,7 @@ public abstract class SequenceGenerator
 	public static final String NUCLEIC_ACID_ALLOWED_CHARACTERS = "ACGTURYKMSWBDHVNX-";
 	public static final String AMINO_ACID_ALLOWED_CHARACTERS = "ABCDEFGHIKLMNOPQRSTUVWYZX*-";
 
-	protected boolean debugOutput;
+	protected boolean verbose;
 
 	public static class Options
 	{
@@ -26,11 +26,19 @@ public abstract class SequenceGenerator
 		public double errorProbability;
 	}
 
-	protected static CharSequence generateSequence(String sample, int m)
+	/**
+	 * Generates a single sequence with the provided length from the given
+	 * characters
+	 * 
+	 * @param sample
+	 * @param length
+	 * @return
+	 */
+	protected static CharSequence generateSequence(String sample, int length)
 	{
 		Random random = new Random();
-		StringBuilder sb = new StringBuilder(m);
-		for (int i = 0; i < m; i++)
+		StringBuilder sb = new StringBuilder(length);
+		for (int i = 0; i < length; i++)
 		{
 			int index = random.nextInt(sample.length());
 			sb.append(sample.substring(index, index + 1));
@@ -40,41 +48,22 @@ public abstract class SequenceGenerator
 
 	/**
 	 * Controls whether debugging information will be printed to
-	 * <code>System.out</code>. TODO: Maybe allow a separate
+	 * <code>System.err</code>. TODO: Maybe allow a separate
 	 * {@link java.io.OutputStream} to be specified.
 	 * 
-	 * @param debugOutput_
+	 * @param verbose_
 	 */
-	public void setDebugOutput(boolean debugOutput_)
+	public void setVerboseOutput(boolean verbose_)
 	{
-		debugOutput = debugOutput_;
+		verbose = verbose_;
 	}
 
 	/**
-	 * @param m
-	 *            length of sequence
-	 * @param r
-	 *            number of repeats
-	 * @param l
-	 *            length of repeats
-	 * @return
-	 */
-	public CharSequence generateSequence(int m, int r, int l)
-	{
-		Options o = new Options();
-		o.length = m;
-		o.repeatCount = r;
-		o.repeatLength = l;
-		return generateSequence(o);
-	}
-
-	/**
-	 * @param m
-	 *            length of sequence
-	 * @param r
-	 *            number of repeats
-	 * @param l
-	 *            length of repeats
+	 * Generates a sequence according to the provided options
+	 * 
+	 * @param o
+	 *            Options specifying length, repeat count, repeat length,
+	 *            characters to sample, error rate, etc.
 	 * @return
 	 */
 	public abstract CharSequence generateSequence(Options o);

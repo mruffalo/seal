@@ -17,11 +17,12 @@ public class GenerateSequenceToFastaFile
 				GenerateSequenceToFastaFile.class.getCanonicalName());
 			return;
 		}
-		int m = Integer.parseInt(args[1]);
-		int r = Integer.parseInt(args[2]);
-		int l = Integer.parseInt(args[3]);
+		SequenceGenerator.Options o = new SequenceGenerator.Options();
+		o.length = Integer.parseInt(args[1]);
+		o.repeatCount = Integer.parseInt(args[2]);
+		o.repeatLength = Integer.parseInt(args[3]);
 		SequenceGenerator sg = new SeqGenSingleSequenceMultipleRepeats();
-		CharSequence string = sg.generateSequence(m, r, l);
+		CharSequence string = sg.generateSequence(o);
 		try
 		{
 			FastaWriter.writeSequence(string, new File(args[0]));

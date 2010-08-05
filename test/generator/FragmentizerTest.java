@@ -13,12 +13,12 @@ public class FragmentizerTest
 			"FGHIJK", "K" };
 	private Set<String> stringsWithoutSubstrings;
 	private List<Fragment> listWithSubstrings;
-	
+
 	private final String duplicateString = "TCTCACTAAGACGGACAACC";
 	private final int origPos = 148;
 	private final int assembledPos = 247;
 	private List<Fragment> duplicatesWithPositions;
-	
+
 	@Before
 	public void setUp() throws Exception
 	{
@@ -28,14 +28,14 @@ public class FragmentizerTest
 			temp.add(new Fragment(string));
 		}
 		listWithSubstrings = Collections.unmodifiableList(temp);
-		
+
 		Set<String> tempSet = new HashSet<String>();
 		for (String string : new String[] { "ABCDEFG", "DEFGH", "FGHIJK" })
 		{
 			tempSet.add(string);
 		}
 		stringsWithoutSubstrings = Collections.unmodifiableSet(tempSet);
-		
+
 		temp = new LinkedList<Fragment>();
 		Fragment f = new Fragment(duplicateString);
 		f.setPosition(FragmentPositionSource.ORIGINAL_SEQUENCE, origPos);
@@ -47,7 +47,7 @@ public class FragmentizerTest
 		temp.add(f);
 		duplicatesWithPositions = Collections.unmodifiableList(temp);
 	}
-	
+
 	/**
 	 * TODO
 	 */
@@ -84,7 +84,7 @@ public class FragmentizerTest
 			assertTrue(string.toString().contains(fragment.getString()));
 		}
 	}
-	
+
 	@Test
 	public void testFragmentizeForHybridization()
 	{
@@ -98,7 +98,7 @@ public class FragmentizerTest
 			assertTrue(string.toString().contains(fragment.getString()));
 		}
 	}
-	
+
 	@Test
 	public void testRemoveSubstrings()
 	{
@@ -115,14 +115,14 @@ public class FragmentizerTest
 			assertTrue(stringsWithoutSubstrings.contains(s));
 		}
 	}
-	
+
 	@Test
 	public void testRemoveSubstringsWithPositions()
 	{
 		List<Fragment> fragments = Fragmentizer.removeSubstrings(duplicatesWithPositions);
 		assertEquals(1, fragments.size());
 	}
-	
+
 	/**
 	 * TODO
 	 */

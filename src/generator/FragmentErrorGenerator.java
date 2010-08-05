@@ -32,7 +32,7 @@ public abstract class FragmentErrorGenerator
 		return (int) (-10 * Math.log10(errorProbability));
 	}
 
-	public void setVerbose(boolean verbose_)
+	public void setVerboseOutput(boolean verbose_)
 	{
 		verbose = verbose_;
 	}
