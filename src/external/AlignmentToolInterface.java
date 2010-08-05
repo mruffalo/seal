@@ -42,7 +42,7 @@ public abstract class AlignmentToolInterface
 	{
 		SequenceGenerator g = new SeqGenSingleSequenceMultipleRepeats();
 		System.out.print("Generating sequence...");
-		CharSequence sequence = g.generateSequence(10000, 10, 20);
+		CharSequence sequence = g.generateSequence(10000, 10, 200);
 		int matches = 0;
 		System.out.println("done.");
 		File path = new File("data");
@@ -67,10 +67,13 @@ public abstract class AlignmentToolInterface
 		System.out.println("done.");
 		System.out.print("Introducing fragment read errors...");
 		UniformErrorGenerator eg = new UniformErrorGenerator();
-		eg.setErrorProbability(0.05);
+		eg.setErrorProbability(0.02);
 		list = eg.generateErrors(list, SequenceGenerator.NUCLEOTIDES);
 		System.out.println("done.");
 
+		/*
+		 * TODO: Verify that each fragment appears exactly once
+		 */
 		MrsFastInterface mrsFast = new MrsFastInterface(sequence, list, genome, reads,
 			binary_output, sam_output);
 		mrsFast.preAlignmentProcessing();
@@ -88,7 +91,6 @@ public abstract class AlignmentToolInterface
 		matches = m.readAlignment();
 		System.out.printf("%d matches / %d total fragments generated (%f)%n", matches, o.n,
 			(double) matches / (double) o.n);
-
 		BwaInterface b = new BwaInterface(sequence, list, genome, reads, binary_output, sam_output);
 		b.preAlignmentProcessing();
 		b.align();
@@ -96,5 +98,6 @@ public abstract class AlignmentToolInterface
 		matches = b.readAlignment();
 		System.out.printf("%d matches / %d total fragments generated (%f)%n", matches, o.n,
 			(double) matches / (double) o.n);
+
 	}
 }
