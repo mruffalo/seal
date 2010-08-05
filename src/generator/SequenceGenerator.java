@@ -10,6 +10,22 @@ public abstract class SequenceGenerator
 
 	protected boolean debugOutput;
 
+	public static class Options
+	{
+		/**
+		 * Characters in the generated sequence come from here
+		 */
+		public String characters;
+		public int length;
+		public int repeatCount;
+		public int repeatLength;
+		/**
+		 * Each character in each repeat will be substituted with a random
+		 * choice from {@link #characters} at this probability
+		 */
+		public double errorProbability;
+	}
+
 	protected static CharSequence generateSequence(String sample, int m)
 	{
 		Random random = new Random();
