@@ -12,6 +12,12 @@ public abstract class AlignmentToolInterface
 {
 	public static final int PHRED_MATCH_THRESHOLD = 0;
 
+	/**
+	 * TODO: Examine how useful this might actually be, and remove if
+	 * appropriate
+	 * 
+	 * @author mruffalo
+	 */
 	protected static class GenomeDescriptor
 	{
 		public File genome;

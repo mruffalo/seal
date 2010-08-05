@@ -24,6 +24,11 @@ public class FastaReader
 		source = new BufferedReader(in);
 	}
 
+	/**
+	 * TODO: Finish this
+	 * 
+	 * @return
+	 */
 	public Fragment readFragment()
 	{
 		Fragment f = null;
