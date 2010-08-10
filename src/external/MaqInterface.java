@@ -27,9 +27,6 @@ public class MaqInterface extends AlignmentToolInterface
 	public static final String ALIGN_COMMAND = "map";
 	public static final String ASSEMBLE_COMMAND = "assemble";
 
-	private CharSequence sequence;
-	private List<? extends Fragment> fragments;
-
 	private File genome;
 	private File binary_genome;
 	private File reads;
@@ -37,12 +34,10 @@ public class MaqInterface extends AlignmentToolInterface
 	private File binary_output;
 	private File sam_output;
 
-	public MaqInterface(CharSequence string_, List<? extends Fragment> fragments_, File genome_,
+	public MaqInterface(CharSequence sequence_, List<? extends Fragment> fragments_, File genome_,
 		File binary_genome_, File reads_, File binary_reads_, File binaryOutput_, File sam_output_)
 	{
-		super();
-		sequence = string_;
-		fragments = fragments_;
+		super(sequence_, fragments_);
 		genome = genome_;
 		binary_genome = binary_genome_;
 		reads = reads_;
@@ -204,7 +199,7 @@ public class MaqInterface extends AlignmentToolInterface
 				}
 				int alignedPosition = Integer.parseInt(pieces[3]) - 1;
 				int phredProbability = Integer.parseInt(pieces[4]);
-				if (readPosition == alignedPosition && phredProbability >= PHRED_MATCH_THRESHOLD)
+				if (readPosition == alignedPosition && phredProbability >= phredMatchThreshold)
 				{
 					matches++;
 				}

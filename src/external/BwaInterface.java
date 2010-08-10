@@ -30,20 +30,15 @@ public class BwaInterface extends AlignmentToolInterface
 	public static final String SAM_SINGLE_END_COMMAND = "samse";
 	public static final String SAM_PAIRED_END_COMMAND = "sampe";
 
-	private CharSequence sequence;
-	private List<? extends Fragment> fragments;
-
 	private File genome;
 	private File reads;
 	private File binary_output;
 	private File sam_output;
 
-	public BwaInterface(CharSequence string_, List<? extends Fragment> fragments_, File genome_,
+	public BwaInterface(CharSequence sequence_, List<? extends Fragment> fragments_, File genome_,
 		File reads_, File binary_output_, File sam_output_)
 	{
-		super();
-		sequence = string_;
-		fragments = fragments_;
+		super(sequence_, fragments_);
 		genome = genome_;
 		reads = reads_;
 		binary_output = binary_output_;
@@ -162,8 +157,7 @@ public class BwaInterface extends AlignmentToolInterface
 	public ResultsStruct readAlignment()
 	{
 		System.out.print("Reading alignment...");
-		int matches = 0;
-		int total = 0;
+		ResultsStruct rs = new ResultsStruct();
 		try
 		{
 			BufferedReader r = new BufferedReader(new FileReader(sam_output));
@@ -187,15 +181,26 @@ public class BwaInterface extends AlignmentToolInterface
 				}
 				int alignedPosition = Integer.parseInt(pieces[3]) - 1;
 				int phredProbability = Integer.parseInt(pieces[4]);
-				if (readPosition == alignedPosition && phredProbability >= PHRED_MATCH_THRESHOLD)
+				if (readPosition == alignedPosition)
 				{
-					matches++;
+					if (phredProbability >= phredMatchThreshold)
+					{
+						rs.truePositives++;
+					}
+					else
+					{
+						rs.falseNegatives++;
+					}
 				}
 				else
 				{
+					if (phredProbability >= phredMatchThreshold)
+					{
+						rs.falsePositives++;
+					}
 					System.out.println(line);
 				}
-				total++;
+				rs.totalFragmentsRead++;
 			}
 		}
 		catch (FileNotFoundException e)
@@ -206,10 +211,7 @@ public class BwaInterface extends AlignmentToolInterface
 		{
 			e.printStackTrace();
 		}
-		ResultsStruct r = new ResultsStruct();
-		r.truePositives = matches;
-		// XXX: Assign other results fields
-		return r;
+		return rs;
 	}
 
 	@Override

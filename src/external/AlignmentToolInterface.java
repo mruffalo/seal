@@ -11,10 +11,24 @@ import generator.UniformErrorGenerator;
 
 public abstract class AlignmentToolInterface
 {
-	public static final int PHRED_MATCH_THRESHOLD = 0;
+	protected int phredMatchThreshold = 0;
+	protected CharSequence sequence;
+	protected List<? extends Fragment> fragments;
+
+	public AlignmentToolInterface(CharSequence sequence_, List<? extends Fragment> list_)
+	{
+		sequence = sequence_;
+		fragments = list_;
+	}
 
 	public static class ResultsStruct
 	{
+		/**
+		 * We know how many fragments we generated; this is the size of
+		 * {@link AlignmentToolInterface#fragments}. This is how many total
+		 * fragments were present in the alignment tool's output.
+		 */
+		public int totalFragmentsRead;
 		/**
 		 * Mapped to correct location in target genome, and passes quality
 		 * threshold
@@ -80,12 +94,12 @@ public abstract class AlignmentToolInterface
 		System.out.println("done.");
 
 		List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
-		alignmentInterfaceList.add(new MrFastInterface(sequence, list, genome, reads,
-			binary_output, sam_output));
-		alignmentInterfaceList.add(new MrsFastInterface(sequence, list, genome, reads,
-			binary_output, sam_output));
-		alignmentInterfaceList.add(new MaqInterface(sequence, list, genome, binary_genome, reads,
-			binary_reads, binary_output, sam_output));
+		alignmentInterfaceList.add(new MrFastInterface(sequence, list, genome, reads, sam_output));
+		alignmentInterfaceList.add(new MrsFastInterface(sequence, list, genome, reads, sam_output));
+		/*
+		 * alignmentInterfaceList.add(new MaqInterface(sequence, list, genome,
+		 * binary_genome, reads, binary_reads, binary_output, sam_output));
+		 */
 		alignmentInterfaceList.add(new BwaInterface(sequence, list, genome, reads, binary_output,
 			sam_output));
 
