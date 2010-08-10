@@ -111,6 +111,10 @@ public abstract class AlignmentToolInterface
 			ResultsStruct r = ati.readAlignment();
 			System.out.printf("%d matches / %d total fragments generated (%f)%n", r.truePositives,
 				fo.n, (double) r.truePositives / (double) fo.n);
+			System.out.printf("Precision: %f%n", (double) r.truePositives
+					/ (double) (r.truePositives + r.falsePositives));
+			System.out.printf("Recall: %f%n", (double) r.truePositives
+					/ (double) (r.truePositives + r.falseNegatives));
 		}
 	}
 }
