@@ -13,20 +13,6 @@ public abstract class AlignmentToolInterface
 {
 	public static final int PHRED_MATCH_THRESHOLD = 0;
 
-	/**
-	 * TODO: Examine how useful this might actually be, and remove if
-	 * appropriate
-	 * 
-	 * @author mruffalo
-	 */
-	protected static class GenomeDescriptor
-	{
-		public File genome;
-		public File reads;
-		public File binaryOutput;
-		public File samOutput;
-	}
-
 	public static class ResultsStruct
 	{
 		/**
@@ -56,16 +42,6 @@ public abstract class AlignmentToolInterface
 	public abstract void postAlignmentProcessing();
 
 	public abstract ResultsStruct readAlignment();
-
-	protected GenomeDescriptor processHumanGenome()
-	{
-		return processGenome();
-	}
-
-	protected GenomeDescriptor processGenome()
-	{
-		return null;
-	}
 
 	public static void main(String[] args)
 	{
