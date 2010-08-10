@@ -1,6 +1,7 @@
 package external;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import assembly.Fragment;
 import generator.Fragmentizer;
@@ -81,33 +82,22 @@ public abstract class AlignmentToolInterface
 		list = eg.generateErrors(list);
 		System.out.println("done.");
 
-		/*
-		 * TODO: Verify that each fragment appears exactly once
-		 */
-		MrsFastInterface mrsFast = new MrsFastInterface(sequence, list, genome, reads,
-			binary_output, sam_output);
-		mrsFast.preAlignmentProcessing();
-		mrsFast.align();
-		mrsFast.postAlignmentProcessing();
-		matches = mrsFast.readAlignment();
-		System.out.printf("%d matches / %d total fragments generated (%f)%n", matches, fo.n,
-			matches / (double) fo.n);
+		List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
+		alignmentInterfaceList.add(new MrsFastInterface(sequence, list, genome, reads, binary_output,
+			sam_output));
+		alignmentInterfaceList.add(new MaqInterface(sequence, list, genome, binary_genome, reads,
+			binary_reads, binary_output, sam_output));
+		alignmentInterfaceList.add(new BwaInterface(sequence, list, genome, reads, binary_output,
+			sam_output));
 
-		MaqInterface m = new MaqInterface(sequence, list, genome, binary_genome, reads,
-			binary_reads, binary_output, sam_output);
-		m.preAlignmentProcessing();
-		m.align();
-		m.postAlignmentProcessing();
-		matches = m.readAlignment();
-		System.out.printf("%d matches / %d total fragments generated (%f)%n", matches, fo.n,
-			matches / (double) fo.n);
-		BwaInterface b = new BwaInterface(sequence, list, genome, reads, binary_output, sam_output);
-		b.preAlignmentProcessing();
-		b.align();
-		b.postAlignmentProcessing();
-		matches = b.readAlignment();
-		System.out.printf("%d matches / %d total fragments generated (%f)%n", matches, fo.n,
-			matches / (double) fo.n);
-
+		for (AlignmentToolInterface ati : alignmentInterfaceList)
+		{
+			ati.preAlignmentProcessing();
+			ati.align();
+			ati.postAlignmentProcessing();
+			matches = ati.readAlignment();
+			System.out.printf("%d matches / %d total fragments generated (%f)%n", matches, fo.n,
+				matches / (double) fo.n);
+		}
 	}
 }
