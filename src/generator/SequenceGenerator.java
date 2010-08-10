@@ -23,7 +23,7 @@ public abstract class SequenceGenerator
 		 * Each character in each repeat will be substituted with a random
 		 * choice from {@link #characters} at this probability
 		 */
-		public double errorProbability;
+		public double repeatErrorProbability;
 	}
 
 	/**

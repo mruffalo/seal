@@ -9,7 +9,7 @@ public class SeqGenSingleSequenceMultipleRepeats extends SequenceGenerator
 	public CharSequence generateSequence(Options o)
 	{
 		Random random = new Random();
-		FragmentErrorGenerator eg = new UniformErrorGenerator(o.characters, o.errorProbability);
+		FragmentErrorGenerator eg = new UniformErrorGenerator(o.characters, o.repeatErrorProbability);
 		final CharSequence repeatedSequence = generateSequence(o.characters, o.repeatLength);
 		StringBuilder sb = new StringBuilder(o.length);
 		int[] repeatedSequenceIndices = new int[o.repeatCount];
@@ -36,7 +36,7 @@ public class SeqGenSingleSequenceMultipleRepeats extends SequenceGenerator
 				repeatStart = repeatedSequenceIndices[i];
 			}
 			CharSequence currentRepeatedSequence;
-			if (o.errorProbability > 0.0)
+			if (o.repeatErrorProbability > 0.0)
 			{
 				currentRepeatedSequence = eg.generateErrors(repeatedSequence);
 			}
@@ -73,7 +73,7 @@ public class SeqGenSingleSequenceMultipleRepeats extends SequenceGenerator
 		o.length = Integer.parseInt(args[0]);
 		o.repeatCount = Integer.parseInt(args[1]);
 		o.repeatLength = Integer.parseInt(args[2]);
-		o.errorProbability = Double.parseDouble(args[3]);
+		o.repeatErrorProbability = Double.parseDouble(args[3]);
 		SequenceGenerator generator = new SeqGenSingleSequenceMultipleRepeats();
 		generator.setVerboseOutput(true);
 		CharSequence generated = generator.generateSequence(o);
