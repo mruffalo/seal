@@ -22,9 +22,6 @@ public class MrsFastInterface extends AlignmentToolInterface
 	public static final String INDEX_COMMAND = "--index";
 	public static final String SEARCH_COMMAND = "--search";
 
-	private CharSequence sequence;
-	private List<? extends Fragment> fragments;
-
 	private File genome;
 	private File reads;
 	private File sam_output;
