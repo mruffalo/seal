@@ -27,13 +27,35 @@ public abstract class AlignmentToolInterface
 		public File samOutput;
 	}
 
+	public static class ResultsStruct
+	{
+		/**
+		 * Mapped to correct location in target genome, and passes quality
+		 * threshold
+		 */
+		public int truePositives;
+		/**
+		 * Mapped to incorrect location in target genome, and passes quality
+		 * threshold
+		 */
+		public int falsePositives;
+		/**
+		 * <ul>
+		 * <li>Mapped to correct location in target genome and does not pass
+		 * quality threshold</li>
+		 * <li>or not present at all in tool output</li>
+		 * </ul>
+		 */
+		public int falseNegatives;
+	}
+
 	public abstract void preAlignmentProcessing();
 
 	public abstract void align();
 
 	public abstract void postAlignmentProcessing();
 
-	public abstract int readAlignment();
+	public abstract ResultsStruct readAlignment();
 
 	protected GenomeDescriptor processHumanGenome()
 	{
@@ -55,7 +77,6 @@ public abstract class AlignmentToolInterface
 		sgo.errorProbability = 0.01;
 		System.out.print("Generating sequence...");
 		CharSequence sequence = g.generateSequence(sgo);
-		int matches = 0;
 		System.out.println("done.");
 		File path = new File("data");
 		File genome = new File(path, "genome.fasta");
@@ -83,8 +104,10 @@ public abstract class AlignmentToolInterface
 		System.out.println("done.");
 
 		List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
-		alignmentInterfaceList.add(new MrsFastInterface(sequence, list, genome, reads, binary_output,
-			sam_output));
+		alignmentInterfaceList.add(new MrFastInterface(sequence, list, genome, reads,
+			binary_output, sam_output));
+		alignmentInterfaceList.add(new MrsFastInterface(sequence, list, genome, reads,
+			binary_output, sam_output));
 		alignmentInterfaceList.add(new MaqInterface(sequence, list, genome, binary_genome, reads,
 			binary_reads, binary_output, sam_output));
 		alignmentInterfaceList.add(new BwaInterface(sequence, list, genome, reads, binary_output,
@@ -95,9 +118,9 @@ public abstract class AlignmentToolInterface
 			ati.preAlignmentProcessing();
 			ati.align();
 			ati.postAlignmentProcessing();
-			matches = ati.readAlignment();
-			System.out.printf("%d matches / %d total fragments generated (%f)%n", matches, fo.n,
-				matches / (double) fo.n);
+			ResultsStruct r = ati.readAlignment();
+			System.out.printf("%d matches / %d total fragments generated (%f)%n", r.truePositives,
+				fo.n, (double) r.truePositives / (double) fo.n);
 		}
 	}
 }
