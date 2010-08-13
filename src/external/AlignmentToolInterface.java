@@ -15,6 +15,9 @@ public abstract class AlignmentToolInterface
 	protected CharSequence sequence;
 	protected List<? extends Fragment> fragments;
 
+	protected static final double[] ERROR_PROBABILITIES = { 0.0, 0.001, 0.002, 0.004, 0.01, 0.015,
+			0.02, 0.03, 0.05, 0.1 };
+
 	public AlignmentToolInterface(CharSequence sequence_, List<? extends Fragment> list_)
 	{
 		sequence = sequence_;
@@ -88,33 +91,42 @@ public abstract class AlignmentToolInterface
 		System.out.print("Reading fragments...");
 		List<? extends Fragment> list = Fragmentizer.fragmentize(sequence, fo);
 		System.out.println("done.");
-		System.out.print("Introducing fragment read errors...");
-		UniformErrorGenerator eg = new UniformErrorGenerator(SequenceGenerator.NUCLEOTIDES, 0.02);
-		list = eg.generateErrors(list);
-		System.out.println("done.");
 
-		List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
-		alignmentInterfaceList.add(new MrFastInterface(sequence, list, genome, reads, sam_output));
-		alignmentInterfaceList.add(new MrsFastInterface(sequence, list, genome, reads, sam_output));
-		/*
-		 * alignmentInterfaceList.add(new MaqInterface(sequence, list, genome,
-		 * binary_genome, reads, binary_reads, binary_output, sam_output));
-		 */
-		alignmentInterfaceList.add(new BwaInterface(sequence, list, genome, reads, binary_output,
-			sam_output));
-
-		for (AlignmentToolInterface ati : alignmentInterfaceList)
+		for (double errorProbability : ERROR_PROBABILITIES)
 		{
-			ati.preAlignmentProcessing();
-			ati.align();
-			ati.postAlignmentProcessing();
-			ResultsStruct r = ati.readAlignment();
-			System.out.printf("%d matches / %d total fragments generated (%f)%n", r.truePositives,
-				fo.n, (double) r.truePositives / (double) fo.n);
-			System.out.printf("Precision: %f%n", (double) r.truePositives
-					/ (double) (r.truePositives + r.falsePositives));
-			System.out.printf("Recall: %f%n", (double) r.truePositives
-					/ (double) (r.truePositives + r.falseNegatives));
+			System.out.print("Introducing fragment read errors...");
+			UniformErrorGenerator eg = new UniformErrorGenerator(SequenceGenerator.NUCLEOTIDES,
+				errorProbability);
+			List<? extends Fragment> errored_list = eg.generateErrors(list);
+			System.out.println("done.");
+
+			List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
+
+			alignmentInterfaceList.add(new MrFastInterface(sequence, errored_list, genome, reads,
+				sam_output));
+			alignmentInterfaceList.add(new MrsFastInterface(sequence, errored_list, genome, reads,
+				sam_output));
+			/*
+			 * alignmentInterfaceList.add(new MaqInterface(sequence, list,
+			 * genome, binary_genome, reads, binary_reads, binary_output,
+			 * sam_output));
+			 */
+			alignmentInterfaceList.add(new BwaInterface(sequence, errored_list, genome, reads,
+				binary_output, sam_output));
+
+			for (AlignmentToolInterface ati : alignmentInterfaceList)
+			{
+				ati.preAlignmentProcessing();
+				ati.align();
+				ati.postAlignmentProcessing();
+				ResultsStruct r = ati.readAlignment();
+				System.out.printf("%d matches / %d total fragments generated (%f)%n",
+					r.truePositives, fo.n, (double) r.truePositives / (double) fo.n);
+				System.out.printf("Precision: %f%n", (double) r.truePositives
+						/ (double) (r.truePositives + r.falsePositives));
+				System.out.printf("Recall: %f%n", (double) r.truePositives
+						/ (double) (r.truePositives + r.falseNegatives));
+			}
 		}
 	}
 }
