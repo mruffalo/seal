@@ -20,6 +20,20 @@ public abstract class AlignmentToolInterface
 	protected static final double[] ERROR_PROBABILITIES = { 0.0, 0.001, 0.002, 0.004, 0.01, 0.015,
 			0.02, 0.03, 0.05, 0.1 };
 
+	/**
+	 * TODO: Examine how useful this might actually be, and remove if
+	 * appropriate
+	 * 
+	 * @author mruffalo
+	 */
+	protected static class GenomeDescriptor
+	{
+		public File genome;
+		public File reads;
+		public File binaryOutput;
+		public File samOutput;
+	}
+
 	public AlignmentToolInterface(CharSequence sequence_, List<? extends Fragment> list_)
 	{
 		sequence = sequence_;
