@@ -23,7 +23,7 @@ public class FastqWriter
 	 * @param file
 	 * @throws IOException
 	 */
-	public static void writeFragments(List<? extends Fragment> fragments, File file)
+	public static void writeFragments(List<? extends Fragment> fragments, File file, int pairedIndex)
 		throws IOException
 	{
 		BufferedWriter output = null;
@@ -47,6 +47,8 @@ public class FastqWriter
 					fragmentIdentifier.append(",");
 					fragmentIdentifier.append(assembledPosition);
 				}
+				fragmentIdentifier.append("/");
+				fragmentIdentifier.append(pairedIndex);
 				output.write(String.format("@%s%n", fragmentIdentifier.toString()));
 				// TODO: Improve this to be Rope-smart
 				output.write(fragment.toString());

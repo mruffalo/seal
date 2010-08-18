@@ -30,6 +30,11 @@ public abstract class AlignmentToolInterface
 		 */
 		public static class Reads
 		{
+			public Reads(int index_)
+			{
+				index = index_;
+			}
+			public final int index;
 			public File reads;
 			/**
 			 * Not used for every tool
@@ -108,7 +113,7 @@ public abstract class AlignmentToolInterface
 		o.genome = new File(path, "genome.fasta");
 		o.binary_genome = new File(path, "genome.bfa");
 
-		o.reads.add(new Options.Reads());
+		o.reads.add(new Options.Reads(1));
 		o.reads.get(0).reads = new File(path, "fragments.fastq");
 		o.reads.get(0).binary_reads = new File(path, "fragments.bfq");
 
@@ -176,28 +181,6 @@ public abstract class AlignmentToolInterface
 		CharSequence sequence = g.generateSequence(sgo);
 		System.out.println("done.");
 
-		Options o = new Options();
-		o.is_paired_end = true;
-
-		File path = new File("data");
-		o.genome = new File(path, "genome.fasta");
-		o.binary_genome = new File(path, "genome.bfa");
-
-		Options.Reads r1 = new Options.Reads();
-		r1.reads = new File(path, "fragments1.fastq");
-		r1.binary_reads = new File(path, "fragments1.bfq");
-		r1.aligned_reads = new File(path, "alignment1.sai");
-		o.reads.add(r1);
-
-		Options.Reads r2 = new Options.Reads();
-		r2.reads = new File(path, "fragments2.fastq");
-		r2.binary_reads = new File(path, "fragments2.bfq");
-		r2.aligned_reads = new File(path, "alignment2.sai");
-		o.reads.add(r2);
-
-		o.sam_output = new File(path, "alignment.sam");
-
-		path.mkdirs();
 		/*
 		 * System.out.print("Reading genome..."); CharSequence sequence =
 		 * FastaReader.getLargeSequence(genome); System.out.println("done.");
@@ -210,6 +193,26 @@ public abstract class AlignmentToolInterface
 		System.out.print("Reading fragments...");
 		List<? extends Fragment> list = Fragmentizer.fragmentize(sequence, fo);
 		System.out.println("done.");
+
+		Options o = new Options();
+		o.is_paired_end = true;
+
+		File path = new File("data");
+		o.genome = new File(path, "genome.fasta");
+		o.binary_genome = new File(path, "genome.bfa");
+
+		for (int i = 1; i <= 2; i++)
+		{
+			Options.Reads r = new Options.Reads(i);
+			r.reads = new File(path, String.format("fragments%d.fastq", i));
+			r.binary_reads = new File(path, String.format("fragments%d.bfq", i));
+			r.aligned_reads = new File(path, String.format("alignment%d.sai", i));
+			o.reads.add(r);
+		}
+
+		o.sam_output = new File(path, "alignment.sam");
+
+		path.mkdirs();
 
 		Map<Double, ResultsStruct> m = new TreeMap<Double, ResultsStruct>();
 

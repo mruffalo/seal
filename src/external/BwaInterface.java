@@ -11,6 +11,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import external.AlignmentToolInterface.ResultsStruct;
@@ -78,7 +79,11 @@ public class BwaInterface extends AlignmentToolInterface
 		pb.directory(o.genome.getParentFile());
 		try
 		{
-			FastqWriter.writeFragments(fragments, o.reads.get(0).reads);
+			for (Options.Reads r : o.reads)
+			{
+
+				FastqWriter.writeFragments(fragments, r.reads, r.index);
+			}
 			Process p = pb.start();
 			BufferedReader stdout = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			BufferedReader stderr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
@@ -104,24 +109,40 @@ public class BwaInterface extends AlignmentToolInterface
 		System.out.println("done.");
 	}
 
-	public void convertToSamFormat(File genome, File binary_output, File reads, File sam_output)
+	public void convertToSamFormat()
 	{
-		ProcessBuilder pb = new ProcessBuilder(BWA_COMMAND, SAM_SINGLE_END_COMMAND,
-			genome.getAbsolutePath(), binary_output.getAbsolutePath(), reads.getAbsolutePath(),
-			sam_output.getAbsolutePath());
+		List<String> commands = new ArrayList<String>();
+		commands.add(BWA_COMMAND);
+		commands.add(o.is_paired_end ? SAM_PAIRED_END_COMMAND : SAM_SINGLE_END_COMMAND);
+		commands.add(o.genome.getAbsolutePath());
+		for (Options.Reads r : o.reads)
+		{
+			commands.add(r.aligned_reads.getAbsolutePath());
+		}
+		for (Options.Reads r : o.reads)
+		{
+			commands.add(r.reads.getAbsolutePath());
+		}
+		commands.add(o.sam_output.getAbsolutePath());
+
+		ProcessBuilder pb = new ProcessBuilder(commands);
 		for (String arg : pb.command())
 		{
 			System.err.println(arg);
 		}
-		pb.directory(genome.getParentFile());
+		pb.directory(o.genome.getParentFile());
 		try
 		{
-			FastqWriter.writeFragments(fragments, reads);
+			for (Options.Reads r : o.reads)
+			{
+				// XXX Fix this
+				FastqWriter.writeFragments(fragments, r.reads, r.index);
+			}
 			Process p = pb.start();
 			BufferedReader stdout = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			BufferedReader stderr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
 			String line = null;
-			FileWriter w = new FileWriter(sam_output);
+			FileWriter w = new FileWriter(o.sam_output);
 			while ((line = stdout.readLine()) != null)
 			{
 				w.write(String.format("%s%n", line));
@@ -219,7 +240,7 @@ public class BwaInterface extends AlignmentToolInterface
 	public void postAlignmentProcessing()
 	{
 		System.out.print("Converting output to SAM format...");
-		convertToSamFormat(o.genome, o.binary_output, o.reads.get(0).reads, o.sam_output);
+		convertToSamFormat();
 		System.out.println("done.");
 	}
 }
