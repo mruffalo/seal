@@ -3,6 +3,8 @@ package external;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import assembly.Fragment;
 import generator.Fragmentizer;
 import generator.SeqGenSingleSequenceMultipleRepeats;
@@ -92,6 +94,8 @@ public abstract class AlignmentToolInterface
 		List<? extends Fragment> list = Fragmentizer.fragmentize(sequence, fo);
 		System.out.println("done.");
 
+		Map<Double, ResultsStruct> m = new TreeMap<Double, ResultsStruct>();
+
 		for (double errorProbability : ERROR_PROBABILITIES)
 		{
 			System.out.print("Introducing fragment read errors...");
@@ -120,6 +124,9 @@ public abstract class AlignmentToolInterface
 				ati.align();
 				ati.postAlignmentProcessing();
 				ResultsStruct r = ati.readAlignment();
+
+				m.put(errorProbability, r);
+
 				System.out.printf("%d matches / %d total fragments generated (%f)%n",
 					r.truePositives, fo.n, (double) r.truePositives / (double) fo.n);
 				System.out.printf("Precision: %f%n", (double) r.truePositives
