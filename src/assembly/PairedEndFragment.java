@@ -9,11 +9,11 @@ public class PairedEndFragment extends Fragment
 	protected boolean atBeginningOfFragment;
 	protected int length;
 
-	public PairedEndFragment(String string, boolean atBeginningOfFragment_, int length_)
+	public PairedEndFragment(CharSequence sequence_, boolean atBeginningOfFragment_, int length_)
 	{
-		super(string);
+		super(sequence_);
 		atBeginningOfFragment = atBeginningOfFragment_;
-		length_ = length;
+		length = length_;
 	}
 
 	@Override
@@ -21,12 +21,12 @@ public class PairedEndFragment extends Fragment
 	{
 		if (atBeginningOfFragment)
 		{
-			return string.subSequence(0, length);
+			return sequence.subSequence(0, length);
 		}
 		else
 		{
 			// TODO: Test this
-			return string.subSequence(string.length() - length, string.length());
+			return sequence.subSequence(sequence.length() - length, sequence.length());
 		}
 	}
 
@@ -40,7 +40,7 @@ public class PairedEndFragment extends Fragment
 		}
 		else
 		{
-			return rawPosition + (string.length() - length);
+			return rawPosition + (sequence.length() - length);
 		}
 	}
 }

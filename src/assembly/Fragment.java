@@ -7,16 +7,16 @@ import java.util.Map;
 
 public class Fragment implements Cloneable
 {
-	protected final CharSequence string;
+	protected final CharSequence sequence;
 	protected final Map<FragmentPositionSource, Integer> positions;
 	/**
 	 * Array of Phred-scaled read quality values
 	 */
 	protected final int[] readQuality;
 
-	public Fragment(CharSequence string_)
+	public Fragment(CharSequence sequence_)
 	{
-		string = string_;
+		sequence = sequence_;
 		positions = new EnumMap<FragmentPositionSource, Integer>(FragmentPositionSource.class);
 		readQuality = new int[getSequence().length()];
 	}
@@ -93,15 +93,16 @@ public class Fragment implements Cloneable
 	 */
 	public List<? extends Fragment> pairedEndClone(int length)
 	{
-		List<? extends Fragment> list = new ArrayList<PairedEndFragment>(2);
-		// TODO: this
+		List<PairedEndFragment> list = new ArrayList<PairedEndFragment>(2);
+		list.add(new PairedEndFragment(sequence, true, length));
+		list.add(new PairedEndFragment(sequence, false, length));
 		return list;
 	}
 
 	/**
 	 * Use {@link Fragment#getSequence()} if you can. In the event that the
-	 * sequence is actually a Rope or something like that, don't force
-	 * conversion to a String unless it's necessary.
+	 * sequence is actually a {@link util.ropes.Rope} or something like that,
+	 * don't force conversion to a String unless it's necessary.
 	 */
 	@Override
 	public String toString()
@@ -111,7 +112,7 @@ public class Fragment implements Cloneable
 
 	public CharSequence getSequence()
 	{
-		return string;
+		return sequence;
 	}
 
 	public void clonePositions(Fragment that)
