@@ -102,8 +102,8 @@ public class Fragmentizer
 			for (Fragment second : nonDuplicates)
 			{
 				// Filter out substrings
-				if (first.getString().toString().contains(second.getString().toString())
-						&& !first.getString().equals(second.getString()))
+				if (first.getSequence().toString().contains(second.getSequence().toString())
+						&& !first.getSequence().equals(second.getSequence()))
 				{
 					substrings.add(second);
 				}
@@ -161,7 +161,7 @@ public class Fragmentizer
 					if (fragment.getPosition(source) >= begin)
 					{
 						if (earliestFinish == null
-								|| (fragment.getPosition(source) + fragment.getString().length()) < (earliestFinish.getPosition(source) + earliestFinish.getString().length()))
+								|| (fragment.getPosition(source) + fragment.getSequence().length()) < (earliestFinish.getPosition(source) + earliestFinish.getSequence().length()))
 						{
 							earliestFinish = fragment;
 						}
@@ -179,7 +179,7 @@ public class Fragmentizer
 					 * separated by a gap of at least one character.
 					 */
 					begin = earliestFinish.getPosition(source)
-							+ earliestFinish.getString().length() + 1;
+							+ earliestFinish.getSequence().length() + 1;
 					fragmentSet.remove(earliestFinish);
 				}
 			}
@@ -229,7 +229,7 @@ public class Fragmentizer
 		List<Fragment> fragments = fragmentizeForShotgun(string, options);
 		for (Fragment fragment : fragments)
 		{
-			System.out.printf("%5d: %s%n", fragment.getPosition(source), fragment.getString());
+			System.out.printf("%5d: %s%n", fragment.getPosition(source), fragment.getSequence());
 		}
 		System.out.println();
 		System.out.println(string);
@@ -243,8 +243,8 @@ public class Fragmentizer
 				{
 					System.out.print(" ");
 				}
-				System.out.print(fragment.getString());
-				begin = fragment.getPosition(source) + fragment.getString().length();
+				System.out.print(fragment.getSequence());
+				begin = fragment.getPosition(source) + fragment.getSequence().length();
 			}
 			System.out.println();
 		}

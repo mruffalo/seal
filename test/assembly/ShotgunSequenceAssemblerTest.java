@@ -72,7 +72,7 @@ public class ShotgunSequenceAssemblerTest
 		for (Fragment fragment : biggerList)
 		{
 			assertTrue(String.format("Fragment %s was not contained in assembled sequence %s",
-				fragment.getString(), assembled), assembled.contains(fragment.getString()));
+				fragment.getSequence(), assembled), assembled.contains(fragment.getSequence()));
 		}
 	}
 
@@ -85,7 +85,7 @@ public class ShotgunSequenceAssemblerTest
 		for (Fragment fragment : disconnectedList)
 		{
 			assertTrue(String.format("Fragment %s was not contained in assembled sequence %s",
-				fragment.getString(), assembled), assembled.contains(fragment.getString()));
+				fragment.getSequence(), assembled), assembled.contains(fragment.getSequence()));
 		}
 	}
 
@@ -120,7 +120,7 @@ public class ShotgunSequenceAssemblerTest
 		for (Fragment fragment : list)
 		{
 			assertTrue(String.format("Fragment %s was not contained in assembled sequence %s",
-				fragment.getString(), assembled), assembled.contains(fragment.getString()));
+				fragment.getSequence(), assembled), assembled.contains(fragment.getSequence()));
 			assertNotNull(fragment.getPosition(FragmentPositionSource.ASSEMBLED_SEQUENCE));
 		}
 		System.out.println();
@@ -134,14 +134,14 @@ public class ShotgunSequenceAssemblerTest
 			{
 				int position = fragment.getPosition(source);
 				String assembledSubstring = assembled.substring(position,
-					fragment.getString().length() + position);
-				assertEquals(fragment.getString(), assembledSubstring);
+					fragment.getSequence().length() + position);
+				assertEquals(fragment.getSequence(), assembledSubstring);
 				for (int i = 0; i < fragment.getPosition(source) - begin; i++)
 				{
 					System.out.print(" ");
 				}
-				System.out.print(fragment.getString());
-				begin = fragment.getPosition(source) + fragment.getString().length();
+				System.out.print(fragment.getSequence());
+				begin = fragment.getPosition(source) + fragment.getSequence().length();
 			}
 			System.out.println();
 		}
@@ -167,7 +167,7 @@ public class ShotgunSequenceAssemblerTest
 		String assembled = sa.assembleSequence(list);
 		for (Fragment fragment : list)
 		{
-			assertTrue(assembled.contains(fragment.getString()));
+			assertTrue(assembled.contains(fragment.getSequence()));
 		}
 	}
 
@@ -198,7 +198,7 @@ public class ShotgunSequenceAssemblerTest
 		for (Fragment fragment : list)
 		{
 			Integer position = fragment.getPosition(FragmentPositionSource.ASSEMBLED_SEQUENCE);
-			for (int i = 0; i < fragment.getString().length(); i++)
+			for (int i = 0; i < fragment.getSequence().length(); i++)
 			{
 				fragmentCounts.get(i + position).add(fragment);
 			}
@@ -209,7 +209,7 @@ public class ShotgunSequenceAssemblerTest
 			ArrayList<Fragment> fragmentCount = fragmentCounts.get(i);
 			for (Fragment fragment : fragmentCount)
 			{
-				System.out.printf("%s ", fragment.getString());
+				System.out.printf("%s ", fragment.getSequence());
 			}
 			System.out.println();
 			assertTrue(fragmentCount.size() > 0);

@@ -17,7 +17,7 @@ public class PairedEndFragment extends Fragment
 	}
 
 	@Override
-	public CharSequence getString()
+	public CharSequence getSequence()
 	{
 		if (atBeginningOfFragment)
 		{

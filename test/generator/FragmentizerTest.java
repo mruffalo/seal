@@ -65,7 +65,7 @@ public class FragmentizerTest
 		for (Fragment fragment : list)
 		{
 			System.out.println(fragment);
-			assertTrue(string.toString().contains(fragment.getString()));
+			assertTrue(string.toString().contains(fragment.getSequence()));
 		}
 		o.n = 20;
 		o.k = 20;
@@ -81,7 +81,7 @@ public class FragmentizerTest
 			 */
 			// assertTrue(Math.abs(fragment.getString().length() - o.k) <=
 			// o.ksd);
-			assertTrue(string.toString().contains(fragment.getString()));
+			assertTrue(string.toString().contains(fragment.getSequence()));
 		}
 	}
 
@@ -94,8 +94,8 @@ public class FragmentizerTest
 		assertEquals(string.length() - k + 1, list.size());
 		for (Fragment fragment : list)
 		{
-			assertEquals(k, fragment.getString().length());
-			assertTrue(string.toString().contains(fragment.getString()));
+			assertEquals(k, fragment.getSequence().length());
+			assertTrue(string.toString().contains(fragment.getSequence()));
 		}
 	}
 
@@ -106,7 +106,7 @@ public class FragmentizerTest
 		List<Fragment> fragments = Fragmentizer.removeSubstrings(listWithSubstrings);
 		for (Fragment f : fragments)
 		{
-			strings.add(f.getString().toString());
+			strings.add(f.getSequence().toString());
 		}
 		// Sanity check: make sure that we don't get any duplicate strings
 		assertEquals(strings.size(), fragments.size());

@@ -50,7 +50,7 @@ public class FastaWriter
 				}
 				output.write(String.format("%n"));
 				// TODO: Improve this to be Rope-smart
-				output.write(fragment.getString().toString());
+				output.write(fragment.getSequence().toString());
 				output.write(String.format("%n"));
 			}
 		}

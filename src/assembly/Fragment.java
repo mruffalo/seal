@@ -18,7 +18,7 @@ public class Fragment implements Cloneable
 	{
 		string = string_;
 		positions = new EnumMap<FragmentPositionSource, Integer>(FragmentPositionSource.class);
-		readQuality = new int[getString().length()];
+		readQuality = new int[getSequence().length()];
 	}
 
 	public Integer getPosition(FragmentPositionSource source)
@@ -34,7 +34,7 @@ public class Fragment implements Cloneable
 	@Override
 	public int hashCode()
 	{
-		return getString().hashCode();
+		return getSequence().hashCode();
 	}
 
 	@Override
@@ -45,16 +45,16 @@ public class Fragment implements Cloneable
 			return false;
 		}
 		Fragment that = (Fragment) o;
-		if (getString() == null)
+		if (getSequence() == null)
 		{
-			return that.getString() == null;
+			return that.getSequence() == null;
 		}
-		return getString().equals(that.getString());
+		return getSequence().equals(that.getSequence());
 	}
 
 	public boolean equalsWithPositions(Fragment that)
 	{
-		if (!getString().equals(that.getString()))
+		if (!getSequence().equals(that.getSequence()))
 		{
 			return false;
 		}
@@ -86,24 +86,30 @@ public class Fragment implements Cloneable
 	}
 
 	/**
-	 * TODO: Determine parameters for this method
-	 * 
+	 * @param length
+	 *            The length of the paired end reads on either side of the
+	 *            actual fragment
 	 * @return
 	 */
-	public List<? extends Fragment> pairedEndClone()
+	public List<? extends Fragment> pairedEndClone(int length)
 	{
 		List<? extends Fragment> list = new ArrayList<PairedEndFragment>(2);
 		// TODO: this
 		return list;
 	}
 
+	/**
+	 * Use {@link Fragment#getSequence()} if you can. In the event that the
+	 * sequence is actually a Rope or something like that, don't force
+	 * conversion to a String unless it's necessary.
+	 */
 	@Override
 	public String toString()
 	{
-		return getString().toString();
+		return getSequence().toString();
 	}
 
-	public CharSequence getString()
+	public CharSequence getSequence()
 	{
 		return string;
 	}
