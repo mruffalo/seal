@@ -62,7 +62,7 @@ public abstract class AlignmentToolInterface
 
 	public abstract ResultsStruct readAlignment();
 
-	public static void main(String[] args)
+	public static void singleEndToolEvaluation()
 	{
 		SequenceGenerator g = new SeqGenSingleSequenceMultipleRepeats();
 		SequenceGenerator.Options sgo = new SequenceGenerator.Options();
@@ -135,5 +135,10 @@ public abstract class AlignmentToolInterface
 						/ (double) (r.truePositives + r.falseNegatives));
 			}
 		}
+	}
+
+	public static void main(String[] args)
+	{
+		singleEndToolEvaluation();
 	}
 }
