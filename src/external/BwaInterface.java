@@ -31,8 +31,6 @@ public class BwaInterface extends AlignmentToolInterface
 	public static final String SAM_SINGLE_END_COMMAND = "samse";
 	public static final String SAM_PAIRED_END_COMMAND = "sampe";
 
-	private Options o;
-
 	public BwaInterface(CharSequence sequence_, List<? extends Fragment> fragments_, Options o_)
 	{
 		super(sequence_, fragments_, o_);
@@ -183,7 +181,7 @@ public class BwaInterface extends AlignmentToolInterface
 					continue;
 				}
 				String[] pieces = line.split("\\s+");
-				if (pieces.length <= 3)
+				if (pieces.length <= 4)
 				{
 					continue;
 				}

@@ -116,6 +116,7 @@ public abstract class AlignmentToolInterface
 		o.reads.add(new Options.Reads(1));
 		o.reads.get(0).reads = new File(path, "fragments.fastq");
 		o.reads.get(0).binary_reads = new File(path, "fragments.bfq");
+		o.reads.get(0).aligned_reads = new File(path, "alignment.sai");
 
 		o.binary_output = new File(path, "alignment.sai");
 		o.sam_output = new File(path, "alignment.sam");
