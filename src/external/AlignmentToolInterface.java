@@ -16,28 +16,28 @@ public abstract class AlignmentToolInterface
 	protected int phredMatchThreshold = 0;
 	protected CharSequence sequence;
 	protected List<? extends Fragment> fragments;
+	protected Options o;
 
 	protected static final double[] ERROR_PROBABILITIES = { 0.0, 0.001, 0.002, 0.004, 0.01, 0.015,
 			0.02, 0.03, 0.05, 0.1 };
 
-	/**
-	 * TODO: Examine how useful this might actually be, and remove if
-	 * appropriate
-	 * 
-	 * @author mruffalo
-	 */
-	protected static class GenomeDescriptor
+	protected static class Options
 	{
+		public boolean is_paired_end;
 		public File genome;
-		public File reads;
-		public File binaryOutput;
-		public File samOutput;
+		public File binary_genome;
+		public File first_paired_reads;
+		public File second_paired_reads;
+		public File binary_reads;
+		public File binary_output;
+		public File sam_output;
 	}
 
-	public AlignmentToolInterface(CharSequence sequence_, List<? extends Fragment> list_)
+	public AlignmentToolInterface(CharSequence sequence_, List<? extends Fragment> list_, Options o_)
 	{
 		sequence = sequence_;
 		fragments = list_;
+		o = o_;
 	}
 
 	public static class ResultsStruct
@@ -87,13 +87,18 @@ public abstract class AlignmentToolInterface
 		System.out.print("Generating sequence...");
 		CharSequence sequence = g.generateSequence(sgo);
 		System.out.println("done.");
+
+		Options o = new Options();
+		o.is_paired_end = false;
+
 		File path = new File("data");
-		File genome = new File(path, "genome.fasta");
-		File binary_genome = new File(path, "genome.bfa");
-		File reads = new File(path, "fragments.fastq");
-		File binary_reads = new File(path, "fragments.bfq");
-		File binary_output = new File(path, "alignment.sai");
-		File sam_output = new File(path, "alignment.sam");
+		o.genome = new File(path, "genome.fasta");
+		o.binary_genome = new File(path, "genome.bfa");
+		o.first_paired_reads = new File(path, "fragments.fastq");
+		o.binary_reads = new File(path, "fragments.bfq");
+		o.binary_output = new File(path, "alignment.sai");
+		o.sam_output = new File(path, "alignment.sam");
+
 		path.mkdirs();
 		/*
 		 * System.out.print("Reading genome..."); CharSequence sequence =
@@ -120,17 +125,9 @@ public abstract class AlignmentToolInterface
 
 			List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
 
-			alignmentInterfaceList.add(new MrFastInterface(sequence, errored_list, genome, reads,
-				sam_output));
-			alignmentInterfaceList.add(new MrsFastInterface(sequence, errored_list, genome, reads,
-				sam_output));
-			/*
-			 * alignmentInterfaceList.add(new MaqInterface(sequence, list,
-			 * genome, binary_genome, reads, binary_reads, binary_output,
-			 * sam_output));
-			 */
-			alignmentInterfaceList.add(new BwaInterface(sequence, errored_list, genome, reads,
-				binary_output, sam_output));
+			alignmentInterfaceList.add(new MrFastInterface(sequence, errored_list, o));
+			alignmentInterfaceList.add(new MrsFastInterface(sequence, errored_list, o));
+			alignmentInterfaceList.add(new BwaInterface(sequence, errored_list, o));
 
 			for (AlignmentToolInterface ati : alignmentInterfaceList)
 			{
@@ -162,14 +159,19 @@ public abstract class AlignmentToolInterface
 		System.out.print("Generating sequence...");
 		CharSequence sequence = g.generateSequence(sgo);
 		System.out.println("done.");
+
+		Options o = new Options();
+		o.is_paired_end = true;
+
 		File path = new File("data");
-		File genome = new File(path, "genome.fasta");
-		File binary_genome = new File(path, "genome.bfa");
-		File first_pair_reads = new File(path, "reads1.fastq");
-		File second_pair_reads = new File(path, "reads2.fastq");
-		File binary_reads = new File(path, "fragments.bfq");
-		File binary_output = new File(path, "alignment.sai");
-		File sam_output = new File(path, "alignment.sam");
+		o.genome = new File(path, "genome.fasta");
+		o.binary_genome = new File(path, "genome.bfa");
+		o.first_paired_reads = new File(path, "fragments1.fastq");
+		o.second_paired_reads = new File(path, "fragments2.fastq");
+		o.binary_reads = new File(path, "fragments.bfq");
+		o.binary_output = new File(path, "alignment.sai");
+		o.sam_output = new File(path, "alignment.sam");
+
 		path.mkdirs();
 		/*
 		 * System.out.print("Reading genome..."); CharSequence sequence =
@@ -196,17 +198,14 @@ public abstract class AlignmentToolInterface
 
 			List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
 
-			alignmentInterfaceList.add(new MrFastInterface(sequence, errored_list, genome,
-				first_pair_reads, sam_output));
-			alignmentInterfaceList.add(new MrsFastInterface(sequence, errored_list, genome,
-				first_pair_reads, sam_output));
+			alignmentInterfaceList.add(new MrFastInterface(sequence, errored_list, o));
+			alignmentInterfaceList.add(new MrsFastInterface(sequence, errored_list, o));
 			/*
 			 * alignmentInterfaceList.add(new MaqInterface(sequence, list,
 			 * genome, binary_genome, reads, binary_reads, binary_output,
 			 * sam_output));
 			 */
-			alignmentInterfaceList.add(new BwaInterface(sequence, errored_list, genome,
-				first_pair_reads, binary_output, sam_output));
+			alignmentInterfaceList.add(new BwaInterface(sequence, errored_list, o));
 
 			for (AlignmentToolInterface ati : alignmentInterfaceList)
 			{

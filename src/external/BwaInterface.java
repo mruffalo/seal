@@ -30,19 +30,11 @@ public class BwaInterface extends AlignmentToolInterface
 	public static final String SAM_SINGLE_END_COMMAND = "samse";
 	public static final String SAM_PAIRED_END_COMMAND = "sampe";
 
-	private File genome;
-	private File reads;
-	private File binary_output;
-	private File sam_output;
+	private Options o;
 
-	public BwaInterface(CharSequence sequence_, List<? extends Fragment> fragments_, File genome_,
-		File reads_, File binary_output_, File sam_output_)
+	public BwaInterface(CharSequence sequence_, List<? extends Fragment> fragments_, Options o_)
 	{
-		super(sequence_, fragments_);
-		genome = genome_;
-		reads = reads_;
-		binary_output = binary_output_;
-		sam_output = sam_output_;
+		super(sequence_, fragments_, o_);
 	}
 
 	public void createIndex(File file)
@@ -81,11 +73,12 @@ public class BwaInterface extends AlignmentToolInterface
 	{
 		System.out.print("Aligning reads...");
 		ProcessBuilder pb = new ProcessBuilder(BWA_COMMAND, ALIGN_COMMAND, "-f",
-			binary_output.getAbsolutePath(), genome.getAbsolutePath(), reads.getAbsolutePath());
-		pb.directory(genome.getParentFile());
+			o.binary_output.getAbsolutePath(), o.genome.getAbsolutePath(),
+			o.first_paired_reads.getAbsolutePath());
+		pb.directory(o.genome.getParentFile());
 		try
 		{
-			FastqWriter.writeFragments(fragments, reads);
+			FastqWriter.writeFragments(fragments, o.first_paired_reads);
 			Process p = pb.start();
 			BufferedReader stdout = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			BufferedReader stderr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
@@ -160,7 +153,7 @@ public class BwaInterface extends AlignmentToolInterface
 		ResultsStruct rs = new ResultsStruct();
 		try
 		{
-			BufferedReader r = new BufferedReader(new FileReader(sam_output));
+			BufferedReader r = new BufferedReader(new FileReader(o.sam_output));
 			String line = null;
 			while ((line = r.readLine()) != null)
 			{
@@ -218,7 +211,7 @@ public class BwaInterface extends AlignmentToolInterface
 	public void preAlignmentProcessing()
 	{
 		System.out.print("Indexing genome...");
-		createIndex(genome);
+		createIndex(o.genome);
 		System.out.println("done.");
 	}
 
@@ -226,7 +219,7 @@ public class BwaInterface extends AlignmentToolInterface
 	public void postAlignmentProcessing()
 	{
 		System.out.print("Converting output to SAM format...");
-		convertToSamFormat(genome, binary_output, reads, sam_output);
+		convertToSamFormat(o.genome, o.binary_output, o.first_paired_reads, o.sam_output);
 		System.out.println("done.");
 	}
 }

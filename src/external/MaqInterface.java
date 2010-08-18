@@ -27,23 +27,9 @@ public class MaqInterface extends AlignmentToolInterface
 	public static final String ALIGN_COMMAND = "map";
 	public static final String ASSEMBLE_COMMAND = "assemble";
 
-	private File genome;
-	private File binary_genome;
-	private File reads;
-	private File binary_reads;
-	private File binary_output;
-	private File sam_output;
-
-	public MaqInterface(CharSequence sequence_, List<? extends Fragment> fragments_, File genome_,
-		File binary_genome_, File reads_, File binary_reads_, File binaryOutput_, File sam_output_)
+	public MaqInterface(CharSequence sequence_, List<? extends Fragment> fragments_, Options o_)
 	{
-		super(sequence_, fragments_);
-		genome = genome_;
-		binary_genome = binary_genome_;
-		reads = reads_;
-		binary_reads = binary_reads_;
-		binary_output = binaryOutput_;
-		sam_output = sam_output_;
+		super(sequence_, fragments_, o_);
 	}
 
 	@Override
@@ -51,12 +37,12 @@ public class MaqInterface extends AlignmentToolInterface
 	{
 		System.out.print("Aligning reads...");
 		ProcessBuilder pb = new ProcessBuilder(MAQ_COMMAND, ALIGN_COMMAND,
-			sam_output.getAbsolutePath(), binary_output.getAbsolutePath(),
-			genome.getAbsolutePath(), reads.getAbsolutePath());
-		pb.directory(genome.getParentFile());
+			o.sam_output.getAbsolutePath(), o.binary_output.getAbsolutePath(),
+			o.genome.getAbsolutePath(), o.first_paired_reads.getAbsolutePath());
+		pb.directory(o.genome.getParentFile());
 		try
 		{
-			FastqWriter.writeFragments(fragments, reads);
+			FastqWriter.writeFragments(fragments, o.first_paired_reads);
 			Process p = pb.start();
 			BufferedReader stdout = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			BufferedReader stderr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
@@ -178,7 +164,7 @@ public class MaqInterface extends AlignmentToolInterface
 		int total = 0;
 		try
 		{
-			BufferedReader r = new BufferedReader(new FileReader(sam_output));
+			BufferedReader r = new BufferedReader(new FileReader(o.sam_output));
 			String line = null;
 			while ((line = r.readLine()) != null)
 			{
@@ -228,7 +214,7 @@ public class MaqInterface extends AlignmentToolInterface
 	public void preAlignmentProcessing()
 	{
 		System.out.print("Converting FASTQ output to BFQ...");
-		convertFastqToBfq(reads, binary_reads, genome, binary_genome);
+		convertFastqToBfq(o.first_paired_reads, o.binary_reads, o.genome, o.binary_genome);
 		System.out.println("done.");
 	}
 

@@ -22,17 +22,9 @@ public class MrFastInterface extends AlignmentToolInterface
 	public static final String INDEX_COMMAND = "--index";
 	public static final String SEARCH_COMMAND = "--search";
 
-	private File genome;
-	private File reads;
-	private File sam_output;
-
-	public MrFastInterface(CharSequence sequence_, List<? extends Fragment> fragments_,
-		File genome_, File reads_, File sam_output_)
+	public MrFastInterface(CharSequence sequence_, List<? extends Fragment> fragments_, Options o_)
 	{
-		super(sequence_, fragments_);
-		genome = genome_;
-		reads = reads_;
-		sam_output = sam_output_;
+		super(sequence_, fragments_, o_);
 	}
 
 	public void createIndex(File file)
@@ -72,12 +64,12 @@ public class MrFastInterface extends AlignmentToolInterface
 	{
 		System.out.print("Aligning reads...");
 		ProcessBuilder pb = new ProcessBuilder(MRFAST_COMMAND, SEARCH_COMMAND,
-			genome.getAbsolutePath(), SEQ_OPTION, reads.getAbsolutePath(), "-o",
-			sam_output.getAbsolutePath());
-		pb.directory(genome.getParentFile());
+			o.genome.getAbsolutePath(), SEQ_OPTION, o.first_paired_reads.getAbsolutePath(), "-o",
+			o.sam_output.getAbsolutePath());
+		pb.directory(o.genome.getParentFile());
 		try
 		{
-			FastqWriter.writeFragments(fragments, reads);
+			FastqWriter.writeFragments(fragments, o.first_paired_reads);
 			Process p = pb.start();
 			BufferedReader stdout = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			BufferedReader stderr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
@@ -114,7 +106,7 @@ public class MrFastInterface extends AlignmentToolInterface
 		ResultsStruct rs = new ResultsStruct();
 		try
 		{
-			BufferedReader r = new BufferedReader(new FileReader(sam_output));
+			BufferedReader r = new BufferedReader(new FileReader(o.sam_output));
 			String line = null;
 			while ((line = r.readLine()) != null)
 			{
@@ -172,7 +164,7 @@ public class MrFastInterface extends AlignmentToolInterface
 	public void preAlignmentProcessing()
 	{
 		System.out.print("Indexing genome...");
-		createIndex(genome);
+		createIndex(o.genome);
 		System.out.println("done.");
 	}
 
