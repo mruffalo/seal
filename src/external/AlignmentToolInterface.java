@@ -21,14 +21,27 @@ public abstract class AlignmentToolInterface
 	protected static final double[] ERROR_PROBABILITIES = { 0.0, 0.001, 0.002, 0.004, 0.01, 0.015,
 			0.02, 0.03, 0.05, 0.1 };
 
-	protected static class Options
+	public static class Options
 	{
+		/**
+		 * TODO: Examine how good an idea this was
+		 * 
+		 * @author mruffalo
+		 */
+		public static class Reads
+		{
+			public File reads;
+			/**
+			 * Not used for every tool
+			 */
+			public File binary_reads;
+			public File aligned_reads;
+		}
+
 		public boolean is_paired_end;
 		public File genome;
 		public File binary_genome;
-		public File first_paired_reads;
-		public File second_paired_reads;
-		public File binary_reads;
+		public List<Reads> reads = new ArrayList<Reads>(2);
 		public File binary_output;
 		public File sam_output;
 	}
@@ -94,8 +107,11 @@ public abstract class AlignmentToolInterface
 		File path = new File("data");
 		o.genome = new File(path, "genome.fasta");
 		o.binary_genome = new File(path, "genome.bfa");
-		o.first_paired_reads = new File(path, "fragments.fastq");
-		o.binary_reads = new File(path, "fragments.bfq");
+
+		o.reads.add(new Options.Reads());
+		o.reads.get(0).reads = new File(path, "fragments.fastq");
+		o.reads.get(0).binary_reads = new File(path, "fragments.bfq");
+
 		o.binary_output = new File(path, "alignment.sai");
 		o.sam_output = new File(path, "alignment.sam");
 
@@ -166,10 +182,19 @@ public abstract class AlignmentToolInterface
 		File path = new File("data");
 		o.genome = new File(path, "genome.fasta");
 		o.binary_genome = new File(path, "genome.bfa");
-		o.first_paired_reads = new File(path, "fragments1.fastq");
-		o.second_paired_reads = new File(path, "fragments2.fastq");
-		o.binary_reads = new File(path, "fragments.bfq");
-		o.binary_output = new File(path, "alignment.sai");
+
+		Options.Reads r1 = new Options.Reads();
+		r1.reads = new File(path, "fragments1.fastq");
+		r1.binary_reads = new File(path, "fragments1.bfq");
+		r1.aligned_reads = new File(path, "alignment1.sai");
+		o.reads.add(r1);
+
+		Options.Reads r2 = new Options.Reads();
+		r2.reads = new File(path, "fragments2.fastq");
+		r2.binary_reads = new File(path, "fragments2.bfq");
+		r2.aligned_reads = new File(path, "alignment2.sai");
+		o.reads.add(r2);
+
 		o.sam_output = new File(path, "alignment.sam");
 
 		path.mkdirs();

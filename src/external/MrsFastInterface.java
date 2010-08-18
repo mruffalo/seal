@@ -64,12 +64,12 @@ public class MrsFastInterface extends AlignmentToolInterface
 	{
 		System.out.print("Aligning reads...");
 		ProcessBuilder pb = new ProcessBuilder(MRSFAST_COMMAND, SEARCH_COMMAND,
-			o.genome.getAbsolutePath(), SEQ_OPTION, o.first_paired_reads.getAbsolutePath(), "-o",
+			o.genome.getAbsolutePath(), SEQ_OPTION, o.reads.get(0).reads.getAbsolutePath(), "-o",
 			o.sam_output.getAbsolutePath());
 		pb.directory(o.genome.getParentFile());
 		try
 		{
-			FastqWriter.writeFragments(fragments, o.first_paired_reads);
+			FastqWriter.writeFragments(fragments, o.reads.get(0).reads);
 			Process p = pb.start();
 			BufferedReader stdout = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			BufferedReader stderr = new BufferedReader(new InputStreamReader(p.getErrorStream()));

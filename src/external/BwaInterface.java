@@ -74,11 +74,11 @@ public class BwaInterface extends AlignmentToolInterface
 		System.out.print("Aligning reads...");
 		ProcessBuilder pb = new ProcessBuilder(BWA_COMMAND, ALIGN_COMMAND, "-f",
 			o.binary_output.getAbsolutePath(), o.genome.getAbsolutePath(),
-			o.first_paired_reads.getAbsolutePath());
+			o.reads.get(0).reads.getAbsolutePath());
 		pb.directory(o.genome.getParentFile());
 		try
 		{
-			FastqWriter.writeFragments(fragments, o.first_paired_reads);
+			FastqWriter.writeFragments(fragments, o.reads.get(0).reads);
 			Process p = pb.start();
 			BufferedReader stdout = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			BufferedReader stderr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
@@ -219,7 +219,7 @@ public class BwaInterface extends AlignmentToolInterface
 	public void postAlignmentProcessing()
 	{
 		System.out.print("Converting output to SAM format...");
-		convertToSamFormat(o.genome, o.binary_output, o.first_paired_reads, o.sam_output);
+		convertToSamFormat(o.genome, o.binary_output, o.reads.get(0).reads, o.sam_output);
 		System.out.println("done.");
 	}
 }
