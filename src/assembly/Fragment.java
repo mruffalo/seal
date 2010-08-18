@@ -99,6 +99,22 @@ public class Fragment implements Cloneable
 		return list;
 	}
 
+	public static List<List<? extends Fragment>> pairedEndClone(List<? extends Fragment> list,
+		int length)
+	{
+		List<PairedEndFragment> one = new ArrayList<PairedEndFragment>(list.size());
+		List<PairedEndFragment> two = new ArrayList<PairedEndFragment>(list.size());
+		for (Fragment f : list)
+		{
+			one.add(new PairedEndFragment(f.getSequence(), true, length));
+			two.add(new PairedEndFragment(f.getSequence(), false, length));
+		}
+		List<List<? extends Fragment>> both = new ArrayList<List<? extends Fragment>>(2);
+		both.add(one);
+		both.add(two);
+		return both;
+	}
+
 	/**
 	 * Use {@link Fragment#getSequence()} if you can. In the event that the
 	 * sequence is actually a {@link util.ropes.Rope} or something like that,

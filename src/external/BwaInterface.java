@@ -7,9 +7,11 @@ import io.SamReader;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -71,38 +73,48 @@ public class BwaInterface extends AlignmentToolInterface
 	public void align()
 	{
 		System.out.print("Aligning reads...");
-		ProcessBuilder pb = new ProcessBuilder(BWA_COMMAND, ALIGN_COMMAND, "-f",
-			o.binary_output.getAbsolutePath(), o.genome.getAbsolutePath(),
-			o.reads.get(0).reads.getAbsolutePath());
-		pb.directory(o.genome.getParentFile());
-		try
-		{
-			for (Options.Reads r : o.reads)
-			{
 
-				FastqWriter.writeFragments(fragments, r.reads, r.index);
-			}
-			Process p = pb.start();
-			BufferedReader stdout = new BufferedReader(new InputStreamReader(p.getInputStream()));
-			BufferedReader stderr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-			String line = null;
-			while ((line = stdout.readLine()) != null)
-			{
-				System.out.println(line);
-			}
-			while ((line = stderr.readLine()) != null)
-			{
-				System.err.println(line);
-			}
-			p.waitFor();
-		}
-		catch (IOException e)
+		for (int i = 0; i < o.reads.size(); i++)
 		{
-			e.printStackTrace();
-		}
-		catch (InterruptedException e)
-		{
-			e.printStackTrace();
+			List<String> commands = new ArrayList<String>();
+			commands.add(BWA_COMMAND);
+			commands.add(ALIGN_COMMAND);
+			commands.add(o.genome.getAbsolutePath());
+			commands.add(o.reads.get(i).reads.getAbsolutePath());
+			ProcessBuilder pb = new ProcessBuilder(commands);
+			pb.directory(o.genome.getParentFile());
+			try
+			{
+				FastqWriter.writeFragments(pairedEndFragments.get(i), o.reads.get(i).reads,
+					o.reads.get(i).index);
+				Process p = pb.start();
+				InputStream stdout = p.getInputStream();
+				BufferedReader stderr = new BufferedReader(
+					new InputStreamReader(p.getErrorStream()));
+
+				// TODO: Use a faster bulk copy method for this
+				FileOutputStream w = new FileOutputStream(o.reads.get(i).aligned_reads);
+				int data = -1;
+				while ((data = stdout.read()) != -1)
+				{
+					w.write(data);
+				}
+				w.close();
+				String line = null;
+				while ((line = stderr.readLine()) != null)
+				{
+					System.err.println(line);
+				}
+				p.waitFor();
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
+			catch (InterruptedException e)
+			{
+				e.printStackTrace();
+			}
 		}
 		System.out.println("done.");
 	}
@@ -131,11 +143,6 @@ public class BwaInterface extends AlignmentToolInterface
 		pb.directory(o.genome.getParentFile());
 		try
 		{
-			for (Options.Reads r : o.reads)
-			{
-				// XXX Fix this
-				FastqWriter.writeFragments(fragments, r.reads, r.index);
-			}
 			Process p = pb.start();
 			BufferedReader stdout = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			BufferedReader stderr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
@@ -145,6 +152,7 @@ public class BwaInterface extends AlignmentToolInterface
 			{
 				w.write(String.format("%s%n", line));
 			}
+			w.close();
 			while ((line = stderr.readLine()) != null)
 			{
 				System.err.println(line);

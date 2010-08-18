@@ -16,6 +16,7 @@ public abstract class AlignmentToolInterface
 	protected int phredMatchThreshold = 0;
 	protected CharSequence sequence;
 	protected List<? extends Fragment> fragments;
+	protected List<List<? extends Fragment>> pairedEndFragments;
 	protected Options o;
 
 	protected static final double[] ERROR_PROBABILITIES = { 0.0, 0.001, 0.002, 0.004, 0.01, 0.015,
@@ -56,6 +57,15 @@ public abstract class AlignmentToolInterface
 		sequence = sequence_;
 		fragments = list_;
 		o = o_;
+		if (o.is_paired_end)
+		{
+			pairedEndFragments = Fragment.pairedEndClone(fragments, 100);
+		}
+		else
+		{
+			pairedEndFragments = new ArrayList<List<? extends Fragment>>(1);
+			pairedEndFragments.add(fragments);
+		}
 	}
 
 	public static class ResultsStruct
@@ -174,7 +184,7 @@ public abstract class AlignmentToolInterface
 	{
 		SequenceGenerator g = new SeqGenSingleSequenceMultipleRepeats();
 		SequenceGenerator.Options sgo = new SequenceGenerator.Options();
-		sgo.length = 10000;
+		sgo.length = 100000;
 		sgo.repeatCount = 10;
 		sgo.repeatLength = 200;
 		sgo.repeatErrorProbability = 0.01;
@@ -187,9 +197,9 @@ public abstract class AlignmentToolInterface
 		 * FastaReader.getLargeSequence(genome); System.out.println("done.");
 		 */
 		Fragmentizer.Options fo = new Fragmentizer.Options();
-		fo.k = 50;
+		fo.k = 500;
 		fo.n = 750;
-		fo.ksd = 3;
+		fo.ksd = 1;
 
 		System.out.print("Reading fragments...");
 		List<? extends Fragment> list = Fragmentizer.fragmentize(sequence, fo);
