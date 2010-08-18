@@ -137,6 +137,82 @@ public abstract class AlignmentToolInterface
 		}
 	}
 
+	public static void pairedEndToolEvaluation()
+	{
+		SequenceGenerator g = new SeqGenSingleSequenceMultipleRepeats();
+		SequenceGenerator.Options sgo = new SequenceGenerator.Options();
+		sgo.length = 10000;
+		sgo.repeatCount = 10;
+		sgo.repeatLength = 200;
+		sgo.repeatErrorProbability = 0.01;
+		System.out.print("Generating sequence...");
+		CharSequence sequence = g.generateSequence(sgo);
+		System.out.println("done.");
+		File path = new File("data");
+		File genome = new File(path, "genome.fasta");
+		File binary_genome = new File(path, "genome.bfa");
+		File first_pair_reads = new File(path, "reads1.fastq");
+		File second_pair_reads = new File(path, "reads2.fastq");
+		File binary_reads = new File(path, "fragments.bfq");
+		File binary_output = new File(path, "alignment.sai");
+		File sam_output = new File(path, "alignment.sam");
+		path.mkdirs();
+		/*
+		 * System.out.print("Reading genome..."); CharSequence sequence =
+		 * FastaReader.getLargeSequence(genome); System.out.println("done.");
+		 */
+		Fragmentizer.Options fo = new Fragmentizer.Options();
+		fo.k = 50;
+		fo.n = 750;
+		fo.ksd = 3;
+
+		System.out.print("Reading fragments...");
+		List<? extends Fragment> list = Fragmentizer.fragmentize(sequence, fo);
+		System.out.println("done.");
+
+		Map<Double, ResultsStruct> m = new TreeMap<Double, ResultsStruct>();
+
+		for (double errorProbability : ERROR_PROBABILITIES)
+		{
+			System.out.print("Introducing fragment read errors...");
+			UniformErrorGenerator eg = new UniformErrorGenerator(SequenceGenerator.NUCLEOTIDES,
+				errorProbability);
+			List<? extends Fragment> errored_list = eg.generateErrors(list);
+			System.out.println("done.");
+
+			List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
+
+			alignmentInterfaceList.add(new MrFastInterface(sequence, errored_list, genome,
+				first_pair_reads, sam_output));
+			alignmentInterfaceList.add(new MrsFastInterface(sequence, errored_list, genome,
+				first_pair_reads, sam_output));
+			/*
+			 * alignmentInterfaceList.add(new MaqInterface(sequence, list,
+			 * genome, binary_genome, reads, binary_reads, binary_output,
+			 * sam_output));
+			 */
+			alignmentInterfaceList.add(new BwaInterface(sequence, errored_list, genome,
+				first_pair_reads, binary_output, sam_output));
+
+			for (AlignmentToolInterface ati : alignmentInterfaceList)
+			{
+				ati.preAlignmentProcessing();
+				ati.align();
+				ati.postAlignmentProcessing();
+				ResultsStruct r = ati.readAlignment();
+
+				m.put(errorProbability, r);
+
+				System.out.printf("%d matches / %d total fragments generated (%f)%n",
+					r.truePositives, fo.n, (double) r.truePositives / (double) fo.n);
+				System.out.printf("Precision: %f%n", (double) r.truePositives
+						/ (double) (r.truePositives + r.falsePositives));
+				System.out.printf("Recall: %f%n", (double) r.truePositives
+						/ (double) (r.truePositives + r.falseNegatives));
+			}
+		}
+	}
+
 	public static void main(String[] args)
 	{
 		singleEndToolEvaluation();
