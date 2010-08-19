@@ -5,6 +5,7 @@ import io.FastaWriter;
 import io.FastqWriter;
 import io.SamReader;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -32,6 +33,8 @@ public class BwaInterface extends AlignmentToolInterface
 	public static final String ALIGN_COMMAND = "aln";
 	public static final String SAM_SINGLE_END_COMMAND = "samse";
 	public static final String SAM_PAIRED_END_COMMAND = "sampe";
+
+	public static final String OUTPUT_TEMPLATE = "%s\t%d\t%d\t%d\t%d%n";
 
 	public BwaInterface(CharSequence sequence_, List<? extends Fragment> fragments_, Options o_)
 	{
@@ -181,6 +184,7 @@ public class BwaInterface extends AlignmentToolInterface
 		try
 		{
 			BufferedReader r = new BufferedReader(new FileReader(o.sam_output));
+			BufferedWriter w = new BufferedWriter(new FileWriter(o.converted_output));
 			String line = null;
 			while ((line = r.readLine()) != null)
 			{
@@ -195,12 +199,35 @@ public class BwaInterface extends AlignmentToolInterface
 				}
 				int readPosition = -1;
 				Matcher m = Constants.READ_POSITION_HEADER.matcher(pieces[0]);
+
 				if (m.matches())
 				{
 					readPosition = Integer.parseInt(m.group(2));
 				}
+				int flags = Integer.parseInt(pieces[1]);
 				int alignedPosition = Integer.parseInt(pieces[3]) - 1;
 				int phredProbability = Integer.parseInt(pieces[4]);
+				int matePosition = Integer.parseInt(pieces[7]);
+				int inferredInsertSize = Integer.parseInt(pieces[8]);
+
+				/*
+				 * TODO: Clean up this code and move it elsewhere
+				 */
+				int orientation = 0;
+				if (((flags & 64) == 64 && inferredInsertSize > 0)
+						|| ((flags & 128) == 128 && inferredInsertSize < 0))
+				{
+					orientation = 1;
+				}
+				if (((flags & 64) == 64 && inferredInsertSize < 0)
+						|| ((flags & 128) == 128 && inferredInsertSize > 0))
+				{
+					orientation = 2;
+				}
+				String output = String.format(OUTPUT_TEMPLATE, pieces[0], alignedPosition,
+					inferredInsertSize, orientation, phredProbability);
+				w.write(output);
+
 				if (readPosition == alignedPosition)
 				{
 					if (phredProbability >= phredMatchThreshold)
@@ -222,6 +249,8 @@ public class BwaInterface extends AlignmentToolInterface
 				}
 				rs.totalFragmentsRead++;
 			}
+			r.close();
+			w.close();
 		}
 		catch (FileNotFoundException e)
 		{

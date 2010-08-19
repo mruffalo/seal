@@ -21,6 +21,7 @@ public abstract class AlignmentToolInterface
 
 	protected static final double[] ERROR_PROBABILITIES = { 0.0, 0.001, 0.002, 0.004, 0.01, 0.015,
 			0.02, 0.03, 0.05, 0.1 };
+	protected static final int[] PHRED_THRESHOLDS = { 0, 10, 20, 30, 40, 50 };
 
 	public static class Options
 	{
@@ -50,6 +51,7 @@ public abstract class AlignmentToolInterface
 		public List<Reads> reads = new ArrayList<Reads>(2);
 		public File binary_output;
 		public File sam_output;
+		public File converted_output;
 	}
 
 	public AlignmentToolInterface(CharSequence sequence_, List<? extends Fragment> list_, Options o_)
@@ -130,6 +132,7 @@ public abstract class AlignmentToolInterface
 
 		o.binary_output = new File(path, "alignment.sai");
 		o.sam_output = new File(path, "alignment.sam");
+		o.converted_output = new File(path, "out.txt");
 
 		path.mkdirs();
 		/*
@@ -225,6 +228,7 @@ public abstract class AlignmentToolInterface
 		}
 
 		o.sam_output = new File(path, "alignment.sam");
+		o.converted_output = new File(path, "out.txt");
 
 		path.mkdirs();
 
