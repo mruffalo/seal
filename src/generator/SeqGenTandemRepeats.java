@@ -3,16 +3,15 @@ package generator;
 import java.util.Arrays;
 import java.util.Random;
 
-public class SeqGenSingleSequenceMultipleRepeats extends SequenceGenerator
+public class SeqGenTandemRepeats extends SequenceGenerator
 {
 	Random random = new Random();
 
 	@Override
 	public CharSequence generateSequence(Options o)
 	{
-		FragmentErrorGenerator eg = new UniformErrorGenerator(o.characters,
+		final FragmentErrorGenerator eg = new UniformErrorGenerator(o.characters,
 			o.repeatErrorProbability);
-		final CharSequence repeatedSequence = generateSequence(o.characters, o.repeatLength);
 		StringBuilder sb = new StringBuilder(o.length);
 		int[] repeatedSequenceIndices = new int[o.repeatCount];
 		int nonRepeatedLength = o.length - o.repeatCount * o.repeatLength;
@@ -28,6 +27,12 @@ public class SeqGenSingleSequenceMultipleRepeats extends SequenceGenerator
 		int repeatStart = 0;
 		for (int i = 0; i < o.repeatCount; i++)
 		{
+			CharSequence repeatedSequence = sb.subSequence(repeatedSequenceIndices[i]
+					- o.repeatLength, repeatedSequenceIndices[i]);
+			if (o.repeatErrorProbability > 0.0)
+			{
+				repeatedSequence = eg.generateErrors(repeatedSequence);
+			}
 			if (verbose)
 			{
 				for (int j = 0; j < repeatedSequenceIndices[i] - repeatStart; j++)
@@ -37,16 +42,7 @@ public class SeqGenSingleSequenceMultipleRepeats extends SequenceGenerator
 				System.out.print(repeatedSequence);
 				repeatStart = repeatedSequenceIndices[i];
 			}
-			CharSequence currentRepeatedSequence;
-			if (o.repeatErrorProbability > 0.0)
-			{
-				currentRepeatedSequence = eg.generateErrors(repeatedSequence);
-			}
-			else
-			{
-				currentRepeatedSequence = repeatedSequence;
-			}
-			sb.insert(i * o.repeatLength + repeatedSequenceIndices[i], currentRepeatedSequence);
+			sb.insert(i * o.repeatLength + repeatedSequenceIndices[i], repeatedSequence);
 		}
 		String string = sb.toString();
 		if (verbose)
@@ -67,8 +63,7 @@ public class SeqGenSingleSequenceMultipleRepeats extends SequenceGenerator
 	{
 		if (args.length < 3)
 		{
-			System.err.printf("*** Usage: %s m r l e",
-				SeqGenSingleSequenceMultipleRepeats.class.getCanonicalName());
+			System.err.printf("*** Usage: %s m r l e", SeqGenTandemRepeats.class.getCanonicalName());
 			System.exit(1);
 		}
 		Options o = new Options();
@@ -76,7 +71,7 @@ public class SeqGenSingleSequenceMultipleRepeats extends SequenceGenerator
 		o.repeatCount = Integer.parseInt(args[1]);
 		o.repeatLength = Integer.parseInt(args[2]);
 		o.repeatErrorProbability = Double.parseDouble(args[3]);
-		SequenceGenerator generator = new SeqGenSingleSequenceMultipleRepeats();
+		SequenceGenerator generator = new SeqGenTandemRepeats();
 		generator.setVerboseOutput(true);
 		CharSequence generated = generator.generateSequence(o);
 	}
