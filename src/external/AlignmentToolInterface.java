@@ -180,6 +180,9 @@ public abstract class AlignmentToolInterface
 		}
 	}
 
+	/**
+	 * TODO: Duplicate less code
+	 */
 	public static void pairedEndToolEvaluation()
 	{
 		SequenceGenerator g = new SeqGenSingleSequenceMultipleRepeats();
@@ -237,8 +240,6 @@ public abstract class AlignmentToolInterface
 
 			List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
 
-			alignmentInterfaceList.add(new MrFastInterface(sequence, errored_list, o));
-			alignmentInterfaceList.add(new MrsFastInterface(sequence, errored_list, o));
 			/*
 			 * alignmentInterfaceList.add(new MaqInterface(sequence, list,
 			 * genome, binary_genome, reads, binary_reads, binary_output,
@@ -267,6 +268,6 @@ public abstract class AlignmentToolInterface
 
 	public static void main(String[] args)
 	{
-		singleEndToolEvaluation();
+		pairedEndToolEvaluation();
 	}
 }

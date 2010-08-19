@@ -85,7 +85,7 @@ public class UniformErrorGenerator extends FragmentErrorGenerator
 	{
 		String s = fragment.toString();
 		Fragment errored = new Fragment(generateErrors(s).toString());
-		errored.clonePositions(fragment);
+		errored.clonePositionsAndReadQuality(fragment);
 		for (int i = 0; i < s.length(); i++)
 		{
 			errored.setReadQuality(i, phredScaledErrorProbability);

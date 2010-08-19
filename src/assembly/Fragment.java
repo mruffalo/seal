@@ -12,7 +12,7 @@ public class Fragment implements Cloneable
 	/**
 	 * Array of Phred-scaled read quality values
 	 */
-	protected final int[] readQuality;
+	protected int[] readQuality;
 
 	public Fragment(CharSequence sequence_)
 	{
@@ -94,8 +94,12 @@ public class Fragment implements Cloneable
 	public List<? extends Fragment> pairedEndClone(int length)
 	{
 		List<PairedEndFragment> list = new ArrayList<PairedEndFragment>(2);
-		list.add(new PairedEndFragment(sequence, true, length));
-		list.add(new PairedEndFragment(sequence, false, length));
+		PairedEndFragment one = new PairedEndFragment(sequence, true, length);
+		one.clonePositionsAndReadQuality(this);
+		PairedEndFragment two = new PairedEndFragment(sequence, false, length);
+		two.clonePositionsAndReadQuality(this);
+		list.add(one);
+		list.add(two);
 		return list;
 	}
 
@@ -106,8 +110,9 @@ public class Fragment implements Cloneable
 		List<PairedEndFragment> two = new ArrayList<PairedEndFragment>(list.size());
 		for (Fragment f : list)
 		{
-			one.add(new PairedEndFragment(f.getSequence(), true, length));
-			two.add(new PairedEndFragment(f.getSequence(), false, length));
+			List<? extends Fragment> clones = f.pairedEndClone(length);
+			one.add((PairedEndFragment) clones.get(0));
+			two.add((PairedEndFragment) clones.get(1));
 		}
 		List<List<? extends Fragment>> both = new ArrayList<List<? extends Fragment>>(2);
 		both.add(one);
@@ -131,11 +136,18 @@ public class Fragment implements Cloneable
 		return sequence;
 	}
 
-	public void clonePositions(Fragment that)
+	/**
+	 * Copies positions and read quality data from the input fragment into this
+	 * one
+	 * 
+	 * @param that
+	 */
+	public void clonePositionsAndReadQuality(Fragment that)
 	{
 		for (FragmentPositionSource source : FragmentPositionSource.values())
 		{
 			this.setPosition(source, that.getPosition(source));
 		}
+		readQuality = that.readQuality;
 	}
 }
