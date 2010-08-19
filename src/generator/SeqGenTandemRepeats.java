@@ -19,7 +19,8 @@ public class SeqGenTandemRepeats extends SequenceGenerator
 		{
 			for (int i = 0; i < o.repeatCount; i++)
 			{
-				repeatedSequenceIndices[i] = random.nextInt(nonRepeatedLength);
+				repeatedSequenceIndices[i] = random.nextInt(nonRepeatedLength - o.repeatLength)
+						+ o.repeatLength;
 			}
 			Arrays.sort(repeatedSequenceIndices);
 			sb.append(generateSequence(o.characters, nonRepeatedLength));
@@ -27,17 +28,22 @@ public class SeqGenTandemRepeats extends SequenceGenerator
 		int repeatStart = 0;
 		for (int i = 0; i < o.repeatCount; i++)
 		{
-			CharSequence repeatedSequence = sb.subSequence(repeatedSequenceIndices[i]
-					- o.repeatLength, repeatedSequenceIndices[i]);
+			int begin = repeatedSequenceIndices[i] + (i - 1) * o.repeatLength;
+			int end = repeatedSequenceIndices[i] + i * o.repeatLength;
+			CharSequence repeatedSequence = sb.subSequence(begin, end);
 			if (o.repeatErrorProbability > 0.0)
 			{
 				repeatedSequence = eg.generateErrors(repeatedSequence);
 			}
 			if (verbose)
 			{
-				for (int j = 0; j < repeatedSequenceIndices[i] - repeatStart; j++)
+				for (int j = 0; j < repeatedSequenceIndices[i] - repeatStart - o.repeatLength; j++)
 				{
 					System.out.print(" ");
+				}
+				for (int j = 0; j < o.repeatLength; j++)
+				{
+					System.out.print("-");
 				}
 				System.out.print(repeatedSequence);
 				repeatStart = repeatedSequenceIndices[i];
@@ -61,16 +67,10 @@ public class SeqGenTandemRepeats extends SequenceGenerator
 	@SuppressWarnings("unused")
 	public static void main(String[] args)
 	{
-		if (args.length < 3)
-		{
-			System.err.printf("*** Usage: %s m r l e", SeqGenTandemRepeats.class.getCanonicalName());
-			System.exit(1);
-		}
 		Options o = new Options();
-		o.length = Integer.parseInt(args[0]);
-		o.repeatCount = Integer.parseInt(args[1]);
-		o.repeatLength = Integer.parseInt(args[2]);
-		o.repeatErrorProbability = Double.parseDouble(args[3]);
+		o.length = 100;
+		o.repeatCount = 2;
+		o.repeatLength = 10;
 		SequenceGenerator generator = new SeqGenTandemRepeats();
 		generator.setVerboseOutput(true);
 		CharSequence generated = generator.generateSequence(o);
