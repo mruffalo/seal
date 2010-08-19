@@ -33,7 +33,11 @@ public class PairedEndFragment extends Fragment
 	@Override
 	public Integer getPosition(FragmentPositionSource source)
 	{
-		int rawPosition = positions.get(source);
+		Integer rawPosition = positions.get(source);
+		if (rawPosition == null)
+		{
+			return null;
+		}
 		if (atBeginningOfFragment)
 		{
 			return rawPosition;
