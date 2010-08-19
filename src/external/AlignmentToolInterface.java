@@ -2,6 +2,7 @@ package external;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -106,106 +107,7 @@ public abstract class AlignmentToolInterface
 
 	public abstract ResultsStruct readAlignment();
 
-	public static void singleEndToolEvaluation()
-	{
-		SequenceGenerator g = new SeqGenSingleSequenceMultipleRepeats();
-		SequenceGenerator.Options sgo = new SequenceGenerator.Options();
-		sgo.length = 10000;
-		sgo.repeatCount = 10;
-		sgo.repeatLength = 200;
-		sgo.repeatErrorProbability = 0.01;
-		System.out.print("Generating sequence...");
-		CharSequence sequence = g.generateSequence(sgo);
-		System.out.println("done.");
-
-		Options o = new Options();
-		o.is_paired_end = false;
-
-		File path = new File("data");
-		o.genome = new File(path, "genome.fasta");
-		o.binary_genome = new File(path, "genome.bfa");
-
-		o.reads.add(new Options.Reads(1));
-		o.reads.get(0).reads = new File(path, "fragments.fastq");
-		o.reads.get(0).binary_reads = new File(path, "fragments.bfq");
-		o.reads.get(0).aligned_reads = new File(path, "alignment.sai");
-
-		o.binary_output = new File(path, "alignment.sai");
-		o.sam_output = new File(path, "alignment.sam");
-		o.converted_output = new File(path, "out.txt");
-
-		path.mkdirs();
-		/*
-		 * System.out.print("Reading genome..."); CharSequence sequence =
-		 * FastaReader.getLargeSequence(genome); System.out.println("done.");
-		 */
-		Fragmentizer.Options fo = new Fragmentizer.Options();
-		fo.k = 50;
-		fo.n = 750;
-		fo.ksd = 3;
-
-		System.out.print("Reading fragments...");
-		List<? extends Fragment> list = Fragmentizer.fragmentize(sequence, fo);
-		System.out.println("done.");
-
-		Map<Integer, Map<Double, ResultsStruct>> m = new TreeMap<Integer, Map<Double, ResultsStruct>>();
-
-		for (int phredThreshold : PHRED_THRESHOLDS)
-		{
-			m.put(phredThreshold, new TreeMap<Double, ResultsStruct>());
-			for (double errorProbability : ERROR_PROBABILITIES)
-			{
-				System.out.print("Introducing fragment read errors...");
-				UniformErrorGenerator eg = new UniformErrorGenerator(SequenceGenerator.NUCLEOTIDES,
-					errorProbability);
-				List<? extends Fragment> errored_list = eg.generateErrors(list);
-				System.out.println("done.");
-
-				List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
-
-				alignmentInterfaceList.add(new MrFastInterface(sequence, errored_list, o));
-				/*
-				 * alignmentInterfaceList.add(new MrsFastInterface(sequence,
-				 * errored_list, o)); alignmentInterfaceList.add(new
-				 * BwaInterface(sequence, errored_list, o));
-				 */
-
-				for (AlignmentToolInterface ati : alignmentInterfaceList)
-				{
-					ati.phredMatchThreshold = phredThreshold;
-					ati.preAlignmentProcessing();
-					ati.align();
-					ati.postAlignmentProcessing();
-					ResultsStruct r = ati.readAlignment();
-
-					m.get(phredThreshold).put(errorProbability, r);
-
-					System.out.printf("%d matches / %d total fragments generated (%f)%n",
-						r.truePositives, fo.n, (double) r.truePositives / (double) fo.n);
-					System.out.printf("Precision: %f%n", (double) r.truePositives
-							/ (double) (r.truePositives + r.falsePositives));
-					System.out.printf("Recall: %f%n", (double) r.truePositives
-							/ (double) (r.truePositives + r.falseNegatives));
-				}
-			}
-		}
-
-		for (Integer i : m.keySet())
-		{
-			for (Double d : m.get(i).keySet())
-			{
-				ResultsStruct r = m.get(i).get(d);
-				System.out.printf("Threshold %d, error probability %f, precision %f, recall %f%n",
-					i, d, (double) r.truePositives / (double) (r.truePositives + r.falsePositives),
-					(double) r.truePositives / (double) (r.truePositives + r.falseNegatives));
-			}
-		}
-	}
-
-	/**
-	 * TODO: Duplicate less code
-	 */
-	public static void pairedEndToolEvaluation()
+	public static void toolEvaluation(boolean paired_end)
 	{
 		SequenceGenerator g = new SeqGenSingleSequenceMultipleRepeats();
 		SequenceGenerator.Options sgo = new SequenceGenerator.Options();
@@ -222,7 +124,7 @@ public abstract class AlignmentToolInterface
 		 * FastaReader.getLargeSequence(genome); System.out.println("done.");
 		 */
 		Fragmentizer.Options fo = new Fragmentizer.Options();
-		fo.k = 500;
+		fo.k = 50;
 		fo.n = 750;
 		fo.ksd = 1;
 
@@ -231,13 +133,14 @@ public abstract class AlignmentToolInterface
 		System.out.println("done.");
 
 		Options o = new Options();
-		o.is_paired_end = true;
+		o.is_paired_end = paired_end;
 
 		File path = new File("data");
 		o.genome = new File(path, "genome.fasta");
 		o.binary_genome = new File(path, "genome.bfa");
 
-		for (int i = 1; i <= 2; i++)
+		int read_count = paired_end ? 2 : 1;
+		for (int i = 1; i <= read_count; i++)
 		{
 			Options.Reads r = new Options.Reads(i);
 			r.reads = new File(path, String.format("fragments%d.fastq", i));
@@ -251,18 +154,21 @@ public abstract class AlignmentToolInterface
 
 		path.mkdirs();
 
-		Map<Integer, Map<Double, ResultsStruct>> m = new TreeMap<Integer, Map<Double, ResultsStruct>>();
+		Map<Double, Map<Integer, Map<Class<? extends AlignmentToolInterface>, ResultsStruct>>> m = new TreeMap<Double, Map<Integer, Map<Class<? extends AlignmentToolInterface>, ResultsStruct>>>();
 
-		for (int phredThreshold : PHRED_THRESHOLDS)
+		for (double errorProbability : ERROR_PROBABILITIES)
 		{
-			m.put(phredThreshold, new TreeMap<Double, ResultsStruct>());
-			for (double errorProbability : ERROR_PROBABILITIES)
+			Map<Integer, Map<Class<? extends AlignmentToolInterface>, ResultsStruct>> m_ep = new TreeMap<Integer, Map<Class<? extends AlignmentToolInterface>, ResultsStruct>>();
+			m.put(errorProbability, m_ep);
+			System.out.print("Introducing fragment read errors...");
+			UniformErrorGenerator eg = new UniformErrorGenerator(SequenceGenerator.NUCLEOTIDES,
+				errorProbability);
+			List<? extends Fragment> errored_list = eg.generateErrors(list);
+			System.out.println("done.");
+			for (int phredThreshold : PHRED_THRESHOLDS)
 			{
-				System.out.print("Introducing fragment read errors...");
-				UniformErrorGenerator eg = new UniformErrorGenerator(SequenceGenerator.NUCLEOTIDES,
-					errorProbability);
-				List<? extends Fragment> errored_list = eg.generateErrors(list);
-				System.out.println("done.");
+				Map<Class<? extends AlignmentToolInterface>, ResultsStruct> m_pt = new HashMap<Class<? extends AlignmentToolInterface>, ResultsStruct>();
+				m_ep.put(phredThreshold, m_pt);
 
 				List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
 
@@ -271,6 +177,8 @@ public abstract class AlignmentToolInterface
 				 * genome, binary_genome, reads, binary_reads, binary_output,
 				 * sam_output));
 				 */
+				alignmentInterfaceList.add(new MrFastInterface(sequence, errored_list, o));
+				alignmentInterfaceList.add(new MrsFastInterface(sequence, errored_list, o));
 				alignmentInterfaceList.add(new BwaInterface(sequence, errored_list, o));
 
 				for (AlignmentToolInterface ati : alignmentInterfaceList)
@@ -281,7 +189,7 @@ public abstract class AlignmentToolInterface
 					ati.postAlignmentProcessing();
 					ResultsStruct r = ati.readAlignment();
 
-					m.get(phredThreshold).put(errorProbability, r);
+					m_pt.put(ati.getClass(), r);
 
 					System.out.printf("%d matches / %d total fragments generated (%f)%n",
 						r.truePositives, fo.n, (double) r.truePositives / (double) fo.n);
@@ -292,20 +200,26 @@ public abstract class AlignmentToolInterface
 				}
 			}
 		}
-		for (Integer i : m.keySet())
+
+		for (Double d : m.keySet())
 		{
-			for (Double d : m.get(i).keySet())
+			for (Integer i : m.get(d).keySet())
 			{
-				ResultsStruct r = m.get(i).get(d);
-				System.out.printf("Threshold %d, error probability %f, precision %f, recall %f%n",
-					i, d, (double) r.truePositives / (double) (r.truePositives + r.falsePositives),
-					(double) r.truePositives / (double) (r.truePositives + r.falseNegatives));
+				for (Class<? extends AlignmentToolInterface> c : m.get(d).get(i).keySet())
+				{
+					ResultsStruct r = m.get(d).get(i).get(c);
+					System.out.printf(
+						"Tool %s,\t\terror probability %f,\tthreshold %d,\tprecision %f,\trecall %f%n",
+						c.getSimpleName(), d, i, (double) r.truePositives
+								/ (double) (r.truePositives + r.falsePositives),
+						(double) r.truePositives / (double) (r.truePositives + r.falseNegatives));
+				}
 			}
 		}
 	}
 
 	public static void main(String[] args)
 	{
-		singleEndToolEvaluation();
+		toolEvaluation(false);
 	}
 }
