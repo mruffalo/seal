@@ -148,37 +148,56 @@ public abstract class AlignmentToolInterface
 		List<? extends Fragment> list = Fragmentizer.fragmentize(sequence, fo);
 		System.out.println("done.");
 
-		Map<Double, ResultsStruct> m = new TreeMap<Double, ResultsStruct>();
+		Map<Integer, Map<Double, ResultsStruct>> m = new TreeMap<Integer, Map<Double, ResultsStruct>>();
 
-		for (double errorProbability : ERROR_PROBABILITIES)
+		for (int phredThreshold : PHRED_THRESHOLDS)
 		{
-			System.out.print("Introducing fragment read errors...");
-			UniformErrorGenerator eg = new UniformErrorGenerator(SequenceGenerator.NUCLEOTIDES,
-				errorProbability);
-			List<? extends Fragment> errored_list = eg.generateErrors(list);
-			System.out.println("done.");
-
-			List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
-
-			alignmentInterfaceList.add(new MrFastInterface(sequence, errored_list, o));
-			alignmentInterfaceList.add(new MrsFastInterface(sequence, errored_list, o));
-			alignmentInterfaceList.add(new BwaInterface(sequence, errored_list, o));
-
-			for (AlignmentToolInterface ati : alignmentInterfaceList)
+			m.put(phredThreshold, new TreeMap<Double, ResultsStruct>());
+			for (double errorProbability : ERROR_PROBABILITIES)
 			{
-				ati.preAlignmentProcessing();
-				ati.align();
-				ati.postAlignmentProcessing();
-				ResultsStruct r = ati.readAlignment();
+				System.out.print("Introducing fragment read errors...");
+				UniformErrorGenerator eg = new UniformErrorGenerator(SequenceGenerator.NUCLEOTIDES,
+					errorProbability);
+				List<? extends Fragment> errored_list = eg.generateErrors(list);
+				System.out.println("done.");
 
-				m.put(errorProbability, r);
+				List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
 
-				System.out.printf("%d matches / %d total fragments generated (%f)%n",
-					r.truePositives, fo.n, (double) r.truePositives / (double) fo.n);
-				System.out.printf("Precision: %f%n", (double) r.truePositives
-						/ (double) (r.truePositives + r.falsePositives));
-				System.out.printf("Recall: %f%n", (double) r.truePositives
-						/ (double) (r.truePositives + r.falseNegatives));
+				alignmentInterfaceList.add(new MrFastInterface(sequence, errored_list, o));
+				/*
+				 * alignmentInterfaceList.add(new MrsFastInterface(sequence,
+				 * errored_list, o)); alignmentInterfaceList.add(new
+				 * BwaInterface(sequence, errored_list, o));
+				 */
+
+				for (AlignmentToolInterface ati : alignmentInterfaceList)
+				{
+					ati.phredMatchThreshold = phredThreshold;
+					ati.preAlignmentProcessing();
+					ati.align();
+					ati.postAlignmentProcessing();
+					ResultsStruct r = ati.readAlignment();
+
+					m.get(phredThreshold).put(errorProbability, r);
+
+					System.out.printf("%d matches / %d total fragments generated (%f)%n",
+						r.truePositives, fo.n, (double) r.truePositives / (double) fo.n);
+					System.out.printf("Precision: %f%n", (double) r.truePositives
+							/ (double) (r.truePositives + r.falsePositives));
+					System.out.printf("Recall: %f%n", (double) r.truePositives
+							/ (double) (r.truePositives + r.falseNegatives));
+				}
+			}
+		}
+
+		for (Integer i : m.keySet())
+		{
+			for (Double d : m.get(i).keySet())
+			{
+				ResultsStruct r = m.get(i).get(d);
+				System.out.printf("Threshold %d, error probability %f, precision %f, recall %f%n",
+					i, d, (double) r.truePositives / (double) (r.truePositives + r.falsePositives),
+					(double) r.truePositives / (double) (r.truePositives + r.falseNegatives));
 			}
 		}
 	}
@@ -232,10 +251,11 @@ public abstract class AlignmentToolInterface
 
 		path.mkdirs();
 
-		Map<Double, ResultsStruct> m = new TreeMap<Double, ResultsStruct>();
+		Map<Integer, Map<Double, ResultsStruct>> m = new TreeMap<Integer, Map<Double, ResultsStruct>>();
 
 		for (int phredThreshold : PHRED_THRESHOLDS)
 		{
+			m.put(phredThreshold, new TreeMap<Double, ResultsStruct>());
 			for (double errorProbability : ERROR_PROBABILITIES)
 			{
 				System.out.print("Introducing fragment read errors...");
@@ -261,7 +281,7 @@ public abstract class AlignmentToolInterface
 					ati.postAlignmentProcessing();
 					ResultsStruct r = ati.readAlignment();
 
-					m.put(errorProbability, r);
+					m.get(phredThreshold).put(errorProbability, r);
 
 					System.out.printf("%d matches / %d total fragments generated (%f)%n",
 						r.truePositives, fo.n, (double) r.truePositives / (double) fo.n);
@@ -272,10 +292,20 @@ public abstract class AlignmentToolInterface
 				}
 			}
 		}
+		for (Integer i : m.keySet())
+		{
+			for (Double d : m.get(i).keySet())
+			{
+				ResultsStruct r = m.get(i).get(d);
+				System.out.printf("Threshold %d, error probability %f, precision %f, recall %f%n",
+					i, d, (double) r.truePositives / (double) (r.truePositives + r.falsePositives),
+					(double) r.truePositives / (double) (r.truePositives + r.falseNegatives));
+			}
+		}
 	}
 
 	public static void main(String[] args)
 	{
-		pairedEndToolEvaluation();
+		singleEndToolEvaluation();
 	}
 }
