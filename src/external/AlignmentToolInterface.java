@@ -234,38 +234,42 @@ public abstract class AlignmentToolInterface
 
 		Map<Double, ResultsStruct> m = new TreeMap<Double, ResultsStruct>();
 
-		for (double errorProbability : ERROR_PROBABILITIES)
+		for (int phredThreshold : PHRED_THRESHOLDS)
 		{
-			System.out.print("Introducing fragment read errors...");
-			UniformErrorGenerator eg = new UniformErrorGenerator(SequenceGenerator.NUCLEOTIDES,
-				errorProbability);
-			List<? extends Fragment> errored_list = eg.generateErrors(list);
-			System.out.println("done.");
-
-			List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
-
-			/*
-			 * alignmentInterfaceList.add(new MaqInterface(sequence, list,
-			 * genome, binary_genome, reads, binary_reads, binary_output,
-			 * sam_output));
-			 */
-			alignmentInterfaceList.add(new BwaInterface(sequence, errored_list, o));
-
-			for (AlignmentToolInterface ati : alignmentInterfaceList)
+			for (double errorProbability : ERROR_PROBABILITIES)
 			{
-				ati.preAlignmentProcessing();
-				ati.align();
-				ati.postAlignmentProcessing();
-				ResultsStruct r = ati.readAlignment();
+				System.out.print("Introducing fragment read errors...");
+				UniformErrorGenerator eg = new UniformErrorGenerator(SequenceGenerator.NUCLEOTIDES,
+					errorProbability);
+				List<? extends Fragment> errored_list = eg.generateErrors(list);
+				System.out.println("done.");
 
-				m.put(errorProbability, r);
+				List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
 
-				System.out.printf("%d matches / %d total fragments generated (%f)%n",
-					r.truePositives, fo.n, (double) r.truePositives / (double) fo.n);
-				System.out.printf("Precision: %f%n", (double) r.truePositives
-						/ (double) (r.truePositives + r.falsePositives));
-				System.out.printf("Recall: %f%n", (double) r.truePositives
-						/ (double) (r.truePositives + r.falseNegatives));
+				/*
+				 * alignmentInterfaceList.add(new MaqInterface(sequence, list,
+				 * genome, binary_genome, reads, binary_reads, binary_output,
+				 * sam_output));
+				 */
+				alignmentInterfaceList.add(new BwaInterface(sequence, errored_list, o));
+
+				for (AlignmentToolInterface ati : alignmentInterfaceList)
+				{
+					ati.phredMatchThreshold = phredThreshold;
+					ati.preAlignmentProcessing();
+					ati.align();
+					ati.postAlignmentProcessing();
+					ResultsStruct r = ati.readAlignment();
+
+					m.put(errorProbability, r);
+
+					System.out.printf("%d matches / %d total fragments generated (%f)%n",
+						r.truePositives, fo.n, (double) r.truePositives / (double) fo.n);
+					System.out.printf("Precision: %f%n", (double) r.truePositives
+							/ (double) (r.truePositives + r.falsePositives));
+					System.out.printf("Recall: %f%n", (double) r.truePositives
+							/ (double) (r.truePositives + r.falseNegatives));
+				}
 			}
 		}
 	}
