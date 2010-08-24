@@ -117,6 +117,28 @@ public abstract class AlignmentToolInterface
 
 	public abstract AlignmentResults readAlignment();
 
+	public void cleanup()
+	{
+		o.genome.delete();
+		o.binary_genome.delete();
+		for (Options.Reads r : o.reads)
+		{
+			r.aligned_reads.delete();
+			r.binary_reads.delete();
+			r.reads.delete();
+		}
+		if (o.index != null)
+		{
+			o.index.delete();
+		}
+		o.raw_output.delete();
+		o.sam_output.delete();
+		if (o.unmapped_output != null)
+		{
+			o.unmapped_output.delete();
+		}
+	}
+
 	public static void toolEvaluation(boolean paired_end)
 	{
 		SequenceGenerator g = new SeqGenSingleSequenceMultipleRepeats();
@@ -189,7 +211,10 @@ public abstract class AlignmentToolInterface
 				 */
 				alignmentInterfaceList.add(new MrFastInterface(sequence, errored_list, o));
 				alignmentInterfaceList.add(new MrsFastInterface(sequence, errored_list, o));
-				alignmentInterfaceList.add(new SoapInterface(sequence, errored_list, o));
+				/*
+				 * alignmentInterfaceList.add(new SoapInterface(sequence,
+				 * errored_list, o));
+				 */
 				alignmentInterfaceList.add(new BwaInterface(sequence, errored_list, o));
 
 				for (AlignmentToolInterface ati : alignmentInterfaceList)
@@ -199,6 +224,7 @@ public abstract class AlignmentToolInterface
 					ati.align();
 					ati.postAlignmentProcessing();
 					AlignmentResults r = ati.readAlignment();
+					ati.cleanup();
 
 					m_pt.put(ati.getClass(), r);
 
