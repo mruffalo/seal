@@ -24,6 +24,11 @@ public abstract class AlignmentToolInterface
 			0.02, 0.03, 0.05, 0.1 };
 	protected static final int[] PHRED_THRESHOLDS = { 0, 10, 20, 30, 40, 50 };
 
+	/**
+	 * Not all fields are used by every tool
+	 * 
+	 * @author mruffalo
+	 */
 	public static class Options
 	{
 		/**
@@ -50,9 +55,14 @@ public abstract class AlignmentToolInterface
 		public File genome;
 		public File binary_genome;
 		public List<Reads> reads = new ArrayList<Reads>(2);
-		public File binary_output;
+		public File raw_output;
 		public File sam_output;
+		public File index;
+		/**
+		 * Produced here
+		 */
 		public File converted_output;
+		public File unmapped_output;
 	}
 
 	public AlignmentToolInterface(CharSequence sequence_, List<? extends Fragment> list_, Options o_)

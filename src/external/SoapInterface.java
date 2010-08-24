@@ -1,6 +1,7 @@
 package external;
 
 import io.Constants;
+import io.FastaWriter;
 import io.FastqWriter;
 import io.SamReader;
 import java.io.BufferedReader;
@@ -9,36 +10,110 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
-import external.AlignmentToolInterface.ResultsStruct;
 import assembly.Fragment;
+import external.AlignmentToolInterface.Options;
+import external.AlignmentToolInterface.ResultsStruct;
 
-/**
- * TODO: Clean up local variables vs. method parameters
- * 
- * @author mruffalo
- */
-public class MaqInterface extends AlignmentToolInterface
+public class SoapInterface extends AlignmentToolInterface
 {
-	public static final String MAQ_COMMAND = "maq";
-	public static final String FASTQ_TO_BFQ_COMMAND = "fastq2bfq";
-	public static final String FASTA_TO_BFA_COMMAND = "fastq2bfq";
-	public static final String ALIGN_COMMAND = "map";
-	public static final String ASSEMBLE_COMMAND = "assemble";
+	public static final String SOAP_COMMAND = "SOAP";
+	public static final String INDEX_COMMAND = "2bwt-builder";
+	public static final String SOAP2SAM_COMMAND = "soap2sam";
+	public static final String ALIGN_INDEX_OPTION = "-D";
+	public static final String[] ALIGN_QUERY_OPTIONS = { "-a", "-b" };
 
-	public MaqInterface(CharSequence sequence_, List<? extends Fragment> fragments_, Options o_)
+	public SoapInterface(CharSequence sequence_, List<? extends Fragment> fragments_, Options o_)
 	{
 		super(sequence_, fragments_, o_);
+	}
+
+	public void createIndex(File file)
+	{
+		ProcessBuilder pb = new ProcessBuilder(INDEX_COMMAND, file.getAbsolutePath());
+		pb.directory(file.getParentFile());
+		try
+		{
+			FastaWriter.writeSequence(sequence, file);
+			Process p = pb.start();
+			BufferedReader stdout = new BufferedReader(new InputStreamReader(p.getInputStream()));
+			BufferedReader stderr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+			String line = null;
+			while ((line = stdout.readLine()) != null)
+			{
+				System.out.println(line);
+			}
+			while ((line = stderr.readLine()) != null)
+			{
+				System.err.println(line);
+			}
+			p.waitFor();
+			String index_filename = file.getName() + ".index";
+			o.index = new File(file.getParentFile(), index_filename);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+		catch (InterruptedException e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 	@Override
 	public void align()
 	{
 		System.out.print("Aligning reads...");
-		ProcessBuilder pb = new ProcessBuilder(MAQ_COMMAND, ALIGN_COMMAND,
-			o.sam_output.getAbsolutePath(), o.raw_output.getAbsolutePath(),
-			o.genome.getAbsolutePath(), o.reads.get(0).reads.getAbsolutePath());
+		List<String> commands = new ArrayList<String>();
+		commands.add(SOAP_COMMAND);
+		commands.add(ALIGN_INDEX_OPTION);
+		commands.add(o.index.getAbsolutePath());
+		for (int i = 0; i < o.reads.size(); i++)
+		{
+			commands.add(ALIGN_QUERY_OPTIONS[i]);
+			commands.add(o.reads.get(i).reads.getAbsolutePath());
+		}
+		commands.add("-o");
+		commands.add(o.raw_output.getAbsolutePath());
+		ProcessBuilder pb = new ProcessBuilder(commands);
+		pb.directory(o.genome.getParentFile());
+		try
+		{
+			FastqWriter.writeFragments(fragments, o.reads.get(0).reads, 0);
+			Process p = pb.start();
+			BufferedReader stdout = new BufferedReader(new InputStreamReader(p.getInputStream()));
+			BufferedReader stderr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+			String line = null;
+			while ((line = stdout.readLine()) != null)
+			{
+				System.out.println(line);
+			}
+			while ((line = stderr.readLine()) != null)
+			{
+				System.err.println(line);
+			}
+			p.waitFor();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+		catch (InterruptedException e)
+		{
+			e.printStackTrace();
+		}
+		System.out.println("done.");
+	}
+
+	private void convertToSamFormat()
+	{
+		List<String> commands = new ArrayList<String>();
+		commands.add(SOAP2SAM_COMMAND);
+		commands.add(o.raw_output.getAbsolutePath());
+		ProcessBuilder pb = new ProcessBuilder(commands);
 		pb.directory(o.genome.getParentFile());
 		try
 		{
@@ -69,90 +144,6 @@ public class MaqInterface extends AlignmentToolInterface
 	}
 
 	/**
-	 * TODO: Duplicate much less code here and in
-	 * {@link #convertFastqToBfq(File, File)}
-	 * 
-	 * @param genome
-	 * @param binary_genome
-	 */
-	public void convertFastaToBfa(File genome, File binary_genome)
-	{
-		ProcessBuilder pb = new ProcessBuilder(MAQ_COMMAND, FASTA_TO_BFA_COMMAND,
-			genome.getAbsolutePath(), binary_genome.getAbsolutePath());
-		for (String arg : pb.command())
-		{
-			System.err.println(arg);
-		}
-		pb.directory(genome.getParentFile());
-		try
-		{
-			Process p = pb.start();
-			BufferedReader stdout = new BufferedReader(new InputStreamReader(p.getInputStream()));
-			BufferedReader stderr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-			String line = null;
-			while ((line = stdout.readLine()) != null)
-			{
-				System.err.println(line);
-			}
-			while ((line = stderr.readLine()) != null)
-			{
-				System.err.println(line);
-			}
-			p.waitFor();
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-		catch (InterruptedException e)
-		{
-			e.printStackTrace();
-		}
-	}
-
-	/**
-	 * TODO: Duplicate much less code here and in
-	 * {@link #convertFastaToBfa(File, File)}
-	 * 
-	 * @param reads
-	 * @param binary_reads
-	 */
-	public void convertFastqToBfq(File reads, File binary_reads, File genome, File binary_genome)
-	{
-		ProcessBuilder pb = new ProcessBuilder(MAQ_COMMAND, FASTQ_TO_BFQ_COMMAND,
-			genome.getAbsolutePath(), binary_genome.getAbsolutePath());
-		for (String arg : pb.command())
-		{
-			System.err.println(arg);
-		}
-		pb.directory(genome.getParentFile());
-		try
-		{
-			Process p = pb.start();
-			BufferedReader stdout = new BufferedReader(new InputStreamReader(p.getInputStream()));
-			BufferedReader stderr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-			String line = null;
-			while ((line = stdout.readLine()) != null)
-			{
-				System.err.println(line);
-			}
-			while ((line = stderr.readLine()) != null)
-			{
-				System.err.println(line);
-			}
-			p.waitFor();
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-		catch (InterruptedException e)
-		{
-			e.printStackTrace();
-		}
-	}
-
-	/**
 	 * Don't need to read fragments; we have those already. TODO: Move this
 	 * logic into {@link SamReader}
 	 */
@@ -160,8 +151,7 @@ public class MaqInterface extends AlignmentToolInterface
 	public ResultsStruct readAlignment()
 	{
 		System.out.print("Reading alignment...");
-		int matches = 0;
-		int total = 0;
+		ResultsStruct rs = new ResultsStruct();
 		try
 		{
 			BufferedReader r = new BufferedReader(new FileReader(o.sam_output));
@@ -185,15 +175,26 @@ public class MaqInterface extends AlignmentToolInterface
 				}
 				int alignedPosition = Integer.parseInt(pieces[3]) - 1;
 				int phredProbability = Integer.parseInt(pieces[4]);
-				if (readPosition == alignedPosition && phredProbability >= phredMatchThreshold)
+				if (readPosition == alignedPosition)
 				{
-					matches++;
+					if (phredProbability >= phredMatchThreshold)
+					{
+						rs.truePositives++;
+					}
+					else
+					{
+						rs.falseNegatives++;
+					}
 				}
 				else
 				{
+					if (phredProbability >= phredMatchThreshold)
+					{
+						rs.falsePositives++;
+					}
 					System.out.println(line);
 				}
-				total++;
+				rs.totalFragmentsRead++;
 			}
 		}
 		catch (FileNotFoundException e)
@@ -204,27 +205,22 @@ public class MaqInterface extends AlignmentToolInterface
 		{
 			e.printStackTrace();
 		}
-		ResultsStruct r = new ResultsStruct();
-		r.truePositives = matches;
-		// XXX: Assign other results fields
-		return r;
+		return rs;
 	}
 
 	@Override
 	public void preAlignmentProcessing()
 	{
-		System.out.print("Converting FASTQ output to BFQ...");
-		convertFastqToBfq(o.reads.get(0).reads, o.reads.get(0).binary_reads, o.genome,
-			o.binary_genome);
+		System.out.print("Indexing genome...");
+		createIndex(o.genome);
 		System.out.println("done.");
 	}
 
-	/**
-	 * XXX: Do this
-	 */
 	@Override
 	public void postAlignmentProcessing()
 	{
-
+		System.out.print("Converting output to SAM format...");
+		convertToSamFormat();
+		System.out.println("done.");
 	}
 }
