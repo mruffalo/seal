@@ -81,7 +81,7 @@ public abstract class AlignmentToolInterface
 		}
 	}
 
-	public static class ResultsStruct
+	public static class AlignmentResults
 	{
 		/**
 		 * We know how many fragments we generated; this is the size of
@@ -115,7 +115,7 @@ public abstract class AlignmentToolInterface
 
 	public abstract void postAlignmentProcessing();
 
-	public abstract ResultsStruct readAlignment();
+	public abstract AlignmentResults readAlignment();
 
 	public static void toolEvaluation(boolean paired_end)
 	{
@@ -164,11 +164,11 @@ public abstract class AlignmentToolInterface
 
 		path.mkdirs();
 
-		Map<Double, Map<Integer, Map<Class<? extends AlignmentToolInterface>, ResultsStruct>>> m = new TreeMap<Double, Map<Integer, Map<Class<? extends AlignmentToolInterface>, ResultsStruct>>>();
+		Map<Double, Map<Integer, Map<Class<? extends AlignmentToolInterface>, AlignmentResults>>> m = new TreeMap<Double, Map<Integer, Map<Class<? extends AlignmentToolInterface>, AlignmentResults>>>();
 
 		for (double errorProbability : ERROR_PROBABILITIES)
 		{
-			Map<Integer, Map<Class<? extends AlignmentToolInterface>, ResultsStruct>> m_ep = new TreeMap<Integer, Map<Class<? extends AlignmentToolInterface>, ResultsStruct>>();
+			Map<Integer, Map<Class<? extends AlignmentToolInterface>, AlignmentResults>> m_ep = new TreeMap<Integer, Map<Class<? extends AlignmentToolInterface>, AlignmentResults>>();
 			m.put(errorProbability, m_ep);
 			System.out.print("Introducing fragment read errors...");
 			UniformErrorGenerator eg = new UniformErrorGenerator(SequenceGenerator.NUCLEOTIDES,
@@ -177,7 +177,7 @@ public abstract class AlignmentToolInterface
 			System.out.println("done.");
 			for (int phredThreshold : PHRED_THRESHOLDS)
 			{
-				Map<Class<? extends AlignmentToolInterface>, ResultsStruct> m_pt = new HashMap<Class<? extends AlignmentToolInterface>, ResultsStruct>();
+				Map<Class<? extends AlignmentToolInterface>, AlignmentResults> m_pt = new HashMap<Class<? extends AlignmentToolInterface>, AlignmentResults>();
 				m_ep.put(phredThreshold, m_pt);
 
 				List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
@@ -197,7 +197,7 @@ public abstract class AlignmentToolInterface
 					ati.preAlignmentProcessing();
 					ati.align();
 					ati.postAlignmentProcessing();
-					ResultsStruct r = ati.readAlignment();
+					AlignmentResults r = ati.readAlignment();
 
 					m_pt.put(ati.getClass(), r);
 
@@ -217,7 +217,7 @@ public abstract class AlignmentToolInterface
 			{
 				for (Class<? extends AlignmentToolInterface> c : m.get(d).get(i).keySet())
 				{
-					ResultsStruct r = m.get(d).get(i).get(c);
+					AlignmentResults r = m.get(d).get(i).get(c);
 					System.out.printf(
 						"Tool %s,\t\terror probability %f,\tthreshold %d,\tprecision %f,\trecall %f%n",
 						c.getSimpleName(), d, i, (double) r.truePositives

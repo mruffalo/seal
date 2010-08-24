@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import assembly.Fragment;
 import external.AlignmentToolInterface.Options;
-import external.AlignmentToolInterface.ResultsStruct;
+import external.AlignmentToolInterface.AlignmentResults;
 
 public class SoapInterface extends AlignmentToolInterface
 {
@@ -148,10 +148,10 @@ public class SoapInterface extends AlignmentToolInterface
 	 * logic into {@link SamReader}
 	 */
 	@Override
-	public ResultsStruct readAlignment()
+	public AlignmentResults readAlignment()
 	{
 		System.out.print("Reading alignment...");
-		ResultsStruct rs = new ResultsStruct();
+		AlignmentResults rs = new AlignmentResults();
 		try
 		{
 			BufferedReader r = new BufferedReader(new FileReader(o.sam_output));

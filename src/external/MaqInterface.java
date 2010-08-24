@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
 import java.util.regex.Matcher;
-import external.AlignmentToolInterface.ResultsStruct;
+import external.AlignmentToolInterface.AlignmentResults;
 import assembly.Fragment;
 
 /**
@@ -157,7 +157,7 @@ public class MaqInterface extends AlignmentToolInterface
 	 * logic into {@link SamReader}
 	 */
 	@Override
-	public ResultsStruct readAlignment()
+	public AlignmentResults readAlignment()
 	{
 		System.out.print("Reading alignment...");
 		int matches = 0;
@@ -204,7 +204,7 @@ public class MaqInterface extends AlignmentToolInterface
 		{
 			e.printStackTrace();
 		}
-		ResultsStruct r = new ResultsStruct();
+		AlignmentResults r = new AlignmentResults();
 		r.truePositives = matches;
 		// XXX: Assign other results fields
 		return r;
