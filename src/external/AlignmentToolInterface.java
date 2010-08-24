@@ -1,6 +1,8 @@
 package external;
 
+import io.FastaReader;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,7 +24,7 @@ public abstract class AlignmentToolInterface
 
 	protected static final double[] ERROR_PROBABILITIES = { 0.0, 0.001, 0.002, 0.004, 0.01, 0.015,
 			0.02, 0.03, 0.05, 0.1 };
-	protected static final int[] PHRED_THRESHOLDS = { 0, 10, 20, 30, 40, 50 };
+	protected static final int[] PHRED_THRESHOLDS = { 0, 10, 20, 30 };
 
 	/**
 	 * Not all fields are used by every tool
@@ -141,6 +143,7 @@ public abstract class AlignmentToolInterface
 
 	public static void toolEvaluation(boolean paired_end)
 	{
+
 		SequenceGenerator g = new SeqGenSingleSequenceMultipleRepeats();
 		SequenceGenerator.Options sgo = new SequenceGenerator.Options();
 		sgo.length = 100000;
@@ -151,9 +154,12 @@ public abstract class AlignmentToolInterface
 		CharSequence sequence = g.generateSequence(sgo);
 		System.out.println("done.");
 
+		File path = new File("data");
 		/*
-		 * System.out.print("Reading genome..."); CharSequence sequence =
-		 * FastaReader.getLargeSequence(genome); System.out.println("done.");
+		 * File chr22 = new File(path, "chr22.fa");
+		 * System.out.print("Reading genome..."); CharSequence sequence = null;
+		 * try { sequence = FastaReader.getLargeSequence(chr22); } catch
+		 * (IOException e) { e.printStackTrace(); } System.out.println("done.");
 		 */
 		Fragmentizer.Options fo = new Fragmentizer.Options();
 		fo.k = 50;
@@ -167,7 +173,6 @@ public abstract class AlignmentToolInterface
 		Options o = new Options();
 		o.is_paired_end = paired_end;
 
-		File path = new File("data");
 		o.genome = new File(path, "genome.fasta");
 		o.binary_genome = new File(path, "genome.bfa");
 
@@ -211,10 +216,7 @@ public abstract class AlignmentToolInterface
 				 */
 				alignmentInterfaceList.add(new MrFastInterface(sequence, errored_list, o));
 				alignmentInterfaceList.add(new MrsFastInterface(sequence, errored_list, o));
-				/*
-				 * alignmentInterfaceList.add(new SoapInterface(sequence,
-				 * errored_list, o));
-				 */
+				alignmentInterfaceList.add(new SoapInterface(sequence, errored_list, o));
 				alignmentInterfaceList.add(new BwaInterface(sequence, errored_list, o));
 
 				for (AlignmentToolInterface ati : alignmentInterfaceList)
@@ -245,10 +247,8 @@ public abstract class AlignmentToolInterface
 				for (Class<? extends AlignmentToolInterface> c : m.get(d).get(i).keySet())
 				{
 					AlignmentResults r = m.get(d).get(i).get(c);
-					System.out.printf(
-						"Tool %s,\t\terror probability %f,\tthreshold %d,\tprecision %f,\trecall %f%n",
-						c.getSimpleName(), d, i, (double) r.truePositives
-								/ (double) (r.truePositives + r.falsePositives),
+					System.out.printf("%s,%f,%d,%f,%f%n", c.getSimpleName(), d, i,
+						(double) r.truePositives / (double) (r.truePositives + r.falsePositives),
 						(double) r.truePositives / (double) (r.truePositives + r.falseNegatives));
 				}
 			}

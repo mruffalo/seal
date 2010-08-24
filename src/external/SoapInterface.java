@@ -8,6 +8,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -122,10 +123,12 @@ public class SoapInterface extends AlignmentToolInterface
 			BufferedReader stdout = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			BufferedReader stderr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
 			String line = null;
+			FileWriter w = new FileWriter(o.sam_output);
 			while ((line = stdout.readLine()) != null)
 			{
-				System.out.println(line);
+				w.write(String.format("%s%n", line));
 			}
+			w.close();
 			while ((line = stderr.readLine()) != null)
 			{
 				System.err.println(line);
