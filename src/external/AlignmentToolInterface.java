@@ -158,7 +158,7 @@ public abstract class AlignmentToolInterface
 			r.aligned_reads = new File(path, String.format("alignment%d.sai", i));
 			o.reads.add(r);
 		}
-
+		o.raw_output = new File(path, "out.raw");
 		o.sam_output = new File(path, "alignment.sam");
 		o.converted_output = new File(path, "out.txt");
 
@@ -189,6 +189,7 @@ public abstract class AlignmentToolInterface
 				 */
 				alignmentInterfaceList.add(new MrFastInterface(sequence, errored_list, o));
 				alignmentInterfaceList.add(new MrsFastInterface(sequence, errored_list, o));
+				alignmentInterfaceList.add(new SoapInterface(sequence, errored_list, o));
 				alignmentInterfaceList.add(new BwaInterface(sequence, errored_list, o));
 
 				for (AlignmentToolInterface ati : alignmentInterfaceList)

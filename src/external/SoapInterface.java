@@ -19,7 +19,7 @@ import external.AlignmentToolInterface.AlignmentResults;
 
 public class SoapInterface extends AlignmentToolInterface
 {
-	public static final String SOAP_COMMAND = "SOAP";
+	public static final String SOAP_COMMAND = "soap";
 	public static final String INDEX_COMMAND = "2bwt-builder";
 	public static final String SOAP2SAM_COMMAND = "soap2sam";
 	public static final String ALIGN_INDEX_OPTION = "-D";
