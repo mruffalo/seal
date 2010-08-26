@@ -1,9 +1,8 @@
 package external;
 
-import io.FastaReader;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -83,6 +82,14 @@ public abstract class AlignmentToolInterface
 		}
 	}
 
+	public enum AlignmentOperation
+	{
+		PREPROCESSING,
+		ALIGNMENT,
+		POSTPROCESSING,
+		TOTAL,
+	}
+
 	public static class AlignmentResults
 	{
 		/**
@@ -109,6 +116,10 @@ public abstract class AlignmentToolInterface
 		 * </ul>
 		 */
 		public int falseNegatives;
+		/**
+		 * Stores time for each operation
+		 */
+		public Map<AlignmentOperation, Long> timeMap;
 	}
 
 	public abstract void preAlignmentProcessing();
@@ -221,11 +232,25 @@ public abstract class AlignmentToolInterface
 
 				for (AlignmentToolInterface ati : alignmentInterfaceList)
 				{
+					Map<AlignmentOperation, Long> timeMap = new EnumMap<AlignmentOperation, Long>(
+						AlignmentOperation.class);
 					ati.phredMatchThreshold = phredThreshold;
+					long start, preprocessing, alignment, postprocessing;
+					start = System.nanoTime();
 					ati.preAlignmentProcessing();
+					preprocessing = System.nanoTime();
 					ati.align();
+					alignment = System.nanoTime();
 					ati.postAlignmentProcessing();
+					postprocessing = System.nanoTime();
+
+					timeMap.put(AlignmentOperation.PREPROCESSING, preprocessing - start);
+					timeMap.put(AlignmentOperation.ALIGNMENT, alignment - preprocessing);
+					timeMap.put(AlignmentOperation.POSTPROCESSING, postprocessing - alignment);
+					timeMap.put(AlignmentOperation.TOTAL, postprocessing - start);
+
 					AlignmentResults r = ati.readAlignment();
+					r.timeMap = timeMap;
 					ati.cleanup();
 
 					m_pt.put(ati.getClass(), r);
@@ -247,9 +272,10 @@ public abstract class AlignmentToolInterface
 				for (Class<? extends AlignmentToolInterface> c : m.get(d).get(i).keySet())
 				{
 					AlignmentResults r = m.get(d).get(i).get(c);
-					System.out.printf("%s,%f,%d,%f,%f%n", c.getSimpleName(), d, i,
+					System.out.printf("%s,%f,%d,%f,%f,%d%n", c.getSimpleName(), d, i,
 						(double) r.truePositives / (double) (r.truePositives + r.falsePositives),
-						(double) r.truePositives / (double) (r.truePositives + r.falseNegatives));
+						(double) r.truePositives / (double) (r.truePositives + r.falseNegatives),
+						r.timeMap.get(AlignmentOperation.TOTAL));
 				}
 			}
 		}
