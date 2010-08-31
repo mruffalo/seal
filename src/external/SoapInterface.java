@@ -33,34 +33,44 @@ public class SoapInterface extends AlignmentToolInterface
 
 	public void createIndex(File file)
 	{
-		ProcessBuilder pb = new ProcessBuilder(INDEX_COMMAND, file.getAbsolutePath());
-		pb.directory(file.getParentFile());
-		try
+		String index_filename = file.getName() + ".index";
+		File file_to_check = new File(file.getParentFile(), file.getName() + ".index.bwt");
+		o.index = new File(file.getParentFile(), index_filename);
+		if (file_to_check.isFile())
 		{
-			FastaWriter.writeSequence(sequence, file);
-			Process p = pb.start();
-			BufferedReader stdout = new BufferedReader(new InputStreamReader(p.getInputStream()));
-			BufferedReader stderr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-			String line = null;
-			while ((line = stdout.readLine()) != null)
-			{
-				System.out.println(line);
-			}
-			while ((line = stderr.readLine()) != null)
-			{
-				System.err.println(line);
-			}
-			p.waitFor();
-			String index_filename = file.getName() + ".index";
-			o.index = new File(file.getParentFile(), index_filename);
+			System.err.println("Index found; skipping");
 		}
-		catch (IOException e)
+		else
 		{
-			e.printStackTrace();
-		}
-		catch (InterruptedException e)
-		{
-			e.printStackTrace();
+			ProcessBuilder pb = new ProcessBuilder(INDEX_COMMAND, file.getAbsolutePath());
+			pb.directory(file.getParentFile());
+			try
+			{
+				FastaWriter.writeSequence(sequence, file);
+				Process p = pb.start();
+				BufferedReader stdout = new BufferedReader(
+					new InputStreamReader(p.getInputStream()));
+				BufferedReader stderr = new BufferedReader(
+					new InputStreamReader(p.getErrorStream()));
+				String line = null;
+				while ((line = stdout.readLine()) != null)
+				{
+					System.out.println(line);
+				}
+				while ((line = stderr.readLine()) != null)
+				{
+					System.err.println(line);
+				}
+				p.waitFor();
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
+			catch (InterruptedException e)
+			{
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -195,9 +205,17 @@ public class SoapInterface extends AlignmentToolInterface
 					{
 						rs.falsePositives++;
 					}
-					System.out.println(line);
+					// System.out.println(line);
 				}
 				rs.totalFragmentsRead++;
+			}
+			/*
+			 * If a fragment didn't appear in the output at all, count it as a
+			 * false negative
+			 */
+			if (fragments.size() >= rs.totalFragmentsRead)
+			{
+				rs.falseNegatives += (fragments.size() - rs.totalFragmentsRead);
 			}
 		}
 		catch (FileNotFoundException e)
@@ -225,5 +243,8 @@ public class SoapInterface extends AlignmentToolInterface
 		System.out.print("Converting output to SAM format...");
 		convertToSamFormat();
 		System.out.println("done.");
+
+		// HACK: Delete index to save time for successive runs
+		o.index = null;
 	}
 }

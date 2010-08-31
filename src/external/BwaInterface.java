@@ -43,32 +43,44 @@ public class BwaInterface extends AlignmentToolInterface
 
 	public void createIndex(File file)
 	{
-		ProcessBuilder pb = new ProcessBuilder(BWA_COMMAND, INDEX_COMMAND, file.getAbsolutePath());
-		pb.directory(file.getParentFile());
-		try
+		String index_filename = file.getName() + ".bwt";
+		o.index = new File(file.getParentFile(), index_filename);
+		if (o.index.isFile())
 		{
-			FastaWriter.writeSequence(sequence, file);
-			Process p = pb.start();
-			BufferedReader stdout = new BufferedReader(new InputStreamReader(p.getInputStream()));
-			BufferedReader stderr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-			String line = null;
-			while ((line = stdout.readLine()) != null)
-			{
-				System.out.println(line);
-			}
-			while ((line = stderr.readLine()) != null)
-			{
-				System.err.println(line);
-			}
-			p.waitFor();
+			System.err.println("Index found; skipping");
 		}
-		catch (IOException e)
+		else
 		{
-			e.printStackTrace();
-		}
-		catch (InterruptedException e)
-		{
-			e.printStackTrace();
+			ProcessBuilder pb = new ProcessBuilder(BWA_COMMAND, INDEX_COMMAND,
+				file.getAbsolutePath());
+			pb.directory(file.getParentFile());
+			try
+			{
+				FastaWriter.writeSequence(sequence, file);
+				Process p = pb.start();
+				BufferedReader stdout = new BufferedReader(
+					new InputStreamReader(p.getInputStream()));
+				BufferedReader stderr = new BufferedReader(
+					new InputStreamReader(p.getErrorStream()));
+				String line = null;
+				while ((line = stdout.readLine()) != null)
+				{
+					System.out.println(line);
+				}
+				while ((line = stderr.readLine()) != null)
+				{
+					System.err.println(line);
+				}
+				p.waitFor();
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
+			catch (InterruptedException e)
+			{
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -245,9 +257,17 @@ public class BwaInterface extends AlignmentToolInterface
 					{
 						rs.falsePositives++;
 					}
-					System.out.println(line);
+					// System.out.println(line);
 				}
 				rs.totalFragmentsRead++;
+			}
+			/*
+			 * If a fragment didn't appear in the output at all, count it as a
+			 * false negative
+			 */
+			if (fragments.size() >= rs.totalFragmentsRead)
+			{
+				rs.falseNegatives += (fragments.size() - rs.totalFragmentsRead);
 			}
 			r.close();
 			w.close();

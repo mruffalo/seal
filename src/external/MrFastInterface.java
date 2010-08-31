@@ -10,9 +10,10 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
-import external.AlignmentToolInterface.AlignmentResults;
 import assembly.Fragment;
 
 public class MrFastInterface extends AlignmentToolInterface
@@ -22,6 +23,8 @@ public class MrFastInterface extends AlignmentToolInterface
 	public static final String INDEX_COMMAND = "--index";
 	public static final String SEARCH_COMMAND = "--search";
 
+	private Set<Fragment> mappedFragments = new HashSet<Fragment>();
+
 	public MrFastInterface(CharSequence sequence_, List<? extends Fragment> fragments_, Options o_)
 	{
 		super(sequence_, fragments_, o_);
@@ -29,33 +32,44 @@ public class MrFastInterface extends AlignmentToolInterface
 
 	public void createIndex(File file)
 	{
-		ProcessBuilder pb = new ProcessBuilder(MRFAST_COMMAND, INDEX_COMMAND,
-			file.getAbsolutePath());
-		pb.directory(file.getParentFile());
-		try
+		String index_filename = file.getName() + ".index";
+		o.index = new File(file.getParentFile(), index_filename);
+		if (o.index.isFile())
 		{
-			FastaWriter.writeSequence(sequence, file);
-			Process p = pb.start();
-			BufferedReader stdout = new BufferedReader(new InputStreamReader(p.getInputStream()));
-			BufferedReader stderr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-			String line = null;
-			while ((line = stdout.readLine()) != null)
-			{
-				System.out.println(line);
-			}
-			while ((line = stderr.readLine()) != null)
-			{
-				System.err.println(line);
-			}
-			p.waitFor();
+			System.err.println("Index found; skipping");
 		}
-		catch (IOException e)
+		else
 		{
-			e.printStackTrace();
-		}
-		catch (InterruptedException e)
-		{
-			e.printStackTrace();
+			ProcessBuilder pb = new ProcessBuilder(MRFAST_COMMAND, INDEX_COMMAND,
+				file.getAbsolutePath());
+			pb.directory(file.getParentFile());
+			try
+			{
+				FastaWriter.writeSequence(sequence, file);
+				Process p = pb.start();
+				BufferedReader stdout = new BufferedReader(
+					new InputStreamReader(p.getInputStream()));
+				BufferedReader stderr = new BufferedReader(
+					new InputStreamReader(p.getErrorStream()));
+				String line = null;
+				while ((line = stdout.readLine()) != null)
+				{
+					System.out.println(line);
+				}
+				while ((line = stderr.readLine()) != null)
+				{
+					System.err.println(line);
+				}
+				p.waitFor();
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
+			catch (InterruptedException e)
+			{
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -144,9 +158,17 @@ public class MrFastInterface extends AlignmentToolInterface
 					{
 						rs.falsePositives++;
 					}
-					System.out.println(line);
+					// System.out.println(line);
 				}
 				rs.totalFragmentsRead++;
+			}
+			/*
+			 * If a fragment didn't appear in the output at all, count it as a
+			 * false negative
+			 */
+			if (fragments.size() >= rs.totalFragmentsRead)
+			{
+				rs.falseNegatives += (fragments.size() - rs.totalFragmentsRead);
 			}
 		}
 		catch (FileNotFoundException e)

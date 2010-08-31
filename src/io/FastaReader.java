@@ -61,8 +61,36 @@ public class FastaReader
 		return f;
 	}
 
+	public static String getSequence(File file, int expectedSize) throws IOException
+	{
+		StringBuilder sb = new StringBuilder(expectedSize);
+		String line = null;
+		BufferedReader input = null;
+		try
+		{
+			input = new BufferedReader(new FileReader(file));
+			while ((line = input.readLine()) != null)
+			{
+				if (line.startsWith(">"))
+				{
+					continue;
+				}
+				sb.append(line.trim());
+			}
+		}
+		finally
+		{
+			if (input != null)
+			{
+				input.close();
+			}
+		}
+		return sb.toString();
+	}
+
 	public static String getSequence(File file) throws IOException
 	{
+		StringBuilder sb = new StringBuilder();
 		String sequence = null, temp = null;
 		Scanner input = null;
 		try

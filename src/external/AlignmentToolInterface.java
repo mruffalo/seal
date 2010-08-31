@@ -1,6 +1,8 @@
 package external;
 
+import io.FastaReader;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -132,17 +134,12 @@ public abstract class AlignmentToolInterface
 
 	public void cleanup()
 	{
-		o.genome.delete();
 		o.binary_genome.delete();
 		for (Options.Reads r : o.reads)
 		{
 			r.aligned_reads.delete();
 			r.binary_reads.delete();
 			r.reads.delete();
-		}
-		if (o.index != null)
-		{
-			o.index.delete();
 		}
 		o.raw_output.delete();
 		o.sam_output.delete();
@@ -154,51 +151,37 @@ public abstract class AlignmentToolInterface
 
 	public static void toolEvaluation(boolean paired_end)
 	{
-
-		SequenceGenerator g = new SeqGenSingleSequenceMultipleRepeats();
-		SequenceGenerator.Options sgo = new SequenceGenerator.Options();
-		sgo.length = 100000;
-		sgo.repeatCount = 10;
-		sgo.repeatLength = 200;
-		sgo.repeatErrorProbability = 0.01;
-		System.out.print("Generating sequence...");
-		CharSequence sequence = g.generateSequence(sgo);
-		System.out.println("done.");
-
-		File path = new File("data");
 		/*
-		 * File chr22 = new File(path, "chr22.fa");
-		 * System.out.print("Reading genome..."); CharSequence sequence = null;
-		 * try { sequence = FastaReader.getLargeSequence(chr22); } catch
-		 * (IOException e) { e.printStackTrace(); } System.out.println("done.");
+		 * SequenceGenerator g = new SeqGenSingleSequenceMultipleRepeats();
+		 * SequenceGenerator.Options sgo = new SequenceGenerator.Options();
+		 * sgo.length = 100000; sgo.repeatCount = 10; sgo.repeatLength = 200;
+		 * sgo.repeatErrorProbability = 0.01;
+		 * System.out.print("Generating sequence..."); CharSequence sequence =
+		 * g.generateSequence(sgo); System.out.println("done.");
 		 */
+		final File path = new File("data");
+		final File chr22 = new File(path, "chr22.fa");
+		System.out.print("Reading genome...");
+		CharSequence sequence = null;
+		try
+		{
+			// sequence = FastaReader.getLargeSequence(chr22);
+			sequence = FastaReader.getSequence(chr22, 52000000);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+		System.out.println("done.");
+		System.out.printf("Genome length: %d%n", sequence.length());
 		Fragmentizer.Options fo = new Fragmentizer.Options();
 		fo.k = 50;
-		fo.n = 750;
+		fo.n = 50000;
 		fo.ksd = 1;
 
 		System.out.print("Reading fragments...");
 		List<? extends Fragment> list = Fragmentizer.fragmentize(sequence, fo);
 		System.out.println("done.");
-
-		Options o = new Options();
-		o.is_paired_end = paired_end;
-
-		o.genome = new File(path, "genome.fasta");
-		o.binary_genome = new File(path, "genome.bfa");
-
-		int read_count = paired_end ? 2 : 1;
-		for (int i = 1; i <= read_count; i++)
-		{
-			Options.Reads r = new Options.Reads(i);
-			r.reads = new File(path, String.format("fragments%d.fastq", i));
-			r.binary_reads = new File(path, String.format("fragments%d.bfq", i));
-			r.aligned_reads = new File(path, String.format("alignment%d.sai", i));
-			o.reads.add(r);
-		}
-		o.raw_output = new File(path, "out.raw");
-		o.sam_output = new File(path, "alignment.sam");
-		o.converted_output = new File(path, "out.txt");
 
 		path.mkdirs();
 
@@ -225,13 +208,40 @@ public abstract class AlignmentToolInterface
 				 * genome, binary_genome, reads, binary_reads, binary_output,
 				 * sam_output));
 				 */
-				alignmentInterfaceList.add(new MrFastInterface(sequence, errored_list, o));
-				alignmentInterfaceList.add(new MrsFastInterface(sequence, errored_list, o));
-				alignmentInterfaceList.add(new SoapInterface(sequence, errored_list, o));
-				alignmentInterfaceList.add(new BwaInterface(sequence, errored_list, o));
+
+				alignmentInterfaceList.add(new MrFastInterface(sequence, errored_list,
+					new Options()));
+				alignmentInterfaceList.add(new MrsFastInterface(sequence, errored_list,
+					new Options()));
+				alignmentInterfaceList.add(new SoapInterface(sequence, errored_list, new Options()));
+				alignmentInterfaceList.add(new BwaInterface(sequence, errored_list, new Options()));
 
 				for (AlignmentToolInterface ati : alignmentInterfaceList)
 				{
+					Options o = new Options();
+					o.is_paired_end = paired_end;
+					File tool_path = new File(path, ati.getClass().getSimpleName());
+					tool_path.mkdirs();
+					o.genome = new File(tool_path, "genome.fasta");
+					o.binary_genome = new File(tool_path, "genome.bfa");
+
+					int read_count = paired_end ? 2 : 1;
+					for (int i = 1; i <= read_count; i++)
+					{
+						Options.Reads r = new Options.Reads(i);
+						r.reads = new File(tool_path, String.format("fragments%d.fastq", i));
+						r.binary_reads = new File(tool_path, String.format("fragments%d.bfq", i));
+						r.aligned_reads = new File(tool_path, String.format("alignment%d.sai", i));
+						o.reads.add(r);
+					}
+					o.raw_output = new File(tool_path, "out.raw");
+					o.sam_output = new File(tool_path, "alignment.sam");
+					o.converted_output = new File(tool_path, "out.txt");
+					ati.o = o;
+
+					System.out.printf("*** %s: %d, %f%n", ati.getClass().getSimpleName(),
+						phredThreshold, errorProbability);
+
 					Map<AlignmentOperation, Long> timeMap = new EnumMap<AlignmentOperation, Long>(
 						AlignmentOperation.class);
 					ati.phredMatchThreshold = phredThreshold;
