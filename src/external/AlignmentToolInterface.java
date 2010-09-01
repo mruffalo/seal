@@ -62,10 +62,11 @@ public abstract class AlignmentToolInterface
 		public File sam_output;
 		public File index;
 		/**
-		 * Produced here
+		 * Produced by this code, not the alignment tool
 		 */
 		public File converted_output;
 		public File unmapped_output;
+		public boolean penalize_duplicate_mappings = true;
 	}
 
 	public AlignmentToolInterface(CharSequence sequence_, List<? extends Fragment> list_, Options o_)
@@ -165,8 +166,11 @@ public abstract class AlignmentToolInterface
 		CharSequence sequence = null;
 		try
 		{
-			// sequence = FastaReader.getLargeSequence(chr22);
-			sequence = FastaReader.getSequence(chr22, 52000000);
+			/*
+			 * Don't worry about casting file size to an int: we can't have
+			 * strings longer than Integer.MAX_VALUE anyway
+			 */
+			sequence = FastaReader.getSequence(chr22, (int) chr22.length());
 		}
 		catch (IOException e)
 		{
@@ -218,12 +222,11 @@ public abstract class AlignmentToolInterface
 
 				for (AlignmentToolInterface ati : alignmentInterfaceList)
 				{
-					Options o = new Options();
-					o.is_paired_end = paired_end;
+					ati.o.is_paired_end = paired_end;
 					File tool_path = new File(path, ati.getClass().getSimpleName());
 					tool_path.mkdirs();
-					o.genome = new File(tool_path, "genome.fasta");
-					o.binary_genome = new File(tool_path, "genome.bfa");
+					ati.o.genome = new File(tool_path, "genome.fasta");
+					ati.o.binary_genome = new File(tool_path, "genome.bfa");
 
 					int read_count = paired_end ? 2 : 1;
 					for (int i = 1; i <= read_count; i++)
@@ -232,12 +235,11 @@ public abstract class AlignmentToolInterface
 						r.reads = new File(tool_path, String.format("fragments%d.fastq", i));
 						r.binary_reads = new File(tool_path, String.format("fragments%d.bfq", i));
 						r.aligned_reads = new File(tool_path, String.format("alignment%d.sai", i));
-						o.reads.add(r);
+						ati.o.reads.add(r);
 					}
-					o.raw_output = new File(tool_path, "out.raw");
-					o.sam_output = new File(tool_path, "alignment.sam");
-					o.converted_output = new File(tool_path, "out.txt");
-					ati.o = o;
+					ati.o.raw_output = new File(tool_path, "out.raw");
+					ati.o.sam_output = new File(tool_path, "alignment.sam");
+					ati.o.converted_output = new File(tool_path, "out.txt");
 
 					System.out.printf("*** %s: %d, %f%n", ati.getClass().getSimpleName(),
 						phredThreshold, errorProbability);
