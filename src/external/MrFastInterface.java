@@ -23,7 +23,12 @@ public class MrFastInterface extends AlignmentToolInterface
 	public static final String INDEX_COMMAND = "--index";
 	public static final String SEARCH_COMMAND = "--search";
 
-	private Set<Fragment> mappedFragments = new HashSet<Fragment>();
+	/**
+	 * Not a Set of Fragments since we're getting this from the output of the
+	 * alignment tool instead of the internal data structures. There's no reason
+	 * to build Fragments out of the data that we read.
+	 */
+	private Set<String> mappedFragments = new HashSet<String>();
 
 	public MrFastInterface(CharSequence sequence_, List<? extends Fragment> fragments_, Options o_)
 	{
@@ -190,8 +195,43 @@ public class MrFastInterface extends AlignmentToolInterface
 		System.out.println("done.");
 	}
 
+	/**
+	 * TODO: Don't duplicate code
+	 */
+	private void readMappedFragmentSet()
+	{
+		try
+		{
+			BufferedReader r = new BufferedReader(new FileReader(o.sam_output));
+			String line = null;
+			while ((line = r.readLine()) != null)
+			{
+				if (line.startsWith("@"))
+				{
+					continue;
+				}
+				String[] pieces = line.split("\\s+");
+				if (pieces.length <= 3)
+				{
+					continue;
+				}
+				String fragmentIdentifier = pieces[0];
+				mappedFragments.add(fragmentIdentifier);
+			}
+		}
+		catch (FileNotFoundException e)
+		{
+			e.printStackTrace();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
 	@Override
 	public void postAlignmentProcessing()
 	{
+		readMappedFragmentSet();
 	}
 }
