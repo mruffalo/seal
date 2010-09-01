@@ -38,7 +38,7 @@ public class SoapInterface extends AlignmentToolInterface
 		o.index = new File(file.getParentFile(), index_filename);
 		if (file_to_check.isFile())
 		{
-			System.err.println("Index found; skipping");
+			System.out.println("Index found; skipping");
 		}
 		else
 		{
