@@ -210,7 +210,8 @@ public class BwaInterface extends AlignmentToolInterface
 					continue;
 				}
 				int readPosition = -1;
-				Matcher m = Constants.READ_POSITION_HEADER.matcher(pieces[0]);
+				String fragmentIdentifier = pieces[0];
+				Matcher m = Constants.READ_POSITION_HEADER.matcher(fragmentIdentifier);
 
 				if (m.matches())
 				{
@@ -236,7 +237,7 @@ public class BwaInterface extends AlignmentToolInterface
 				{
 					orientation = 2;
 				}
-				String output = String.format(OUTPUT_TEMPLATE, pieces[0], alignedPosition,
+				String output = String.format(OUTPUT_TEMPLATE, fragmentIdentifier, alignedPosition,
 					inferredInsertSize, orientation, phredProbability);
 				w.write(output);
 
@@ -259,15 +260,15 @@ public class BwaInterface extends AlignmentToolInterface
 					}
 					// System.out.println(line);
 				}
-				rs.totalFragmentsRead++;
+				totalMappedFragments.add(fragmentIdentifier);
 			}
 			/*
 			 * If a fragment didn't appear in the output at all, count it as a
 			 * false negative
 			 */
-			if (fragments.size() >= rs.totalFragmentsRead)
+			if (fragments.size() >= totalMappedFragments.size())
 			{
-				rs.falseNegatives += (fragments.size() - rs.totalFragmentsRead);
+				rs.falseNegatives += (fragments.size() - totalMappedFragments.size());
 			}
 			r.close();
 			w.close();

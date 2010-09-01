@@ -6,8 +6,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import assembly.Fragment;
 import generator.Fragmentizer;
@@ -22,6 +24,13 @@ public abstract class AlignmentToolInterface
 	protected List<? extends Fragment> fragments;
 	protected List<List<? extends Fragment>> pairedEndFragments;
 	protected Options o;
+	/**
+	 * Not a Set of Fragments since we're getting this from the output of the
+	 * alignment tool instead of the internal data structures. There's no reason
+	 * to build Fragments out of the data that we read.
+	 */
+	protected Set<String> correctlyMappedFragments;
+	protected Set<String> totalMappedFragments;
 
 	protected static final double[] ERROR_PROBABILITIES = { 0.0, 0.001, 0.002, 0.004, 0.01, 0.015,
 			0.02, 0.03, 0.05, 0.1 };
@@ -74,6 +83,8 @@ public abstract class AlignmentToolInterface
 		sequence = sequence_;
 		fragments = list_;
 		o = o_;
+		correctlyMappedFragments = new HashSet<String>(fragments.size());
+		totalMappedFragments = new HashSet<String>(fragments.size());
 		if (o.is_paired_end)
 		{
 			pairedEndFragments = Fragment.pairedEndClone(fragments, 100);
@@ -95,12 +106,6 @@ public abstract class AlignmentToolInterface
 
 	public static class AlignmentResults
 	{
-		/**
-		 * We know how many fragments we generated; this is the size of
-		 * {@link AlignmentToolInterface#fragments}. This is how many total
-		 * fragments were present in the alignment tool's output.
-		 */
-		public int totalFragmentsRead;
 		/**
 		 * Mapped to correct location in target genome, and passes quality
 		 * threshold

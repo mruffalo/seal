@@ -181,7 +181,8 @@ public class SoapInterface extends AlignmentToolInterface
 					continue;
 				}
 				int readPosition = -1;
-				Matcher m = Constants.READ_POSITION_HEADER.matcher(pieces[0]);
+				String fragmentIdentifier = pieces[0];
+				Matcher m = Constants.READ_POSITION_HEADER.matcher(fragmentIdentifier);
 				if (m.matches())
 				{
 					readPosition = Integer.parseInt(m.group(2));
@@ -207,15 +208,15 @@ public class SoapInterface extends AlignmentToolInterface
 					}
 					// System.out.println(line);
 				}
-				rs.totalFragmentsRead++;
+				totalMappedFragments.add(fragmentIdentifier);
 			}
 			/*
 			 * If a fragment didn't appear in the output at all, count it as a
 			 * false negative
 			 */
-			if (fragments.size() >= rs.totalFragmentsRead)
+			if (fragments.size() >= totalMappedFragments.size())
 			{
-				rs.falseNegatives += (fragments.size() - rs.totalFragmentsRead);
+				rs.falseNegatives += (fragments.size() - totalMappedFragments.size());
 			}
 		}
 		catch (FileNotFoundException e)

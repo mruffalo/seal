@@ -23,13 +23,6 @@ public class MrFastInterface extends AlignmentToolInterface
 	public static final String INDEX_COMMAND = "--index";
 	public static final String SEARCH_COMMAND = "--search";
 
-	/**
-	 * Not a Set of Fragments since we're getting this from the output of the
-	 * alignment tool instead of the internal data structures. There's no reason
-	 * to build Fragments out of the data that we read.
-	 */
-	private Set<String> correctlyMappedFragments = new HashSet<String>();
-
 	public MrFastInterface(CharSequence sequence_, List<? extends Fragment> fragments_, Options o_)
 	{
 		super(sequence_, fragments_, o_);
@@ -167,15 +160,15 @@ public class MrFastInterface extends AlignmentToolInterface
 					}
 					// System.out.println(line);
 				}
-				rs.totalFragmentsRead++;
+				totalMappedFragments.add(fragmentIdentifier);
 			}
 			/*
 			 * If a fragment didn't appear in the output at all, count it as a
 			 * false negative
 			 */
-			if (fragments.size() >= rs.totalFragmentsRead)
+			if (fragments.size() >= totalMappedFragments.size())
 			{
-				rs.falseNegatives += (fragments.size() - rs.totalFragmentsRead);
+				rs.falseNegatives += (fragments.size() - totalMappedFragments.size());
 			}
 		}
 		catch (FileNotFoundException e)
