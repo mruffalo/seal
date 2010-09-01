@@ -4,6 +4,7 @@ import io.FastaReader;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -194,11 +195,11 @@ public abstract class AlignmentToolInterface
 
 		path.mkdirs();
 
-		Map<Double, Map<Integer, Map<Class<? extends AlignmentToolInterface>, AlignmentResults>>> m = new TreeMap<Double, Map<Integer, Map<Class<? extends AlignmentToolInterface>, AlignmentResults>>>();
+		Map<Double, Map<Integer, Map<Class<? extends AlignmentToolInterface>, AlignmentResults>>> m = Collections.synchronizedMap(new TreeMap<Double, Map<Integer, Map<Class<? extends AlignmentToolInterface>, AlignmentResults>>>());
 
 		for (double errorProbability : ERROR_PROBABILITIES)
 		{
-			Map<Integer, Map<Class<? extends AlignmentToolInterface>, AlignmentResults>> m_ep = new TreeMap<Integer, Map<Class<? extends AlignmentToolInterface>, AlignmentResults>>();
+			Map<Integer, Map<Class<? extends AlignmentToolInterface>, AlignmentResults>> m_ep = Collections.synchronizedMap(new TreeMap<Integer, Map<Class<? extends AlignmentToolInterface>, AlignmentResults>>());
 			m.put(errorProbability, m_ep);
 			System.out.print("Introducing fragment read errors...");
 			UniformErrorGenerator eg = new UniformErrorGenerator(SequenceGenerator.NUCLEOTIDES,
@@ -207,7 +208,7 @@ public abstract class AlignmentToolInterface
 			System.out.println("done.");
 			for (int phredThreshold : PHRED_THRESHOLDS)
 			{
-				Map<Class<? extends AlignmentToolInterface>, AlignmentResults> m_pt = new HashMap<Class<? extends AlignmentToolInterface>, AlignmentResults>();
+				Map<Class<? extends AlignmentToolInterface>, AlignmentResults> m_pt = Collections.synchronizedMap(new HashMap<Class<? extends AlignmentToolInterface>, AlignmentResults>());
 				m_ep.put(phredThreshold, m_pt);
 
 				List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
