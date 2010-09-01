@@ -28,7 +28,7 @@ public class MrFastInterface extends AlignmentToolInterface
 	 * alignment tool instead of the internal data structures. There's no reason
 	 * to build Fragments out of the data that we read.
 	 */
-	private Set<String> mappedFragments = new HashSet<String>();
+	private Set<String> correctlyMappedFragments = new HashSet<String>();
 
 	public MrFastInterface(CharSequence sequence_, List<? extends Fragment> fragments_, Options o_)
 	{
@@ -138,8 +138,9 @@ public class MrFastInterface extends AlignmentToolInterface
 				{
 					continue;
 				}
+				String fragmentIdentifier = pieces[0];
 				int readPosition = -1;
-				Matcher m = Constants.READ_POSITION_HEADER.matcher(pieces[0]);
+				Matcher m = Constants.READ_POSITION_HEADER.matcher(fragmentIdentifier);
 				if (m.matches())
 				{
 					readPosition = Integer.parseInt(m.group(2));
@@ -157,7 +158,8 @@ public class MrFastInterface extends AlignmentToolInterface
 						rs.falseNegatives++;
 					}
 				}
-				else
+				else if (o.penalize_duplicate_mappings
+						&& !correctlyMappedFragments.contains(fragmentIdentifier))
 				{
 					if (phredProbability >= phredMatchThreshold)
 					{
@@ -196,7 +198,8 @@ public class MrFastInterface extends AlignmentToolInterface
 	}
 
 	/**
-	 * TODO: Don't duplicate code
+	 * This requires a separate pass over the SAM output with a lot of the same
+	 * logic as above. TODO: Don't duplicate code
 	 */
 	private void readMappedFragmentSet()
 	{
@@ -216,7 +219,17 @@ public class MrFastInterface extends AlignmentToolInterface
 					continue;
 				}
 				String fragmentIdentifier = pieces[0];
-				mappedFragments.add(fragmentIdentifier);
+				int readPosition = -1;
+				Matcher m = Constants.READ_POSITION_HEADER.matcher(pieces[0]);
+				if (m.matches())
+				{
+					readPosition = Integer.parseInt(m.group(2));
+				}
+				int alignedPosition = Integer.parseInt(pieces[3]) - 1;
+				if (readPosition == alignedPosition)
+				{
+					correctlyMappedFragments.add(fragmentIdentifier);
+				}
 			}
 		}
 		catch (FileNotFoundException e)
