@@ -10,8 +10,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import external.AlignmentToolInterface.AlignmentResults;
+import external.AlignmentToolInterface.Options;
 import assembly.Fragment;
 
 /**
@@ -27,9 +29,10 @@ public class MaqInterface extends AlignmentToolInterface
 	public static final String ALIGN_COMMAND = "map";
 	public static final String ASSEMBLE_COMMAND = "assemble";
 
-	public MaqInterface(CharSequence sequence_, List<? extends Fragment> fragments_, Options o_)
+	public MaqInterface(int index_, CharSequence sequence_, List<? extends Fragment> fragments_,
+		Options o_, Map<Class<? extends AlignmentToolInterface>, AlignmentResults> m_)
 	{
-		super(sequence_, fragments_, o_);
+		super(index_, sequence_, fragments_, o_, m_);
 	}
 
 	@Override
@@ -185,7 +188,7 @@ public class MaqInterface extends AlignmentToolInterface
 				}
 				int alignedPosition = Integer.parseInt(pieces[3]) - 1;
 				int phredProbability = Integer.parseInt(pieces[4]);
-				if (readPosition == alignedPosition && phredProbability >= phredMatchThreshold)
+				if (readPosition == alignedPosition && phredProbability >= o.phred_match_threshold)
 				{
 					matches++;
 				}

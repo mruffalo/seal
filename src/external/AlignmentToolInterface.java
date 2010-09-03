@@ -18,9 +18,8 @@ import generator.SeqGenSingleSequenceMultipleRepeats;
 import generator.SequenceGenerator;
 import generator.UniformErrorGenerator;
 
-public abstract class AlignmentToolInterface
+public abstract class AlignmentToolInterface implements Runnable
 {
-	protected int phredMatchThreshold = 0;
 	protected CharSequence sequence;
 	protected List<? extends Fragment> fragments;
 	protected List<List<? extends Fragment>> pairedEndFragments;
@@ -36,6 +35,9 @@ public abstract class AlignmentToolInterface
 	protected static final double[] ERROR_PROBABILITIES = { 0.0, 0.001, 0.002, 0.004, 0.01, 0.015,
 			0.02, 0.03, 0.05, 0.1 };
 	protected static final int[] PHRED_THRESHOLDS = { 0, 10, 20, 30 };
+	protected Map<Class<? extends AlignmentToolInterface>, AlignmentResults> m;
+
+	public final int index;
 
 	/**
 	 * Not all fields are used by every tool
@@ -64,7 +66,16 @@ public abstract class AlignmentToolInterface
 			public File aligned_reads;
 		}
 
-		public boolean is_paired_end;
+		public Options(boolean is_paired_end_, int phred_match_threshold_, double error_probability_)
+		{
+			is_paired_end = is_paired_end_;
+			phred_match_threshold = phred_match_threshold_;
+			error_probability = error_probability_;
+		}
+
+		public final boolean is_paired_end;
+		public final int phred_match_threshold;
+		public final double error_probability;
 		public File genome;
 		public File binary_genome;
 		public List<Reads> reads = new ArrayList<Reads>(2);
@@ -79,11 +90,15 @@ public abstract class AlignmentToolInterface
 		public boolean penalize_duplicate_mappings = true;
 	}
 
-	public AlignmentToolInterface(CharSequence sequence_, List<? extends Fragment> list_, Options o_)
+	public AlignmentToolInterface(int index_, CharSequence sequence_,
+		List<? extends Fragment> list_, Options o_,
+		Map<Class<? extends AlignmentToolInterface>, AlignmentResults> m_)
 	{
+		index = index_;
 		sequence = sequence_;
 		fragments = list_;
 		o = o_;
+		m = m_;
 		correctlyMappedFragments = new HashSet<String>(fragments.size());
 		totalMappedFragments = new HashSet<String>(fragments.size());
 		if (o.is_paired_end)
@@ -195,8 +210,10 @@ public abstract class AlignmentToolInterface
 
 		path.mkdirs();
 
+		List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
 		Map<Double, Map<Integer, Map<Class<? extends AlignmentToolInterface>, AlignmentResults>>> m = Collections.synchronizedMap(new TreeMap<Double, Map<Integer, Map<Class<? extends AlignmentToolInterface>, AlignmentResults>>>());
 
+		int index = 0;
 		for (double errorProbability : ERROR_PROBABILITIES)
 		{
 			Map<Integer, Map<Class<? extends AlignmentToolInterface>, AlignmentResults>> m_ep = Collections.synchronizedMap(new TreeMap<Integer, Map<Class<? extends AlignmentToolInterface>, AlignmentResults>>());
@@ -211,78 +228,76 @@ public abstract class AlignmentToolInterface
 				Map<Class<? extends AlignmentToolInterface>, AlignmentResults> m_pt = Collections.synchronizedMap(new HashMap<Class<? extends AlignmentToolInterface>, AlignmentResults>());
 				m_ep.put(phredThreshold, m_pt);
 
-				List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
-
 				/*
 				 * alignmentInterfaceList.add(new MaqInterface(sequence, list,
 				 * genome, binary_genome, reads, binary_reads, binary_output,
 				 * sam_output));
 				 */
 
-				alignmentInterfaceList.add(new MrFastInterface(sequence, errored_list,
-					new Options()));
-				alignmentInterfaceList.add(new MrsFastInterface(sequence, errored_list,
-					new Options()));
-				alignmentInterfaceList.add(new SoapInterface(sequence, errored_list, new Options()));
-				alignmentInterfaceList.add(new BwaInterface(sequence, errored_list, new Options()));
+				alignmentInterfaceList.add(new MrFastInterface(++index, sequence, errored_list,
+					new Options(paired_end, phredThreshold, errorProbability), m_pt));
+				alignmentInterfaceList.add(new MrsFastInterface(++index, sequence, errored_list,
+					new Options(paired_end, phredThreshold, errorProbability), m_pt));
+				alignmentInterfaceList.add(new SoapInterface(++index, sequence, errored_list,
+					new Options(paired_end, phredThreshold, errorProbability), m_pt));
+				alignmentInterfaceList.add(new BwaInterface(++index, sequence, errored_list,
+					new Options(paired_end, phredThreshold, errorProbability), m_pt));
 
-				for (AlignmentToolInterface ati : alignmentInterfaceList)
-				{
-					ati.o.is_paired_end = paired_end;
-					File tool_path = new File(path, ati.getClass().getSimpleName());
-					tool_path.mkdirs();
-					ati.o.genome = new File(tool_path, "genome.fasta");
-					ati.o.binary_genome = new File(tool_path, "genome.bfa");
-
-					int read_count = paired_end ? 2 : 1;
-					for (int i = 1; i <= read_count; i++)
-					{
-						Options.Reads r = new Options.Reads(i);
-						r.reads = new File(tool_path, String.format("fragments%d.fastq", i));
-						r.binary_reads = new File(tool_path, String.format("fragments%d.bfq", i));
-						r.aligned_reads = new File(tool_path, String.format("alignment%d.sai", i));
-						ati.o.reads.add(r);
-					}
-					ati.o.raw_output = new File(tool_path, "out.raw");
-					ati.o.sam_output = new File(tool_path, "alignment.sam");
-					ati.o.converted_output = new File(tool_path, "out.txt");
-
-					System.out.printf("*** %s: %d, %f%n", ati.getClass().getSimpleName(),
-						phredThreshold, errorProbability);
-
-					Map<AlignmentOperation, Long> timeMap = new EnumMap<AlignmentOperation, Long>(
-						AlignmentOperation.class);
-					ati.phredMatchThreshold = phredThreshold;
-					long start, preprocessing, alignment, postprocessing;
-					start = System.nanoTime();
-					ati.preAlignmentProcessing();
-					preprocessing = System.nanoTime();
-					ati.align();
-					alignment = System.nanoTime();
-					ati.postAlignmentProcessing();
-					postprocessing = System.nanoTime();
-
-					timeMap.put(AlignmentOperation.PREPROCESSING, preprocessing - start);
-					timeMap.put(AlignmentOperation.ALIGNMENT, alignment - preprocessing);
-					timeMap.put(AlignmentOperation.POSTPROCESSING, postprocessing - alignment);
-					timeMap.put(AlignmentOperation.TOTAL, postprocessing - start);
-
-					AlignmentResults r = ati.readAlignment();
-					r.timeMap = timeMap;
-					ati.cleanup();
-
-					m_pt.put(ati.getClass(), r);
-
-					System.out.printf("%d matches / %d total fragments generated (%f)%n",
-						r.truePositives, fo.n, (double) r.truePositives / (double) fo.n);
-					System.out.printf("Precision: %f%n", (double) r.truePositives
-							/ (double) (r.truePositives + r.falsePositives));
-					System.out.printf("Recall: %f%n", (double) r.truePositives
-							/ (double) (r.truePositives + r.falseNegatives));
-				}
 			}
 		}
+		for (AlignmentToolInterface ati : alignmentInterfaceList)
+		{
+			File tool_path = new File(path, String.format("%03d-%s", ati.index,
+				ati.getClass().getSimpleName()));
+			tool_path.mkdirs();
+			ati.o.genome = new File(tool_path, "genome.fasta");
+			ati.o.binary_genome = new File(tool_path, "genome.bfa");
 
+			int read_count = paired_end ? 2 : 1;
+			for (int i = 1; i <= read_count; i++)
+			{
+				Options.Reads r = new Options.Reads(i);
+				r.reads = new File(tool_path, String.format("fragments%d.fastq", i));
+				r.binary_reads = new File(tool_path, String.format("fragments%d.bfq", i));
+				r.aligned_reads = new File(tool_path, String.format("alignment%d.sai", i));
+				ati.o.reads.add(r);
+			}
+			ati.o.raw_output = new File(tool_path, "out.raw");
+			ati.o.sam_output = new File(tool_path, "alignment.sam");
+			ati.o.converted_output = new File(tool_path, "out.txt");
+
+			System.out.printf("*** %s: %d, %f%n", ati.getClass().getSimpleName(),
+				ati.o.phred_match_threshold, ati.o.error_probability);
+
+			Map<AlignmentOperation, Long> timeMap = new EnumMap<AlignmentOperation, Long>(
+				AlignmentOperation.class);
+			long start, preprocessing, alignment, postprocessing;
+			start = System.nanoTime();
+			ati.preAlignmentProcessing();
+			preprocessing = System.nanoTime();
+			ati.align();
+			alignment = System.nanoTime();
+			ati.postAlignmentProcessing();
+			postprocessing = System.nanoTime();
+
+			timeMap.put(AlignmentOperation.PREPROCESSING, preprocessing - start);
+			timeMap.put(AlignmentOperation.ALIGNMENT, alignment - preprocessing);
+			timeMap.put(AlignmentOperation.POSTPROCESSING, postprocessing - alignment);
+			timeMap.put(AlignmentOperation.TOTAL, postprocessing - start);
+
+			AlignmentResults r = ati.readAlignment();
+			r.timeMap = timeMap;
+			ati.cleanup();
+
+			m.get(ati.o.phred_match_threshold).get(ati.o.error_probability).put(ati.getClass(), r);
+
+			System.out.printf("%d matches / %d total fragments generated (%f)%n", r.truePositives,
+				fo.n, (double) r.truePositives / (double) fo.n);
+			System.out.printf("Precision: %f%n", (double) r.truePositives
+					/ (double) (r.truePositives + r.falsePositives));
+			System.out.printf("Recall: %f%n", (double) r.truePositives
+					/ (double) (r.truePositives + r.falseNegatives));
+		}
 		for (Double d : m.keySet())
 		{
 			for (Integer i : m.get(d).keySet())
@@ -297,6 +312,12 @@ public abstract class AlignmentToolInterface
 				}
 			}
 		}
+	}
+
+	@Override
+	public void run()
+	{
+
 	}
 
 	public static void main(String[] args)

@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import assembly.Fragment;
 import external.AlignmentToolInterface.Options;
@@ -26,9 +27,10 @@ public class SoapInterface extends AlignmentToolInterface
 	public static final String ALIGN_INDEX_OPTION = "-D";
 	public static final String[] ALIGN_QUERY_OPTIONS = { "-a", "-b" };
 
-	public SoapInterface(CharSequence sequence_, List<? extends Fragment> fragments_, Options o_)
+	public SoapInterface(int index_, CharSequence sequence_, List<? extends Fragment> fragments_,
+		Options o_, Map<Class<? extends AlignmentToolInterface>, AlignmentResults> m_)
 	{
-		super(sequence_, fragments_, o_);
+		super(index_, sequence_, fragments_, o_, m_);
 	}
 
 	public void createIndex(File file)
@@ -191,7 +193,7 @@ public class SoapInterface extends AlignmentToolInterface
 				int phredProbability = Integer.parseInt(pieces[4]);
 				if (readPosition == alignedPosition)
 				{
-					if (phredProbability >= phredMatchThreshold)
+					if (phredProbability >= o.phred_match_threshold)
 					{
 						rs.truePositives++;
 					}
@@ -202,7 +204,7 @@ public class SoapInterface extends AlignmentToolInterface
 				}
 				else
 				{
-					if (phredProbability >= phredMatchThreshold)
+					if (phredProbability >= o.phred_match_threshold)
 					{
 						rs.falsePositives++;
 					}

@@ -16,6 +16,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import external.AlignmentToolInterface.AlignmentResults;
 import assembly.Fragment;
@@ -36,9 +37,10 @@ public class BwaInterface extends AlignmentToolInterface
 
 	public static final String OUTPUT_TEMPLATE = "%s\t%d\t%d\t%d\t%d%n";
 
-	public BwaInterface(CharSequence sequence_, List<? extends Fragment> fragments_, Options o_)
+	public BwaInterface(int index_, CharSequence sequence_, List<? extends Fragment> fragments_,
+		Options o_, Map<Class<? extends AlignmentToolInterface>, AlignmentResults> m_)
 	{
-		super(sequence_, fragments_, o_);
+		super(index_, sequence_, fragments_, o_, m_);
 	}
 
 	public void createIndex(File file)
@@ -243,7 +245,7 @@ public class BwaInterface extends AlignmentToolInterface
 
 				if (readPosition == alignedPosition)
 				{
-					if (phredProbability >= phredMatchThreshold)
+					if (phredProbability >= o.phred_match_threshold)
 					{
 						rs.truePositives++;
 					}
@@ -254,7 +256,7 @@ public class BwaInterface extends AlignmentToolInterface
 				}
 				else
 				{
-					if (phredProbability >= phredMatchThreshold)
+					if (phredProbability >= o.phred_match_threshold)
 					{
 						rs.falsePositives++;
 					}

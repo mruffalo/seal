@@ -11,8 +11,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import external.AlignmentToolInterface.AlignmentResults;
+import external.AlignmentToolInterface.Options;
 import assembly.Fragment;
 
 public class MrsFastInterface extends AlignmentToolInterface
@@ -22,9 +24,11 @@ public class MrsFastInterface extends AlignmentToolInterface
 	public static final String INDEX_COMMAND = "--index";
 	public static final String SEARCH_COMMAND = "--search";
 
-	public MrsFastInterface(CharSequence string_, List<? extends Fragment> fragments_, Options o)
+	public MrsFastInterface(int index_, CharSequence sequence_,
+		List<? extends Fragment> fragments_, Options o_,
+		Map<Class<? extends AlignmentToolInterface>, AlignmentResults> m_)
 	{
-		super(string_, fragments_, o);
+		super(index_, sequence_, fragments_, o_, m_);
 	}
 
 	public void createIndex(File file)
@@ -141,7 +145,7 @@ public class MrsFastInterface extends AlignmentToolInterface
 				int phredProbability = Integer.parseInt(pieces[4]);
 				if (readPosition == alignedPosition)
 				{
-					if (phredProbability >= phredMatchThreshold)
+					if (phredProbability >= o.phred_match_threshold)
 					{
 						rs.truePositives++;
 					}
@@ -152,7 +156,7 @@ public class MrsFastInterface extends AlignmentToolInterface
 				}
 				else
 				{
-					if (phredProbability >= phredMatchThreshold)
+					if (phredProbability >= o.phred_match_threshold)
 					{
 						rs.falsePositives++;
 					}

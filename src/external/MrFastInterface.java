@@ -12,8 +12,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
+import external.AlignmentToolInterface.AlignmentResults;
+import external.AlignmentToolInterface.Options;
 import assembly.Fragment;
 
 public class MrFastInterface extends AlignmentToolInterface
@@ -23,9 +26,10 @@ public class MrFastInterface extends AlignmentToolInterface
 	public static final String INDEX_COMMAND = "--index";
 	public static final String SEARCH_COMMAND = "--search";
 
-	public MrFastInterface(CharSequence sequence_, List<? extends Fragment> fragments_, Options o_)
+	public MrFastInterface(int index_, CharSequence sequence_, List<? extends Fragment> fragments_,
+		Options o_, Map<Class<? extends AlignmentToolInterface>, AlignmentResults> m_)
 	{
-		super(sequence_, fragments_, o_);
+		super(index_, sequence_, fragments_, o_, m_);
 	}
 
 	public void createIndex(File file)
@@ -142,7 +146,7 @@ public class MrFastInterface extends AlignmentToolInterface
 				int phredProbability = Integer.parseInt(pieces[4]);
 				if (readPosition == alignedPosition)
 				{
-					if (phredProbability >= phredMatchThreshold)
+					if (phredProbability >= o.phred_match_threshold)
 					{
 						rs.truePositives++;
 					}
@@ -154,7 +158,7 @@ public class MrFastInterface extends AlignmentToolInterface
 				else if (o.penalize_duplicate_mappings
 						&& !correctlyMappedFragments.contains(fragmentIdentifier))
 				{
-					if (phredProbability >= phredMatchThreshold)
+					if (phredProbability >= o.phred_match_threshold)
 					{
 						rs.falsePositives++;
 					}
