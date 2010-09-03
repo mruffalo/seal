@@ -171,157 +171,34 @@ public abstract class AlignmentToolInterface implements Runnable
 		}
 	}
 
-	public static void toolEvaluation(boolean paired_end)
-	{
-		/*
-		 * SequenceGenerator g = new SeqGenSingleSequenceMultipleRepeats();
-		 * SequenceGenerator.Options sgo = new SequenceGenerator.Options();
-		 * sgo.length = 100000; sgo.repeatCount = 10; sgo.repeatLength = 200;
-		 * sgo.repeatErrorProbability = 0.01;
-		 * System.out.print("Generating sequence..."); CharSequence sequence =
-		 * g.generateSequence(sgo); System.out.println("done.");
-		 */
-		final File path = new File("data");
-		final File chr22 = new File(path, "chr22.fa");
-		System.out.print("Reading genome...");
-		CharSequence sequence = null;
-		try
-		{
-			/*
-			 * Don't worry about casting file size to an int: we can't have
-			 * strings longer than Integer.MAX_VALUE anyway
-			 */
-			sequence = FastaReader.getSequence(chr22, (int) chr22.length());
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-		System.out.println("done.");
-		System.out.printf("Genome length: %d%n", sequence.length());
-		Fragmentizer.Options fo = new Fragmentizer.Options();
-		fo.k = 50;
-		fo.n = 50000;
-		fo.ksd = 1;
-
-		System.out.print("Reading fragments...");
-		List<? extends Fragment> list = Fragmentizer.fragmentize(sequence, fo);
-		System.out.println("done.");
-
-		path.mkdirs();
-
-		List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
-		Map<Double, Map<Integer, Map<Class<? extends AlignmentToolInterface>, AlignmentResults>>> m = Collections.synchronizedMap(new TreeMap<Double, Map<Integer, Map<Class<? extends AlignmentToolInterface>, AlignmentResults>>>());
-
-		int index = 0;
-		for (double errorProbability : ERROR_PROBABILITIES)
-		{
-			Map<Integer, Map<Class<? extends AlignmentToolInterface>, AlignmentResults>> m_ep = Collections.synchronizedMap(new TreeMap<Integer, Map<Class<? extends AlignmentToolInterface>, AlignmentResults>>());
-			m.put(errorProbability, m_ep);
-			System.out.print("Introducing fragment read errors...");
-			UniformErrorGenerator eg = new UniformErrorGenerator(SequenceGenerator.NUCLEOTIDES,
-				errorProbability);
-			List<? extends Fragment> errored_list = eg.generateErrors(list);
-			System.out.println("done.");
-			for (int phredThreshold : PHRED_THRESHOLDS)
-			{
-				Map<Class<? extends AlignmentToolInterface>, AlignmentResults> m_pt = Collections.synchronizedMap(new HashMap<Class<? extends AlignmentToolInterface>, AlignmentResults>());
-				m_ep.put(phredThreshold, m_pt);
-
-				/*
-				 * alignmentInterfaceList.add(new MaqInterface(sequence, list,
-				 * genome, binary_genome, reads, binary_reads, binary_output,
-				 * sam_output));
-				 */
-
-				alignmentInterfaceList.add(new MrFastInterface(++index, sequence, errored_list,
-					new Options(paired_end, phredThreshold, errorProbability), m_pt));
-				alignmentInterfaceList.add(new MrsFastInterface(++index, sequence, errored_list,
-					new Options(paired_end, phredThreshold, errorProbability), m_pt));
-				alignmentInterfaceList.add(new SoapInterface(++index, sequence, errored_list,
-					new Options(paired_end, phredThreshold, errorProbability), m_pt));
-				alignmentInterfaceList.add(new BwaInterface(++index, sequence, errored_list,
-					new Options(paired_end, phredThreshold, errorProbability), m_pt));
-
-			}
-		}
-		for (AlignmentToolInterface ati : alignmentInterfaceList)
-		{
-			File tool_path = new File(path, String.format("%03d-%s", ati.index,
-				ati.getClass().getSimpleName()));
-			tool_path.mkdirs();
-			ati.o.genome = new File(tool_path, "genome.fasta");
-			ati.o.binary_genome = new File(tool_path, "genome.bfa");
-
-			int read_count = paired_end ? 2 : 1;
-			for (int i = 1; i <= read_count; i++)
-			{
-				Options.Reads r = new Options.Reads(i);
-				r.reads = new File(tool_path, String.format("fragments%d.fastq", i));
-				r.binary_reads = new File(tool_path, String.format("fragments%d.bfq", i));
-				r.aligned_reads = new File(tool_path, String.format("alignment%d.sai", i));
-				ati.o.reads.add(r);
-			}
-			ati.o.raw_output = new File(tool_path, "out.raw");
-			ati.o.sam_output = new File(tool_path, "alignment.sam");
-			ati.o.converted_output = new File(tool_path, "out.txt");
-
-			System.out.printf("*** %s: %d, %f%n", ati.getClass().getSimpleName(),
-				ati.o.phred_match_threshold, ati.o.error_probability);
-
-			Map<AlignmentOperation, Long> timeMap = new EnumMap<AlignmentOperation, Long>(
-				AlignmentOperation.class);
-			long start, preprocessing, alignment, postprocessing;
-			start = System.nanoTime();
-			ati.preAlignmentProcessing();
-			preprocessing = System.nanoTime();
-			ati.align();
-			alignment = System.nanoTime();
-			ati.postAlignmentProcessing();
-			postprocessing = System.nanoTime();
-
-			timeMap.put(AlignmentOperation.PREPROCESSING, preprocessing - start);
-			timeMap.put(AlignmentOperation.ALIGNMENT, alignment - preprocessing);
-			timeMap.put(AlignmentOperation.POSTPROCESSING, postprocessing - alignment);
-			timeMap.put(AlignmentOperation.TOTAL, postprocessing - start);
-
-			AlignmentResults r = ati.readAlignment();
-			r.timeMap = timeMap;
-			ati.cleanup();
-
-			m.get(ati.o.phred_match_threshold).get(ati.o.error_probability).put(ati.getClass(), r);
-
-			System.out.printf("%d matches / %d total fragments generated (%f)%n", r.truePositives,
-				fo.n, (double) r.truePositives / (double) fo.n);
-			System.out.printf("Precision: %f%n", (double) r.truePositives
-					/ (double) (r.truePositives + r.falsePositives));
-			System.out.printf("Recall: %f%n", (double) r.truePositives
-					/ (double) (r.truePositives + r.falseNegatives));
-		}
-		for (Double d : m.keySet())
-		{
-			for (Integer i : m.get(d).keySet())
-			{
-				for (Class<? extends AlignmentToolInterface> c : m.get(d).get(i).keySet())
-				{
-					AlignmentResults r = m.get(d).get(i).get(c);
-					System.out.printf("%s,%f,%d,%f,%f,%d%n", c.getSimpleName(), d, i,
-						(double) r.truePositives / (double) (r.truePositives + r.falsePositives),
-						(double) r.truePositives / (double) (r.truePositives + r.falseNegatives),
-						r.timeMap.get(AlignmentOperation.TOTAL));
-				}
-			}
-		}
-	}
-
 	@Override
 	public void run()
 	{
+		Map<AlignmentOperation, Long> timeMap = new EnumMap<AlignmentOperation, Long>(
+			AlignmentOperation.class);
+		long start, preprocessing, alignment, postprocessing;
+		start = System.nanoTime();
+		preAlignmentProcessing();
+		preprocessing = System.nanoTime();
+		align();
+		alignment = System.nanoTime();
+		postAlignmentProcessing();
+		postprocessing = System.nanoTime();
 
-	}
+		timeMap.put(AlignmentOperation.PREPROCESSING, preprocessing - start);
+		timeMap.put(AlignmentOperation.ALIGNMENT, alignment - preprocessing);
+		timeMap.put(AlignmentOperation.POSTPROCESSING, postprocessing - alignment);
+		timeMap.put(AlignmentOperation.TOTAL, postprocessing - start);
 
-	public static void main(String[] args)
-	{
-		toolEvaluation(false);
+		AlignmentResults r = readAlignment();
+		r.timeMap = timeMap;
+		// cleanup();
+
+		m.put(getClass(), r);
+
+		System.out.printf("Precision: %f%n", (double) r.truePositives
+				/ (double) (r.truePositives + r.falsePositives));
+		System.out.printf("Recall: %f%n", (double) r.truePositives
+				/ (double) (r.truePositives + r.falseNegatives));
 	}
 }
