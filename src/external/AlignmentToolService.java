@@ -135,9 +135,9 @@ public class AlignmentToolService
 			System.out.printf("*** %s: %d, %f%n", ati.getClass().getSimpleName(),
 				ati.o.phred_match_threshold, ati.o.error_probability);
 
-			ati.run();
-
+			pool.execute(ati);
 		}
+		pool.shutdown();
 		for (Double d : m.keySet())
 		{
 			for (Integer i : m.get(d).keySet())
