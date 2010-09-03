@@ -12,13 +12,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.Callable;
 import assembly.Fragment;
+import external.AlignmentToolInterface.AlignmentResults;
 import generator.Fragmentizer;
 import generator.SeqGenSingleSequenceMultipleRepeats;
 import generator.SequenceGenerator;
 import generator.UniformErrorGenerator;
 
-public abstract class AlignmentToolInterface implements Runnable
+public abstract class AlignmentToolInterface implements Callable<AlignmentResults>
 {
 	protected CharSequence sequence;
 	protected List<? extends Fragment> fragments;
@@ -172,7 +174,7 @@ public abstract class AlignmentToolInterface implements Runnable
 	}
 
 	@Override
-	public void run()
+	public AlignmentResults call() throws Exception
 	{
 		Map<AlignmentOperation, Long> timeMap = new EnumMap<AlignmentOperation, Long>(
 			AlignmentOperation.class);
@@ -200,5 +202,6 @@ public abstract class AlignmentToolInterface implements Runnable
 				/ (double) (r.truePositives + r.falsePositives));
 		System.out.printf("Recall: %f%n", (double) r.truePositives
 				/ (double) (r.truePositives + r.falseNegatives));
+		return r;
 	}
 }

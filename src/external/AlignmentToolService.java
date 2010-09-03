@@ -13,8 +13,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import assembly.Fragment;
 import external.AlignmentToolInterface.AlignmentOperation;
 import external.AlignmentToolInterface.AlignmentResults;
@@ -111,6 +113,8 @@ public class AlignmentToolService
 
 			}
 		}
+		List<Future<AlignmentResults>> futureList = new ArrayList<Future<AlignmentResults>>(
+			alignmentInterfaceList.size());
 		for (AlignmentToolInterface ati : alignmentInterfaceList)
 		{
 			File tool_path = new File(path, String.format("%03d-%s", ati.index,
@@ -135,9 +139,26 @@ public class AlignmentToolService
 			System.out.printf("*** %s: %d, %f%n", ati.getClass().getSimpleName(),
 				ati.o.phred_match_threshold, ati.o.error_probability);
 
-			pool.execute(ati);
+			futureList.add(pool.submit(ati));
 		}
 		pool.shutdown();
+		for (Future<AlignmentResults> f : futureList)
+		{
+			try
+			{
+				f.get();
+			}
+			catch (InterruptedException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			catch (ExecutionException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		for (Double d : m.keySet())
 		{
 			for (Integer i : m.get(d).keySet())
