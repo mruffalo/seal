@@ -25,7 +25,7 @@ public class MaqInterface extends AlignmentToolInterface
 {
 	public static final String MAQ_COMMAND = "maq";
 	public static final String FASTQ_TO_BFQ_COMMAND = "fastq2bfq";
-	public static final String FASTA_TO_BFA_COMMAND = "fastq2bfq";
+	public static final String FASTA_TO_BFA_COMMAND = "fasta2bfa";
 	public static final String ALIGN_COMMAND = "map";
 	public static final String ASSEMBLE_COMMAND = "assemble";
 
