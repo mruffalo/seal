@@ -149,10 +149,6 @@ public class MaqInterface extends AlignmentToolInterface
 			{
 				System.err.println(arg);
 			}
-			for (String arg : commands)
-			{
-				System.err.println(arg);
-			}
 			ProcessBuilder pb = new ProcessBuilder(commands);
 			pb.directory(r.reads.getParentFile());
 			try
