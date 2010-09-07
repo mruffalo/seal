@@ -34,9 +34,6 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 	protected Set<String> correctlyMappedFragments;
 	protected Set<String> totalMappedFragments;
 
-	protected static final double[] ERROR_PROBABILITIES = { 0.0, 0.001, 0.002, 0.004, 0.01, 0.015,
-			0.02, 0.03, 0.05, 0.1 };
-	protected static final int[] PHRED_THRESHOLDS = { 0, 10, 20, 30 };
 	protected Map<Class<? extends AlignmentToolInterface>, AlignmentResults> m;
 
 	public final int index;
