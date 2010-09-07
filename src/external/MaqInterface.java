@@ -1,6 +1,7 @@
 package external;
 
 import io.Constants;
+import io.FastaWriter;
 import io.FastqWriter;
 import io.SamReader;
 import java.io.BufferedReader;
@@ -89,6 +90,7 @@ public class MaqInterface extends AlignmentToolInterface
 		pb.directory(o.genome.getParentFile());
 		try
 		{
+			FastaWriter.writeSequence(sequence, o.genome);
 			Process p = pb.start();
 			BufferedReader stdout = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			BufferedReader stderr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
