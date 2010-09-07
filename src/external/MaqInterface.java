@@ -10,6 +10,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -40,9 +41,17 @@ public class MaqInterface extends AlignmentToolInterface
 	public void align()
 	{
 		System.out.print("Aligning reads...");
-		ProcessBuilder pb = new ProcessBuilder(MAQ_COMMAND, ALIGN_COMMAND,
-			o.sam_output.getAbsolutePath(), o.raw_output.getAbsolutePath(),
-			o.genome.getAbsolutePath(), o.reads.get(0).reads.getAbsolutePath());
+
+		List<String> commands = new ArrayList<String>();
+		commands.add(MAQ_COMMAND);
+		commands.add(ALIGN_COMMAND);
+		commands.add(o.raw_output.getAbsolutePath());
+		commands.add(o.binary_genome.getAbsolutePath());
+		for (Options.Reads r : o.reads)
+		{
+			commands.add(r.binary_reads.getAbsolutePath());
+		}
+		ProcessBuilder pb = new ProcessBuilder(commands);
 		pb.directory(o.genome.getParentFile());
 		try
 		{
