@@ -51,6 +51,10 @@ public class MaqInterface extends AlignmentToolInterface
 		{
 			commands.add(r.binary_reads.getAbsolutePath());
 		}
+		for (String arg : commands)
+		{
+			System.err.printf("%03d: %s%n", index, arg);
+		}
 		ProcessBuilder pb = new ProcessBuilder(commands);
 		pb.directory(o.genome.getParentFile());
 		try
