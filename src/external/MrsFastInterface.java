@@ -153,7 +153,8 @@ public class MrsFastInterface extends AlignmentToolInterface
 						rs.falseNegatives++;
 					}
 				}
-				else
+				else if (o.penalize_duplicate_mappings
+						&& !correctlyMappedFragments.contains(fragmentIdentifier))
 				{
 					if (phredProbability >= o.phred_match_threshold)
 					{
@@ -191,8 +192,54 @@ public class MrsFastInterface extends AlignmentToolInterface
 		System.out.printf("%03d: %s%n", index, "done.");
 	}
 
+	/**
+	 * This requires a separate pass over the SAM output with a lot of the same
+	 * logic as above. TODO: Don't duplicate code
+	 */
+	private void readMappedFragmentSet()
+	{
+		try
+		{
+			BufferedReader r = new BufferedReader(new FileReader(o.sam_output));
+			String line = null;
+			while ((line = r.readLine()) != null)
+			{
+				if (line.startsWith("@"))
+				{
+					continue;
+				}
+				String[] pieces = line.split("\\s+");
+				if (pieces.length <= 3)
+				{
+					continue;
+				}
+				String fragmentIdentifier = pieces[0];
+				int readPosition = -1;
+				Matcher m = Constants.READ_POSITION_HEADER.matcher(pieces[0]);
+				if (m.matches())
+				{
+					readPosition = Integer.parseInt(m.group(2));
+				}
+				int alignedPosition = Integer.parseInt(pieces[3]) - 1;
+				if (readPosition == alignedPosition)
+				{
+					correctlyMappedFragments.add(fragmentIdentifier);
+				}
+			}
+		}
+		catch (FileNotFoundException e)
+		{
+			e.printStackTrace();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
 	@Override
 	public void postAlignmentProcessing()
 	{
+		readMappedFragmentSet();
 	}
 }
