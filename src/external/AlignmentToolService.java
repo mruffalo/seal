@@ -96,21 +96,16 @@ public class AlignmentToolService
 				Map<Class<? extends AlignmentToolInterface>, AlignmentResults> m_pt = Collections.synchronizedMap(new HashMap<Class<? extends AlignmentToolInterface>, AlignmentResults>());
 				m_ep.put(phredThreshold, m_pt);
 
-				/*
-				 * alignmentInterfaceList.add(new MaqInterface(sequence, list,
-				 * genome, binary_genome, reads, binary_reads, binary_output,
-				 * sam_output));
-				 */
-
 				alignmentInterfaceList.add(new MrFastInterface(++index, sequence, errored_list,
 					new Options(paired_end, phredThreshold, errorProbability), m_pt));
 				alignmentInterfaceList.add(new MrsFastInterface(++index, sequence, errored_list,
 					new Options(paired_end, phredThreshold, errorProbability), m_pt));
 				alignmentInterfaceList.add(new SoapInterface(++index, sequence, errored_list,
 					new Options(paired_end, phredThreshold, errorProbability), m_pt));
+				alignmentInterfaceList.add(new MaqInterface(++index, sequence, errored_list,
+					new Options(paired_end, phredThreshold, errorProbability), m_pt));
 				alignmentInterfaceList.add(new BwaInterface(++index, sequence, errored_list,
 					new Options(paired_end, phredThreshold, errorProbability), m_pt));
-
 			}
 		}
 		List<Future<AlignmentResults>> futureList = new ArrayList<Future<AlignmentResults>>(
