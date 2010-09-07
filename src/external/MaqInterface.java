@@ -30,6 +30,7 @@ public class MaqInterface extends AlignmentToolInterface
 	public static final String FASTA_TO_BFA_COMMAND = "fasta2bfa";
 	public static final String ALIGN_COMMAND = "map";
 	public static final String ASSEMBLE_COMMAND = "assemble";
+	public static final String VIEW_ALIGNMENT_COMMAND = "mapview";
 
 	public MaqInterface(int index_, CharSequence sequence_, List<? extends Fragment> fragments_,
 		Options o_, Map<Class<? extends AlignmentToolInterface>, AlignmentResults> m_)
@@ -90,12 +91,16 @@ public class MaqInterface extends AlignmentToolInterface
 	 */
 	public void convertGenomeToBfa()
 	{
-		ProcessBuilder pb = new ProcessBuilder(MAQ_COMMAND, FASTA_TO_BFA_COMMAND,
-			o.genome.getAbsolutePath(), o.binary_genome.getAbsolutePath());
-		for (String arg : pb.command())
+		List<String> commands = new ArrayList<String>();
+		commands.add(MAQ_COMMAND);
+		commands.add(FASTA_TO_BFA_COMMAND);
+		commands.add(o.genome.getAbsolutePath());
+		commands.add(o.binary_genome.getAbsolutePath());
+		for (String arg : commands)
 		{
 			System.err.println(arg);
 		}
+		ProcessBuilder pb = new ProcessBuilder(commands);
 		pb.directory(o.genome.getParentFile());
 		try
 		{
@@ -135,13 +140,20 @@ public class MaqInterface extends AlignmentToolInterface
 	{
 		for (Options.Reads r : o.reads)
 		{
-
-			ProcessBuilder pb = new ProcessBuilder(MAQ_COMMAND, FASTQ_TO_BFQ_COMMAND,
-				r.reads.getAbsolutePath(), r.binary_reads.getAbsolutePath());
-			for (String arg : pb.command())
+			List<String> commands = new ArrayList<String>();
+			commands.add(MAQ_COMMAND);
+			commands.add(FASTQ_TO_BFQ_COMMAND);
+			commands.add(r.reads.getAbsolutePath());
+			commands.add(r.binary_reads.getAbsolutePath());
+			for (String arg : commands)
 			{
 				System.err.println(arg);
 			}
+			for (String arg : commands)
+			{
+				System.err.println(arg);
+			}
+			ProcessBuilder pb = new ProcessBuilder(commands);
 			pb.directory(r.reads.getParentFile());
 			try
 			{
@@ -180,13 +192,25 @@ public class MaqInterface extends AlignmentToolInterface
 	public AlignmentResults readAlignment()
 	{
 		System.out.print("Reading alignment...");
-		int matches = 0;
-		int total = 0;
+		AlignmentResults rs = new AlignmentResults();
+		List<String> commands = new ArrayList<String>();
+		commands.add(MAQ_COMMAND);
+		commands.add(VIEW_ALIGNMENT_COMMAND);
+		commands.add(o.raw_output.getAbsolutePath());
+		for (String arg : commands)
+		{
+			System.err.println(arg);
+		}
+		ProcessBuilder pb = new ProcessBuilder(commands);
+		pb.directory(o.genome.getParentFile());
 		try
 		{
-			BufferedReader r = new BufferedReader(new FileReader(o.sam_output));
+			FastaWriter.writeSequence(sequence, o.genome);
+			Process p = pb.start();
+			BufferedReader stdout = new BufferedReader(new InputStreamReader(p.getInputStream()));
+			BufferedReader stderr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
 			String line = null;
-			while ((line = r.readLine()) != null)
+			while ((line = stdout.readLine()) != null)
 			{
 				if (line.startsWith("@"))
 				{
@@ -198,36 +222,50 @@ public class MaqInterface extends AlignmentToolInterface
 					continue;
 				}
 				int readPosition = -1;
-				Matcher m = Constants.READ_POSITION_HEADER.matcher(pieces[0]);
+				String fragmentIdentifier = pieces[0];
+				Matcher m = Constants.READ_POSITION_HEADER.matcher(fragmentIdentifier);
 				if (m.matches())
 				{
 					readPosition = Integer.parseInt(m.group(2));
 				}
-				int alignedPosition = Integer.parseInt(pieces[3]) - 1;
-				int phredProbability = Integer.parseInt(pieces[4]);
-				if (readPosition == alignedPosition && phredProbability >= o.phred_match_threshold)
+				int alignedPosition = Integer.parseInt(pieces[2]) - 1;
+				int phredProbability = Integer.parseInt(pieces[6]);
+				if (readPosition == alignedPosition)
 				{
-					matches++;
+					if (phredProbability >= o.phred_match_threshold)
+					{
+						rs.truePositives++;
+					}
+					else
+					{
+						rs.falseNegatives++;
+					}
 				}
 				else
 				{
-					System.out.println(line);
+					if (phredProbability >= o.phred_match_threshold)
+					{
+						rs.falsePositives++;
+					}
+					// System.out.println(line);
 				}
-				total++;
+				totalMappedFragments.add(fragmentIdentifier);
 			}
-		}
-		catch (FileNotFoundException e)
-		{
-			e.printStackTrace();
+			while ((line = stderr.readLine()) != null)
+			{
+				System.err.println(line);
+			}
+			p.waitFor();
 		}
 		catch (IOException e)
 		{
 			e.printStackTrace();
 		}
-		AlignmentResults r = new AlignmentResults();
-		r.truePositives = matches;
-		// XXX: Assign other results fields
-		return r;
+		catch (InterruptedException e)
+		{
+			e.printStackTrace();
+		}
+		return rs;
 	}
 
 	@Override
@@ -241,12 +279,8 @@ public class MaqInterface extends AlignmentToolInterface
 		System.out.println("done.");
 	}
 
-	/**
-	 * XXX: Do this
-	 */
 	@Override
 	public void postAlignmentProcessing()
 	{
-
 	}
 }
