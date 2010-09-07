@@ -16,7 +16,11 @@ public class FastaWriter
 		try
 		{
 			output = new BufferedWriter(new FileWriter(file));
-			output.write(String.format(">COMPLETED_SEQUENCE%n%s%n", sequence));
+			output.write(">COMPLETED_SEQUENCE");
+			output.write(System.getProperty("line.separator"));
+			// TODO: Improve this
+			output.write(sequence.toString());
+			output.write(System.getProperty("line.separator"));
 		}
 		finally
 		{
