@@ -154,7 +154,7 @@ public class MrsFastInterface extends AlignmentToolInterface
 					}
 				}
 				else if (o.penalize_duplicate_mappings
-						&& !correctlyMappedFragments.contains(fragmentIdentifier))
+						|| (!o.penalize_duplicate_mappings && !correctlyMappedFragments.contains(fragmentIdentifier)))
 				{
 					if (phredProbability >= o.phred_match_threshold)
 					{
