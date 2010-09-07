@@ -49,7 +49,7 @@ public class BwaInterface extends AlignmentToolInterface
 		o.index = new File(file.getParentFile(), index_filename);
 		if (o.index.isFile())
 		{
-			System.out.println("Index found; skipping");
+			System.out.printf("%03d: %s%n", index, "Index found; skipping");
 		}
 		else
 		{
@@ -67,11 +67,11 @@ public class BwaInterface extends AlignmentToolInterface
 				String line = null;
 				while ((line = stdout.readLine()) != null)
 				{
-					System.out.println(line);
+					System.out.printf("%03d: %s%n", index, line);
 				}
 				while ((line = stderr.readLine()) != null)
 				{
-					System.err.println(line);
+					System.err.printf("%03d: %s%n", index, line);
 				}
 				p.waitFor();
 			}
@@ -89,8 +89,7 @@ public class BwaInterface extends AlignmentToolInterface
 	@Override
 	public void align()
 	{
-		System.out.print("Aligning reads...");
-
+		System.out.printf("%03d: %s%n", index, "Aligning reads...");
 		for (int i = 0; i < o.reads.size(); i++)
 		{
 			List<String> commands = new ArrayList<String>();
@@ -120,7 +119,7 @@ public class BwaInterface extends AlignmentToolInterface
 				String line = null;
 				while ((line = stderr.readLine()) != null)
 				{
-					System.err.println(line);
+					System.err.printf("%03d: %s%n", index, line);
 				}
 				p.waitFor();
 			}
@@ -133,7 +132,7 @@ public class BwaInterface extends AlignmentToolInterface
 				e.printStackTrace();
 			}
 		}
-		System.out.println("done.");
+		System.out.printf("%03d: %s%n", index, "done aligning.");
 	}
 
 	public void convertToSamFormat()
@@ -155,7 +154,7 @@ public class BwaInterface extends AlignmentToolInterface
 		ProcessBuilder pb = new ProcessBuilder(commands);
 		for (String arg : pb.command())
 		{
-			System.err.println(arg);
+			System.err.printf("%03d: %s%n", index, arg);
 		}
 		pb.directory(o.genome.getParentFile());
 		try
@@ -172,7 +171,7 @@ public class BwaInterface extends AlignmentToolInterface
 			w.close();
 			while ((line = stderr.readLine()) != null)
 			{
-				System.err.println(line);
+				System.err.printf("%03d: %s%n", index, line);
 			}
 			p.waitFor();
 		}
@@ -193,7 +192,7 @@ public class BwaInterface extends AlignmentToolInterface
 	@Override
 	public AlignmentResults readAlignment()
 	{
-		System.out.print("Reading alignment...");
+		System.out.printf("%03d: %s%n", index, "Reading alignment...");
 		AlignmentResults rs = new AlignmentResults();
 		try
 		{
@@ -289,16 +288,16 @@ public class BwaInterface extends AlignmentToolInterface
 	@Override
 	public void preAlignmentProcessing()
 	{
-		System.out.print("Indexing genome...");
+		System.out.printf("%03d: %s%n", index, "Indexing genome...");
 		createIndex(o.genome);
-		System.out.println("done.");
+		System.out.printf("%03d: %s%n", index, "done indexing.");
 	}
 
 	@Override
 	public void postAlignmentProcessing()
 	{
-		System.out.print("Converting output to SAM format...");
+		System.out.printf("%03d: %s%n", index, "Converting output to SAM format...");
 		convertToSamFormat();
-		System.out.println("done.");
+		System.out.printf("%03d: %s%n", index, "done converting.");
 	}
 }

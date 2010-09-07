@@ -38,7 +38,7 @@ public class MrFastInterface extends AlignmentToolInterface
 		o.index = new File(file.getParentFile(), index_filename);
 		if (o.index.isFile())
 		{
-			System.out.println("Index found; skipping");
+			System.out.printf("%03d: %s%n", index, "Index found; skipping");
 		}
 		else
 		{
@@ -56,11 +56,11 @@ public class MrFastInterface extends AlignmentToolInterface
 				String line = null;
 				while ((line = stdout.readLine()) != null)
 				{
-					System.out.println(line);
+					System.out.printf("%03d: %s%n", index, line);
 				}
 				while ((line = stderr.readLine()) != null)
 				{
-					System.err.println(line);
+					System.err.printf("%03d: %s%n", index, line);
 				}
 				p.waitFor();
 			}
@@ -78,7 +78,7 @@ public class MrFastInterface extends AlignmentToolInterface
 	@Override
 	public void align()
 	{
-		System.out.print("Aligning reads...");
+		System.out.printf("%03d: %s%n", index, "Aligning reads...");
 		ProcessBuilder pb = new ProcessBuilder(MRFAST_COMMAND, SEARCH_COMMAND,
 			o.genome.getAbsolutePath(), SEQ_OPTION, o.reads.get(0).reads.getAbsolutePath(), "-o",
 			o.sam_output.getAbsolutePath());
@@ -92,11 +92,11 @@ public class MrFastInterface extends AlignmentToolInterface
 			String line = null;
 			while ((line = stdout.readLine()) != null)
 			{
-				System.out.println(line);
+				System.out.printf("%03d: %s%n", index, line);
 			}
 			while ((line = stderr.readLine()) != null)
 			{
-				System.err.println(line);
+				System.err.printf("%03d: %s%n", index, line);
 			}
 			p.waitFor();
 		}
@@ -108,7 +108,7 @@ public class MrFastInterface extends AlignmentToolInterface
 		{
 			e.printStackTrace();
 		}
-		System.out.println("done.");
+		System.out.printf("%03d: %s%n", index, "done aligning.");
 	}
 
 	/**
@@ -118,7 +118,7 @@ public class MrFastInterface extends AlignmentToolInterface
 	@Override
 	public AlignmentResults readAlignment()
 	{
-		System.out.print("Reading alignment...");
+		System.out.printf("%03d: %s%n", index, "Reading alignment...");
 		AlignmentResults rs = new AlignmentResults();
 		try
 		{
@@ -189,9 +189,9 @@ public class MrFastInterface extends AlignmentToolInterface
 	@Override
 	public void preAlignmentProcessing()
 	{
-		System.out.print("Indexing genome...");
+		System.out.printf("%03d: %s%n", index, "Indexing genome...");
 		createIndex(o.genome);
-		System.out.println("done.");
+		System.out.printf("%03d: %s%n", index, "done indexing.");
 	}
 
 	/**

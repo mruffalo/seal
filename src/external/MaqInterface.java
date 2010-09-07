@@ -41,8 +41,7 @@ public class MaqInterface extends AlignmentToolInterface
 	@Override
 	public void align()
 	{
-		System.out.print("Aligning reads...");
-
+		System.out.printf("%03d: %s", index, "Aligning reads...");
 		List<String> commands = new ArrayList<String>();
 		commands.add(MAQ_COMMAND);
 		commands.add(ALIGN_COMMAND);
@@ -63,11 +62,11 @@ public class MaqInterface extends AlignmentToolInterface
 			String line = null;
 			while ((line = stdout.readLine()) != null)
 			{
-				System.out.println(line);
+				System.out.printf("%03d: %s%n", index, line);
 			}
 			while ((line = stderr.readLine()) != null)
 			{
-				System.err.println(line);
+				System.err.printf("%03d: %s%n", index, line);
 			}
 			p.waitFor();
 		}
@@ -79,7 +78,7 @@ public class MaqInterface extends AlignmentToolInterface
 		{
 			e.printStackTrace();
 		}
-		System.out.println("done.");
+		System.out.printf("%03d: %s%n", index, "done.");
 	}
 
 	/**
@@ -98,7 +97,7 @@ public class MaqInterface extends AlignmentToolInterface
 		commands.add(o.binary_genome.getAbsolutePath());
 		for (String arg : commands)
 		{
-			System.err.println(arg);
+			System.err.printf("%03d: %s%n", index, arg);
 		}
 		ProcessBuilder pb = new ProcessBuilder(commands);
 		pb.directory(o.genome.getParentFile());
@@ -111,11 +110,11 @@ public class MaqInterface extends AlignmentToolInterface
 			String line = null;
 			while ((line = stdout.readLine()) != null)
 			{
-				System.err.println(line);
+				System.err.printf("%03d: %s%n", index, line);
 			}
 			while ((line = stderr.readLine()) != null)
 			{
-				System.err.println(line);
+				System.err.printf("%03d: %s%n", index, line);
 			}
 			p.waitFor();
 		}
@@ -147,7 +146,7 @@ public class MaqInterface extends AlignmentToolInterface
 			commands.add(r.binary_reads.getAbsolutePath());
 			for (String arg : commands)
 			{
-				System.err.println(arg);
+				System.err.printf("%03d: %s%n", index, arg);
 			}
 			ProcessBuilder pb = new ProcessBuilder(commands);
 			pb.directory(r.reads.getParentFile());
@@ -161,11 +160,11 @@ public class MaqInterface extends AlignmentToolInterface
 				String line = null;
 				while ((line = stdout.readLine()) != null)
 				{
-					System.err.println(line);
+					System.err.printf("%03d: %s%n", index, line);
 				}
 				while ((line = stderr.readLine()) != null)
 				{
-					System.err.println(line);
+					System.err.printf("%03d: %s%n", index, line);
 				}
 				p.waitFor();
 			}
@@ -187,7 +186,7 @@ public class MaqInterface extends AlignmentToolInterface
 	@Override
 	public AlignmentResults readAlignment()
 	{
-		System.out.print("Reading alignment...");
+		System.out.printf("%03d: %s%n", index, "Reading alignment...");
 		AlignmentResults rs = new AlignmentResults();
 		List<String> commands = new ArrayList<String>();
 		commands.add(MAQ_COMMAND);
@@ -195,7 +194,7 @@ public class MaqInterface extends AlignmentToolInterface
 		commands.add(o.raw_output.getAbsolutePath());
 		for (String arg : commands)
 		{
-			System.err.println(arg);
+			System.err.printf("%03d: %s%n", index, arg);
 		}
 		ProcessBuilder pb = new ProcessBuilder(commands);
 		pb.directory(o.genome.getParentFile());
@@ -267,12 +266,12 @@ public class MaqInterface extends AlignmentToolInterface
 	@Override
 	public void preAlignmentProcessing()
 	{
-		System.out.print("Converting FASTQ output to BFQ...");
+		System.out.printf("%03d: %s%n", index, "Converting FASTQ output to BFQ...");
 		convertReadsToBfq();
-		System.out.println("done.");
-		System.out.print("Converting FASTA genome to BFA...");
+		System.out.printf("%03d: %s%n", index, "done converting FASTQ.");
+		System.out.printf("%03d: %s%n", index, "Converting FASTA genome to BFA...");
 		convertGenomeToBfa();
-		System.out.println("done.");
+		System.out.printf("%03d: %s%n", index, "done converting FASTA.");
 	}
 
 	@Override

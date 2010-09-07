@@ -37,7 +37,7 @@ public class MrsFastInterface extends AlignmentToolInterface
 		o.index = new File(file.getParentFile(), index_filename);
 		if (o.index.isFile())
 		{
-			System.out.println("Index found; skipping");
+			System.out.printf("%03d: %s%n", index, "Index found; skipping");
 		}
 		else
 		{
@@ -55,11 +55,11 @@ public class MrsFastInterface extends AlignmentToolInterface
 				String line = null;
 				while ((line = stdout.readLine()) != null)
 				{
-					System.out.println(line);
+					System.out.printf("%03d: %s%n", index, line);
 				}
 				while ((line = stderr.readLine()) != null)
 				{
-					System.err.println(line);
+					System.err.printf("%03d: %s%n", index, line);
 				}
 				p.waitFor();
 			}
@@ -91,11 +91,11 @@ public class MrsFastInterface extends AlignmentToolInterface
 			String line = null;
 			while ((line = stdout.readLine()) != null)
 			{
-				System.out.println(line);
+				System.out.printf("%03d: %s%n", index, line);
 			}
 			while ((line = stderr.readLine()) != null)
 			{
-				System.err.println(line);
+				System.err.printf("%03d: %s%n", index, line);
 			}
 			p.waitFor();
 		}
@@ -107,7 +107,7 @@ public class MrsFastInterface extends AlignmentToolInterface
 		{
 			e.printStackTrace();
 		}
-		System.out.println("done.");
+		System.out.printf("%03d: %s%n", index, "done.");
 	}
 
 	/**
@@ -117,7 +117,7 @@ public class MrsFastInterface extends AlignmentToolInterface
 	@Override
 	public AlignmentResults readAlignment()
 	{
-		System.out.print("Reading alignment...");
+		System.out.printf("%03d: %s", index, "Reading alignment...");
 		AlignmentResults rs = new AlignmentResults();
 		try
 		{
@@ -187,9 +187,9 @@ public class MrsFastInterface extends AlignmentToolInterface
 	@Override
 	public void preAlignmentProcessing()
 	{
-		System.out.print("Indexing genome...");
+		System.out.printf("%03d: %s", index, "Indexing genome...");
 		createIndex(o.genome);
-		System.out.println("done.");
+		System.out.printf("%03d: %s%n", index, "done.");
 	}
 
 	@Override

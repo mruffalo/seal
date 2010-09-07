@@ -131,7 +131,7 @@ public class AlignmentToolService
 			ati.o.sam_output = new File(tool_path, "alignment.sam");
 			ati.o.converted_output = new File(tool_path, "out.txt");
 
-			System.out.printf("*** %s: %d, %f%n", ati.getClass().getSimpleName(),
+			System.out.printf("*** %03d %s: %d, %f%n", ati.index, ati.getClass().getSimpleName(),
 				ati.o.phred_match_threshold, ati.o.error_probability);
 
 			futureList.add(pool.submit(ati));
