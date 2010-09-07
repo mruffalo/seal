@@ -32,10 +32,10 @@ public class MaqInterface extends AlignmentToolInterface
 	public static final String ASSEMBLE_COMMAND = "assemble";
 	public static final String VIEW_ALIGNMENT_COMMAND = "mapview";
 
-	public MaqInterface(int index_, CharSequence sequence_, List<? extends Fragment> fragments_,
-		Options o_, Map<Class<? extends AlignmentToolInterface>, AlignmentResults> m_)
+	public MaqInterface(int index_, String description_, CharSequence sequence_,
+		List<? extends Fragment> fragments_, Options o_, Map<String, AlignmentResults> m_)
 	{
-		super(index_, sequence_, fragments_, o_, m_);
+		super(index_, description_, sequence_, fragments_, o_, m_);
 	}
 
 	@Override

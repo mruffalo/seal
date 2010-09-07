@@ -34,9 +34,10 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 	protected Set<String> correctlyMappedFragments;
 	protected Set<String> totalMappedFragments;
 
-	protected Map<Class<? extends AlignmentToolInterface>, AlignmentResults> m;
+	protected Map<String, AlignmentResults> m;
 
 	public final int index;
+	protected final String description;
 
 	/**
 	 * Not all fields are used by every tool
@@ -89,11 +90,11 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 		public boolean penalize_duplicate_mappings = true;
 	}
 
-	public AlignmentToolInterface(int index_, CharSequence sequence_,
-		List<? extends Fragment> list_, Options o_,
-		Map<Class<? extends AlignmentToolInterface>, AlignmentResults> m_)
+	public AlignmentToolInterface(int index_, String description_, CharSequence sequence_,
+		List<? extends Fragment> list_, Options o_, Map<String, AlignmentResults> m_)
 	{
 		index = index_;
+		description = description_;
 		sequence = sequence_;
 		fragments = list_;
 		o = o_;
@@ -193,7 +194,7 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 		r.timeMap = timeMap;
 		// cleanup();
 
-		m.put(getClass(), r);
+		m.put(description, r);
 
 		System.out.printf("Precision: %f%n", (double) r.truePositives
 				/ (double) (r.truePositives + r.falsePositives));

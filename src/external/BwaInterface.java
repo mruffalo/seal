@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import external.AlignmentToolInterface.AlignmentResults;
+import external.AlignmentToolInterface.Options;
 import assembly.Fragment;
 
 /**
@@ -37,10 +38,10 @@ public class BwaInterface extends AlignmentToolInterface
 
 	public static final String OUTPUT_TEMPLATE = "%s\t%d\t%d\t%d\t%d%n";
 
-	public BwaInterface(int index_, CharSequence sequence_, List<? extends Fragment> fragments_,
-		Options o_, Map<Class<? extends AlignmentToolInterface>, AlignmentResults> m_)
+	public BwaInterface(int index_, String description_, CharSequence sequence_,
+		List<? extends Fragment> fragments_, Options o_, Map<String, AlignmentResults> m_)
 	{
-		super(index_, sequence_, fragments_, o_, m_);
+		super(index_, description_, sequence_, fragments_, o_, m_);
 	}
 
 	public void createIndex(File file)

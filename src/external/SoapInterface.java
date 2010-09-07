@@ -27,10 +27,10 @@ public class SoapInterface extends AlignmentToolInterface
 	public static final String ALIGN_INDEX_OPTION = "-D";
 	public static final String[] ALIGN_QUERY_OPTIONS = { "-a", "-b" };
 
-	public SoapInterface(int index_, CharSequence sequence_, List<? extends Fragment> fragments_,
-		Options o_, Map<Class<? extends AlignmentToolInterface>, AlignmentResults> m_)
+	public SoapInterface(int index_, String description_, CharSequence sequence_,
+		List<? extends Fragment> fragments_, Options o_, Map<String, AlignmentResults> m_)
 	{
-		super(index_, sequence_, fragments_, o_, m_);
+		super(index_, description_, sequence_, fragments_, o_, m_);
 	}
 
 	public void createIndex(File file)
