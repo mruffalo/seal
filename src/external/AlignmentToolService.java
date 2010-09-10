@@ -25,9 +25,9 @@ import external.AlignmentToolInterface.Options;
 public class AlignmentToolService
 {
 	/**
-	 * The number of CPUs in your system is a good value for this
+	 * The number of CPUs in your system (maybe - 1) is a good value for this
 	 */
-	private static final int NUMBER_OF_CONCURRENT_THREADS = 4;
+	private static final int NUMBER_OF_CONCURRENT_THREADS = 3;
 	protected static final double[] ERROR_PROBABILITIES = { 0.0, 0.001, 0.002, 0.004, 0.01, 0.015,
 			0.02, 0.03, 0.05, 0.1 };
 	protected static final int[] PHRED_THRESHOLDS = { 0, 10, 20, 30 };
@@ -39,7 +39,7 @@ public class AlignmentToolService
 		pool = Executors.newFixedThreadPool(NUMBER_OF_CONCURRENT_THREADS);
 	}
 
-	public void toolEvaluation(boolean paired_end)
+	public void errorRateEvaluation(boolean paired_end)
 	{
 		/*
 		 * SequenceGenerator g = new SeqGenSingleSequenceMultipleRepeats();
@@ -177,8 +177,15 @@ public class AlignmentToolService
 		}
 	}
 
+	/**
+	 * TODO: This
+	 */
+	public void runtimeEvaluation()
+	{
+	}
+
 	public static void main(String[] args)
 	{
-		new AlignmentToolService().toolEvaluation(false);
+		new AlignmentToolService().errorRateEvaluation(false);
 	}
 }
