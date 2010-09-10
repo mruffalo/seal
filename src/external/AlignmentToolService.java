@@ -27,9 +27,9 @@ public class AlignmentToolService
 	/**
 	 * The number of CPUs in your system (maybe - 1) is a good value for this
 	 */
-	private static final int NUMBER_OF_CONCURRENT_THREADS = 3;
-	protected static final double[] ERROR_PROBABILITIES = { 0.0, 0.001, 0.002, 0.004, 0.01, 0.015,
-			0.02, 0.03, 0.05, 0.1 };
+	private static final int NUMBER_OF_CONCURRENT_THREADS = 2;
+	protected static final double[] ERROR_PROBABILITIES = { 0.0, 0.001, 0.004, 0.01, 0.025, 0.05,
+			0.1 };
 	protected static final int[] PHRED_THRESHOLDS = { 0, 10, 20, 30 };
 
 	private ExecutorService pool;
@@ -78,8 +78,9 @@ public class AlignmentToolService
 
 		path.mkdirs();
 
-		List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
 		Map<Double, Map<Integer, Map<String, AlignmentResults>>> m = Collections.synchronizedMap(new TreeMap<Double, Map<Integer, Map<String, AlignmentResults>>>());
+		List<Future<AlignmentResults>> futureList = new ArrayList<Future<AlignmentResults>>(
+			ERROR_PROBABILITIES.length * PHRED_THRESHOLDS.length * 7);
 
 		int index = 0;
 		for (double errorProbability : ERROR_PROBABILITIES)
@@ -95,6 +96,8 @@ public class AlignmentToolService
 			{
 				Map<String, AlignmentResults> m_pt = Collections.synchronizedMap(new TreeMap<String, AlignmentResults>());
 				m_ep.put(phredThreshold, m_pt);
+
+				List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
 
 				Options o = new Options(paired_end, phredThreshold, errorProbability);
 				o.penalize_duplicate_mappings = false;
@@ -114,35 +117,36 @@ public class AlignmentToolService
 					new Options(paired_end, phredThreshold, errorProbability), m_pt));
 				alignmentInterfaceList.add(new BwaInterface(++index, "BWA", sequence, errored_list,
 					new Options(paired_end, phredThreshold, errorProbability), m_pt));
+
+				for (AlignmentToolInterface ati : alignmentInterfaceList)
+				{
+					File tool_path = new File(path, String.format("%03d-%s", ati.index,
+						ati.description));
+					tool_path.mkdirs();
+					ati.o.genome = new File(tool_path, "genome.fasta");
+					ati.o.binary_genome = new File(tool_path, "genome.bfa");
+
+					int read_count = paired_end ? 2 : 1;
+					for (int i = 1; i <= read_count; i++)
+					{
+						Options.Reads r = new Options.Reads(i);
+						r.reads = new File(tool_path, String.format("fragments%d.fastq", i));
+						r.binary_reads = new File(tool_path, String.format("fragments%d.bfq", i));
+						r.aligned_reads = new File(tool_path, String.format("alignment%d.sai", i));
+						ati.o.reads.add(r);
+					}
+					ati.o.raw_output = new File(tool_path, "out.raw");
+					ati.o.sam_output = new File(tool_path, "alignment.sam");
+					ati.o.converted_output = new File(tool_path, "out.txt");
+
+					System.out.printf("*** %03d %s: %d, %f%n", ati.index, ati.description,
+						ati.o.phred_match_threshold, ati.o.error_probability);
+
+					futureList.add(pool.submit(ati));
+				}
 			}
 		}
-		List<Future<AlignmentResults>> futureList = new ArrayList<Future<AlignmentResults>>(
-			alignmentInterfaceList.size());
-		for (AlignmentToolInterface ati : alignmentInterfaceList)
-		{
-			File tool_path = new File(path, String.format("%03d-%s", ati.index, ati.description));
-			tool_path.mkdirs();
-			ati.o.genome = new File(tool_path, "genome.fasta");
-			ati.o.binary_genome = new File(tool_path, "genome.bfa");
 
-			int read_count = paired_end ? 2 : 1;
-			for (int i = 1; i <= read_count; i++)
-			{
-				Options.Reads r = new Options.Reads(i);
-				r.reads = new File(tool_path, String.format("fragments%d.fastq", i));
-				r.binary_reads = new File(tool_path, String.format("fragments%d.bfq", i));
-				r.aligned_reads = new File(tool_path, String.format("alignment%d.sai", i));
-				ati.o.reads.add(r);
-			}
-			ati.o.raw_output = new File(tool_path, "out.raw");
-			ati.o.sam_output = new File(tool_path, "alignment.sam");
-			ati.o.converted_output = new File(tool_path, "out.txt");
-
-			System.out.printf("*** %03d %s: %d, %f%n", ati.index, ati.description,
-				ati.o.phred_match_threshold, ati.o.error_probability);
-
-			futureList.add(pool.submit(ati));
-		}
 		pool.shutdown();
 		for (Future<AlignmentResults> f : futureList)
 		{
