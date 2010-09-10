@@ -31,6 +31,7 @@ public class AlignmentToolService
 	protected static final double[] ERROR_PROBABILITIES = { 0.0, 0.001, 0.004, 0.01, 0.025, 0.05,
 			0.1 };
 	protected static final int[] PHRED_THRESHOLDS = { 0, 10, 20, 30 };
+	protected static final int[] COVERAGES = { 3, 7, 10, 13, 16, 20 };
 
 	private ExecutorService pool;
 
@@ -182,10 +183,128 @@ public class AlignmentToolService
 	}
 
 	/**
-	 * TODO: This
+	 * TODO: Don't duplicate code
 	 */
 	public void runtimeEvaluation()
 	{
+		final boolean paired_end = false;
+		final double errorProbability = 0.05;
+		final int phredThreshold = 0;
+		final File path = new File("data");
+		final File chr22 = new File(path, "chr22.fa");
+		System.out.print("Reading genome...");
+		CharSequence sequence = null;
+		try
+		{
+			/*
+			 * Don't worry about casting file size to an int: we can't have
+			 * strings longer than Integer.MAX_VALUE anyway
+			 */
+			sequence = FastaReader.getSequence(chr22, (int) chr22.length());
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+		System.out.println("done.");
+		System.out.printf("Genome length: %d%n", sequence.length());
+
+		path.mkdirs();
+
+		Map<Integer, Map<String, AlignmentResults>> m = Collections.synchronizedMap(new TreeMap<Integer, Map<String, AlignmentResults>>());
+		List<Future<AlignmentResults>> futureList = new ArrayList<Future<AlignmentResults>>(
+			COVERAGES.length * 5);
+
+		int index = 0;
+		for (int coverage : COVERAGES)
+		{
+			Fragmentizer.Options fo = new Fragmentizer.Options();
+			fo.k = 50;
+			/*
+			 * Integer truncation is okay here
+			 */
+			fo.n = (coverage * sequence.length()) / fo.k;
+			fo.ksd = 1;
+
+			System.out.printf("Reading %d fragments...", fo.n);
+			List<? extends Fragment> list = Fragmentizer.fragmentize(sequence, fo);
+			System.out.println("done.");
+
+			System.out.print("Introducing fragment read errors...");
+			UniformErrorGenerator eg = new UniformErrorGenerator(SequenceGenerator.NUCLEOTIDES,
+				errorProbability);
+			List<? extends Fragment> errored_list = eg.generateErrors(list);
+			System.out.println("done.");
+
+			Map<String, AlignmentResults> m_pt = Collections.synchronizedMap(new TreeMap<String, AlignmentResults>());
+			m.put(coverage, m_pt);
+
+			List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
+
+			alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast", sequence,
+				errored_list, new Options(paired_end, phredThreshold, errorProbability), m_pt));
+			alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast", sequence,
+				errored_list, new Options(paired_end, phredThreshold, errorProbability), m_pt));
+			alignmentInterfaceList.add(new SoapInterface(++index, "SOAP", sequence, errored_list,
+				new Options(paired_end, phredThreshold, errorProbability), m_pt));
+			alignmentInterfaceList.add(new MaqInterface(++index, "MAQ", sequence, errored_list,
+				new Options(paired_end, phredThreshold, errorProbability), m_pt));
+			alignmentInterfaceList.add(new BwaInterface(++index, "BWA", sequence, errored_list,
+				new Options(paired_end, phredThreshold, errorProbability), m_pt));
+
+			for (AlignmentToolInterface ati : alignmentInterfaceList)
+			{
+				File tool_path = new File(path,
+					String.format("%03d-%s", ati.index, ati.description));
+				tool_path.mkdirs();
+				ati.o.genome = new File(tool_path, "genome.fasta");
+				ati.o.binary_genome = new File(tool_path, "genome.bfa");
+
+				Options.Reads r = new Options.Reads(1);
+				r.reads = new File(tool_path, String.format("fragments%d.fastq", 1));
+				r.binary_reads = new File(tool_path, String.format("fragments%d.bfq", 1));
+				r.aligned_reads = new File(tool_path, String.format("alignment%d.sai", 1));
+				ati.o.reads.add(r);
+
+				ati.o.raw_output = new File(tool_path, "out.raw");
+				ati.o.sam_output = new File(tool_path, "alignment.sam");
+				ati.o.converted_output = new File(tool_path, "out.txt");
+
+				System.out.printf("*** %03d %s: %d%n", ati.index, ati.description, coverage);
+
+				futureList.add(pool.submit(ati));
+			}
+		}
+
+		pool.shutdown();
+		for (Future<AlignmentResults> f : futureList)
+		{
+			try
+			{
+				f.get();
+			}
+			catch (InterruptedException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			catch (ExecutionException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		for (Integer i : m.keySet())
+		{
+			for (String s : m.get(i).keySet())
+			{
+				AlignmentResults r = m.get(i).get(s);
+				System.out.printf("%s,%d,%f,%f,%d%n", s, i, (double) r.truePositives
+						/ (double) (r.truePositives + r.falsePositives), (double) r.truePositives
+						/ (double) (r.truePositives + r.falseNegatives),
+					r.timeMap.get(AlignmentOperation.TOTAL));
+			}
+		}
 	}
 
 	public static void main(String[] args)
