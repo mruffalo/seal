@@ -1,5 +1,10 @@
 package generator;
 
+import io.FastqWriter;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 import assembly.Fragment;
 import assembly.FragmentPositionSource;
@@ -56,6 +61,59 @@ public class Fragmentizer
 			list.add(f);
 		}
 		return list;
+	}
+
+	/**
+	 * Convenience method to call
+	 * {@link #fragmentizeToFiles(CharSequence, Options, List)} with a single
+	 * file.
+	 * 
+	 * @param string
+	 * @param o
+	 * @param files
+	 */
+	public static void fragmentizeToFile(CharSequence string, Options o, File file)
+	{
+		List<File> files = new ArrayList<File>(1);
+		files.add(file);
+		fragmentizeToFiles(string, o, files);
+	}
+
+	/**
+	 * Reads this string into fragments and directly writes them to the
+	 * specified Files.
+	 * 
+	 * @param string
+	 * @param o
+	 * @param files
+	 */
+	public static void fragmentizeToFiles(CharSequence string, Options o, List<File> files)
+	{
+		List<FastqWriter> fastqWriters = new ArrayList<FastqWriter>(files.size());
+		for (File file : files)
+		{
+			try
+			{
+				BufferedWriter bw = new BufferedWriter(new FileWriter(file));
+				fastqWriters.add(new FastqWriter(bw));
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		// TODO: Fragmentize, write to files
+		for (FastqWriter fw : fastqWriters)
+		{
+			try
+			{
+				fw.close();
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
+		}
 	}
 
 	/**
