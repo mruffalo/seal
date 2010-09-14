@@ -102,7 +102,26 @@ public class Fragmentizer
 				e.printStackTrace();
 			}
 		}
-		// TODO: Fragmentize, write to files
+		Random random = new Random();
+		try
+		{
+			for (int i = 0; i < o.n; i++)
+			{
+				int sizeAddition = (int) (random.nextGaussian() * o.ksd);
+				int fragmentLength = o.k + sizeAddition;
+				int index = random.nextInt(string.length() - fragmentLength);
+				Fragment f = new Fragment(string.subSequence(index, index + fragmentLength));
+				f.setPosition(FragmentPositionSource.ORIGINAL_SEQUENCE, index);
+				for (FastqWriter fw : fastqWriters)
+				{
+					fw.writeFragment(f, 0, i);
+				}
+			}
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
 		for (FastqWriter fw : fastqWriters)
 		{
 			try
