@@ -1,6 +1,9 @@
 package generator;
 
 import static org.junit.Assert.*;
+import io.FastaWriter;
+import io.FastqWriter;
+import java.io.File;
 import java.util.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -131,5 +134,26 @@ public class FragmentizerTest
 	{
 		// TODO this
 		// fail("Not yet implemented");
+	}
+
+	@Test
+	public void testFragmentizeToFiles()
+	{
+		final int fileCount = 5;
+		SequenceGenerator g = new SeqGenSingleSequenceMultipleRepeats();
+		SequenceGenerator.Options sgo = new SequenceGenerator.Options();
+		sgo.length = 10000;
+		CharSequence s = g.generateSequence(sgo);
+		List<File> fl = new ArrayList<File>();
+		for (int i = 0; i < fileCount; i++)
+		{
+			fl.add(new File(String.format("%d.fasta", i)));
+		}
+		Fragmentizer.Options fo = new Fragmentizer.Options();
+		fo.n = 500;
+		fo.k = 60;
+		fo.ksd = 1.0;
+		fo.errorGenerator = new UniformErrorGenerator(SequenceGenerator.NUCLEOTIDES, 0.01);
+		Fragmentizer.fragmentizeToFiles(s, fo, fl);
 	}
 }

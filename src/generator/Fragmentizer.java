@@ -83,11 +83,11 @@ public class Fragmentizer
 	 * Reads this string into fragments and directly writes them to the
 	 * specified Files.
 	 * 
-	 * @param string
+	 * @param sequence
 	 * @param o
 	 * @param files
 	 */
-	public static void fragmentizeToFiles(CharSequence string, Options o, List<File> files)
+	public static void fragmentizeToFiles(CharSequence sequence, Options o, List<File> files)
 	{
 		List<FastqWriter> fastqWriters = new ArrayList<FastqWriter>(files.size());
 		for (File file : files)
@@ -109,9 +109,11 @@ public class Fragmentizer
 			{
 				int sizeAddition = (int) (random.nextGaussian() * o.ksd);
 				int fragmentLength = o.k + sizeAddition;
-				int index = random.nextInt(string.length() - fragmentLength);
-				Fragment f = new Fragment(string.subSequence(index, index + fragmentLength));
-				f.setPosition(FragmentPositionSource.ORIGINAL_SEQUENCE, index);
+				int startPosition = random.nextInt(sequence.length() - fragmentLength);
+				Fragment f = new Fragment(sequence.subSequence(startPosition, startPosition
+						+ fragmentLength));
+				f = o.errorGenerator.generateErrors(f);
+				f.setPosition(FragmentPositionSource.ORIGINAL_SEQUENCE, startPosition);
 				for (FastqWriter fw : fastqWriters)
 				{
 					fw.writeFragment(f, 0, i);
