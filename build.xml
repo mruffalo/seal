@@ -7,7 +7,7 @@
 	<property name="distrib" location="distrib"/>
 	<property name="manifest.template" location="${src}/manifest.template"/>
 	<property name="manifest.file" location="${src}/MANIFEST.MF"/>
-	<property name="version.properties.file" location="${src}/utils/version.properties"/>
+	<property name="version.properties.file" location="${src}/util/version.properties"/>
 	<property name="main.class" value="gui.FragmentDisplay"/>
 
 	<target name="init">
