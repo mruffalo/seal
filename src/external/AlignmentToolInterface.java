@@ -1,6 +1,7 @@
 package external;
 
 import io.FastaReader;
+import io.FastaWriter;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -144,6 +145,23 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 		 * Stores time for each operation
 		 */
 		public Map<AlignmentOperation, Long> timeMap;
+	}
+
+	public void writeFragments()
+	{
+
+	}
+
+	public void writeGenome()
+	{
+		try
+		{
+			FastaWriter.writeSequence(sequence, o.genome);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 	public abstract void preAlignmentProcessing();

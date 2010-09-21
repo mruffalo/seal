@@ -28,9 +28,8 @@ public class AlignmentToolService
 	 * The number of CPUs in your system (maybe - 1) is a good value for this
 	 */
 	private static final int NUMBER_OF_CONCURRENT_THREADS = 2;
-	protected static final double[] ERROR_PROBABILITIES = { 0.0, 0.001, 0.004, 0.01, 0.025, 0.05,
-			0.1 };
-	protected static final int[] PHRED_THRESHOLDS = { 0, 10, 20, 30 };
+	protected static final double[] ERROR_PROBABILITIES = { 0.0 };
+	protected static final int[] PHRED_THRESHOLDS = { 0 };
 	protected static final int[] COVERAGES = { 3, 7, 10, 13, 16, 20 };
 
 	private ExecutorService pool;
@@ -79,9 +78,13 @@ public class AlignmentToolService
 
 		path.mkdirs();
 
+		final int alignmentToolCount = ERROR_PROBABILITIES.length * PHRED_THRESHOLDS.length * 7;
+		List<AlignmentToolInterface> atiList = new ArrayList<AlignmentToolInterface>(
+			alignmentToolCount);
+
 		Map<Double, Map<Integer, Map<String, AlignmentResults>>> m = Collections.synchronizedMap(new TreeMap<Double, Map<Integer, Map<String, AlignmentResults>>>());
 		List<Future<AlignmentResults>> futureList = new ArrayList<Future<AlignmentResults>>(
-			ERROR_PROBABILITIES.length * PHRED_THRESHOLDS.length * 7);
+			alignmentToolCount);
 
 		int index = 0;
 		for (double errorProbability : ERROR_PROBABILITIES)
@@ -100,24 +103,8 @@ public class AlignmentToolService
 
 				List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
 
-				Options o = new Options(paired_end, phredThreshold, errorProbability);
-				o.penalize_duplicate_mappings = false;
-				alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast-L", sequence,
-					errored_list, o, m_pt));
-				alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast-S", sequence,
+				alignmentInterfaceList.add(new BowtieInterface(++index, "Bowtie", sequence,
 					errored_list, new Options(paired_end, phredThreshold, errorProbability), m_pt));
-				o = new Options(paired_end, phredThreshold, errorProbability);
-				o.penalize_duplicate_mappings = false;
-				alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast-L", sequence,
-					errored_list, o, m_pt));
-				alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast-S", sequence,
-					errored_list, new Options(paired_end, phredThreshold, errorProbability), m_pt));
-				alignmentInterfaceList.add(new SoapInterface(++index, "SOAP", sequence,
-					errored_list, new Options(paired_end, phredThreshold, errorProbability), m_pt));
-				alignmentInterfaceList.add(new MaqInterface(++index, "MAQ", sequence, errored_list,
-					new Options(paired_end, phredThreshold, errorProbability), m_pt));
-				alignmentInterfaceList.add(new BwaInterface(++index, "BWA", sequence, errored_list,
-					new Options(paired_end, phredThreshold, errorProbability), m_pt));
 
 				for (AlignmentToolInterface ati : alignmentInterfaceList)
 				{
@@ -143,9 +130,13 @@ public class AlignmentToolService
 					System.out.printf("*** %03d %s: %d, %f%n", ati.index, ati.description,
 						ati.o.phred_match_threshold, ati.o.error_probability);
 
-					futureList.add(pool.submit(ati));
+					atiList.add(ati);
 				}
 			}
+		}
+		for (AlignmentToolInterface ati : atiList)
+		{
+			futureList.add(pool.submit(ati));
 		}
 
 		pool.shutdown();
@@ -249,7 +240,7 @@ public class AlignmentToolService
 				new Options(paired_end, phredThreshold, errorProbability), m_pt));
 			alignmentInterfaceList.add(new MaqInterface(++index, "MAQ", sequence, errored_list,
 				new Options(paired_end, phredThreshold, errorProbability), m_pt));
-			alignmentInterfaceList.add(new BwaInterface(++index, "BWA", sequence, errored_list,
+			alignmentInterfaceList.add(new BwaInterface(++index, "Bowtie", sequence, errored_list,
 				new Options(paired_end, phredThreshold, errorProbability), m_pt));
 
 			for (AlignmentToolInterface ati : alignmentInterfaceList)
