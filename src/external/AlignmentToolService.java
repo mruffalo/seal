@@ -1,6 +1,7 @@
 package external;
 
 import generator.Fragmentizer;
+import generator.SeqGenSingleSequenceMultipleRepeats;
 import generator.SequenceGenerator;
 import generator.UniformErrorGenerator;
 import io.FastaReader;
@@ -28,8 +29,9 @@ public class AlignmentToolService
 	 * The number of CPUs in your system (maybe - 1) is a good value for this
 	 */
 	private static final int NUMBER_OF_CONCURRENT_THREADS = 2;
-	protected static final double[] ERROR_PROBABILITIES = { 0.0 };
-	protected static final int[] PHRED_THRESHOLDS = { 0 };
+	protected static final double[] ERROR_PROBABILITIES = { 0.0, 0.001, 0.004, 0.01, 0.025, 0.05,
+			0.1 };
+	protected static final int[] PHRED_THRESHOLDS = { 0, 10, 20, 30 };
 	protected static final int[] COVERAGES = { 3, 7, 10, 13, 16, 20 };
 
 	private ExecutorService pool;
@@ -102,9 +104,22 @@ public class AlignmentToolService
 				m_ep.put(phredThreshold, m_pt);
 
 				List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
-
-				alignmentInterfaceList.add(new BowtieInterface(++index, "Bowtie", sequence,
+				Options o = new Options(paired_end, phredThreshold, errorProbability);
+				o.penalize_duplicate_mappings = false;
+				alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast-L", sequence,
+					errored_list, o, m_pt));
+				alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast-S", sequence,
 					errored_list, new Options(paired_end, phredThreshold, errorProbability), m_pt));
+				o = new Options(paired_end, phredThreshold, errorProbability);
+				o.penalize_duplicate_mappings = false;
+				alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast-L", sequence,
+					errored_list, o, m_pt));
+				alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast-S", sequence,
+					errored_list, new Options(paired_end, phredThreshold, errorProbability), m_pt));
+				alignmentInterfaceList.add(new SoapInterface(++index, "SOAP", sequence,
+					errored_list, new Options(paired_end, phredThreshold, errorProbability), m_pt));
+				alignmentInterfaceList.add(new BwaInterface(++index, "BWA", sequence, errored_list,
+					new Options(paired_end, phredThreshold, errorProbability), m_pt));
 
 				for (AlignmentToolInterface ati : alignmentInterfaceList)
 				{
@@ -182,21 +197,12 @@ public class AlignmentToolService
 		final double errorProbability = 0.05;
 		final int phredThreshold = 0;
 		final File path = new File("data");
-		final File chr22 = new File(path, "chr22.fa");
-		System.out.print("Reading genome...");
-		CharSequence sequence = null;
-		try
-		{
-			/*
-			 * Don't worry about casting file size to an int: we can't have
-			 * strings longer than Integer.MAX_VALUE anyway
-			 */
-			sequence = FastaReader.getSequence(chr22, (int) chr22.length());
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
+
+		SequenceGenerator g = new SeqGenSingleSequenceMultipleRepeats();
+		SequenceGenerator.Options sgo = new SequenceGenerator.Options();
+		sgo.length = 500000;
+		System.out.print("Generating sequence...");
+		CharSequence sequence = g.generateSequence(sgo);
 		System.out.println("done.");
 		System.out.printf("Genome length: %d%n", sequence.length());
 
@@ -238,9 +244,7 @@ public class AlignmentToolService
 				errored_list, new Options(paired_end, phredThreshold, errorProbability), m_pt));
 			alignmentInterfaceList.add(new SoapInterface(++index, "SOAP", sequence, errored_list,
 				new Options(paired_end, phredThreshold, errorProbability), m_pt));
-			alignmentInterfaceList.add(new MaqInterface(++index, "MAQ", sequence, errored_list,
-				new Options(paired_end, phredThreshold, errorProbability), m_pt));
-			alignmentInterfaceList.add(new BwaInterface(++index, "Bowtie", sequence, errored_list,
+			alignmentInterfaceList.add(new BwaInterface(++index, "BWA", sequence, errored_list,
 				new Options(paired_end, phredThreshold, errorProbability), m_pt));
 
 			for (AlignmentToolInterface ati : alignmentInterfaceList)
