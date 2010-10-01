@@ -287,7 +287,7 @@ public class AlignmentToolService
 		{
 			for (Integer i : m.get(s).keySet())
 			{
-				AlignmentResults r = m.get(i).get(s);
+				AlignmentResults r = m.get(s).get(i);
 				System.out.printf("%s,%d,%f,%f,%d%n", s, i, (double) r.truePositives
 						/ (double) (r.truePositives + r.falsePositives), (double) r.truePositives
 						/ (double) (r.truePositives + r.falseNegatives),
