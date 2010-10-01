@@ -117,7 +117,7 @@ public class MrsFastInterface extends AlignmentToolInterface
 	@Override
 	public AlignmentResults readAlignment(int threshold)
 	{
-		System.out.printf("%03d: %s", index, "Reading alignment...");
+		System.out.printf("%03d: Reading alignment (threshold %d)...%n", index, threshold);
 		AlignmentResults rs = new AlignmentResults();
 		try
 		{
