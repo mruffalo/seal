@@ -215,6 +215,7 @@ public abstract class AlignmentToolInterface implements Callable<Map<Integer, Al
 		{
 			AlignmentResults r = readAlignment(threshold);
 			r.timeMap = timeMap;
+			results.put(threshold, r);
 			// cleanup();
 			m.put(description, results);
 		}
