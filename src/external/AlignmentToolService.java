@@ -8,6 +8,7 @@ import io.FastaReader;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -31,7 +32,9 @@ public class AlignmentToolService
 	private static final int NUMBER_OF_CONCURRENT_THREADS = 2;
 	protected static final double[] ERROR_PROBABILITIES = { 0.0, 0.001, 0.004, 0.01, 0.025, 0.05,
 			0.1 };
-	protected static final int[] PHRED_THRESHOLDS = { 0, 10, 20, 30 };
+	protected static final List<Integer> PHRED_THRESHOLDS = Collections.unmodifiableList(Arrays.asList(
+		0, 10, 20, 30));
+	protected static final List<Integer> RUNTIME_THRESHOLDS = Collections.unmodifiableList(Arrays.asList(0));
 	protected static final int[] COVERAGES = { 3, 7, 10, 13, 16, 20 };
 
 	private ExecutorService pool;
@@ -80,73 +83,67 @@ public class AlignmentToolService
 
 		path.mkdirs();
 
-		final int alignmentToolCount = ERROR_PROBABILITIES.length * PHRED_THRESHOLDS.length * 7;
+		final int alignmentToolCount = ERROR_PROBABILITIES.length * PHRED_THRESHOLDS.size() * 7;
 		List<AlignmentToolInterface> atiList = new ArrayList<AlignmentToolInterface>(
 			alignmentToolCount);
 
-		Map<Double, Map<Integer, Map<String, AlignmentResults>>> m = Collections.synchronizedMap(new TreeMap<Double, Map<Integer, Map<String, AlignmentResults>>>());
-		List<Future<AlignmentResults>> futureList = new ArrayList<Future<AlignmentResults>>(
+		Map<Double, Map<String, Map<Integer, AlignmentResults>>> m = Collections.synchronizedMap(new TreeMap<Double, Map<String, Map<Integer, AlignmentResults>>>());
+		List<Future<Map<Integer, AlignmentResults>>> futureList = new ArrayList<Future<Map<Integer, AlignmentResults>>>(
 			alignmentToolCount);
 
 		int index = 0;
 		for (double errorProbability : ERROR_PROBABILITIES)
 		{
-			Map<Integer, Map<String, AlignmentResults>> m_ep = Collections.synchronizedMap(new TreeMap<Integer, Map<String, AlignmentResults>>());
+			Map<String, Map<Integer, AlignmentResults>> m_ep = Collections.synchronizedMap(new TreeMap<String, Map<Integer, AlignmentResults>>());
 			m.put(errorProbability, m_ep);
 			System.out.print("Introducing fragment read errors...");
 			UniformErrorGenerator eg = new UniformErrorGenerator(SequenceGenerator.NUCLEOTIDES,
 				errorProbability);
 			List<? extends Fragment> errored_list = eg.generateErrors(list);
 			System.out.println("done.");
-			for (int phredThreshold : PHRED_THRESHOLDS)
+			List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
+			Options o = new Options(paired_end, errorProbability);
+			o.penalize_duplicate_mappings = false;
+			alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast-L", PHRED_THRESHOLDS,
+				sequence, errored_list, o, m_ep));
+			alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast-S", PHRED_THRESHOLDS,
+				sequence, errored_list, new Options(paired_end, errorProbability), m_ep));
+			o = new Options(paired_end, errorProbability);
+			o.penalize_duplicate_mappings = false;
+			alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast-L", PHRED_THRESHOLDS,
+				sequence, errored_list, o, m_ep));
+			alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast-S", PHRED_THRESHOLDS,
+				sequence, errored_list, new Options(paired_end, errorProbability), m_ep));
+			alignmentInterfaceList.add(new SoapInterface(++index, "SOAP", PHRED_THRESHOLDS,
+				sequence, errored_list, new Options(paired_end, errorProbability), m_ep));
+			alignmentInterfaceList.add(new BwaInterface(++index, "BWA", PHRED_THRESHOLDS, sequence,
+				errored_list, new Options(paired_end, errorProbability), m_ep));
+
+			for (AlignmentToolInterface ati : alignmentInterfaceList)
 			{
-				Map<String, AlignmentResults> m_pt = Collections.synchronizedMap(new TreeMap<String, AlignmentResults>());
-				m_ep.put(phredThreshold, m_pt);
+				File tool_path = new File(path,
+					String.format("%03d-%s", ati.index, ati.description));
+				tool_path.mkdirs();
+				ati.o.genome = new File(tool_path, "genome.fasta");
+				ati.o.binary_genome = new File(tool_path, "genome.bfa");
 
-				List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
-				Options o = new Options(paired_end, phredThreshold, errorProbability);
-				o.penalize_duplicate_mappings = false;
-				alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast-L", sequence,
-					errored_list, o, m_pt));
-				alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast-S", sequence,
-					errored_list, new Options(paired_end, phredThreshold, errorProbability), m_pt));
-				o = new Options(paired_end, phredThreshold, errorProbability);
-				o.penalize_duplicate_mappings = false;
-				alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast-L", sequence,
-					errored_list, o, m_pt));
-				alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast-S", sequence,
-					errored_list, new Options(paired_end, phredThreshold, errorProbability), m_pt));
-				alignmentInterfaceList.add(new SoapInterface(++index, "SOAP", sequence,
-					errored_list, new Options(paired_end, phredThreshold, errorProbability), m_pt));
-				alignmentInterfaceList.add(new BwaInterface(++index, "BWA", sequence, errored_list,
-					new Options(paired_end, phredThreshold, errorProbability), m_pt));
-
-				for (AlignmentToolInterface ati : alignmentInterfaceList)
+				int read_count = paired_end ? 2 : 1;
+				for (int i = 1; i <= read_count; i++)
 				{
-					File tool_path = new File(path, String.format("%03d-%s", ati.index,
-						ati.description));
-					tool_path.mkdirs();
-					ati.o.genome = new File(tool_path, "genome.fasta");
-					ati.o.binary_genome = new File(tool_path, "genome.bfa");
-
-					int read_count = paired_end ? 2 : 1;
-					for (int i = 1; i <= read_count; i++)
-					{
-						Options.Reads r = new Options.Reads(i);
-						r.reads = new File(tool_path, String.format("fragments%d.fastq", i));
-						r.binary_reads = new File(tool_path, String.format("fragments%d.bfq", i));
-						r.aligned_reads = new File(tool_path, String.format("alignment%d.sai", i));
-						ati.o.reads.add(r);
-					}
-					ati.o.raw_output = new File(tool_path, "out.raw");
-					ati.o.sam_output = new File(tool_path, "alignment.sam");
-					ati.o.converted_output = new File(tool_path, "out.txt");
-
-					System.out.printf("*** %03d %s: %d, %f%n", ati.index, ati.description,
-						ati.o.phred_match_threshold, ati.o.error_probability);
-
-					atiList.add(ati);
+					Options.Reads r = new Options.Reads(i);
+					r.reads = new File(tool_path, String.format("fragments%d.fastq", i));
+					r.binary_reads = new File(tool_path, String.format("fragments%d.bfq", i));
+					r.aligned_reads = new File(tool_path, String.format("alignment%d.sai", i));
+					ati.o.reads.add(r);
 				}
+				ati.o.raw_output = new File(tool_path, "out.raw");
+				ati.o.sam_output = new File(tool_path, "alignment.sam");
+				ati.o.converted_output = new File(tool_path, "out.txt");
+
+				System.out.printf("*** %03d %s: %f%n", ati.index, ati.description,
+					ati.o.error_probability);
+
+				atiList.add(ati);
 			}
 		}
 		for (AlignmentToolInterface ati : atiList)
@@ -155,7 +152,7 @@ public class AlignmentToolService
 		}
 
 		pool.shutdown();
-		for (Future<AlignmentResults> f : futureList)
+		for (Future<Map<Integer, AlignmentResults>> f : futureList)
 		{
 			try
 			{
@@ -174,11 +171,11 @@ public class AlignmentToolService
 		}
 		for (Double d : m.keySet())
 		{
-			for (Integer i : m.get(d).keySet())
+			for (String s : m.get(d).keySet())
 			{
-				for (String s : m.get(d).get(i).keySet())
+				for (Integer i : m.get(d).get(s).keySet())
 				{
-					AlignmentResults r = m.get(d).get(i).get(s);
+					AlignmentResults r = m.get(d).get(s).get(i);
 					System.out.printf("%s,%f,%d,%f,%f,%d%n", s, d, i, (double) r.truePositives
 							/ (double) (r.truePositives + r.falsePositives),
 						(double) r.truePositives / (double) (r.truePositives + r.falseNegatives),
@@ -208,8 +205,8 @@ public class AlignmentToolService
 
 		path.mkdirs();
 
-		Map<Integer, Map<String, AlignmentResults>> m = Collections.synchronizedMap(new TreeMap<Integer, Map<String, AlignmentResults>>());
-		List<Future<AlignmentResults>> futureList = new ArrayList<Future<AlignmentResults>>(
+		Map<String, Map<Integer, AlignmentResults>> m = Collections.synchronizedMap(new TreeMap<String, Map<Integer, AlignmentResults>>());
+		List<Future<Map<Integer, AlignmentResults>>> futureList = new ArrayList<Future<Map<Integer, AlignmentResults>>>(
 			COVERAGES.length * 5);
 
 		int index = 0;
@@ -233,19 +230,16 @@ public class AlignmentToolService
 			List<? extends Fragment> errored_list = eg.generateErrors(list);
 			System.out.println("done.");
 
-			Map<String, AlignmentResults> m_pt = Collections.synchronizedMap(new TreeMap<String, AlignmentResults>());
-			m.put(coverage, m_pt);
-
 			List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
 
-			alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast", sequence,
-				errored_list, new Options(paired_end, phredThreshold, errorProbability), m_pt));
-			alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast", sequence,
-				errored_list, new Options(paired_end, phredThreshold, errorProbability), m_pt));
-			alignmentInterfaceList.add(new SoapInterface(++index, "SOAP", sequence, errored_list,
-				new Options(paired_end, phredThreshold, errorProbability), m_pt));
-			alignmentInterfaceList.add(new BwaInterface(++index, "BWA", sequence, errored_list,
-				new Options(paired_end, phredThreshold, errorProbability), m_pt));
+			alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast", RUNTIME_THRESHOLDS,
+				sequence, errored_list, new Options(paired_end, errorProbability), m));
+			alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast", RUNTIME_THRESHOLDS,
+				sequence, errored_list, new Options(paired_end, errorProbability), m));
+			alignmentInterfaceList.add(new SoapInterface(++index, "SOAP", RUNTIME_THRESHOLDS,
+				sequence, errored_list, new Options(paired_end, errorProbability), m));
+			alignmentInterfaceList.add(new BwaInterface(++index, "BWA", RUNTIME_THRESHOLDS,
+				sequence, errored_list, new Options(paired_end, errorProbability), m));
 
 			for (AlignmentToolInterface ati : alignmentInterfaceList)
 			{
@@ -272,7 +266,7 @@ public class AlignmentToolService
 		}
 
 		pool.shutdown();
-		for (Future<AlignmentResults> f : futureList)
+		for (Future<Map<Integer, AlignmentResults>> f : futureList)
 		{
 			try
 			{
@@ -289,9 +283,9 @@ public class AlignmentToolService
 				e.printStackTrace();
 			}
 		}
-		for (Integer i : m.keySet())
+		for (String s : m.keySet())
 		{
-			for (String s : m.get(i).keySet())
+			for (Integer i : m.get(s).keySet())
 			{
 				AlignmentResults r = m.get(i).get(s);
 				System.out.printf("%s,%d,%f,%f,%d%n", s, i, (double) r.truePositives

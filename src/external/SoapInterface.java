@@ -27,10 +27,11 @@ public class SoapInterface extends AlignmentToolInterface
 	public static final String ALIGN_INDEX_OPTION = "-D";
 	public static final String[] ALIGN_QUERY_OPTIONS = { "-a", "-b" };
 
-	public SoapInterface(int index_, String description_, CharSequence sequence_,
-		List<? extends Fragment> fragments_, Options o_, Map<String, AlignmentResults> m_)
+	public SoapInterface(int index_, String description_, List<Integer> thresholds_,
+		CharSequence sequence_, List<? extends Fragment> list_, Options o_,
+		Map<String, Map<Integer, AlignmentResults>> m_)
 	{
-		super(index_, description_, sequence_, fragments_, o_, m_);
+		super(index_, description_, thresholds_, sequence_, list_, o_, m_);
 	}
 
 	public void createIndex(File file)
@@ -162,7 +163,7 @@ public class SoapInterface extends AlignmentToolInterface
 	 * logic into {@link SamReader}
 	 */
 	@Override
-	public AlignmentResults readAlignment()
+	public AlignmentResults readAlignment(int threshold)
 	{
 		System.out.printf("%03d: %s%n", index, "Reading alignment...");
 		AlignmentResults rs = new AlignmentResults();
@@ -192,7 +193,7 @@ public class SoapInterface extends AlignmentToolInterface
 				int phredProbability = Integer.parseInt(pieces[4]);
 				if (readPosition == alignedPosition)
 				{
-					if (phredProbability >= o.phred_match_threshold)
+					if (phredProbability >= threshold)
 					{
 						rs.truePositives++;
 					}
@@ -203,7 +204,7 @@ public class SoapInterface extends AlignmentToolInterface
 				}
 				else
 				{
-					if (phredProbability >= o.phred_match_threshold)
+					if (phredProbability >= threshold)
 					{
 						rs.falsePositives++;
 					}

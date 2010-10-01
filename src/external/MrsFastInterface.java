@@ -24,10 +24,11 @@ public class MrsFastInterface extends AlignmentToolInterface
 	public static final String INDEX_COMMAND = "--index";
 	public static final String SEARCH_COMMAND = "--search";
 
-	public MrsFastInterface(int index_, String description_, CharSequence sequence_,
-		List<? extends Fragment> fragments_, Options o_, Map<String, AlignmentResults> m_)
+	public MrsFastInterface(int index_, String description_, List<Integer> thresholds_,
+		CharSequence sequence_, List<? extends Fragment> list_, Options o_,
+		Map<String, Map<Integer, AlignmentResults>> m_)
 	{
-		super(index_, description_, sequence_, fragments_, o_, m_);
+		super(index_, description_, thresholds_, sequence_, list_, o_, m_);
 	}
 
 	public void createIndex(File file)
@@ -114,7 +115,7 @@ public class MrsFastInterface extends AlignmentToolInterface
 	 * logic into {@link SamReader}
 	 */
 	@Override
-	public AlignmentResults readAlignment()
+	public AlignmentResults readAlignment(int threshold)
 	{
 		System.out.printf("%03d: %s", index, "Reading alignment...");
 		AlignmentResults rs = new AlignmentResults();
@@ -144,7 +145,7 @@ public class MrsFastInterface extends AlignmentToolInterface
 				int phredProbability = Integer.parseInt(pieces[4]);
 				if (readPosition == alignedPosition)
 				{
-					if (phredProbability >= o.phred_match_threshold)
+					if (phredProbability >= threshold)
 					{
 						rs.truePositives++;
 					}
@@ -156,7 +157,7 @@ public class MrsFastInterface extends AlignmentToolInterface
 				else if (o.penalize_duplicate_mappings
 						|| (!o.penalize_duplicate_mappings && !correctlyMappedFragments.contains(fragmentIdentifier)))
 				{
-					if (phredProbability >= o.phred_match_threshold)
+					if (phredProbability >= threshold)
 					{
 						rs.falsePositives++;
 					}

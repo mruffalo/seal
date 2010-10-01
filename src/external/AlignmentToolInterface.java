@@ -21,8 +21,9 @@ import generator.SeqGenSingleSequenceMultipleRepeats;
 import generator.SequenceGenerator;
 import generator.UniformErrorGenerator;
 
-public abstract class AlignmentToolInterface implements Callable<AlignmentResults>
+public abstract class AlignmentToolInterface implements Callable<Map<Integer, AlignmentResults>>
 {
+	protected final List<Integer> thresholds;
 	protected CharSequence sequence;
 	protected List<? extends Fragment> fragments;
 	protected List<List<? extends Fragment>> pairedEndFragments;
@@ -35,7 +36,7 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 	protected Set<String> correctlyMappedFragments;
 	protected Set<String> totalMappedFragments;
 
-	protected Map<String, AlignmentResults> m;
+	protected Map<String, Map<Integer, AlignmentResults>> m;
 
 	public final int index;
 	protected final String description;
@@ -67,15 +68,13 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 			public File aligned_reads;
 		}
 
-		public Options(boolean is_paired_end_, int phred_match_threshold_, double error_probability_)
+		public Options(boolean is_paired_end_, double error_probability_)
 		{
 			is_paired_end = is_paired_end_;
-			phred_match_threshold = phred_match_threshold_;
 			error_probability = error_probability_;
 		}
 
 		public final boolean is_paired_end;
-		public final int phred_match_threshold;
 		public final double error_probability;
 		public File genome;
 		public File binary_genome;
@@ -91,11 +90,13 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 		public boolean penalize_duplicate_mappings = true;
 	}
 
-	public AlignmentToolInterface(int index_, String description_, CharSequence sequence_,
-		List<? extends Fragment> list_, Options o_, Map<String, AlignmentResults> m_)
+	public AlignmentToolInterface(int index_, String description_, List<Integer> thresholds_,
+		CharSequence sequence_, List<? extends Fragment> list_, Options o_,
+		Map<String, Map<Integer, AlignmentResults>> m_)
 	{
 		index = index_;
 		description = description_;
+		thresholds = thresholds_;
 		sequence = sequence_;
 		fragments = list_;
 		o = o_;
@@ -170,7 +171,7 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 
 	public abstract void postAlignmentProcessing();
 
-	public abstract AlignmentResults readAlignment();
+	public abstract AlignmentResults readAlignment(int qualityThreshold);
 
 	public void cleanup()
 	{
@@ -190,7 +191,7 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 	}
 
 	@Override
-	public AlignmentResults call() throws Exception
+	public Map<Integer, AlignmentResults> call() throws Exception
 	{
 		Map<AlignmentOperation, Long> timeMap = new EnumMap<AlignmentOperation, Long>(
 			AlignmentOperation.class);
@@ -208,16 +209,15 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 		timeMap.put(AlignmentOperation.POSTPROCESSING, postprocessing - alignment);
 		timeMap.put(AlignmentOperation.TOTAL, postprocessing - start);
 
-		AlignmentResults r = readAlignment();
-		r.timeMap = timeMap;
-		// cleanup();
+		Map<Integer, AlignmentResults> results = new TreeMap<Integer, AlignmentResults>();
 
-		m.put(description, r);
-
-		System.out.printf("Precision: %f%n", (double) r.truePositives
-				/ (double) (r.truePositives + r.falsePositives));
-		System.out.printf("Recall: %f%n", (double) r.truePositives
-				/ (double) (r.truePositives + r.falseNegatives));
-		return r;
+		for (Integer threshold : thresholds)
+		{
+			AlignmentResults r = readAlignment(threshold);
+			r.timeMap = timeMap;
+			// cleanup();
+			m.put(description, results);
+		}
+		return results;
 	}
 }

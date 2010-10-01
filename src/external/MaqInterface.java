@@ -32,10 +32,11 @@ public class MaqInterface extends AlignmentToolInterface
 	public static final String ASSEMBLE_COMMAND = "assemble";
 	public static final String VIEW_ALIGNMENT_COMMAND = "mapview";
 
-	public MaqInterface(int index_, String description_, CharSequence sequence_,
-		List<? extends Fragment> fragments_, Options o_, Map<String, AlignmentResults> m_)
+	public MaqInterface(int index_, String description_, List<Integer> thresholds_,
+		CharSequence sequence_, List<? extends Fragment> list_, Options o_,
+		Map<String, Map<Integer, AlignmentResults>> m_)
 	{
-		super(index_, description_, sequence_, fragments_, o_, m_);
+		super(index_, description_, thresholds_, sequence_, list_, o_, m_);
 	}
 
 	@Override
@@ -188,7 +189,7 @@ public class MaqInterface extends AlignmentToolInterface
 	 * logic into {@link SamReader}
 	 */
 	@Override
-	public AlignmentResults readAlignment()
+	public AlignmentResults readAlignment(int threshold)
 	{
 		System.out.printf("%03d: %s%n", index, "Reading alignment...");
 		AlignmentResults rs = new AlignmentResults();
@@ -231,7 +232,7 @@ public class MaqInterface extends AlignmentToolInterface
 				int phredProbability = Integer.parseInt(pieces[6]);
 				if (readPosition == alignedPosition)
 				{
-					if (phredProbability >= o.phred_match_threshold)
+					if (phredProbability >= threshold)
 					{
 						rs.truePositives++;
 					}
@@ -242,7 +243,7 @@ public class MaqInterface extends AlignmentToolInterface
 				}
 				else
 				{
-					if (phredProbability >= o.phred_match_threshold)
+					if (phredProbability >= threshold)
 					{
 						rs.falsePositives++;
 					}
