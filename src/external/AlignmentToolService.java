@@ -33,7 +33,7 @@ public class AlignmentToolService
 	protected static final double[] ERROR_PROBABILITIES = { 0.0, 0.001, 0.004, 0.01, 0.025, 0.05,
 			0.1 };
 	protected static final List<Integer> PHRED_THRESHOLDS = Collections.unmodifiableList(Arrays.asList(
-		0, 10, 20, 30));
+		0, 1, 2, 3, 4, 5, 7, 10, 14, 20, 25, 30, 35, 40));
 	protected static final List<Integer> RUNTIME_THRESHOLDS = Collections.unmodifiableList(Arrays.asList(0));
 	protected static final int[] COVERAGES = { 3, 7, 10, 13, 16, 20 };
 
