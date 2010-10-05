@@ -95,7 +95,7 @@ public class ShrimpInterface extends AlignmentToolInterface
 			String line = null;
 			while ((line = r.readLine()) != null)
 			{
-				if (line.startsWith("@"))
+				if (line.startsWith("@") || line.startsWith("#"))
 				{
 					continue;
 				}
