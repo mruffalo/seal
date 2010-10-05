@@ -169,6 +169,8 @@ public class AlignmentToolService
 				e.printStackTrace();
 			}
 		}
+		System.out.printf("%s,%f,%d,%f,%f,%d%n", "Tool", "ErrorRate", "Threshold", "Precision",
+			"Recall", "Time");
 		for (Double d : m.keySet())
 		{
 			for (String s : m.get(d).keySet())
