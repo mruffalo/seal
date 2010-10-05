@@ -102,15 +102,16 @@ public class AlignmentToolService
 			List<? extends Fragment> errored_list = eg.generateErrors(list);
 			System.out.println("done.");
 			List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
+
 			Options o = new Options(paired_end, errorProbability);
 			o.penalize_duplicate_mappings = false;
-			alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast-L", PHRED_THRESHOLDS,
+			alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast-R", PHRED_THRESHOLDS,
 				sequence, errored_list, o, m_ep));
 			alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast-S", PHRED_THRESHOLDS,
 				sequence, errored_list, new Options(paired_end, errorProbability), m_ep));
 			o = new Options(paired_end, errorProbability);
 			o.penalize_duplicate_mappings = false;
-			alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast-L", PHRED_THRESHOLDS,
+			alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast-R", PHRED_THRESHOLDS,
 				sequence, errored_list, o, m_ep));
 			alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast-S", PHRED_THRESHOLDS,
 				sequence, errored_list, new Options(paired_end, errorProbability), m_ep));
@@ -118,7 +119,11 @@ public class AlignmentToolService
 				sequence, errored_list, new Options(paired_end, errorProbability), m_ep));
 			alignmentInterfaceList.add(new BwaInterface(++index, "BWA", PHRED_THRESHOLDS, sequence,
 				errored_list, new Options(paired_end, errorProbability), m_ep));
-			alignmentInterfaceList.add(new ShrimpInterface(++index, "SHRiMP", PHRED_THRESHOLDS,
+			o = new Options(paired_end, errorProbability);
+			o.penalize_duplicate_mappings = false;
+			alignmentInterfaceList.add(new ShrimpInterface(++index, "SHRiMP-R", PHRED_THRESHOLDS,
+				sequence, errored_list, o, m_ep));
+			alignmentInterfaceList.add(new ShrimpInterface(++index, "SHRiMP-S", PHRED_THRESHOLDS,
 				sequence, errored_list, new Options(paired_end, errorProbability), m_ep));
 
 			for (AlignmentToolInterface ati : alignmentInterfaceList)
