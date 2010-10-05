@@ -118,6 +118,8 @@ public class AlignmentToolService
 				sequence, errored_list, new Options(paired_end, errorProbability), m_ep));
 			alignmentInterfaceList.add(new BwaInterface(++index, "BWA", PHRED_THRESHOLDS, sequence,
 				errored_list, new Options(paired_end, errorProbability), m_ep));
+			alignmentInterfaceList.add(new ShrimpInterface(++index, "SHRiMP", PHRED_THRESHOLDS,
+				sequence, errored_list, new Options(paired_end, errorProbability), m_ep));
 
 			for (AlignmentToolInterface ati : alignmentInterfaceList)
 			{
