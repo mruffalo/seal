@@ -249,6 +249,8 @@ public class AlignmentToolService
 				sequence, errored_list, new Options(paired_end, errorProbability), m));
 			alignmentInterfaceList.add(new BwaInterface(++index, "BWA", RUNTIME_THRESHOLDS,
 				sequence, errored_list, new Options(paired_end, errorProbability), m));
+			alignmentInterfaceList.add(new ShrimpInterface(++index, "SHRiMP", RUNTIME_THRESHOLDS,
+				sequence, errored_list, new Options(paired_end, errorProbability), m));
 
 			for (AlignmentToolInterface ati : alignmentInterfaceList)
 			{
@@ -292,14 +294,19 @@ public class AlignmentToolService
 				e.printStackTrace();
 			}
 		}
+		System.out.printf("%s,%s,%s,%s,%s,%s,%s%n", "Tool", "ErrorRate", "Threshold", "Precision",
+			"Recall", "PreprocessingTime", "AlignmentTime", "PostprocessingTime", "TotalTime");
 		for (String s : m.keySet())
 		{
 			for (Integer i : m.get(s).keySet())
 			{
 				AlignmentResults r = m.get(s).get(i);
-				System.out.printf("%s,%d,%f,%f,%d%n", s, i, (double) r.truePositives
+				System.out.printf("%s,%d,%f,%f,%d,%d,%d%n", s, i, (double) r.truePositives
 						/ (double) (r.truePositives + r.falsePositives), (double) r.truePositives
 						/ (double) (r.truePositives + r.falseNegatives),
+					r.timeMap.get(AlignmentOperation.PREPROCESSING),
+					r.timeMap.get(AlignmentOperation.ALIGNMENT),
+					r.timeMap.get(AlignmentOperation.POSTPROCESSING),
 					r.timeMap.get(AlignmentOperation.TOTAL));
 			}
 		}
