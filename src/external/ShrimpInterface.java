@@ -49,7 +49,7 @@ public class ShrimpInterface extends AlignmentToolInterface
 			BufferedReader stderr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
 
 			// TODO: Use a faster bulk copy method for this
-			FileOutputStream w = new FileOutputStream(o.reads.get(i).aligned_reads);
+			FileOutputStream w = new FileOutputStream(o.sam_output);
 			int data = -1;
 			while ((data = stdout.read()) != -1)
 			{
