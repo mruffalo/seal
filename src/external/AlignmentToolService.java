@@ -171,7 +171,7 @@ public class AlignmentToolService
 				e.printStackTrace();
 			}
 		}
-		System.out.printf("%s,%f,%d,%f,%f,%d%n", "Tool", "ErrorRate", "Threshold", "Precision",
+		System.out.printf("%s,%s,%s,%s,%s,%s%n", "Tool", "ErrorRate", "Threshold", "Precision",
 			"Recall", "Time");
 		for (Double d : m.keySet())
 		{
