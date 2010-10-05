@@ -36,8 +36,8 @@ public class ShrimpInterface extends AlignmentToolInterface
 		final int i = 0;
 		List<String> commands = new ArrayList<String>();
 		commands.add(SHRIMP_ALIGN_COMMAND);
-		commands.add(o.genome.getAbsolutePath());
 		commands.add(o.reads.get(i).reads.getAbsolutePath());
+		commands.add(o.genome.getAbsolutePath());
 		ProcessBuilder pb = new ProcessBuilder(commands);
 		pb.directory(o.genome.getParentFile());
 		try
