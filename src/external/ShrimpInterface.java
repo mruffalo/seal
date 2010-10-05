@@ -77,7 +77,7 @@ public class ShrimpInterface extends AlignmentToolInterface
 	@Override
 	public void preAlignmentProcessing()
 	{
-		// No-op for SHRiMP
+		writeGenome();
 	}
 
 	/**
