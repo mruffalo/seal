@@ -1,6 +1,7 @@
 package external;
 
 import io.Constants;
+import io.FastaWriter;
 import io.FastqWriter;
 import io.SamReader;
 import java.io.BufferedReader;
@@ -42,7 +43,7 @@ public class ShrimpInterface extends AlignmentToolInterface
 		pb.directory(o.genome.getParentFile());
 		try
 		{
-			FastqWriter.writeFragments(pairedEndFragments.get(i), o.reads.get(i).reads,
+			FastaWriter.writeFragments(pairedEndFragments.get(i), o.reads.get(i).reads,
 				o.reads.get(i).index);
 			Process p = pb.start();
 			InputStream stdout = p.getInputStream();
