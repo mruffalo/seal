@@ -201,7 +201,6 @@ public class AlignmentToolService
 	{
 		final boolean paired_end = false;
 		final double errorProbability = 0.05;
-		final int phredThreshold = 0;
 		final File path = new File("data");
 
 		SequenceGenerator g = new SeqGenSingleSequenceMultipleRepeats();
@@ -214,13 +213,15 @@ public class AlignmentToolService
 
 		path.mkdirs();
 
-		Map<String, Map<Integer, AlignmentResults>> m = Collections.synchronizedMap(new TreeMap<String, Map<Integer, AlignmentResults>>());
+		Map<Integer, Map<String, Map<Integer, AlignmentResults>>> m = Collections.synchronizedMap(new TreeMap<Integer, Map<String, Map<Integer, AlignmentResults>>>());
 		List<Future<Map<Integer, AlignmentResults>>> futureList = new ArrayList<Future<Map<Integer, AlignmentResults>>>(
 			COVERAGES.length * 5);
 
 		int index = 0;
 		for (int coverage : COVERAGES)
 		{
+			Map<String, Map<Integer, AlignmentResults>> m_c = Collections.synchronizedMap(new TreeMap<String, Map<Integer, AlignmentResults>>());
+			m.put(coverage, m_c);
 			Fragmentizer.Options fo = new Fragmentizer.Options();
 			fo.k = 50;
 			/*
@@ -242,15 +243,15 @@ public class AlignmentToolService
 			List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
 
 			alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast", RUNTIME_THRESHOLDS,
-				sequence, errored_list, new Options(paired_end, errorProbability), m));
+				sequence, errored_list, new Options(paired_end, errorProbability), m_c));
 			alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast", RUNTIME_THRESHOLDS,
-				sequence, errored_list, new Options(paired_end, errorProbability), m));
+				sequence, errored_list, new Options(paired_end, errorProbability), m_c));
 			alignmentInterfaceList.add(new SoapInterface(++index, "SOAP", RUNTIME_THRESHOLDS,
-				sequence, errored_list, new Options(paired_end, errorProbability), m));
+				sequence, errored_list, new Options(paired_end, errorProbability), m_c));
 			alignmentInterfaceList.add(new BwaInterface(++index, "BWA", RUNTIME_THRESHOLDS,
-				sequence, errored_list, new Options(paired_end, errorProbability), m));
+				sequence, errored_list, new Options(paired_end, errorProbability), m_c));
 			alignmentInterfaceList.add(new ShrimpInterface(++index, "SHRiMP", RUNTIME_THRESHOLDS,
-				sequence, errored_list, new Options(paired_end, errorProbability), m));
+				sequence, errored_list, new Options(paired_end, errorProbability), m_c));
 
 			for (AlignmentToolInterface ati : alignmentInterfaceList)
 			{
@@ -294,16 +295,13 @@ public class AlignmentToolService
 				e.printStackTrace();
 			}
 		}
-		System.out.printf("%s,%s,%s,%s,%s,%s,%s%n", "Tool", "ErrorRate", "Threshold", "Precision",
-			"Recall", "PreprocessingTime", "AlignmentTime", "PostprocessingTime", "TotalTime");
-		for (String s : m.keySet())
+		System.out.println("Tool,Coverage,PreprocessingTime,AlignmentTime,PostprocessingTime,TotalTime");
+		for (Integer c : m.keySet())
 		{
-			for (Integer i : m.get(s).keySet())
+			for (String s : m.get(c).keySet())
 			{
-				AlignmentResults r = m.get(s).get(i);
-				System.out.printf("%s,%d,%f,%f,%d,%d,%d%n", s, i, (double) r.truePositives
-						/ (double) (r.truePositives + r.falsePositives), (double) r.truePositives
-						/ (double) (r.truePositives + r.falseNegatives),
+				AlignmentResults r = m.get(c).get(s).get(0);
+				System.out.printf("%s,%d,%d,%d,%d,%d%n", s, c,
 					r.timeMap.get(AlignmentOperation.PREPROCESSING),
 					r.timeMap.get(AlignmentOperation.ALIGNMENT),
 					r.timeMap.get(AlignmentOperation.POSTPROCESSING),
