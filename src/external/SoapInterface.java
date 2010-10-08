@@ -34,22 +34,21 @@ public class SoapInterface extends AlignmentToolInterface
 		super(index_, description_, thresholds_, sequence_, list_, o_, m_);
 	}
 
-	public void createIndex(File file)
+	public void createIndex()
 	{
-		String index_filename = file.getName() + ".index";
-		File file_to_check = new File(file.getParentFile(), file.getName() + ".index.bwt");
-		o.index = new File(file.getParentFile(), index_filename);
+		String index_filename = o.genome.getName() + ".index";
+		File file_to_check = new File(o.genome.getParentFile(), o.genome.getName() + ".index.bwt");
+		o.index = new File(o.genome.getParentFile(), index_filename);
 		if (file_to_check.isFile())
 		{
 			System.out.printf("%03d: %s%n", index, "Index found; skipping");
 		}
 		else
 		{
-			ProcessBuilder pb = new ProcessBuilder(INDEX_COMMAND, file.getAbsolutePath());
-			pb.directory(file.getParentFile());
+			ProcessBuilder pb = new ProcessBuilder(INDEX_COMMAND, o.genome.getAbsolutePath());
+			pb.directory(o.genome.getParentFile());
 			try
 			{
-				FastaWriter.writeSequence(sequence, file);
 				Process p = pb.start();
 				BufferedReader stdout = new BufferedReader(
 					new InputStreamReader(p.getInputStream()));
@@ -96,7 +95,6 @@ public class SoapInterface extends AlignmentToolInterface
 		pb.directory(o.genome.getParentFile());
 		try
 		{
-			FastqWriter.writeFragments(fragments, o.reads.get(0).reads, 0);
 			Process p = pb.start();
 			BufferedReader stdout = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			BufferedReader stderr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
@@ -236,7 +234,7 @@ public class SoapInterface extends AlignmentToolInterface
 	public void preAlignmentProcessing()
 	{
 		System.out.printf("%03d: %s%n", index, "Indexing genome...");
-		createIndex(o.genome);
+		createIndex();
 		System.out.printf("%03d: %s%n", index, "done indexing.");
 	}
 
@@ -246,8 +244,5 @@ public class SoapInterface extends AlignmentToolInterface
 		System.out.printf("%03d: %s%n", index, "Converting output to SAM format...");
 		convertToSamFormat();
 		System.out.printf("%03d: %s%n", index, "done converting.");
-
-		// HACK: Delete index to save time for successive runs
-		o.index = null;
 	}
 }

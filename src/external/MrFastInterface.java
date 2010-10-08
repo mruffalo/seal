@@ -10,6 +10,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +22,7 @@ import assembly.Fragment;
 
 public class MrFastInterface extends AlignmentToolInterface
 {
+	public static final String OUTPUT_FILE_OPTION = "-o";
 	public static final String SEQ_OPTION = "--seq";
 	public static final String MRFAST_COMMAND = "mrfast";
 	public static final String INDEX_COMMAND = "--index";
@@ -33,10 +35,10 @@ public class MrFastInterface extends AlignmentToolInterface
 		super(index_, description_, thresholds_, sequence_, list_, o_, m_);
 	}
 
-	public void createIndex(File file)
+	public void createIndex()
 	{
-		String index_filename = file.getName() + ".index";
-		o.index = new File(file.getParentFile(), index_filename);
+		String index_filename = o.genome.getName() + ".index";
+		o.index = new File(o.genome.getParentFile(), index_filename);
 		if (o.index.isFile())
 		{
 			System.out.printf("%03d: %s%n", index, "Index found; skipping");
@@ -44,11 +46,10 @@ public class MrFastInterface extends AlignmentToolInterface
 		else
 		{
 			ProcessBuilder pb = new ProcessBuilder(MRFAST_COMMAND, INDEX_COMMAND,
-				file.getAbsolutePath());
-			pb.directory(file.getParentFile());
+				o.genome.getAbsolutePath());
+			pb.directory(o.genome.getParentFile());
 			try
 			{
-				FastaWriter.writeSequence(sequence, file);
 				Process p = pb.start();
 				BufferedReader stdout = new BufferedReader(
 					new InputStreamReader(p.getInputStream()));
@@ -80,13 +81,18 @@ public class MrFastInterface extends AlignmentToolInterface
 	public void align()
 	{
 		System.out.printf("%03d: %s%n", index, "Aligning reads...");
-		ProcessBuilder pb = new ProcessBuilder(MRFAST_COMMAND, SEARCH_COMMAND,
-			o.genome.getAbsolutePath(), SEQ_OPTION, o.reads.get(0).reads.getAbsolutePath(), "-o",
-			o.sam_output.getAbsolutePath());
+		List<String> commands = new ArrayList<String>();
+		commands.add(MRFAST_COMMAND);
+		commands.add(SEARCH_COMMAND);
+		commands.add(o.genome.getAbsolutePath());
+		commands.add(SEQ_OPTION);
+		commands.add(o.reads.get(0).reads.getAbsolutePath());
+		commands.add(OUTPUT_FILE_OPTION);
+		commands.add(o.sam_output.getAbsolutePath());
+		ProcessBuilder pb = new ProcessBuilder(commands);
 		pb.directory(o.genome.getParentFile());
 		try
 		{
-			FastqWriter.writeFragments(fragments, o.reads.get(0).reads, 0);
 			Process p = pb.start();
 			BufferedReader stdout = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			BufferedReader stderr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
@@ -191,7 +197,7 @@ public class MrFastInterface extends AlignmentToolInterface
 	public void preAlignmentProcessing()
 	{
 		System.out.printf("%03d: %s%n", index, "Indexing genome...");
-		createIndex(o.genome);
+		createIndex();
 		System.out.printf("%03d: %s%n", index, "done indexing.");
 	}
 

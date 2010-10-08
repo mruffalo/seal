@@ -2,6 +2,7 @@ package external;
 
 import io.FastaReader;
 import io.FastaWriter;
+import io.FastqWriter;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -148,11 +149,6 @@ public abstract class AlignmentToolInterface implements Callable<Map<Integer, Al
 		public Map<AlignmentOperation, Long> timeMap;
 	}
 
-	public void writeFragments()
-	{
-
-	}
-
 	public void writeGenome()
 	{
 		try
@@ -163,6 +159,28 @@ public abstract class AlignmentToolInterface implements Callable<Map<Integer, Al
 		{
 			e.printStackTrace();
 		}
+	}
+
+	public void writeFragments()
+	{
+		for (int i = 0; i < o.reads.size(); i++)
+		{
+			try
+			{
+				FastqWriter.writeFragments(pairedEndFragments.get(i), o.reads.get(i).reads,
+					o.reads.get(i).index);
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
+		}
+	}
+
+	public void commonPreAlignmentProcessing()
+	{
+		writeGenome();
+		writeFragments();
 	}
 
 	public abstract void preAlignmentProcessing();
@@ -197,6 +215,7 @@ public abstract class AlignmentToolInterface implements Callable<Map<Integer, Al
 			AlignmentOperation.class);
 		long start, preprocessing, alignment, postprocessing;
 		start = System.nanoTime();
+		commonPreAlignmentProcessing();
 		preAlignmentProcessing();
 		preprocessing = System.nanoTime();
 		align();

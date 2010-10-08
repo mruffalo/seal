@@ -45,10 +45,10 @@ public class BwaInterface extends AlignmentToolInterface
 		super(index_, description_, thresholds_, sequence_, list_, o_, m_);
 	}
 
-	public void createIndex(File file)
+	public void createIndex()
 	{
-		String index_filename = file.getName() + ".bwt";
-		o.index = new File(file.getParentFile(), index_filename);
+		String index_filename = o.genome.getName() + ".bwt";
+		o.index = new File(o.genome.getParentFile(), index_filename);
 		if (o.index.isFile())
 		{
 			System.out.printf("%03d: %s%n", index, "Index found; skipping");
@@ -56,11 +56,10 @@ public class BwaInterface extends AlignmentToolInterface
 		else
 		{
 			ProcessBuilder pb = new ProcessBuilder(BWA_COMMAND, INDEX_COMMAND,
-				file.getAbsolutePath());
-			pb.directory(file.getParentFile());
+				o.genome.getAbsolutePath());
+			pb.directory(o.genome.getParentFile());
 			try
 			{
-				FastaWriter.writeSequence(sequence, file);
 				Process p = pb.start();
 				BufferedReader stdout = new BufferedReader(
 					new InputStreamReader(p.getInputStream()));
@@ -103,8 +102,6 @@ public class BwaInterface extends AlignmentToolInterface
 			pb.directory(o.genome.getParentFile());
 			try
 			{
-				FastqWriter.writeFragments(pairedEndFragments.get(i), o.reads.get(i).reads,
-					o.reads.get(i).index);
 				Process p = pb.start();
 				InputStream stdout = p.getInputStream();
 				BufferedReader stderr = new BufferedReader(
@@ -291,7 +288,7 @@ public class BwaInterface extends AlignmentToolInterface
 	public void preAlignmentProcessing()
 	{
 		System.out.printf("%03d: %s%n", index, "Indexing genome...");
-		createIndex(o.genome);
+		createIndex();
 		System.out.printf("%03d: %s%n", index, "done indexing.");
 	}
 

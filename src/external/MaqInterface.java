@@ -60,7 +60,6 @@ public class MaqInterface extends AlignmentToolInterface
 		pb.directory(o.genome.getParentFile());
 		try
 		{
-			FastqWriter.writeFragments(fragments, o.reads.get(0).reads, 0);
 			Process p = pb.start();
 			BufferedReader stdout = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			BufferedReader stderr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
@@ -108,7 +107,6 @@ public class MaqInterface extends AlignmentToolInterface
 		pb.directory(o.genome.getParentFile());
 		try
 		{
-			FastaWriter.writeSequence(sequence, o.genome);
 			Process p = pb.start();
 			BufferedReader stdout = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			BufferedReader stderr = new BufferedReader(new InputStreamReader(p.getErrorStream()));

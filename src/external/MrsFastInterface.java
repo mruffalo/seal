@@ -31,10 +31,10 @@ public class MrsFastInterface extends AlignmentToolInterface
 		super(index_, description_, thresholds_, sequence_, list_, o_, m_);
 	}
 
-	public void createIndex(File file)
+	public void createIndex()
 	{
-		String index_filename = file.getName() + ".index";
-		o.index = new File(file.getParentFile(), index_filename);
+		String index_filename = o.genome.getName() + ".index";
+		o.index = new File(o.genome.getParentFile(), index_filename);
 		if (o.index.isFile())
 		{
 			System.out.printf("%03d: %s%n", index, "Index found; skipping");
@@ -42,11 +42,10 @@ public class MrsFastInterface extends AlignmentToolInterface
 		else
 		{
 			ProcessBuilder pb = new ProcessBuilder(MRSFAST_COMMAND, INDEX_COMMAND,
-				file.getAbsolutePath());
-			pb.directory(file.getParentFile());
+				o.genome.getAbsolutePath());
+			pb.directory(o.genome.getParentFile());
 			try
 			{
-				FastaWriter.writeSequence(sequence, file);
 				Process p = pb.start();
 				BufferedReader stdout = new BufferedReader(
 					new InputStreamReader(p.getInputStream()));
@@ -84,7 +83,6 @@ public class MrsFastInterface extends AlignmentToolInterface
 		pb.directory(o.genome.getParentFile());
 		try
 		{
-			FastqWriter.writeFragments(fragments, o.reads.get(0).reads, 0);
 			Process p = pb.start();
 			BufferedReader stdout = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			BufferedReader stderr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
@@ -189,7 +187,7 @@ public class MrsFastInterface extends AlignmentToolInterface
 	public void preAlignmentProcessing()
 	{
 		System.out.printf("%03d: %s", index, "Indexing genome...");
-		createIndex(o.genome);
+		createIndex();
 		System.out.printf("%03d: %s%n", index, "done.");
 	}
 

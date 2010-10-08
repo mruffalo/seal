@@ -43,8 +43,6 @@ public class ShrimpInterface extends AlignmentToolInterface
 		pb.directory(o.genome.getParentFile());
 		try
 		{
-			FastaWriter.writeFragments(pairedEndFragments.get(i), o.reads.get(i).reads,
-				o.reads.get(i).index);
 			Process p = pb.start();
 			InputStream stdout = p.getInputStream();
 			BufferedReader stderr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
@@ -78,7 +76,6 @@ public class ShrimpInterface extends AlignmentToolInterface
 	@Override
 	public void preAlignmentProcessing()
 	{
-		writeGenome();
 	}
 
 	/**
