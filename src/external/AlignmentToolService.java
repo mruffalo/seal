@@ -44,32 +44,54 @@ public class AlignmentToolService
 		pool = Executors.newFixedThreadPool(NUMBER_OF_CONCURRENT_THREADS);
 	}
 
-	public void errorRateEvaluation(boolean paired_end)
+	private static enum Genome
 	{
-		/*
-		 * SequenceGenerator g = new SeqGenSingleSequenceMultipleRepeats();
-		 * SequenceGenerator.Options sgo = new SequenceGenerator.Options();
-		 * sgo.length = 100000; sgo.repeatCount = 10; sgo.repeatLength = 200;
-		 * sgo.repeatErrorProbability = 0.01;
-		 * System.out.print("Generating sequence..."); CharSequence sequence =
-		 * g.generateSequence(sgo); System.out.println("done.");
-		 */
-		final File path = new File("data");
-		final File chr22 = new File(path, "chr22.fa");
-		System.out.print("Reading genome...");
+		HUMAN_CHR22,
+		RANDOM_EASY,
+		RANDOM_HARD,
+	}
+
+	public void errorRateEvaluation(boolean paired_end, Genome genome)
+	{
+		final int generated_genome_length = 1000000;
 		CharSequence sequence = null;
-		try
+		final File path = new File("data");
+
+		System.out.print("Reading/creating genome...");
+		switch (genome)
 		{
-			/*
-			 * Don't worry about casting file size to an int: we can't have
-			 * strings longer than Integer.MAX_VALUE anyway
-			 */
-			sequence = FastaReader.getSequence(chr22, (int) chr22.length());
+			case HUMAN_CHR22:
+				final File chr22 = new File(path, "chr22.fa");
+				try
+				{
+					/*
+					 * Don't worry about casting file size to an int: we can't
+					 * have strings longer than Integer.MAX_VALUE anyway
+					 */
+					sequence = FastaReader.getSequence(chr22, (int) chr22.length());
+				}
+				catch (IOException e)
+				{
+					e.printStackTrace();
+				}
+				break;
+			case RANDOM_EASY:
+				break;
+			case RANDOM_HARD:
+				SequenceGenerator g = new SeqGenSingleSequenceMultipleRepeats();
+				SequenceGenerator.Options sgo = new SequenceGenerator.Options();
+				sgo.length = generated_genome_length;
+				sgo.repeatCount = 10;
+				sgo.repeatLength = 200;
+				sgo.repeatErrorProbability = 0.03;
+				System.out.print("Generating sequence...");
+				sequence = g.generateSequence(sgo);
+				System.out.println("done.");
+				break;
+			default:
+				break;
 		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
+
 		System.out.println("done.");
 		System.out.printf("Genome length: %d%n", sequence.length());
 		Fragmentizer.Options fo = new Fragmentizer.Options();
@@ -316,6 +338,6 @@ public class AlignmentToolService
 
 	public static void main(String[] args)
 	{
-		new AlignmentToolService().errorRateEvaluation(false);
+		new AlignmentToolService().errorRateEvaluation(false, Genome.HUMAN_CHR22);
 	}
 }
