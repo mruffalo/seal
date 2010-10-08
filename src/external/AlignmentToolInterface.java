@@ -102,7 +102,6 @@ public abstract class AlignmentToolInterface implements Callable<Map<Integer, Al
 		fragments = list_;
 		o = o_;
 		m = m_;
-		correctlyMappedFragments = new HashSet<String>(fragments.size());
 		totalMappedFragments = new HashSet<String>(fragments.size());
 		if (o.is_paired_end)
 		{
