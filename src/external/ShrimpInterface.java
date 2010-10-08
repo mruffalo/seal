@@ -8,6 +8,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -44,18 +45,16 @@ public class ShrimpInterface extends AlignmentToolInterface
 		try
 		{
 			Process p = pb.start();
-			InputStream stdout = p.getInputStream();
+			BufferedReader stdout = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			BufferedReader stderr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
 
-			// TODO: Use a faster bulk copy method for this
-			FileOutputStream w = new FileOutputStream(o.sam_output);
-			int data = -1;
-			while ((data = stdout.read()) != -1)
+			String line = null;
+			FileWriter w = new FileWriter(o.sam_output);
+			while ((line = stdout.readLine()) != null)
 			{
-				w.write(data);
+				w.write(String.format("%s%n", line));
 			}
 			w.close();
-			String line = null;
 			while ((line = stderr.readLine()) != null)
 			{
 				System.err.printf("%03d: %s%n", index, line);
