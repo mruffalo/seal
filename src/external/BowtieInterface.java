@@ -1,6 +1,7 @@
 package external;
 
 import io.FastaWriter;
+import io.SamReader;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -88,10 +89,13 @@ public class BowtieInterface extends AlignmentToolInterface
 		// TODO Auto-generated method stub
 	}
 
+	/**
+	 * TODO: Fix indirection
+	 */
 	@Override
-	public AlignmentResults readAlignment(int qualityThreshold)
+	public AlignmentResults readAlignment(int threshold)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return SamReader.readAlignment(index, threshold, o, fragments.size(),
+			correctlyMappedFragments);
 	}
 }

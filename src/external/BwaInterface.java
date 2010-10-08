@@ -185,103 +185,13 @@ public class BwaInterface extends AlignmentToolInterface
 	}
 
 	/**
-	 * Don't need to read fragments; we have those already. TODO: Move this
-	 * logic into {@link SamReader}
+	 * TODO: Fix indirection
 	 */
 	@Override
 	public AlignmentResults readAlignment(int threshold)
 	{
-		System.out.printf("%03d: Reading alignment (threshold %d)...%n", index, threshold);
-		AlignmentResults rs = new AlignmentResults();
-		try
-		{
-			BufferedReader r = new BufferedReader(new FileReader(o.sam_output));
-			BufferedWriter w = new BufferedWriter(new FileWriter(o.converted_output));
-			String line = null;
-			while ((line = r.readLine()) != null)
-			{
-				if (line.startsWith("@"))
-				{
-					continue;
-				}
-				String[] pieces = line.split("\\s+");
-				if (pieces.length <= 4)
-				{
-					continue;
-				}
-				int readPosition = -1;
-				String fragmentIdentifier = pieces[0];
-				Matcher m = Constants.READ_POSITION_HEADER.matcher(fragmentIdentifier);
-
-				if (m.matches())
-				{
-					readPosition = Integer.parseInt(m.group(2));
-				}
-				int flags = Integer.parseInt(pieces[1]);
-				int alignedPosition = Integer.parseInt(pieces[3]) - 1;
-				int phredProbability = Integer.parseInt(pieces[4]);
-				int matePosition = Integer.parseInt(pieces[7]);
-				int inferredInsertSize = Integer.parseInt(pieces[8]);
-
-				/*
-				 * TODO: Clean up this code and move it elsewhere
-				 */
-				int orientation = 0;
-				if (((flags & 64) == 64 && inferredInsertSize > 0)
-						|| ((flags & 128) == 128 && inferredInsertSize < 0))
-				{
-					orientation = 1;
-				}
-				if (((flags & 64) == 64 && inferredInsertSize < 0)
-						|| ((flags & 128) == 128 && inferredInsertSize > 0))
-				{
-					orientation = 2;
-				}
-				String output = String.format(OUTPUT_TEMPLATE, fragmentIdentifier, alignedPosition,
-					inferredInsertSize, orientation, phredProbability);
-				w.write(output);
-
-				if (readPosition == alignedPosition)
-				{
-					if (phredProbability >= threshold)
-					{
-						rs.truePositives++;
-					}
-					else
-					{
-						rs.falseNegatives++;
-					}
-				}
-				else
-				{
-					if (phredProbability >= threshold)
-					{
-						rs.falsePositives++;
-					}
-					// System.out.println(line);
-				}
-				totalMappedFragments.add(fragmentIdentifier);
-			}
-			/*
-			 * If a fragment didn't appear in the output at all, count it as a
-			 * false negative
-			 */
-			if (fragments.size() >= totalMappedFragments.size())
-			{
-				rs.falseNegatives += (fragments.size() - totalMappedFragments.size());
-			}
-			r.close();
-			w.close();
-		}
-		catch (FileNotFoundException e)
-		{
-			e.printStackTrace();
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-		return rs;
+		return SamReader.readAlignment(index, threshold, o, fragments.size(),
+			correctlyMappedFragments);
 	}
 
 	@Override

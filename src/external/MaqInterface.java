@@ -183,8 +183,7 @@ public class MaqInterface extends AlignmentToolInterface
 	}
 
 	/**
-	 * Don't need to read fragments; we have those already. TODO: Move this
-	 * logic into {@link SamReader}
+	 * Can't use {@link SamReader} since MAQ doesn't output SAM files.
 	 */
 	@Override
 	public AlignmentResults readAlignment(int threshold)
