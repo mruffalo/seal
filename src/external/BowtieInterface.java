@@ -4,6 +4,7 @@ import io.FastaWriter;
 import io.SamReader;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -87,6 +88,7 @@ public class BowtieInterface extends AlignmentToolInterface
 	{
 		List<String> commands = new ArrayList<String>();
 		commands.add(BOWTIE_COMMAND);
+		commands.add(SAM_OPTION);
 		commands.add(o.index.getName());
 		if (o.is_paired_end)
 		{
@@ -107,10 +109,12 @@ public class BowtieInterface extends AlignmentToolInterface
 			BufferedReader stdout = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			BufferedReader stderr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
 			String line = null;
+			FileWriter w = new FileWriter(o.sam_output);
 			while ((line = stdout.readLine()) != null)
 			{
-				System.out.printf("%03d: %s%n", index, line);
+				w.write(String.format("%s%n", line));
 			}
+			w.close();
 			while ((line = stderr.readLine()) != null)
 			{
 				System.err.printf("%03d: %s%n", index, line);
