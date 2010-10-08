@@ -254,6 +254,8 @@ public class AlignmentToolService
 				sequence, errored_list, new Options(paired_end, errorProbability), m_c));
 			alignmentInterfaceList.add(new ShrimpInterface(++index, "SHRiMP", RUNTIME_THRESHOLDS,
 				sequence, errored_list, new Options(paired_end, errorProbability), m_c));
+			alignmentInterfaceList.add(new BowtieInterface(++index, "Bowtie", RUNTIME_THRESHOLDS,
+				sequence, errored_list, new Options(paired_end, errorProbability), m_c));
 
 			for (AlignmentToolInterface ati : alignmentInterfaceList)
 			{
