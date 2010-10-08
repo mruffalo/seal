@@ -125,6 +125,8 @@ public class AlignmentToolService
 				sequence, errored_list, o, m_ep));
 			alignmentInterfaceList.add(new ShrimpInterface(++index, "SHRiMP-S", PHRED_THRESHOLDS,
 				sequence, errored_list, new Options(paired_end, errorProbability), m_ep));
+			alignmentInterfaceList.add(new BowtieInterface(++index, "Bowtie", PHRED_THRESHOLDS,
+				sequence, errored_list, new Options(paired_end, errorProbability), m_ep));
 
 			for (AlignmentToolInterface ati : alignmentInterfaceList)
 			{
