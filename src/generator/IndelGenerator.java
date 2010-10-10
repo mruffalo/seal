@@ -8,10 +8,22 @@ package generator;
  */
 public class IndelGenerator extends FragmentErrorGenerator
 {
-	public IndelGenerator(String allowedCharacters)
+	private Options o;
+
+	public class Options
+	{
+		public double insertProbability;
+		public double insertLengthMean;
+		public double insertLengthStdDev;
+		public double deleteProbability;
+		public double deleteLengthMean;
+		public double deleteLengthStdDev;
+	}
+
+	public IndelGenerator(String allowedCharacters, Options o_)
 	{
 		super(allowedCharacters);
-		// TODO Auto-generated constructor stub
+		o = o_;
 	}
 
 	@Override
