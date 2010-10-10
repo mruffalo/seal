@@ -12,9 +12,18 @@ public class LinearIncreasingErrorGeneratorTest
 		SequenceGenerator.Options sgo = new SequenceGenerator.Options();
 		sgo.length = 100;
 		CharSequence orig = sg.generateSequence(sgo);
-		FragmentErrorGenerator eg = new LinearIncreasingErrorGenerator(
-			SequenceGenerator.NUCLEOTIDES, 0.0, 1.0);
+		FragmentErrorGenerator eg;
+
+		eg = new LinearIncreasingErrorGenerator(SequenceGenerator.NUCLEOTIDES, 0.0, 1.0);
 		eg.setVerboseOutput(true);
-		CharSequence errored = eg.generateErrors(orig);
+		eg.generateErrors(orig);
+
+		eg = new LinearIncreasingErrorGenerator(SequenceGenerator.NUCLEOTIDES, 0.5, 1.0);
+		eg.setVerboseOutput(true);
+		eg.generateErrors(orig);
+
+		eg = new LinearIncreasingErrorGenerator(SequenceGenerator.NUCLEOTIDES, 1.0, 0.0);
+		eg.setVerboseOutput(true);
+		eg.generateErrors(orig);
 	}
 }
