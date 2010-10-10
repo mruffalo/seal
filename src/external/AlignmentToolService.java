@@ -32,7 +32,8 @@ public class AlignmentToolService
 	protected static final List<Integer> PHRED_THRESHOLDS = Collections.unmodifiableList(Arrays.asList(
 		0, 1, 2, 3, 4, 5, 7, 10, 14, 20, 25, 30, 35, 40));
 	protected static final List<Integer> RUNTIME_THRESHOLDS = Collections.unmodifiableList(Arrays.asList(0));
-	protected static final int[] COVERAGES = { 3, 7, 10, 13, 16, 20 };
+	protected static final List<Integer> COVERAGES = Collections.unmodifiableList(Arrays.asList(3,
+		7, 10, 13, 16, 20));
 
 	private ExecutorService pool;
 
@@ -236,7 +237,7 @@ public class AlignmentToolService
 
 		Map<Integer, Map<String, Map<Integer, AlignmentResults>>> m = Collections.synchronizedMap(new TreeMap<Integer, Map<String, Map<Integer, AlignmentResults>>>());
 		List<Future<Map<Integer, AlignmentResults>>> futureList = new ArrayList<Future<Map<Integer, AlignmentResults>>>(
-			COVERAGES.length * 5);
+			COVERAGES.size() * 6);
 
 		int index = 0;
 		for (int coverage : COVERAGES)
