@@ -5,7 +5,6 @@ import org.junit.Test;
 public class LinearIncreasingErrorGeneratorTest
 {
 	@Test
-	@SuppressWarnings("unused")
 	public void testGenerateErrors()
 	{
 		SeqGenSingleSequenceMultipleRepeats sg = new SeqGenSingleSequenceMultipleRepeats();

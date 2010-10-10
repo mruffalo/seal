@@ -62,14 +62,15 @@ public class LinearIncreasingErrorGenerator extends FragmentErrorGenerator
 		StringBuilder errorIndicator = new StringBuilder(sequence.length());
 		for (int i = 0; i < sequence.length(); i++)
 		{
+			char orig = sequence.charAt(i);
 			if (r.nextDouble() <= getErrorProbability(i, sequence.length()))
 			{
-				sb.append(chooseRandomCharacter(allowedCharacters));
+				sb.append(chooseRandomCharacter(orig));
 				errorIndicator.append("X");
 			}
 			else
 			{
-				sb.append(sequence.charAt(i));
+				sb.append(orig);
 				errorIndicator.append(" ");
 			}
 		}
