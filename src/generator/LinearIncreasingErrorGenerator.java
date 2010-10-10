@@ -63,7 +63,7 @@ public class LinearIncreasingErrorGenerator extends FragmentErrorGenerator
 		for (int i = 0; i < sequence.length(); i++)
 		{
 			char orig = sequence.charAt(i);
-			if (r.nextDouble() <= getErrorProbability(i, sequence.length()))
+			if (r.nextDouble() <= getSubstitutionProbability(i, sequence.length()))
 			{
 				sb.append(chooseRandomCharacter(orig));
 				errorIndicator.append("X");
@@ -83,7 +83,7 @@ public class LinearIncreasingErrorGenerator extends FragmentErrorGenerator
 	}
 
 	@Override
-	protected double getErrorProbability(int position, int length)
+	protected double getSubstitutionProbability(int position, int length)
 	{
 		return beginErrorProbability + (endErrorProbability - beginErrorProbability)
 				* ((double) position / (double) length);

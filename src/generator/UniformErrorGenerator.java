@@ -11,7 +11,7 @@ public class UniformErrorGenerator extends FragmentErrorGenerator
 	}
 
 	@Override
-	protected double getErrorProbability(int position, int length)
+	protected double getSubstitutionProbability(int position, int length)
 	{
 		return errorProbability;
 	}
@@ -53,7 +53,7 @@ public class UniformErrorGenerator extends FragmentErrorGenerator
 		for (int i = 0; i < sequence.length(); i++)
 		{
 			char orig = sequence.charAt(i);
-			if (r.nextDouble() <= getErrorProbability(i, sequence.length()))
+			if (r.nextDouble() <= getSubstitutionProbability(i, sequence.length()))
 			{
 				sb.append(chooseRandomCharacter(orig));
 				errorIndicator.append("X");

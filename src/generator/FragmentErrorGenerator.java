@@ -53,7 +53,7 @@ public abstract class FragmentErrorGenerator
 		}
 	}
 
-	protected abstract double getErrorProbability(int position, int length);
+	protected abstract double getSubstitutionProbability(int position, int length);
 
 	public abstract CharSequence generateErrors(CharSequence sequence);
 
@@ -64,7 +64,7 @@ public abstract class FragmentErrorGenerator
 		errored.clonePositionsAndReadQuality(fragment);
 		for (int i = 0; i < s.length(); i++)
 		{
-			errored.setReadQuality(i, phredScaleProbability(getErrorProbability(i, s.length())));
+			errored.setReadQuality(i, phredScaleProbability(getSubstitutionProbability(i, s.length())));
 		}
 		return errored;
 	}
