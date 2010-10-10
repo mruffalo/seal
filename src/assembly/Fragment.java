@@ -148,6 +148,6 @@ public class Fragment implements Cloneable
 		{
 			this.setPosition(source, that.getPosition(source));
 		}
-		readQuality = that.readQuality;
+		readQuality = that.readQuality.clone();
 	}
 }
