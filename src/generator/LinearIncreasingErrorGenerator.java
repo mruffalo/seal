@@ -9,6 +9,8 @@ public class LinearIncreasingErrorGenerator extends FragmentErrorGenerator
 		double endErrorProbability_)
 	{
 		super(allowedCharacters_);
+		setBeginErrorProbability(beginErrorProbability_);
+		setEndErrorProbability(endErrorProbability_);
 	}
 
 	public double getBeginErrorProbability()
