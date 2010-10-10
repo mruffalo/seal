@@ -26,7 +26,7 @@ public abstract class FragmentErrorGenerator
 		characterChoiceRandomizer = new Random();
 	}
 
-	protected abstract double getErrorProbability(int position);
+	protected abstract double getErrorProbability(int position, int length);
 
 	public abstract CharSequence generateErrors(CharSequence sequence);
 
@@ -37,7 +37,7 @@ public abstract class FragmentErrorGenerator
 		errored.clonePositionsAndReadQuality(fragment);
 		for (int i = 0; i < s.length(); i++)
 		{
-			errored.setReadQuality(i, phredScaleProbability(getErrorProbability(i)));
+			errored.setReadQuality(i, phredScaleProbability(getErrorProbability(i, s.length())));
 		}
 		return errored;
 	}

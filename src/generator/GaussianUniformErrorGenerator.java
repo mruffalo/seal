@@ -16,7 +16,7 @@ public class GaussianUniformErrorGenerator extends FragmentErrorGenerator
 	}
 
 	@Override
-	protected double getErrorProbability(int position)
+	protected double getErrorProbability(int position, int length)
 	{
 		// TODO Auto-generated method stub
 		return 0;

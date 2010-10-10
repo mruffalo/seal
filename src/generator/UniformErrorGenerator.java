@@ -11,7 +11,7 @@ public class UniformErrorGenerator extends FragmentErrorGenerator
 	}
 
 	@Override
-	protected double getErrorProbability(int position)
+	protected double getErrorProbability(int position, int length)
 	{
 		return errorProbability;
 	}
