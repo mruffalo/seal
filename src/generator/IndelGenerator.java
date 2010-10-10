@@ -34,7 +34,7 @@ public class IndelGenerator extends FragmentErrorGenerator
 	}
 
 	@Override
-	protected double getSubstitutionProbability(int position, int length)
+	public int getQuality(int position, int length)
 	{
 		// TODO Auto-generated method stub
 		return 0;

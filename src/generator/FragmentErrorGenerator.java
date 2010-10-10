@@ -19,41 +19,16 @@ import java.util.Set;
  */
 public abstract class FragmentErrorGenerator
 {
-	private final Random characterChoiceRandomizer;
+	protected final Random characterChoiceRandomizer;
 	protected final Random r = new Random();
 	protected final String allowedCharacters;
-	/**
-	 * Used to ensure that characters are replaced with a different character;
-	 * i.e. that the same character is not randomly chosen. This requires n^2
-	 * space with respect to the set of allowed characters, but these alphabets
-	 * are usually very small anyway (the largest considered here,
-	 * {@link SequenceGenerator#AMINO_ACID_ALLOWED_CHARACTERS}, is 27 characters
-	 * long).
-	 */
-	protected final Map<Character, String> replacements;
 	protected boolean verbose;
 
 	public FragmentErrorGenerator(String allowedCharacters_)
 	{
 		allowedCharacters = allowedCharacters_;
 		characterChoiceRandomizer = new Random();
-		replacements = new HashMap<Character, String>(allowedCharacters.length());
-		for (int i = 0; i < allowedCharacters.length(); i++)
-		{
-			StringBuilder sb = new StringBuilder(allowedCharacters.length() - 1);
-			for (int j = 0; j < i; j++)
-			{
-				sb.append(allowedCharacters.charAt(j));
-			}
-			for (int j = i + 1; j < allowedCharacters.length(); j++)
-			{
-				sb.append(allowedCharacters.charAt(j));
-			}
-			replacements.put(allowedCharacters.charAt(i), sb.toString());
-		}
 	}
-
-	protected abstract double getSubstitutionProbability(int position, int length);
 
 	public abstract CharSequence generateErrors(CharSequence sequence);
 
@@ -62,9 +37,9 @@ public abstract class FragmentErrorGenerator
 		String s = fragment.toString();
 		Fragment errored = new Fragment(generateErrors(s).toString());
 		errored.clonePositionsAndReadQuality(fragment);
-		for (int i = 0; i < s.length(); i++)
+		for (int i = 0; i < errored.getSequence().length(); i++)
 		{
-			errored.setReadQuality(i, phredScaleProbability(getSubstitutionProbability(i, s.length())));
+			errored.setReadQuality(i, getQuality(i, errored.getSequence().length()));
 		}
 		return errored;
 	}
@@ -79,13 +54,9 @@ public abstract class FragmentErrorGenerator
 		return list;
 	}
 
-	public char chooseRandomCharacter(char originalCharacter)
-	{
-		String possibilities = replacements.get(originalCharacter);
-		return possibilities.charAt(characterChoiceRandomizer.nextInt(possibilities.length()));
-	}
+	public abstract int getQuality(int position, int length);
 
-	public int phredScaleProbability(double errorProbability)
+	public static int phredScaleProbability(double errorProbability)
 	{
 		return (int) (-10 * Math.log10(errorProbability));
 	}

@@ -1,6 +1,6 @@
 package generator;
 
-public class UniformErrorGenerator extends FragmentErrorGenerator
+public class UniformErrorGenerator extends SubstitutionErrorGenerator
 {
 	private double errorProbability;
 
@@ -55,7 +55,7 @@ public class UniformErrorGenerator extends FragmentErrorGenerator
 			char orig = sequence.charAt(i);
 			if (r.nextDouble() <= getSubstitutionProbability(i, sequence.length()))
 			{
-				sb.append(chooseRandomCharacter(orig));
+				sb.append(chooseRandomReplacementCharacter(orig));
 				errorIndicator.append("X");
 			}
 			else

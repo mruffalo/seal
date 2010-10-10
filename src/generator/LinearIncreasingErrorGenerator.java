@@ -1,6 +1,6 @@
 package generator;
 
-public class LinearIncreasingErrorGenerator extends FragmentErrorGenerator
+public class LinearIncreasingErrorGenerator extends SubstitutionErrorGenerator
 {
 	private double beginErrorProbability;
 	private double endErrorProbability;
@@ -65,7 +65,7 @@ public class LinearIncreasingErrorGenerator extends FragmentErrorGenerator
 			char orig = sequence.charAt(i);
 			if (r.nextDouble() <= getSubstitutionProbability(i, sequence.length()))
 			{
-				sb.append(chooseRandomCharacter(orig));
+				sb.append(chooseRandomReplacementCharacter(orig));
 				errorIndicator.append("X");
 			}
 			else
