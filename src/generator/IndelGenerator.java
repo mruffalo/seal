@@ -12,11 +12,29 @@ public class IndelGenerator extends FragmentErrorGenerator
 
 	public class Options
 	{
+		/**
+		 * Probability of starting a random insert at any given base
+		 */
 		public double insertProbability;
+		/**
+		 * Average length of each insertion
+		 */
 		public double insertLengthMean;
+		/**
+		 * Standard deviation of insertion lengths
+		 */
 		public double insertLengthStdDev;
+		/**
+		 * Probability of starting a random deletion at any given base
+		 */
 		public double deleteProbability;
+		/**
+		 * Average length of each deletion
+		 */
 		public double deleteLengthMean;
+		/**
+		 * Standard deviation of deletion lengths
+		 */
 		public double deleteLengthStdDev;
 	}
 
