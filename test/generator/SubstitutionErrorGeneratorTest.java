@@ -3,12 +3,13 @@ package generator;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
-public class FragmentErrorGeneratorTest
+public class SubstitutionErrorGeneratorTest
 {
 	@Test
 	public void testAssignReplacementCharacters()
 	{
-		FragmentErrorGenerator eg = new UniformErrorGenerator(SequenceGenerator.NUCLEOTIDES, 0.0);
+		SubstitutionErrorGenerator eg = new UniformErrorGenerator(SequenceGenerator.NUCLEOTIDES,
+			0.0);
 		for (int i = 0; i < SequenceGenerator.NUCLEOTIDES.length(); i++)
 		{
 			char c = SequenceGenerator.NUCLEOTIDES.charAt(i);
