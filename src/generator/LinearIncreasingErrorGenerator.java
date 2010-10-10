@@ -50,14 +50,39 @@ public class LinearIncreasingErrorGenerator extends FragmentErrorGenerator
 	@Override
 	public CharSequence generateErrors(CharSequence sequence)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		if (verbose)
+		{
+			System.err.println();
+			System.err.printf("Original sequence: %s%n", sequence);
+			System.err.print("                   ");
+		}
+		StringBuilder sb = new StringBuilder(sequence.length());
+		StringBuilder errorIndicator = new StringBuilder(sequence.length());
+		for (int i = 0; i < sequence.length(); i++)
+		{
+			if (r.nextDouble() <= getErrorProbability(i, sequence.length()))
+			{
+				sb.append(chooseRandomCharacter(allowedCharacters));
+				errorIndicator.append("X");
+			}
+			else
+			{
+				sb.append(sequence.charAt(i));
+				errorIndicator.append(" ");
+			}
+		}
+		if (verbose)
+		{
+			System.err.println(errorIndicator.toString());
+			System.err.printf("New sequence:      %s%n%n", sb.toString());
+		}
+		return sb;
 	}
 
 	@Override
 	protected double getErrorProbability(int position, int length)
 	{
-		// TODO Auto-generated method stub
-		return 0;
+		return beginErrorProbability + (endErrorProbability - beginErrorProbability)
+				* ((double) position / (double) length);
 	}
 }
