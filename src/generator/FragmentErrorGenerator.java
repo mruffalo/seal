@@ -2,12 +2,8 @@ package generator;
 
 import assembly.Fragment;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 
 /**
  * A class that extends this really only needs to implement 'get the error
@@ -19,8 +15,15 @@ import java.util.Set;
  */
 public abstract class FragmentErrorGenerator
 {
+	/**
+	 * Used to determine which character to randomly insert/switch
+	 */
 	protected final Random characterChoiceRandomizer;
-	protected final Random r = new Random();
+	/**
+	 * Intended for use by each generator to determine whether to introduce an
+	 * error (e.g. substitute a character, start an indel)
+	 */
+	protected final Random random;
 	protected final String allowedCharacters;
 	protected boolean verbose;
 
@@ -28,6 +31,7 @@ public abstract class FragmentErrorGenerator
 	{
 		allowedCharacters = allowedCharacters_;
 		characterChoiceRandomizer = new Random();
+		random = new Random();
 	}
 
 	public abstract CharSequence generateErrors(CharSequence sequence);

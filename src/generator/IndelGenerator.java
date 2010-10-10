@@ -9,6 +9,7 @@ package generator;
 public class IndelGenerator extends FragmentErrorGenerator
 {
 	private Options o;
+	private SequenceGenerator sg;
 
 	public class Options
 	{
@@ -42,13 +43,34 @@ public class IndelGenerator extends FragmentErrorGenerator
 	{
 		super(allowedCharacters);
 		o = o_;
+		sg = new SeqGenSingleSequenceMultipleRepeats();
 	}
 
+	/**
+	 * TODO: Test this
+	 */
 	@Override
 	public CharSequence generateErrors(CharSequence sequence)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		StringBuilder sb = new StringBuilder(sequence.length());
+		for (int i = 0; i < sequence.length(); i++)
+		{
+			if (random.nextDouble() >= o.insertProbability)
+			{
+				int insertLength = (int) (o.insertLengthMean + o.insertLengthStdDev
+						* random.nextGaussian());
+				SequenceGenerator.Options sgo = new SequenceGenerator.Options();
+				sgo.length = insertLength;
+				sb.append(sg.generateSequence(sgo));
+			}
+			if (random.nextDouble() >= o.deleteProbability)
+			{
+				int deleteLength = (int) (o.insertLengthMean + o.insertLengthStdDev
+						* random.nextGaussian());
+				i += deleteLength;
+			}
+		}
+		return sb;
 	}
 
 	@Override

@@ -53,7 +53,7 @@ public class UniformErrorGenerator extends SubstitutionErrorGenerator
 		for (int i = 0; i < sequence.length(); i++)
 		{
 			char orig = sequence.charAt(i);
-			if (r.nextDouble() <= getSubstitutionProbability(i, sequence.length()))
+			if (random.nextDouble() <= getSubstitutionProbability(i, sequence.length()))
 			{
 				sb.append(chooseRandomReplacementCharacter(orig));
 				errorIndicator.append("X");
