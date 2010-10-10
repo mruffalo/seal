@@ -6,8 +6,8 @@ import java.util.Random;
 
 public abstract class FragmentErrorGenerator
 {
-	private Random characterChoiceRandomizer;
-	protected String allowedCharacters;
+	private final Random characterChoiceRandomizer;
+	protected final String allowedCharacters;
 	protected boolean verbose;
 
 	public FragmentErrorGenerator(String allowedCharacters_)
