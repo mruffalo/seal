@@ -1,8 +1,5 @@
 package generator;
 
-import java.util.List;
-import assembly.Fragment;
-
 public class LinearIncreasingErrorGenerator extends FragmentErrorGenerator
 {
 	public LinearIncreasingErrorGenerator(String allowedCharacters)
@@ -18,16 +15,9 @@ public class LinearIncreasingErrorGenerator extends FragmentErrorGenerator
 	}
 
 	@Override
-	public Fragment generateErrors(Fragment fragment)
+	protected double getErrorProbability(int position)
 	{
 		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public List<? extends Fragment> generateErrors(List<? extends Fragment> fragments)
-	{
-		// TODO Auto-generated method stub
-		return null;
+		return 0;
 	}
 }

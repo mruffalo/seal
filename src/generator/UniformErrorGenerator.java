@@ -1,20 +1,19 @@
 package generator;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import assembly.Fragment;
-
 public class UniformErrorGenerator extends FragmentErrorGenerator
 {
 	private double errorProbability;
-	private int phredScaledErrorProbability;
-	private Random r = new Random();
 
 	public UniformErrorGenerator(String allowedCharacters_, double errorProbability_)
 	{
 		super(allowedCharacters_);
-		errorProbability = errorProbability_;
+		setErrorProbability(errorProbability_);
+	}
+
+	@Override
+	protected double getErrorProbability(int position)
+	{
+		return errorProbability;
 	}
 
 	public void setErrorProbability(double errorProbability_)
@@ -22,7 +21,6 @@ public class UniformErrorGenerator extends FragmentErrorGenerator
 		if (errorProbability_ <= 1.0 && errorProbability_ >= 0.0)
 		{
 			errorProbability = errorProbability_;
-			phredScaledErrorProbability = phredScaleProbability(errorProbability);
 		}
 		else
 		{
@@ -36,18 +34,11 @@ public class UniformErrorGenerator extends FragmentErrorGenerator
 		return errorProbability;
 	}
 
-	@Override
-	public List<? extends Fragment> generateErrors(List<? extends Fragment> fragments)
-	{
-		r = new Random();
-		List<Fragment> list = new ArrayList<Fragment>(fragments.size());
-		for (Fragment fragment : fragments)
-		{
-			list.add(generateErrors(fragment));
-		}
-		return list;
-	}
-
+	/**
+	 * Don't need to use the nice {@link #getErrorProbability(int)} method,
+	 * since we know that it's the same for every character position in this
+	 * class.
+	 */
 	@Override
 	public CharSequence generateErrors(CharSequence s)
 	{
@@ -78,18 +69,5 @@ public class UniformErrorGenerator extends FragmentErrorGenerator
 			System.err.printf("New sequence:      %s%n%n", sb.toString());
 		}
 		return sb;
-	}
-
-	@Override
-	public Fragment generateErrors(Fragment fragment)
-	{
-		String s = fragment.toString();
-		Fragment errored = new Fragment(generateErrors(s).toString());
-		errored.clonePositionsAndReadQuality(fragment);
-		for (int i = 0; i < s.length(); i++)
-		{
-			errored.setReadQuality(i, phredScaledErrorProbability);
-		}
-		return errored;
 	}
 }

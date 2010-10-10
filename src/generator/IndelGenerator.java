@@ -1,8 +1,11 @@
 package generator;
 
-import java.util.List;
-import assembly.Fragment;
-
+/**
+ * TODO: Examine whether this should really subclass
+ * {@link FragmentErrorGenerator}
+ * 
+ * @author mruffalo
+ */
 public class IndelGenerator extends FragmentErrorGenerator
 {
 	public IndelGenerator(String allowedCharacters)
@@ -19,16 +22,9 @@ public class IndelGenerator extends FragmentErrorGenerator
 	}
 
 	@Override
-	public Fragment generateErrors(Fragment fragment)
+	protected double getErrorProbability(int position)
 	{
 		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public List<? extends Fragment> generateErrors(List<? extends Fragment> fragments)
-	{
-		// TODO Auto-generated method stub
-		return null;
+		return 0;
 	}
 }
