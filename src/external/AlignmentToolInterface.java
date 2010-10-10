@@ -1,14 +1,11 @@
 package external;
 
-import io.FastaReader;
 import io.FastaWriter;
 import io.FastqWriter;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -16,11 +13,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.Callable;
 import assembly.Fragment;
-import external.AlignmentToolInterface.AlignmentResults;
-import generator.Fragmentizer;
-import generator.SeqGenSingleSequenceMultipleRepeats;
-import generator.SequenceGenerator;
-import generator.UniformErrorGenerator;
 
 public abstract class AlignmentToolInterface implements Callable<Map<Integer, AlignmentResults>>
 {
@@ -120,32 +112,6 @@ public abstract class AlignmentToolInterface implements Callable<Map<Integer, Al
 		ALIGNMENT,
 		POSTPROCESSING,
 		TOTAL,
-	}
-
-	public static class AlignmentResults
-	{
-		/**
-		 * Mapped to correct location in target genome, and passes quality
-		 * threshold
-		 */
-		public int truePositives;
-		/**
-		 * Mapped to incorrect location in target genome, and passes quality
-		 * threshold
-		 */
-		public int falsePositives;
-		/**
-		 * <ul>
-		 * <li>Mapped to correct location in target genome and does not pass
-		 * quality threshold</li>
-		 * <li>or not present at all in tool output</li>
-		 * </ul>
-		 */
-		public int falseNegatives;
-		/**
-		 * Stores time for each operation
-		 */
-		public Map<AlignmentOperation, Long> timeMap;
 	}
 
 	public void writeGenome()

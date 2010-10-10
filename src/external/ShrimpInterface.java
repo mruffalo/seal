@@ -1,24 +1,14 @@
 package external;
 
-import io.Constants;
-import io.FastaWriter;
-import io.FastqWriter;
 import io.SamReader;
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
 import assembly.Fragment;
-import external.AlignmentToolInterface.AlignmentResults;
-import external.AlignmentToolInterface.Options;
 
 public class ShrimpInterface extends AlignmentToolInterface
 {

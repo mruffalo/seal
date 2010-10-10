@@ -9,7 +9,7 @@ import java.io.Reader;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
-import external.AlignmentToolInterface.AlignmentResults;
+import external.AlignmentResults;
 import external.AlignmentToolInterface.Options;
 
 public class SamReader

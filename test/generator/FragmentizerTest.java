@@ -1,8 +1,6 @@
 package generator;
 
 import static org.junit.Assert.*;
-import io.FastaWriter;
-import io.FastqWriter;
 import java.io.File;
 import java.util.*;
 import org.junit.Before;

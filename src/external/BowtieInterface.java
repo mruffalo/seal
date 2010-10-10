@@ -1,6 +1,5 @@
 package external;
 
-import io.FastaWriter;
 import io.SamReader;
 import java.io.BufferedReader;
 import java.io.File;
@@ -11,8 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import assembly.Fragment;
-import external.AlignmentToolInterface.AlignmentResults;
-import external.AlignmentToolInterface.Options;
 
 public class BowtieInterface extends AlignmentToolInterface
 {
