@@ -44,7 +44,11 @@ public abstract class SubstitutionErrorGenerator extends FragmentErrorGenerator
 
 	public char chooseRandomReplacementCharacter(char originalCharacter)
 	{
-		String possibilities = replacements.get(originalCharacter);
+		String possibilities = replacements.get(Character.toUpperCase(originalCharacter));
+		if (possibilities == null)
+		{
+			possibilities = allowedCharacters;
+		}
 		return possibilities.charAt(characterChoiceRandomizer.nextInt(possibilities.length()));
 	}
 }
