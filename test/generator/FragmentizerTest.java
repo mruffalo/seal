@@ -1,6 +1,7 @@
 package generator;
 
 import static org.junit.Assert.*;
+import generator.errors.UniformErrorGenerator;
 import java.io.File;
 import java.util.*;
 import org.junit.Before;

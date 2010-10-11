@@ -1,5 +1,6 @@
 package generator;
 
+import generator.errors.FragmentErrorGenerator;
 import io.FastqWriter;
 import java.io.BufferedWriter;
 import java.io.File;

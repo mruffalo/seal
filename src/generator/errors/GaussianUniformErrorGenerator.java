@@ -1,4 +1,5 @@
-package generator;
+package generator.errors;
+
 
 public class GaussianUniformErrorGenerator extends SubstitutionErrorGenerator
 {

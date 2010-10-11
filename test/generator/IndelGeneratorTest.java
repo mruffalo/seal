@@ -1,5 +1,7 @@
 package generator;
 
+import generator.errors.FragmentErrorGenerator;
+import generator.errors.IndelGenerator;
 import org.junit.Test;
 
 /**

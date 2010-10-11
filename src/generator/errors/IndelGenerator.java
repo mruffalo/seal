@@ -1,4 +1,7 @@
-package generator;
+package generator.errors;
+
+import generator.SeqGenSingleSequenceMultipleRepeats;
+import generator.SequenceGenerator;
 
 /**
  * TODO: Examine whether this should really subclass

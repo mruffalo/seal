@@ -1,5 +1,7 @@
 package generator;
 
+import generator.errors.FragmentErrorGenerator;
+import generator.errors.UniformErrorGenerator;
 import java.util.Arrays;
 import java.util.Random;
 

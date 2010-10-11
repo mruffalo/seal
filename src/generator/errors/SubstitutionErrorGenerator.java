@@ -1,5 +1,6 @@
-package generator;
+package generator.errors;
 
+import generator.SequenceGenerator;
 import java.util.HashMap;
 import java.util.Map;
 

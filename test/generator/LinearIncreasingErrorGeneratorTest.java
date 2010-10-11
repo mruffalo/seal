@@ -1,5 +1,7 @@
 package generator;
 
+import generator.errors.FragmentErrorGenerator;
+import generator.errors.LinearIncreasingErrorGenerator;
 import org.junit.Test;
 
 public class LinearIncreasingErrorGeneratorTest

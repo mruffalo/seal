@@ -3,7 +3,7 @@ package external;
 import generator.Fragmentizer;
 import generator.SeqGenSingleSequenceMultipleRepeats;
 import generator.SequenceGenerator;
-import generator.UniformErrorGenerator;
+import generator.errors.UniformErrorGenerator;
 import io.FastaReader;
 import java.io.File;
 import java.io.FileWriter;

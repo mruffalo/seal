@@ -1,4 +1,4 @@
-package generator;
+package generator.errors;
 
 import assembly.Fragment;
 import java.util.ArrayList;

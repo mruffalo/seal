@@ -1,4 +1,4 @@
-package generator;
+package generator.errors;
 
 public class LinearIncreasingErrorGenerator extends SubstitutionErrorGenerator
 {
