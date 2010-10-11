@@ -52,19 +52,14 @@ public class IndelGenerator extends FragmentErrorGenerator
 	@Override
 	public CharSequence generateErrors(CharSequence sequence)
 	{
-		if (verbose)
-		{
-			System.err.println();
-			System.err.printf("Original sequence: %s%n", sequence);
-			System.err.print("                   ");
-		}
 		StringBuilder sb = new StringBuilder(sequence.length());
+		StringBuilder adjustedOrigSequence = new StringBuilder(sb.length());
 		StringBuilder errorIndicator = new StringBuilder(sequence.length());
 		/*
 		 * Used for printing the sequence in verbose mode. Contains spaces where
 		 * a deletion occurred.
 		 */
-		StringBuilder verboseSequence = new StringBuilder(sequence.length());
+		StringBuilder adjustedNewSequence = new StringBuilder(sequence.length());
 		for (int i = 0; i < sequence.length(); i++)
 		{
 			/*
@@ -73,6 +68,12 @@ public class IndelGenerator extends FragmentErrorGenerator
 			 * after this character.
 			 */
 			sb.append(sequence.charAt(i));
+			if (verbose)
+			{
+				adjustedOrigSequence.append(sequence.charAt(i));
+				errorIndicator.append(' ');
+				adjustedNewSequence.append(sequence.charAt(i));
+			}
 			if (random.nextDouble() <= o.insertProbability)
 			{
 				int insertLength = (int) (o.insertLengthMean + o.insertLengthStdDev
@@ -86,8 +87,9 @@ public class IndelGenerator extends FragmentErrorGenerator
 					for (int j = 0; j < insertLength; j++)
 					{
 						errorIndicator.append('+');
+						adjustedOrigSequence.append(' ');
 					}
-					verboseSequence.append(insertedSequence);
+					adjustedNewSequence.append(insertedSequence);
 				}
 			}
 			if (random.nextDouble() <= o.deleteProbability)
@@ -100,15 +102,18 @@ public class IndelGenerator extends FragmentErrorGenerator
 					for (int j = 0; j < deleteLength; j++)
 					{
 						errorIndicator.append('-');
-						verboseSequence.append(' ');
+						adjustedNewSequence.append(' ');
 					}
 				}
 			}
 		}
 		if (verbose)
 		{
+			System.err.println();
+			System.err.printf("Original sequence: %s%n", adjustedOrigSequence.toString());
+			System.err.print("                   ");
 			System.err.println(errorIndicator.toString());
-			System.err.printf("New sequence:      %s%n%n", verboseSequence.toString());
+			System.err.printf("New sequence:      %s%n%n", adjustedNewSequence.toString());
 		}
 		return sb;
 	}
