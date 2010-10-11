@@ -73,7 +73,7 @@ public class IndelGenerator extends FragmentErrorGenerator
 			 * after this character.
 			 */
 			sb.append(sequence.charAt(i));
-			if (random.nextDouble() >= o.insertProbability)
+			if (random.nextDouble() <= o.insertProbability)
 			{
 				int insertLength = (int) (o.insertLengthMean + o.insertLengthStdDev
 						* random.nextGaussian());
@@ -90,7 +90,7 @@ public class IndelGenerator extends FragmentErrorGenerator
 					verboseSequence.append(insertedSequence);
 				}
 			}
-			if (random.nextDouble() >= o.deleteProbability)
+			if (random.nextDouble() <= o.deleteProbability)
 			{
 				int deleteLength = (int) (o.insertLengthMean + o.insertLengthStdDev
 						* random.nextGaussian());
