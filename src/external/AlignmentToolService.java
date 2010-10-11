@@ -213,8 +213,8 @@ public class AlignmentToolService
 		try
 		{
 			FileWriter w = new FileWriter(new File(path, filename));
-			System.out.printf("%s,%s,%s,%s,%s,%s%n", "Tool", "ErrorRate", "Threshold", "Precision",
-				"Recall", "Time");
+			w.write(String.format("%s,%s,%s,%s,%s,%s%n", "Tool", "ErrorRate", "Threshold",
+				"Precision", "Recall", "Time"));
 			for (Double d : m.keySet())
 			{
 				for (String s : m.get(d).keySet())
