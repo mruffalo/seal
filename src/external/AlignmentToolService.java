@@ -54,6 +54,8 @@ public class AlignmentToolService
 	{
 		final int generated_genome_length = 1000000;
 		CharSequence sequence = null;
+		SequenceGenerator g = null;
+		SequenceGenerator.Options sgo = null;
 		final File path = new File("data");
 
 		System.out.print("Reading/creating genome...");
@@ -75,10 +77,17 @@ public class AlignmentToolService
 				}
 				break;
 			case RANDOM_EASY:
+				g = new SeqGenSingleSequenceMultipleRepeats();
+				sgo = new SequenceGenerator.Options();
+				sgo.length = generated_genome_length;
+				sgo.repeatCount = 0;
+				System.out.print("Generating sequence...");
+				sequence = g.generateSequence(sgo);
+				System.out.println("done.");
 				break;
 			case RANDOM_HARD:
-				SequenceGenerator g = new SeqGenSingleSequenceMultipleRepeats();
-				SequenceGenerator.Options sgo = new SequenceGenerator.Options();
+				g = new SeqGenSingleSequenceMultipleRepeats();
+				sgo = new SequenceGenerator.Options();
 				sgo.length = generated_genome_length;
 				sgo.repeatCount = 10;
 				sgo.repeatLength = 200;
@@ -351,5 +360,7 @@ public class AlignmentToolService
 	public static void main(String[] args)
 	{
 		new AlignmentToolService().errorRateEvaluation(false, Genome.HUMAN_CHR22);
+		new AlignmentToolService().errorRateEvaluation(false, Genome.RANDOM_EASY);
+		new AlignmentToolService().errorRateEvaluation(false, Genome.RANDOM_HARD);
 	}
 }
