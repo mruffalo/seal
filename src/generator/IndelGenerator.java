@@ -96,15 +96,21 @@ public class IndelGenerator extends FragmentErrorGenerator
 			{
 				int deleteLength = (int) (o.deleteLengthMean + o.deleteLengthStdDev
 						* random.nextGaussian());
-				i += deleteLength;
 				if (verbose)
 				{
+					int subsequenceEnd = i + deleteLength;
+					if (subsequenceEnd >= sequence.length())
+					{
+						subsequenceEnd = sequence.length() - 1;
+					}
+					adjustedOrigSequence.append(sequence.subSequence(i, i + deleteLength));
 					for (int j = 0; j < deleteLength; j++)
 					{
 						errorIndicator.append('-');
 						adjustedNewSequence.append(' ');
 					}
 				}
+				i += deleteLength;
 			}
 		}
 		if (verbose)
