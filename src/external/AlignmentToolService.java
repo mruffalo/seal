@@ -6,6 +6,7 @@ import generator.SequenceGenerator;
 import generator.UniformErrorGenerator;
 import io.FastaReader;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -198,21 +199,34 @@ public class AlignmentToolService
 				e.printStackTrace();
 			}
 		}
-		System.out.printf("%s,%s,%s,%s,%s,%s%n", "Tool", "ErrorRate", "Threshold", "Precision",
-			"Recall", "Time");
-		for (Double d : m.keySet())
+
+		String filename = genome.toString().toLowerCase() + ".csv";
+		try
 		{
-			for (String s : m.get(d).keySet())
+			FileWriter w = new FileWriter(new File(path, filename));
+			System.out.printf("%s,%s,%s,%s,%s,%s%n", "Tool", "ErrorRate", "Threshold", "Precision",
+				"Recall", "Time");
+			for (Double d : m.keySet())
 			{
-				for (Integer i : m.get(d).get(s).keySet())
+				for (String s : m.get(d).keySet())
 				{
-					AlignmentResults r = m.get(d).get(s).get(i);
-					System.out.printf("%s,%f,%d,%f,%f,%d%n", s, d, i, (double) r.truePositives
-							/ (double) (r.truePositives + r.falsePositives),
-						(double) r.truePositives / (double) (r.truePositives + r.falseNegatives),
-						r.timeMap.get(AlignmentOperation.TOTAL));
+					for (Integer i : m.get(d).get(s).keySet())
+					{
+						AlignmentResults r = m.get(d).get(s).get(i);
+						w.write(String.format("%s,%f,%d,%f,%f,%d%n", s, d, i,
+							(double) r.truePositives
+									/ (double) (r.truePositives + r.falsePositives),
+							(double) r.truePositives
+									/ (double) (r.truePositives + r.falseNegatives),
+							r.timeMap.get(AlignmentOperation.TOTAL)));
+					}
 				}
 			}
+			w.close();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
 		}
 	}
 
