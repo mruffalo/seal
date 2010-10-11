@@ -11,7 +11,7 @@ public class IndelGenerator extends FragmentErrorGenerator
 	private Options o;
 	private SequenceGenerator sg;
 
-	public class Options
+	public static class Options
 	{
 		/**
 		 * Probability of starting a random insert at any given base
