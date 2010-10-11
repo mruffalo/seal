@@ -1,6 +1,7 @@
-package generator;
+package generator.errors;
 
 import static org.junit.Assert.*;
+import generator.SequenceGenerator;
 import generator.errors.SubstitutionErrorGenerator;
 import generator.errors.UniformErrorGenerator;
 import org.junit.Test;

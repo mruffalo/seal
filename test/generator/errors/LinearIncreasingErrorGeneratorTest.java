@@ -1,5 +1,8 @@
-package generator;
+package generator.errors;
 
+import generator.SeqGenSingleSequenceMultipleRepeats;
+import generator.SequenceGenerator;
+import generator.SequenceGenerator.Options;
 import generator.errors.FragmentErrorGenerator;
 import generator.errors.LinearIncreasingErrorGenerator;
 import org.junit.Test;
