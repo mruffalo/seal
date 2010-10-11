@@ -171,7 +171,10 @@ public abstract class AlignmentToolInterface implements Callable<Map<Integer, Al
 		{
 			o.unmapped_output.delete();
 		}
-		o.index.delete();
+		if (o.index != null)
+		{
+			o.index.delete();
+		}
 	}
 
 	@Override
