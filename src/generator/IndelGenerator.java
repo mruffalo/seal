@@ -103,7 +103,7 @@ public class IndelGenerator extends FragmentErrorGenerator
 					{
 						subsequenceEnd = sequence.length() - 1;
 					}
-					adjustedOrigSequence.append(sequence.subSequence(i, i + deleteLength));
+					adjustedOrigSequence.append(sequence.subSequence(i, subsequenceEnd));
 					for (int j = 0; j < deleteLength; j++)
 					{
 						errorIndicator.append('-');
