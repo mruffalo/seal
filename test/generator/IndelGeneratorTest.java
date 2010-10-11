@@ -1,6 +1,5 @@
 package generator;
 
-import static org.junit.Assert.*;
 import org.junit.Test;
 
 /**
@@ -24,7 +23,7 @@ public class IndelGeneratorTest
 		o = new IndelGenerator.Options();
 		o.deleteLengthMean = 4;
 		o.deleteLengthStdDev = 0.5;
-		o.deleteProbability = 0.01;
+		o.deleteProbability = 0.1;
 		eg = new IndelGenerator(SequenceGenerator.NUCLEOTIDES, o);
 		eg.setVerboseOutput(true);
 		eg.generateErrors(orig);
@@ -40,7 +39,7 @@ public class IndelGeneratorTest
 		o = new IndelGenerator.Options();
 		o.deleteLengthMean = 4;
 		o.deleteLengthStdDev = 0.5;
-		o.deleteProbability = 0.01;
+		o.deleteProbability = 0.1;
 		o.insertLengthMean = 4;
 		o.insertLengthStdDev = 0.5;
 		o.insertProbability = 0.1;
