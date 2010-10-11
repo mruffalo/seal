@@ -52,23 +52,63 @@ public class IndelGenerator extends FragmentErrorGenerator
 	@Override
 	public CharSequence generateErrors(CharSequence sequence)
 	{
+		if (verbose)
+		{
+			System.err.println();
+			System.err.printf("Original sequence: %s%n", sequence);
+			System.err.print("                   ");
+		}
 		StringBuilder sb = new StringBuilder(sequence.length());
+		StringBuilder errorIndicator = new StringBuilder(sequence.length());
+		/*
+		 * Used for printing the sequence in verbose mode. Contains spaces where
+		 * a deletion occurred.
+		 */
+		StringBuilder verboseSequence = new StringBuilder(sequence.length());
 		for (int i = 0; i < sequence.length(); i++)
 		{
+			/*
+			 * We insert this character whether this is a deletion, insertion,
+			 * or (unlikely as that is) both. If this is a deletion, we'll skip
+			 * after this character.
+			 */
+			sb.append(sequence.charAt(i));
 			if (random.nextDouble() >= o.insertProbability)
 			{
 				int insertLength = (int) (o.insertLengthMean + o.insertLengthStdDev
 						* random.nextGaussian());
 				SequenceGenerator.Options sgo = new SequenceGenerator.Options();
 				sgo.length = insertLength;
-				sb.append(sg.generateSequence(sgo));
+				CharSequence insertedSequence = sg.generateSequence(sgo);
+				sb.append(insertedSequence);
+				if (verbose)
+				{
+					for (int j = 0; j < insertLength; j++)
+					{
+						errorIndicator.append('+');
+					}
+					verboseSequence.append(insertedSequence);
+				}
 			}
 			if (random.nextDouble() >= o.deleteProbability)
 			{
 				int deleteLength = (int) (o.insertLengthMean + o.insertLengthStdDev
 						* random.nextGaussian());
 				i += deleteLength;
+				if (verbose)
+				{
+					for (int j = 0; j < deleteLength; j++)
+					{
+						errorIndicator.append('-');
+						verboseSequence.append(' ');
+					}
+				}
 			}
+		}
+		if (verbose)
+		{
+			System.err.println(errorIndicator.toString());
+			System.err.printf("New sequence:      %s%n%n", verboseSequence.toString());
 		}
 		return sb;
 	}

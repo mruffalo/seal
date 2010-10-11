@@ -56,12 +56,18 @@ public class UniformErrorGenerator extends SubstitutionErrorGenerator
 			if (random.nextDouble() <= getSubstitutionProbability(i, sequence.length()))
 			{
 				sb.append(chooseRandomReplacementCharacter(orig));
-				errorIndicator.append("X");
+				if (verbose)
+				{
+					errorIndicator.append("X");
+				}
 			}
 			else
 			{
 				sb.append(orig);
-				errorIndicator.append(" ");
+				if (verbose)
+				{
+					errorIndicator.append(" ");
+				}
 			}
 		}
 		if (verbose)
