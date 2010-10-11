@@ -20,7 +20,12 @@ public class FastqWriter
 
 	private static char getQualityCharacter(int offset, int value)
 	{
-		return Constants.FASTQ_QUALITY_CHARACTERS.charAt(offset + value);
+		int adjustedValue = value;
+		if (adjustedValue >= Constants.MAXIMUM_QUALITY_VALUE)
+		{
+			adjustedValue = Constants.MAXIMUM_QUALITY_VALUE;
+		}
+		return Constants.FASTQ_QUALITY_CHARACTERS.charAt(adjustedValue);
 	}
 
 	/**

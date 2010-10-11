@@ -11,4 +11,8 @@ public class Constants
 	public static final int SOLEXA_OFFSET = 26;
 	public static final int ILLUMINA_1_3_OFFSET = 33;
 	public static final int ILLUMINA_1_5_OFFSET = 36;
+	/**
+	 * From http://en.wikipedia.org/wiki/Fastq
+	 */
+	public static final int MAXIMUM_QUALITY_VALUE = 40;
 }
