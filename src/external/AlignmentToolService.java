@@ -212,6 +212,7 @@ public class AlignmentToolService
 		String filename = genome.toString().toLowerCase() + ".csv";
 		try
 		{
+			System.out.printf("Writing results to %s%n", filename);
 			FileWriter w = new FileWriter(new File(path, filename));
 			w.write(String.format("%s,%s,%s,%s,%s,%s%n", "Tool", "ErrorRate", "Threshold",
 				"Precision", "Recall", "Time"));
