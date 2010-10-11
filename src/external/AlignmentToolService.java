@@ -89,8 +89,8 @@ public class AlignmentToolService
 				g = new SeqGenSingleSequenceMultipleRepeats();
 				sgo = new SequenceGenerator.Options();
 				sgo.length = generated_genome_length;
-				sgo.repeatCount = 10;
-				sgo.repeatLength = 200;
+				sgo.repeatCount = 100;
+				sgo.repeatLength = 500;
 				sgo.repeatErrorProbability = 0.03;
 				System.out.print("Generating sequence...");
 				sequence = g.generateSequence(sgo);
