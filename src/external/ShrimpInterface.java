@@ -1,5 +1,6 @@
 package external;
 
+import io.FastaWriter;
 import io.SamReader;
 import java.io.BufferedReader;
 import java.io.FileWriter;
@@ -60,6 +61,26 @@ public class ShrimpInterface extends AlignmentToolInterface
 			e.printStackTrace();
 		}
 		System.out.printf("%03d: %s%n", index, "done aligning.");
+	}
+
+	/**
+	 * Overridden here since SHRiMP requires FASTA reads
+	 */
+	@Override
+	public void writeFragments()
+	{
+		for (int i = 0; i < o.reads.size(); i++)
+		{
+			try
+			{
+				FastaWriter.writeFragments(pairedEndFragments.get(i), o.reads.get(i).reads,
+					o.reads.get(i).index);
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
+		}
 	}
 
 	@Override
