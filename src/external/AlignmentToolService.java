@@ -161,7 +161,7 @@ public class AlignmentToolService
 			for (AlignmentToolInterface ati : alignmentInterfaceList)
 			{
 				File tool_path = new File(path, String.format("%03d-%s-%s", ati.index,
-					genome.toString().toLowerCase(), ati.description));
+					ati.description, genome.toString().toLowerCase()));
 				tool_path.mkdirs();
 				ati.o.genome = new File(tool_path, "genome.fasta");
 				ati.o.binary_genome = new File(tool_path, "genome.bfa");
