@@ -3,6 +3,8 @@ package external;
 import generator.Fragmentizer;
 import generator.SeqGenSingleSequenceMultipleRepeats;
 import generator.SequenceGenerator;
+import generator.errors.FragmentErrorGenerator;
+import generator.errors.LinearIncreasingErrorGenerator;
 import generator.errors.UniformErrorGenerator;
 import io.FastaReader;
 import java.io.File;
@@ -36,7 +38,7 @@ public class AlignmentToolService
 	protected static final List<Integer> COVERAGES = Collections.unmodifiableList(Arrays.asList(3,
 		7, 10, 13, 16, 20));
 
-	private ExecutorService pool;
+	private final ExecutorService pool;
 
 	public AlignmentToolService()
 	{
@@ -127,8 +129,8 @@ public class AlignmentToolService
 			Map<String, Map<Integer, AlignmentResults>> m_ep = Collections.synchronizedMap(new TreeMap<String, Map<Integer, AlignmentResults>>());
 			m.put(errorProbability, m_ep);
 			System.out.print("Introducing fragment read errors...");
-			UniformErrorGenerator eg = new UniformErrorGenerator(SequenceGenerator.NUCLEOTIDES,
-				errorProbability);
+			FragmentErrorGenerator eg = new LinearIncreasingErrorGenerator(
+				SequenceGenerator.NUCLEOTIDES, errorProbability / 2.0, errorProbability);
 			List<? extends Fragment> errored_list = eg.generateErrors(list);
 			System.out.println("done.");
 			List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
