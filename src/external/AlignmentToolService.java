@@ -159,6 +159,9 @@ public class AlignmentToolService
 				sequence, errored_list, new Options(paired_end, errorProbability), m_ep));
 			alignmentInterfaceList.add(new BowtieInterface(++index, "Bowtie", PHRED_THRESHOLDS,
 				sequence, errored_list, new Options(paired_end, errorProbability), m_ep));
+			alignmentInterfaceList.add(new NovoalignInterface(++index, "Novoalign",
+				PHRED_THRESHOLDS, sequence, errored_list,
+				new Options(paired_end, errorProbability), m_ep));
 
 			for (AlignmentToolInterface ati : alignmentInterfaceList)
 			{
