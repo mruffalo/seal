@@ -228,12 +228,8 @@ public class AlignmentToolService
 					for (Integer i : m.get(d).get(s).keySet())
 					{
 						AlignmentResults r = m.get(d).get(s).get(i);
-						w.write(String.format("%s,%f,%d,%f,%f,%d%n", s, d, i,
-							(double) r.truePositives
-									/ (double) (r.truePositives + r.falsePositives),
-							(double) r.truePositives
-									/ (double) (r.truePositives + r.falseNegatives),
-							r.timeMap.get(AlignmentOperation.TOTAL)));
+						w.write(String.format("%s,%f,%d,%f,%f,%d%n", s, d, i, r.getPrecision(),
+							r.getRecall(), r.timeMap.get(AlignmentOperation.TOTAL)));
 					}
 				}
 			}
