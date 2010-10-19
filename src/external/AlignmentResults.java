@@ -29,4 +29,20 @@ public class AlignmentResults
 	 * Stores time for each operation
 	 */
 	public Map<AlignmentOperation, Long> timeMap;
+
+	/**
+	 * @return The precision score described by this object: TP / (TP + FP)
+	 */
+	public double getPrecision()
+	{
+		return (double) truePositives / (double) (truePositives + falsePositives);
+	}
+
+	/**
+	 * @return The recall score described by this object: TP / (TP + FN)
+	 */
+	public double getRecall()
+	{
+		return (double) truePositives / (double) (truePositives + falseNegatives);
+	}
 }
