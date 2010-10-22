@@ -88,16 +88,6 @@ public class ShrimpInterface extends AlignmentToolInterface
 	{
 	}
 
-	/**
-	 * TODO: Fix indirection
-	 */
-	@Override
-	public AlignmentResults readAlignment(int threshold)
-	{
-		return SamReader.readAlignment(index, threshold, o, fragments.size(),
-			correctlyMappedFragments);
-	}
-
 	@Override
 	public void postAlignmentProcessing()
 	{

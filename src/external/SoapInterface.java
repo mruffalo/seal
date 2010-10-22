@@ -1,7 +1,6 @@
 package external;
 
 import io.FastqWriter;
-import io.SamReader;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
@@ -147,16 +146,6 @@ public class SoapInterface extends AlignmentToolInterface
 		{
 			e.printStackTrace();
 		}
-	}
-
-	/**
-	 * TODO: Fix indirection
-	 */
-	@Override
-	public AlignmentResults readAlignment(int threshold)
-	{
-		return SamReader.readAlignment(index, threshold, o, fragments.size(),
-			correctlyMappedFragments);
 	}
 
 	@Override

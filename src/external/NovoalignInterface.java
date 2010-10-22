@@ -1,6 +1,5 @@
 package external;
 
-import io.SamReader;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
@@ -128,15 +127,5 @@ public class NovoalignInterface extends AlignmentToolInterface
 	public void preAlignmentProcessing()
 	{
 		createIndex();
-	}
-
-	/**
-	 * TODO: Fix indirection
-	 */
-	@Override
-	public AlignmentResults readAlignment(int threshold)
-	{
-		return SamReader.readAlignment(index, threshold, o, fragments.size(),
-			correctlyMappedFragments);
 	}
 }

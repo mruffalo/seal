@@ -108,16 +108,6 @@ public class MrFastInterface extends AlignmentToolInterface
 		System.out.printf("%03d: %s%n", index, "done aligning.");
 	}
 
-	/**
-	 * TODO: Fix indirection
-	 */
-	@Override
-	public AlignmentResults readAlignment(int threshold)
-	{
-		return SamReader.readAlignment(index, threshold, o, fragments.size(),
-			correctlyMappedFragments);
-	}
-
 	@Override
 	public void preAlignmentProcessing()
 	{

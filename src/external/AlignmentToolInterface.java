@@ -2,6 +2,7 @@ package external;
 
 import io.FastaWriter;
 import io.FastqWriter;
+import io.SamReader;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -154,7 +155,18 @@ public abstract class AlignmentToolInterface implements Callable<Map<Integer, Al
 
 	public abstract void postAlignmentProcessing();
 
-	public abstract AlignmentResults readAlignment(int qualityThreshold);
+	/**
+	 * Default implementation reads SAM output. Can be overridden if the tool
+	 * has a different output format.
+	 * 
+	 * @param qualityThreshold
+	 * @return
+	 */
+	public AlignmentResults readAlignment(int threshold)
+	{
+		return SamReader.readAlignment(index, threshold, o, fragments.size(),
+			correctlyMappedFragments);
+	}
 
 	public void cleanup()
 	{

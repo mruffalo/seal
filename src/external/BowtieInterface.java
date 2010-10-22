@@ -1,6 +1,5 @@
 package external;
 
-import io.SamReader;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
@@ -131,15 +130,5 @@ public class BowtieInterface extends AlignmentToolInterface
 	@Override
 	public void postAlignmentProcessing()
 	{
-	}
-
-	/**
-	 * TODO: Fix indirection
-	 */
-	@Override
-	public AlignmentResults readAlignment(int threshold)
-	{
-		return SamReader.readAlignment(index, threshold, o, fragments.size(),
-			correctlyMappedFragments);
 	}
 }
