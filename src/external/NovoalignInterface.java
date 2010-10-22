@@ -1,7 +1,9 @@
 package external;
 
+import io.SamReader;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -15,6 +17,8 @@ public class NovoalignInterface extends AlignmentToolInterface
 	public static final String NOVOALIGN_COMMAND = "novoalign";
 	public static final String NOVOALIGN_INDEX_PATH_OPTION = "-d";
 	public static final String NOVOALIGN_SEQUENCE_PATH_OPTION = "-f";
+	public static final String NOVOALIGN_OUTPUT_FORMAT_OPTION = "-o";
+	public static final String NOVOALIGN_OUTPUT_FORMAT_SAM = "SAM";
 
 	public NovoalignInterface(int index, String description, List<Integer> thresholds,
 		CharSequence sequence, List<? extends Fragment> list, Options o,
@@ -29,6 +33,8 @@ public class NovoalignInterface extends AlignmentToolInterface
 		System.out.printf("%03d: %s%n", index, "Aligning...");
 		List<String> commands = new ArrayList<String>();
 		commands.add(NOVOALIGN_COMMAND);
+		commands.add(NOVOALIGN_OUTPUT_FORMAT_OPTION);
+		commands.add(NOVOALIGN_OUTPUT_FORMAT_SAM);
 		commands.add(NOVOALIGN_INDEX_PATH_OPTION);
 		commands.add(o.index.getAbsolutePath());
 		commands.add(NOVOALIGN_SEQUENCE_PATH_OPTION);
@@ -44,10 +50,12 @@ public class NovoalignInterface extends AlignmentToolInterface
 			BufferedReader stdout = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			BufferedReader stderr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
 			String line = null;
+			FileWriter w = new FileWriter(o.sam_output);
 			while ((line = stdout.readLine()) != null)
 			{
-				System.out.printf("%03d: %s%n", index, line);
+				w.write(String.format("%s%n", line));
 			}
+			w.close();
 			while ((line = stderr.readLine()) != null)
 			{
 				System.err.printf("%03d: %s%n", index, line);
@@ -68,7 +76,6 @@ public class NovoalignInterface extends AlignmentToolInterface
 	@Override
 	public void postAlignmentProcessing()
 	{
-		// TODO Auto-generated method stub
 	}
 
 	public void createIndex()
@@ -123,10 +130,13 @@ public class NovoalignInterface extends AlignmentToolInterface
 		createIndex();
 	}
 
+	/**
+	 * TODO: Fix indirection
+	 */
 	@Override
-	public AlignmentResults readAlignment(int qualityThreshold)
+	public AlignmentResults readAlignment(int threshold)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return SamReader.readAlignment(index, threshold, o, fragments.size(),
+			correctlyMappedFragments);
 	}
 }
