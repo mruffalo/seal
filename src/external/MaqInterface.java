@@ -29,7 +29,7 @@ public class MaqInterface extends AlignmentToolInterface
 
 	public MaqInterface(int index_, String description_, List<Integer> thresholds_,
 		CharSequence sequence_, List<? extends Fragment> list_, Options o_,
-		Map<String, Map<Integer, AlignmentResults>> m_)
+		Map<String, AlignmentResults> m_)
 	{
 		super(index_, description_, thresholds_, sequence_, list_, o_, m_);
 	}
@@ -181,9 +181,9 @@ public class MaqInterface extends AlignmentToolInterface
 	 * Can't use {@link SamReader} since MAQ doesn't output SAM files.
 	 */
 	@Override
-	public AlignmentResults readAlignment(int threshold)
+	public AlignmentResults readAlignment()
 	{
-		System.out.printf("%03d: Reading alignment (threshold %d)...%n", index, threshold);
+		System.out.printf("%03d: Reading alignment (threshold %d)...%n", index);
 		AlignmentResults rs = new AlignmentResults();
 		List<String> commands = new ArrayList<String>();
 		commands.add(MAQ_COMMAND);
@@ -221,24 +221,14 @@ public class MaqInterface extends AlignmentToolInterface
 					readPosition = Integer.parseInt(m.group(2));
 				}
 				int alignedPosition = Integer.parseInt(pieces[2]) - 1;
-				int phredProbability = Integer.parseInt(pieces[6]);
+				int mappingScore = Integer.parseInt(pieces[6]);
 				if (readPosition == alignedPosition)
 				{
-					if (phredProbability >= threshold)
-					{
-						rs.truePositives++;
-					}
-					else
-					{
-						rs.falseNegatives++;
-					}
+					rs.positives.add(mappingScore);
 				}
 				else
 				{
-					if (phredProbability >= threshold)
-					{
-						rs.falsePositives++;
-					}
+					rs.negatives.add(mappingScore);
 					// System.out.println(line);
 				}
 				totalMappedFragments.add(fragmentIdentifier);

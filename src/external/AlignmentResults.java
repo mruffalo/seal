@@ -3,46 +3,69 @@
  */
 package external;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import external.AlignmentToolInterface.AlignmentOperation;
 
 public class AlignmentResults
 {
+	public AlignmentResults()
+	{
+		positives = new ArrayList<Integer>();
+		negatives = new ArrayList<Integer>();
+	}
+
+	public AlignmentResults(int size)
+	{
+		positives = new ArrayList<Integer>(size);
+		negatives = new ArrayList<Integer>(size);
+	}
+
 	/**
-	 * Mapped to correct location in target genome, and passes quality threshold
+	 * Quality values of alignments that are at the correct location in the
+	 * genome
 	 */
-	public int truePositives;
+	public List<Integer> positives;
 	/**
-	 * Mapped to incorrect location in target genome, and passes quality
-	 * threshold
+	 * Quality values of alignments that are at an incorrect location in the
+	 * genome.
 	 */
-	public int falsePositives;
+	public List<Integer> negatives;
 	/**
-	 * <ul>
-	 * <li>Mapped to correct location in target genome and does not pass quality
-	 * threshold</li>
-	 * <li>or not present at all in tool output</li>
-	 * </ul>
+	 * Number of fragments that were missing from the tool's output. Always
+	 * added to false negative counts.
 	 */
-	public int falseNegatives;
+	public int missingFragments = 0;
 	/**
 	 * Stores time for each operation
 	 */
 	public Map<AlignmentOperation, Long> timeMap;
 
-	/**
-	 * @return The precision score described by this object: TP / (TP + FP)
-	 */
-	public double getPrecision()
+	public FilteredAlignmentResults filter(int threshold)
 	{
-		return (double) truePositives / (double) (truePositives + falsePositives);
+		int tp = 0;
+		int fp = 0;
+		int fn = 0;
+		for (Integer p : positives)
+		{
+			if (p >= threshold)
+			{
+				tp++;
+			}
+			else
+			{
+				fn++;
+			}
+		}
+		for (Integer n : negatives)
+		{
+			if (n >= threshold)
+			{
+				fp++;
+			}
+		}
+		return new FilteredAlignmentResults(tp, fp, fn);
 	}
 
-	/**
-	 * @return The recall score described by this object: TP / (TP + FN)
-	 */
-	public double getRecall()
-	{
-		return (double) truePositives / (double) (truePositives + falseNegatives);
-	}
 }

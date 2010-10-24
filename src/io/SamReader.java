@@ -64,10 +64,10 @@ public class SamReader
 		return correctlyMappedFragments;
 	}
 
-	public static AlignmentResults readAlignment(int index, int threshold, Options o,
-		int fragmentCount, Set<String> correctlyMappedFragments)
+	public static AlignmentResults readAlignment(int index, Options o, int fragmentCount,
+		Set<String> correctlyMappedFragments)
 	{
-		System.out.printf("%03d: Reading alignment (threshold %d)...%n", index, threshold);
+		System.out.printf("%03d: Reading alignment (threshold %d)...%n", index);
 		Set<String> totalMappedFragments = new HashSet<String>(fragmentCount);
 		AlignmentResults rs = new AlignmentResults();
 		try
@@ -93,25 +93,15 @@ public class SamReader
 					readPosition = Integer.parseInt(m.group(2));
 				}
 				int alignedPosition = Integer.parseInt(pieces[3]) - 1;
-				int phredProbability = Integer.parseInt(pieces[4]);
+				int mappingScore = Integer.parseInt(pieces[4]);
 				if (readPosition == alignedPosition)
 				{
-					if (phredProbability >= threshold)
-					{
-						rs.truePositives++;
-					}
-					else
-					{
-						rs.falseNegatives++;
-					}
+					rs.positives.add(mappingScore);
 				}
 				else if (o.penalize_duplicate_mappings
 						|| (!o.penalize_duplicate_mappings && !correctlyMappedFragments.contains(fragmentIdentifier)))
 				{
-					if (phredProbability >= threshold)
-					{
-						rs.falsePositives++;
-					}
+					rs.negatives.add(mappingScore);
 					// System.out.println(line);
 				}
 				totalMappedFragments.add(fragmentIdentifier);
@@ -122,7 +112,7 @@ public class SamReader
 			 */
 			if (fragmentCount >= totalMappedFragments.size())
 			{
-				rs.falseNegatives += (fragmentCount - totalMappedFragments.size());
+				rs.missingFragments += (fragmentCount - totalMappedFragments.size());
 			}
 		}
 		catch (FileNotFoundException e)

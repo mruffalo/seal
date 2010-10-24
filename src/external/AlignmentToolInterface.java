@@ -11,11 +11,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.concurrent.Callable;
 import assembly.Fragment;
 
-public abstract class AlignmentToolInterface implements Callable<Map<Integer, AlignmentResults>>
+public abstract class AlignmentToolInterface implements Callable<AlignmentResults>
 {
 	protected final List<Integer> thresholds;
 	protected CharSequence sequence;
@@ -30,7 +29,7 @@ public abstract class AlignmentToolInterface implements Callable<Map<Integer, Al
 	protected Set<String> correctlyMappedFragments;
 	protected Set<String> totalMappedFragments;
 
-	protected Map<String, Map<Integer, AlignmentResults>> m;
+	protected Map<String, AlignmentResults> m;
 
 	public final int index;
 	protected final String description;
@@ -86,7 +85,7 @@ public abstract class AlignmentToolInterface implements Callable<Map<Integer, Al
 
 	public AlignmentToolInterface(int index_, String description_, List<Integer> thresholds_,
 		CharSequence sequence_, List<? extends Fragment> list_, Options o_,
-		Map<String, Map<Integer, AlignmentResults>> m_)
+		Map<String, AlignmentResults> m_)
 	{
 		index = index_;
 		description = description_;
@@ -162,10 +161,9 @@ public abstract class AlignmentToolInterface implements Callable<Map<Integer, Al
 	 * @param qualityThreshold
 	 * @return
 	 */
-	public AlignmentResults readAlignment(int threshold)
+	public AlignmentResults readAlignment()
 	{
-		return SamReader.readAlignment(index, threshold, o, fragments.size(),
-			correctlyMappedFragments);
+		return SamReader.readAlignment(index, o, fragments.size(), correctlyMappedFragments);
 	}
 
 	public void cleanup()
@@ -190,7 +188,7 @@ public abstract class AlignmentToolInterface implements Callable<Map<Integer, Al
 	}
 
 	@Override
-	public Map<Integer, AlignmentResults> call() throws Exception
+	public AlignmentResults call() throws Exception
 	{
 		Map<AlignmentOperation, Long> timeMap = new EnumMap<AlignmentOperation, Long>(
 			AlignmentOperation.class);
@@ -209,15 +207,10 @@ public abstract class AlignmentToolInterface implements Callable<Map<Integer, Al
 		timeMap.put(AlignmentOperation.POSTPROCESSING, postprocessing - alignment);
 		timeMap.put(AlignmentOperation.TOTAL, postprocessing - start);
 
-		Map<Integer, AlignmentResults> results = new TreeMap<Integer, AlignmentResults>();
+		AlignmentResults results = readAlignment();
+		results.timeMap = timeMap;
 
-		for (Integer threshold : thresholds)
-		{
-			AlignmentResults r = readAlignment(threshold);
-			r.timeMap = timeMap;
-			results.put(threshold, r);
-			m.put(description, results);
-		}
+		m.put(description, results);
 		cleanup();
 		return results;
 	}

@@ -18,7 +18,7 @@ public class MrsFastInterface extends AlignmentToolInterface
 
 	public MrsFastInterface(int index_, String description_, List<Integer> thresholds_,
 		CharSequence sequence_, List<? extends Fragment> list_, Options o_,
-		Map<String, Map<Integer, AlignmentResults>> m_)
+		Map<String, AlignmentResults> m_)
 	{
 		super(index_, description_, thresholds_, sequence_, list_, o_, m_);
 	}

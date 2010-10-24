@@ -119,14 +119,14 @@ public class AlignmentToolService
 		List<AlignmentToolInterface> atiList = new ArrayList<AlignmentToolInterface>(
 			alignmentToolCount);
 
-		Map<Double, Map<String, Map<Integer, AlignmentResults>>> m = Collections.synchronizedMap(new TreeMap<Double, Map<String, Map<Integer, AlignmentResults>>>());
-		List<Future<Map<Integer, AlignmentResults>>> futureList = new ArrayList<Future<Map<Integer, AlignmentResults>>>(
+		Map<Double, Map<String, AlignmentResults>> m = Collections.synchronizedMap(new TreeMap<Double, Map<String, AlignmentResults>>());
+		List<Future<AlignmentResults>> futureList = new ArrayList<Future<AlignmentResults>>(
 			alignmentToolCount);
 
 		int index = 0;
 		for (double errorProbability : ERROR_PROBABILITIES)
 		{
-			Map<String, Map<Integer, AlignmentResults>> m_ep = Collections.synchronizedMap(new TreeMap<String, Map<Integer, AlignmentResults>>());
+			Map<String, AlignmentResults> m_ep = Collections.synchronizedMap(new TreeMap<String, AlignmentResults>());
 			m.put(errorProbability, m_ep);
 			System.out.print("Introducing fragment read errors...");
 			FragmentErrorGenerator eg = new LinearIncreasingErrorGenerator(
@@ -196,7 +196,7 @@ public class AlignmentToolService
 		}
 
 		pool.shutdown();
-		for (Future<Map<Integer, AlignmentResults>> f : futureList)
+		for (Future<AlignmentResults> f : futureList)
 		{
 			try
 			{
@@ -225,11 +225,12 @@ public class AlignmentToolService
 			{
 				for (String s : m.get(d).keySet())
 				{
-					for (Integer i : m.get(d).get(s).keySet())
+					for (Integer i : PHRED_THRESHOLDS)
 					{
-						AlignmentResults r = m.get(d).get(s).get(i);
+						AlignmentResults ar = m.get(d).get(s);
+						FilteredAlignmentResults r = ar.filter(i);
 						w.write(String.format("%s,%f,%d,%f,%f,%d%n", s, d, i, r.getPrecision(),
-							r.getRecall(), r.timeMap.get(AlignmentOperation.TOTAL)));
+							r.getRecall(), ar.timeMap.get(AlignmentOperation.TOTAL)));
 					}
 				}
 			}
@@ -260,14 +261,14 @@ public class AlignmentToolService
 
 		path.mkdirs();
 
-		Map<Integer, Map<String, Map<Integer, AlignmentResults>>> m = Collections.synchronizedMap(new TreeMap<Integer, Map<String, Map<Integer, AlignmentResults>>>());
-		List<Future<Map<Integer, AlignmentResults>>> futureList = new ArrayList<Future<Map<Integer, AlignmentResults>>>(
+		Map<Integer, Map<String, AlignmentResults>> m = Collections.synchronizedMap(new TreeMap<Integer, Map<String, AlignmentResults>>());
+		List<Future<AlignmentResults>> futureList = new ArrayList<Future<AlignmentResults>>(
 			COVERAGES.size() * 6);
 
 		int index = 0;
 		for (int coverage : COVERAGES)
 		{
-			Map<String, Map<Integer, AlignmentResults>> m_c = Collections.synchronizedMap(new TreeMap<String, Map<Integer, AlignmentResults>>());
+			Map<String, AlignmentResults> m_c = Collections.synchronizedMap(new TreeMap<String, AlignmentResults>());
 			m.put(coverage, m_c);
 			Fragmentizer.Options fo = new Fragmentizer.Options();
 			fo.k = 50;
@@ -327,7 +328,7 @@ public class AlignmentToolService
 		}
 
 		pool.shutdown();
-		for (Future<Map<Integer, AlignmentResults>> f : futureList)
+		for (Future<AlignmentResults> f : futureList)
 		{
 			try
 			{
@@ -349,7 +350,7 @@ public class AlignmentToolService
 		{
 			for (String s : m.get(c).keySet())
 			{
-				AlignmentResults r = m.get(c).get(s).get(0);
+				AlignmentResults r = m.get(c).get(s);
 				System.out.printf("%s,%d,%d,%d,%d,%d%n", s, c,
 					r.timeMap.get(AlignmentOperation.PREPROCESSING),
 					r.timeMap.get(AlignmentOperation.ALIGNMENT),

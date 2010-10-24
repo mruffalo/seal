@@ -19,11 +19,11 @@ public class NovoalignInterface extends AlignmentToolInterface
 	public static final String NOVOALIGN_OUTPUT_FORMAT_OPTION = "-o";
 	public static final String NOVOALIGN_OUTPUT_FORMAT_SAM = "SAM";
 
-	public NovoalignInterface(int index, String description, List<Integer> thresholds,
-		CharSequence sequence, List<? extends Fragment> list, Options o,
-		Map<String, Map<Integer, AlignmentResults>> m)
+	public NovoalignInterface(int index_, String description_, List<Integer> thresholds_,
+		CharSequence sequence_, List<? extends Fragment> list_, Options o_,
+		Map<String, AlignmentResults> m_)
 	{
-		super(index, description, thresholds, sequence, list, o, m);
+		super(index_, description_, thresholds_, sequence_, list_, o_, m_);
 	}
 
 	@Override
