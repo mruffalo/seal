@@ -14,6 +14,9 @@ import external.AlignmentToolInterface.Options;
 
 public class SamReader
 {
+	/**
+	 * TODO: Use this
+	 */
 	private final BufferedReader source;
 
 	public SamReader(Reader in)
@@ -67,7 +70,7 @@ public class SamReader
 	public static AlignmentResults readAlignment(int index, Options o, int fragmentCount,
 		Set<String> correctlyMappedFragments)
 	{
-		System.out.printf("%03d: Reading alignment (threshold %d)...%n", index);
+		System.out.printf("%03d: Reading alignment...%n", index);
 		Set<String> totalMappedFragments = new HashSet<String>(fragmentCount);
 		AlignmentResults rs = new AlignmentResults();
 		try

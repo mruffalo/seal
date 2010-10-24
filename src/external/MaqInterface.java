@@ -183,7 +183,7 @@ public class MaqInterface extends AlignmentToolInterface
 	@Override
 	public AlignmentResults readAlignment()
 	{
-		System.out.printf("%03d: Reading alignment (threshold %d)...%n", index);
+		System.out.printf("%03d: Reading alignment...%n", index);
 		AlignmentResults rs = new AlignmentResults();
 		List<String> commands = new ArrayList<String>();
 		commands.add(MAQ_COMMAND);
