@@ -183,6 +183,7 @@ public class AlignmentToolService
 				ati.o.raw_output = new File(tool_path, "out.raw");
 				ati.o.sam_output = new File(tool_path, "alignment.sam");
 				ati.o.converted_output = new File(tool_path, "out.txt");
+				ati.o.roc_output = new File(tool_path, "roc.csv");
 
 				System.out.printf("*** %03d %s: %f%n", ati.index, ati.description,
 					ati.o.error_probability);

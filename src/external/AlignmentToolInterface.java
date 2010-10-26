@@ -4,6 +4,7 @@ import io.FastaWriter;
 import io.FastqWriter;
 import io.SamReader;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -80,6 +81,7 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 		 */
 		public File converted_output;
 		public File unmapped_output;
+		public File roc_output;
 		public boolean penalize_duplicate_mappings = true;
 	}
 
@@ -166,6 +168,31 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 		return SamReader.readAlignment(index, o, fragments.size(), correctlyMappedFragments);
 	}
 
+	public void writeRocData(AlignmentResults r)
+	{
+		System.out.printf("Writing ROC data to %s...%n", o.roc_output.getAbsolutePath());
+		FileWriter w;
+		try
+		{
+			w = new FileWriter(o.roc_output);
+			w.write(String.format("predictions,labels%n"));
+			for (int p : r.positives)
+			{
+				w.write(String.format("%d,%d%n", p, 1));
+			}
+			for (int n : r.negatives)
+			{
+				w.write(String.format("%d,%d%n", n, 0));
+			}
+			w.close();
+		}
+		catch (IOException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 	public void cleanup()
 	{
 		o.binary_genome.delete();
@@ -209,6 +236,8 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 
 		AlignmentResults results = readAlignment();
 		results.timeMap = timeMap;
+
+		writeRocData(results);
 
 		m.put(description, results);
 		cleanup();
