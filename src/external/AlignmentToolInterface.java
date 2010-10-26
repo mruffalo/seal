@@ -170,7 +170,8 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 
 	public void writeRocData(AlignmentResults r)
 	{
-		System.out.printf("Writing ROC data to %s...%n", o.roc_output.getAbsolutePath());
+		System.out.printf("%03d: %s%n", index, String.format("Writing ROC data to %s...%n",
+			o.roc_output.getAbsolutePath()));
 		FileWriter w;
 		try
 		{

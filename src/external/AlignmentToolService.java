@@ -291,15 +291,14 @@ public class AlignmentToolService
 		System.out.printf("Genome length: %d%n", sequence.length());
 
 		path.mkdirs();
-		for (int which = 0; which < RUNTIME_EVAL_RUN_COUNT; which++)
+		List<Future<AlignmentResults>> futureList = new ArrayList<Future<AlignmentResults>>(
+			COVERAGES.size() * RUNTIME_EVAL_RUN_COUNT * 7);
+		int index = 0;
+		for (int which_run = 0; which_run < RUNTIME_EVAL_RUN_COUNT; which_run++)
 		{
-
 			Map<Integer, Map<String, AlignmentResults>> m = Collections.synchronizedMap(new TreeMap<Integer, Map<String, AlignmentResults>>());
 			l.add(m);
-			List<Future<AlignmentResults>> futureList = new ArrayList<Future<AlignmentResults>>(
-				COVERAGES.size() * 6);
 
-			int index = 0;
 			for (int coverage : COVERAGES)
 			{
 				Map<String, AlignmentResults> m_c = Collections.synchronizedMap(new TreeMap<String, AlignmentResults>());
@@ -361,6 +360,7 @@ public class AlignmentToolService
 					ati.o.raw_output = new File(tool_path, "out.raw");
 					ati.o.sam_output = new File(tool_path, "alignment.sam");
 					ati.o.converted_output = new File(tool_path, "out.txt");
+					ati.o.roc_output = new File(tool_path, "roc.csv");
 
 					System.out.printf("*** %03d %s: %d%n", ati.index, ati.description, coverage);
 
@@ -368,21 +368,21 @@ public class AlignmentToolService
 				}
 			}
 
-			pool.shutdown();
-			for (Future<AlignmentResults> f : futureList)
+		}
+		pool.shutdown();
+		for (Future<AlignmentResults> f : futureList)
+		{
+			try
 			{
-				try
-				{
-					f.get();
-				}
-				catch (InterruptedException e)
-				{
-					e.printStackTrace();
-				}
-				catch (ExecutionException e)
-				{
-					e.printStackTrace();
-				}
+				f.get();
+			}
+			catch (InterruptedException e)
+			{
+				e.printStackTrace();
+			}
+			catch (ExecutionException e)
+			{
+				e.printStackTrace();
 			}
 		}
 		String roc_filename = "time_data.csv";
@@ -416,8 +416,6 @@ public class AlignmentToolService
 
 	public static void main(String[] args)
 	{
-		new AlignmentToolService().errorRateEvaluation(false, Genome.HUMAN_CHR22);
-		new AlignmentToolService().errorRateEvaluation(false, Genome.RANDOM_EASY);
-		new AlignmentToolService().errorRateEvaluation(false, Genome.RANDOM_HARD);
+		new AlignmentToolService().runtimeEvaluation();
 	}
 }
