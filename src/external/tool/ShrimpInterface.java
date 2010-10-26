@@ -1,4 +1,4 @@
-package external;
+package external.tool;
 
 import io.FastaWriter;
 import io.SamReader;
@@ -9,6 +9,8 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import external.AlignmentResults;
+import external.AlignmentToolInterface;
 import assembly.Fragment;
 
 public class ShrimpInterface extends AlignmentToolInterface

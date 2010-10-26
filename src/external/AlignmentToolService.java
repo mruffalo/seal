@@ -23,6 +23,7 @@ import java.util.concurrent.Future;
 import assembly.Fragment;
 import external.AlignmentToolInterface.AlignmentOperation;
 import external.AlignmentToolInterface.Options;
+import external.tool.*;
 
 public class AlignmentToolService
 {
@@ -325,6 +326,9 @@ public class AlignmentToolService
 				sequence, errored_list, new Options(paired_end, errorProbability), m_c));
 			alignmentInterfaceList.add(new BowtieInterface(++index, "Bowtie", RUNTIME_THRESHOLDS,
 				sequence, errored_list, new Options(paired_end, errorProbability), m_c));
+			alignmentInterfaceList.add(new NovoalignInterface(++index, "Novoalign",
+				RUNTIME_THRESHOLDS, sequence, errored_list, new Options(paired_end,
+					errorProbability), m_c));
 
 			for (AlignmentToolInterface ati : alignmentInterfaceList)
 			{

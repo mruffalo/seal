@@ -1,4 +1,4 @@
-package external;
+package external.tool;
 
 import io.Constants;
 import io.FastaWriter;
@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
+import external.AlignmentResults;
+import external.AlignmentToolInterface;
 import assembly.Fragment;
 
 /**
