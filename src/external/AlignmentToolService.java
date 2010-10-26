@@ -241,7 +241,7 @@ public class AlignmentToolService
 			String roc_filename = genome.toString().toLowerCase() + "_roc.csv";
 			System.out.printf("Writing overall ROC data to %s%n", roc_filename);
 			w = new FileWriter(new File(path, roc_filename));
-			w.write(String.format("%s,%s,%s,%s%n", "Tool", "ErrorRate", "Label", "Score"));
+			w.write(String.format("%s,%s,%s,%s%n", "Tool", "ErrorRate", "Score", "Label"));
 			for (Double d : m.keySet())
 			{
 				for (String s : m.get(d).keySet())
