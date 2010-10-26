@@ -1,5 +1,14 @@
 package external;
 
+import external.AlignmentToolInterface.AlignmentOperation;
+import external.AlignmentToolInterface.Options;
+import external.tool.BowtieInterface;
+import external.tool.BwaInterface;
+import external.tool.MrFastInterface;
+import external.tool.MrsFastInterface;
+import external.tool.NovoalignInterface;
+import external.tool.ShrimpInterface;
+import external.tool.SoapInterface;
 import generator.Fragmentizer;
 import generator.SeqGenSingleSequenceMultipleRepeats;
 import generator.SequenceGenerator;
@@ -21,9 +30,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import assembly.Fragment;
-import external.AlignmentToolInterface.AlignmentOperation;
-import external.AlignmentToolInterface.Options;
-import external.tool.*;
 
 public class AlignmentToolService
 {
@@ -31,8 +37,8 @@ public class AlignmentToolService
 	 * The number of CPUs in your system (maybe - 1) is a good value for this
 	 */
 	private static final int NUMBER_OF_CONCURRENT_THREADS = 2;
-	protected static final double[] ERROR_PROBABILITIES = { 0.0, 0.001, 0.004, 0.01, 0.025, 0.05,
-			0.1 };
+	protected static final List<Double> ERROR_PROBABILITIES = Collections.unmodifiableList(Arrays.asList(
+		0.0, 0.001, 0.004, 0.01, 0.025, 0.05, 0.1));
 	protected static final List<Integer> PHRED_THRESHOLDS = Collections.unmodifiableList(Arrays.asList(
 		0, 1, 2, 3, 4, 5, 7, 10, 14, 20, 25, 30, 35, 40));
 	protected static final List<Integer> RUNTIME_THRESHOLDS = Collections.unmodifiableList(Arrays.asList(0));
@@ -116,7 +122,7 @@ public class AlignmentToolService
 
 		path.mkdirs();
 
-		final int alignmentToolCount = ERROR_PROBABILITIES.length * PHRED_THRESHOLDS.size() * 7;
+		final int alignmentToolCount = ERROR_PROBABILITIES.size() * PHRED_THRESHOLDS.size() * 7;
 		List<AlignmentToolInterface> atiList = new ArrayList<AlignmentToolInterface>(
 			alignmentToolCount);
 
