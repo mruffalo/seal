@@ -236,6 +236,28 @@ public class AlignmentToolService
 				}
 			}
 			w.close();
+
+			String roc_filename = genome.toString().toLowerCase() + "_roc.csv";
+			System.out.printf("Writing overall ROC data to %s%n", roc_filename);
+			w = new FileWriter(new File(path, roc_filename));
+			w.write(String.format("%s,%s,%s%n", "Tool", "Label", "Score"));
+			for (Double d : m.keySet())
+			{
+				for (String s : m.get(d).keySet())
+				{
+					// TODO: Don't duplicate code here
+					AlignmentResults r = m.get(d).get(s);
+					for (int p : r.positives)
+					{
+						w.write(String.format("%s,%f,%d,%d,%d%n", s, d, p, 1));
+					}
+					for (int n : r.negatives)
+					{
+						w.write(String.format("%s,%f,%d,%d,%d%n", s, d, n, 0));
+					}
+				}
+			}
+			w.close();
 		}
 		catch (IOException e)
 		{
