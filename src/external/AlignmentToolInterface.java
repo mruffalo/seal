@@ -221,8 +221,8 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 		Map<AlignmentOperation, Long> timeMap = new EnumMap<AlignmentOperation, Long>(
 			AlignmentOperation.class);
 		long start, preprocessing, alignment, postprocessing;
-		start = System.nanoTime();
 		commonPreAlignmentProcessing();
+		start = System.nanoTime();
 		preAlignmentProcessing();
 		preprocessing = System.nanoTime();
 		align();
