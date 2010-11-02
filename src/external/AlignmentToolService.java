@@ -37,7 +37,7 @@ public class AlignmentToolService
 	 * The number of CPUs in your system (maybe - 1) is a good value for this
 	 */
 	private static final int NUMBER_OF_CONCURRENT_THREADS = 2;
-	private static final int RUNTIME_EVAL_RUN_COUNT = 5;
+	private static final int RUNTIME_EVAL_RUN_COUNT = 1;
 	protected static final List<Double> ERROR_PROBABILITIES = Collections.unmodifiableList(Arrays.asList(
 		0.0, 0.001, 0.004, 0.01, 0.025, 0.05, 0.1));
 	protected static final List<Integer> PHRED_THRESHOLDS = Collections.unmodifiableList(Arrays.asList(
