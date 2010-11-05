@@ -241,7 +241,7 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 		writeRocData(results);
 
 		m.put(description, results);
-		cleanup();
+		// cleanup();
 		return results;
 	}
 }

@@ -43,8 +43,10 @@ public class AlignmentToolService
 	protected static final List<Integer> PHRED_THRESHOLDS = Collections.unmodifiableList(Arrays.asList(
 		0, 1, 2, 3, 4, 5, 7, 10, 14, 20, 25, 30, 35, 40));
 	protected static final List<Integer> RUNTIME_THRESHOLDS = Collections.unmodifiableList(Arrays.asList(0));
-	protected static final List<Integer> COVERAGES = Collections.unmodifiableList(Arrays.asList(3,
-		7, 10, 13, 16, 20));
+	protected static final List<Integer> RUNTIME_GENOME_SIZES = Collections.unmodifiableList(Arrays.asList(
+		5000, 20000, 100000, 500000, 1000000));
+	protected static final List<Integer> RUNTIME_COVERAGES = Collections.unmodifiableList(Arrays.asList(
+		3, 7, 10, 13, 16, 20));
 
 	private final ExecutorService pool;
 
@@ -274,7 +276,7 @@ public class AlignmentToolService
 	/**
 	 * TODO: Don't duplicate code
 	 */
-	public void runtimeEvaluation()
+	public void runtimeCoverageEvaluation()
 	{
 		List<Map<Integer, Map<String, AlignmentResults>>> l = new ArrayList<Map<Integer, Map<String, AlignmentResults>>>(
 			RUNTIME_EVAL_RUN_COUNT);
@@ -292,14 +294,14 @@ public class AlignmentToolService
 
 		path.mkdirs();
 		List<Future<AlignmentResults>> futureList = new ArrayList<Future<AlignmentResults>>(
-			COVERAGES.size() * RUNTIME_EVAL_RUN_COUNT * 7);
+			RUNTIME_COVERAGES.size() * RUNTIME_EVAL_RUN_COUNT * 7);
 		int index = 0;
 		for (int which_run = 0; which_run < RUNTIME_EVAL_RUN_COUNT; which_run++)
 		{
 			Map<Integer, Map<String, AlignmentResults>> m = Collections.synchronizedMap(new TreeMap<Integer, Map<String, AlignmentResults>>());
 			l.add(m);
 
-			for (int coverage : COVERAGES)
+			for (int coverage : RUNTIME_COVERAGES)
 			{
 				Map<String, AlignmentResults> m_c = Collections.synchronizedMap(new TreeMap<String, AlignmentResults>());
 				m.put(coverage, m_c);
@@ -414,8 +416,151 @@ public class AlignmentToolService
 		}
 	}
 
+	/**
+	 * TODO: Don't duplicate code
+	 */
+	public void runtimeGenomeSizeEvaluation()
+	{
+		List<Map<Integer, Map<String, AlignmentResults>>> l = new ArrayList<Map<Integer, Map<String, AlignmentResults>>>(
+			RUNTIME_EVAL_RUN_COUNT);
+		final boolean paired_end = false;
+		final double errorProbability = 0.05;
+		final int coverage = 3;
+		final File path = new File("data");
+
+		path.mkdirs();
+		List<Future<AlignmentResults>> futureList = new ArrayList<Future<AlignmentResults>>(
+			RUNTIME_COVERAGES.size() * RUNTIME_EVAL_RUN_COUNT * 7);
+		int index = 0;
+		for (int which_run = 0; which_run < RUNTIME_EVAL_RUN_COUNT; which_run++)
+		{
+			Map<Integer, Map<String, AlignmentResults>> m = Collections.synchronizedMap(new TreeMap<Integer, Map<String, AlignmentResults>>());
+			l.add(m);
+
+			for (int genome_size : RUNTIME_GENOME_SIZES)
+			{
+				SequenceGenerator g = new SeqGenSingleSequenceMultipleRepeats();
+				SequenceGenerator.Options sgo = new SequenceGenerator.Options();
+				sgo.length = genome_size;
+				System.out.print("Generating sequence...");
+				CharSequence sequence = g.generateSequence(sgo);
+				System.out.println("done.");
+				System.out.printf("Genome length: %d%n", sequence.length());
+				Map<String, AlignmentResults> m_c = Collections.synchronizedMap(new TreeMap<String, AlignmentResults>());
+				m.put(genome_size, m_c);
+				Fragmentizer.Options fo = new Fragmentizer.Options();
+				fo.k = 50;
+				/*
+				 * Integer truncation is okay here
+				 */
+				fo.n = (genome_size * coverage) / fo.k;
+				fo.ksd = 1;
+
+				System.out.printf("Reading %d fragments...", fo.n);
+				List<? extends Fragment> list = Fragmentizer.fragmentize(sequence, fo);
+				System.out.println("done.");
+
+				System.out.print("Introducing fragment read errors...");
+				UniformErrorGenerator eg = new UniformErrorGenerator(SequenceGenerator.NUCLEOTIDES,
+					errorProbability);
+				List<? extends Fragment> errored_list = eg.generateErrors(list);
+				System.out.println("done.");
+
+				List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
+
+				alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast",
+					RUNTIME_THRESHOLDS, sequence, errored_list, new Options(paired_end,
+						errorProbability), m_c));
+				alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast",
+					RUNTIME_THRESHOLDS, sequence, errored_list, new Options(paired_end,
+						errorProbability), m_c));
+				alignmentInterfaceList.add(new SoapInterface(++index, "SOAP", RUNTIME_THRESHOLDS,
+					sequence, errored_list, new Options(paired_end, errorProbability), m_c));
+				alignmentInterfaceList.add(new BwaInterface(++index, "BWA", RUNTIME_THRESHOLDS,
+					sequence, errored_list, new Options(paired_end, errorProbability), m_c));
+				alignmentInterfaceList.add(new ShrimpInterface(++index, "SHRiMP",
+					RUNTIME_THRESHOLDS, sequence, errored_list, new Options(paired_end,
+						errorProbability), m_c));
+				alignmentInterfaceList.add(new BowtieInterface(++index, "Bowtie",
+					RUNTIME_THRESHOLDS, sequence, errored_list, new Options(paired_end,
+						errorProbability), m_c));
+				alignmentInterfaceList.add(new NovoalignInterface(++index, "Novoalign",
+					RUNTIME_THRESHOLDS, sequence, errored_list, new Options(paired_end,
+						errorProbability), m_c));
+
+				for (AlignmentToolInterface ati : alignmentInterfaceList)
+				{
+					File tool_path = new File(path, String.format("%03d-%s", ati.index,
+						ati.description));
+					tool_path.mkdirs();
+					ati.o.genome = new File(tool_path, "genome.fasta");
+					ati.o.binary_genome = new File(tool_path, "genome.bfa");
+
+					Options.Reads r = new Options.Reads(1);
+					r.reads = new File(tool_path, String.format("fragments%d.fastq", 1));
+					r.binary_reads = new File(tool_path, String.format("fragments%d.bfq", 1));
+					r.aligned_reads = new File(tool_path, String.format("alignment%d.sai", 1));
+					ati.o.reads.add(r);
+
+					ati.o.raw_output = new File(tool_path, "out.raw");
+					ati.o.sam_output = new File(tool_path, "alignment.sam");
+					ati.o.converted_output = new File(tool_path, "out.txt");
+					ati.o.roc_output = new File(tool_path, "roc.csv");
+
+					System.out.printf("*** %03d %s: %d%n", ati.index, ati.description, genome_size);
+
+					futureList.add(pool.submit(ati));
+				}
+			}
+
+		}
+		pool.shutdown();
+		for (Future<AlignmentResults> f : futureList)
+		{
+			try
+			{
+				f.get();
+			}
+			catch (InterruptedException e)
+			{
+				e.printStackTrace();
+			}
+			catch (ExecutionException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		String roc_filename = "time_data.csv";
+		System.out.printf("Writing time data to %s%n", roc_filename);
+		try
+		{
+			FileWriter w = new FileWriter(new File(path, roc_filename));
+			w.write(String.format("Tool,GenomeLength,PreprocessingTime,AlignmentTime,PostprocessingTime,TotalTime%n"));
+			for (Map<Integer, Map<String, AlignmentResults>> m : l)
+			{
+				for (Integer c : m.keySet())
+				{
+					for (String s : m.get(c).keySet())
+					{
+						AlignmentResults r = m.get(c).get(s);
+						w.write(String.format("%s,%d,%d,%d,%d,%d%n", s, c,
+							r.timeMap.get(AlignmentOperation.PREPROCESSING),
+							r.timeMap.get(AlignmentOperation.ALIGNMENT),
+							r.timeMap.get(AlignmentOperation.POSTPROCESSING),
+							r.timeMap.get(AlignmentOperation.TOTAL)));
+					}
+				}
+			}
+			w.close();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
 	public static void main(String[] args)
 	{
-		new AlignmentToolService().runtimeEvaluation();
+		new AlignmentToolService().runtimeGenomeSizeEvaluation();
 	}
 }
