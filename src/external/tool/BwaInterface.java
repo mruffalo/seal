@@ -3,7 +3,6 @@ package external.tool;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
@@ -108,15 +107,13 @@ public class BwaInterface extends AlignmentToolInterface
 				ByteBuffer buffer = ByteBuffer.allocate(BYTE_BUFFER_SIZE);
 				buffer.rewind();
 
-				// TODO: Use a faster bulk copy method for this
 				FileOutputStream w = new FileOutputStream(o.reads.get(i).aligned_reads);
 				FileChannel wc = w.getChannel();
-				int numRead = 0;
-				while (numRead >= 0)
+				while (stdout.read(buffer) > 0)
 				{
-					wc.write(buffer, numRead);
+					buffer.flip();
+					wc.write(buffer);
 					buffer.rewind();
-					numRead = stdout.read(buffer);
 				}
 				wc.close();
 				String line = null;
