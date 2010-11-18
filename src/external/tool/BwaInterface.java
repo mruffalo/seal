@@ -5,14 +5,17 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
+import java.nio.channels.ReadableByteChannel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import assembly.Fragment;
 import external.AlignmentResults;
 import external.AlignmentToolInterface;
-import assembly.Fragment;
 
 /**
  * TODO: Move some of this code into the general {@link AlignmentToolInterface}
@@ -22,6 +25,8 @@ import assembly.Fragment;
  */
 public class BwaInterface extends AlignmentToolInterface
 {
+	private static final int BYTE_BUFFER_SIZE = 65536;
+
 	public static final String BWA_COMMAND = "bwa";
 	public static final String INDEX_COMMAND = "index";
 	public static final String ALIGN_COMMAND = "aln";
@@ -95,18 +100,25 @@ public class BwaInterface extends AlignmentToolInterface
 			try
 			{
 				Process p = pb.start();
-				InputStream stdout = p.getInputStream();
+				ReadableByteChannel stdout = Channels.newChannel(p.getInputStream());
+				// InputStream stdout = p.getInputStream();
 				BufferedReader stderr = new BufferedReader(
 					new InputStreamReader(p.getErrorStream()));
 
+				ByteBuffer buffer = ByteBuffer.allocate(BYTE_BUFFER_SIZE);
+				buffer.rewind();
+
 				// TODO: Use a faster bulk copy method for this
 				FileOutputStream w = new FileOutputStream(o.reads.get(i).aligned_reads);
-				int data = -1;
-				while ((data = stdout.read()) != -1)
+				FileChannel wc = w.getChannel();
+				int numRead = 0;
+				while (numRead >= 0)
 				{
-					w.write(data);
+					wc.write(buffer, numRead);
+					buffer.rewind();
+					numRead = stdout.read(buffer);
 				}
-				w.close();
+				wc.close();
 				String line = null;
 				while ((line = stderr.readLine()) != null)
 				{
