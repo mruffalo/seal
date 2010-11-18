@@ -31,6 +31,7 @@ public class BwaInterface extends AlignmentToolInterface
 	public static final String ALIGN_COMMAND = "aln";
 	public static final String SAM_SINGLE_END_COMMAND = "samse";
 	public static final String SAM_PAIRED_END_COMMAND = "sampe";
+	public static final String SAM_OUTPUT_FILE_OPTION = "-f";
 
 	public static final String OUTPUT_TEMPLATE = "%s\t%d\t%d\t%d\t%d%n";
 
@@ -140,6 +141,8 @@ public class BwaInterface extends AlignmentToolInterface
 		List<String> commands = new ArrayList<String>();
 		commands.add(BWA_COMMAND);
 		commands.add(o.is_paired_end ? SAM_PAIRED_END_COMMAND : SAM_SINGLE_END_COMMAND);
+		commands.add(SAM_OUTPUT_FILE_OPTION);
+		commands.add(o.sam_output.getAbsolutePath());
 		commands.add(o.genome.getAbsolutePath());
 		for (Options.Reads r : o.reads)
 		{
@@ -149,7 +152,6 @@ public class BwaInterface extends AlignmentToolInterface
 		{
 			commands.add(r.reads.getAbsolutePath());
 		}
-		commands.add(o.sam_output.getAbsolutePath());
 
 		ProcessBuilder pb = new ProcessBuilder(commands);
 		for (String arg : pb.command())
@@ -163,12 +165,10 @@ public class BwaInterface extends AlignmentToolInterface
 			BufferedReader stdout = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			BufferedReader stderr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
 			String line = null;
-			FileWriter w = new FileWriter(o.sam_output);
 			while ((line = stdout.readLine()) != null)
 			{
-				w.write(String.format("%s%n", line));
+				System.out.printf("%03d: %s%n", index, line);
 			}
-			w.close();
 			while ((line = stderr.readLine()) != null)
 			{
 				System.err.printf("%03d: %s%n", index, line);
