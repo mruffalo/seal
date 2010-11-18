@@ -2,13 +2,8 @@ package external.tool;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.ByteBuffer;
-import java.nio.channels.Channels;
-import java.nio.channels.FileChannel;
-import java.nio.channels.ReadableByteChannel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +26,7 @@ public class BwaInterface extends AlignmentToolInterface
 	public static final String ALIGN_COMMAND = "aln";
 	public static final String SAM_SINGLE_END_COMMAND = "samse";
 	public static final String SAM_PAIRED_END_COMMAND = "sampe";
-	public static final String SAM_OUTPUT_FILE_OPTION = "-f";
+	public static final String OUTPUT_FILE_OPTION = "-f";
 
 	public static final String OUTPUT_TEMPLATE = "%s\t%d\t%d\t%d\t%d%n";
 
@@ -93,6 +88,8 @@ public class BwaInterface extends AlignmentToolInterface
 			List<String> commands = new ArrayList<String>();
 			commands.add(BWA_COMMAND);
 			commands.add(ALIGN_COMMAND);
+			commands.add(OUTPUT_FILE_OPTION);
+			commands.add(o.reads.get(i).aligned_reads.getAbsolutePath());
 			commands.add(o.genome.getAbsolutePath());
 			commands.add(o.reads.get(i).reads.getAbsolutePath());
 			ProcessBuilder pb = new ProcessBuilder(commands);
@@ -100,24 +97,15 @@ public class BwaInterface extends AlignmentToolInterface
 			try
 			{
 				Process p = pb.start();
-				ReadableByteChannel stdout = Channels.newChannel(p.getInputStream());
-				// InputStream stdout = p.getInputStream();
+				BufferedReader stdout = new BufferedReader(
+					new InputStreamReader(p.getInputStream()));
 				BufferedReader stderr = new BufferedReader(
 					new InputStreamReader(p.getErrorStream()));
-
-				ByteBuffer buffer = ByteBuffer.allocate(BYTE_BUFFER_SIZE);
-				buffer.rewind();
-
-				FileOutputStream w = new FileOutputStream(o.reads.get(i).aligned_reads);
-				FileChannel wc = w.getChannel();
-				while (stdout.read(buffer) > 0)
-				{
-					buffer.flip();
-					wc.write(buffer);
-					buffer.rewind();
-				}
-				wc.close();
 				String line = null;
+				while ((line = stdout.readLine()) != null)
+				{
+					System.out.printf("%03d: %s%n", index, line);
+				}
 				while ((line = stderr.readLine()) != null)
 				{
 					System.err.printf("%03d: %s%n", index, line);
@@ -141,7 +129,7 @@ public class BwaInterface extends AlignmentToolInterface
 		List<String> commands = new ArrayList<String>();
 		commands.add(BWA_COMMAND);
 		commands.add(o.is_paired_end ? SAM_PAIRED_END_COMMAND : SAM_SINGLE_END_COMMAND);
-		commands.add(SAM_OUTPUT_FILE_OPTION);
+		commands.add(OUTPUT_FILE_OPTION);
 		commands.add(o.sam_output.getAbsolutePath());
 		commands.add(o.genome.getAbsolutePath());
 		for (Options.Reads r : o.reads)
