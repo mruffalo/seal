@@ -13,6 +13,7 @@ import generator.Fragmentizer;
 import generator.SeqGenSingleSequenceMultipleRepeats;
 import generator.SequenceGenerator;
 import generator.errors.FragmentErrorGenerator;
+import generator.errors.IndelGenerator;
 import generator.errors.LinearIncreasingErrorGenerator;
 import generator.errors.UniformErrorGenerator;
 import io.FastaReader;
@@ -139,9 +140,17 @@ public class AlignmentToolService
 			Map<String, AlignmentResults> m_ep = Collections.synchronizedMap(new TreeMap<String, AlignmentResults>());
 			m.put(errorProbability, m_ep);
 			System.out.print("Introducing fragment read errors...");
-			FragmentErrorGenerator eg = new LinearIncreasingErrorGenerator(
+			FragmentErrorGenerator base_call_eg = new LinearIncreasingErrorGenerator(
 				SequenceGenerator.NUCLEOTIDES, errorProbability / 2.0, errorProbability);
-			List<? extends Fragment> errored_list = eg.generateErrors(list);
+			IndelGenerator.Options igo = new IndelGenerator.Options();
+			igo.deleteLengthMean = 3;
+			igo.deleteLengthStdDev = 0.5;
+			igo.deleteProbability = errorProbability / 10.0;
+			igo.insertLengthMean = 3;
+			igo.insertLengthStdDev = 0.5;
+			igo.insertProbability = errorProbability / 10.0;
+			FragmentErrorGenerator indel_eg = new IndelGenerator(SequenceGenerator.NUCLEOTIDES, igo);
+			List<? extends Fragment> errored_list = indel_eg.generateErrors(base_call_eg.generateErrors(list));
 			System.out.println("done.");
 			List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
 
@@ -561,6 +570,8 @@ public class AlignmentToolService
 
 	public static void main(String[] args)
 	{
-		new AlignmentToolService().runtimeGenomeSizeEvaluation();
+		new AlignmentToolService().errorRateEvaluation(false, Genome.RANDOM_EASY);
+		new AlignmentToolService().errorRateEvaluation(false, Genome.RANDOM_HARD);
+		new AlignmentToolService().errorRateEvaluation(false, Genome.HUMAN_CHR22);
 	}
 }
