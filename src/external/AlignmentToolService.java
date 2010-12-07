@@ -143,12 +143,12 @@ public class AlignmentToolService
 			FragmentErrorGenerator base_call_eg = new LinearIncreasingErrorGenerator(
 				SequenceGenerator.NUCLEOTIDES, errorProbability / 2.0, errorProbability);
 			IndelGenerator.Options igo = new IndelGenerator.Options();
-			igo.deleteLengthMean = 3;
-			igo.deleteLengthStdDev = 0.5;
-			igo.deleteProbability = errorProbability / 10.0;
-			igo.insertLengthMean = 3;
-			igo.insertLengthStdDev = 0.5;
-			igo.insertProbability = errorProbability / 10.0;
+			igo.deleteLengthMean = 2;
+			igo.deleteLengthStdDev = 0.7;
+			igo.deleteProbability = errorProbability / 40.0;
+			igo.insertLengthMean = 2;
+			igo.insertLengthStdDev = 0.7;
+			igo.insertProbability = errorProbability / 40.0;
 			FragmentErrorGenerator indel_eg = new IndelGenerator(SequenceGenerator.NUCLEOTIDES, igo);
 			List<? extends Fragment> errored_list = indel_eg.generateErrors(base_call_eg.generateErrors(list));
 			System.out.println("done.");
