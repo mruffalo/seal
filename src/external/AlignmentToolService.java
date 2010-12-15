@@ -368,7 +368,7 @@ public class AlignmentToolService
 
 		final double errorProbability = 0.0;
 		final double indelLengthStdDev = 0.2;
-		final double indelFrequency = 1e-3;
+		final double indelFrequency = 5e-2;
 
 		int index = 0;
 		for (int run = 0; run < EVAL_RUN_COUNT; run++)
