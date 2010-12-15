@@ -130,7 +130,6 @@ public class IndelGenerator extends FragmentErrorGenerator
 	@Override
 	public int getQuality(int position, int length)
 	{
-		// TODO Auto-generated method stub
-		return 0;
+		return 40;
 	}
 }
