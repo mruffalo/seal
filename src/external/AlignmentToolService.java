@@ -53,6 +53,10 @@ public class AlignmentToolService
 		5000, 20000, 100000, 500000, 1000000));
 	protected static final List<Integer> RUNTIME_COVERAGES = Collections.unmodifiableList(Arrays.asList(
 		3, 7, 10, 13, 16, 20));
+	protected static final List<Integer> INDEL_SIZES = Collections.unmodifiableList(Arrays.asList(
+		2, 4, 7, 10, 16));
+	protected static final List<Double> INDEL_FREQUENCIES = Collections.unmodifiableList(Arrays.asList(
+		1e-5, 3e-5, 1e-4, 3e-4, 1e-3, 3e-3, 1e-2));
 
 	private final ExecutorService pool;
 
@@ -354,27 +358,29 @@ public class AlignmentToolService
 		List<AlignmentToolInterface> atiList = new ArrayList<AlignmentToolInterface>(
 			alignmentToolCount);
 
-		Map<Double, Map<String, AlignmentResults>> m = Collections.synchronizedMap(new TreeMap<Double, Map<String, AlignmentResults>>());
+		Map<Integer, Map<String, AlignmentResults>> m = Collections.synchronizedMap(new TreeMap<Integer, Map<String, AlignmentResults>>());
 		List<Future<AlignmentResults>> futureList = new ArrayList<Future<AlignmentResults>>(
 			alignmentToolCount);
 
+		final double errorProbability = 0.0;
+		final double indelLengthStdDev = 0.2;
+		final double indelFrequency = 1e-3;
+
 		int index = 0;
-		for (double errorProbability : ERROR_PROBABILITIES)
+		for (int indelSize : INDEL_SIZES)
 		{
 			Map<String, AlignmentResults> m_ep = Collections.synchronizedMap(new TreeMap<String, AlignmentResults>());
-			m.put(errorProbability, m_ep);
+			m.put(indelSize, m_ep);
 			System.out.print("Introducing fragment read errors...");
-			FragmentErrorGenerator base_call_eg = new LinearIncreasingErrorGenerator(
-				SequenceGenerator.NUCLEOTIDES, errorProbability / 2.0, errorProbability);
 			IndelGenerator.Options igo = new IndelGenerator.Options();
-			igo.deleteLengthMean = 2;
-			igo.deleteLengthStdDev = 0.7;
-			igo.deleteProbability = errorProbability / 40.0;
-			igo.insertLengthMean = 2;
-			igo.insertLengthStdDev = 0.7;
-			igo.insertProbability = errorProbability / 40.0;
+			igo.deleteLengthMean = indelSize;
+			igo.deleteLengthStdDev = indelLengthStdDev;
+			igo.deleteProbability = indelFrequency;
+			igo.insertLengthMean = indelSize;
+			igo.insertLengthStdDev = indelLengthStdDev;
+			igo.insertProbability = indelFrequency;
 			FragmentErrorGenerator indel_eg = new IndelGenerator(SequenceGenerator.NUCLEOTIDES, igo);
-			List<? extends Fragment> errored_list = indel_eg.generateErrors(base_call_eg.generateErrors(list));
+			List<? extends Fragment> errored_list = indel_eg.generateErrors(list);
 			System.out.println("done.");
 			List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
 
@@ -463,16 +469,17 @@ public class AlignmentToolService
 			FileWriter w = new FileWriter(new File(path, filename));
 			w.write(String.format("%s,%s,%s,%s,%s,%s%n", "Tool", "ErrorRate", "Threshold",
 				"Precision", "Recall", "Time"));
-			for (Double d : m.keySet())
+			for (Integer indelSize : m.keySet())
 			{
-				for (String s : m.get(d).keySet())
+				for (String toolName : m.get(indelSize).keySet())
 				{
 					for (Integer i : PHRED_THRESHOLDS)
 					{
-						AlignmentResults ar = m.get(d).get(s);
+						AlignmentResults ar = m.get(indelSize).get(toolName);
 						FilteredAlignmentResults r = ar.filter(i);
-						w.write(String.format("%s,%f,%d,%f,%f,%d%n", s, d, i, r.getPrecision(),
-							r.getRecall(), ar.timeMap.get(AlignmentOperation.TOTAL)));
+						w.write(String.format("%s,%f,%d,%f,%f,%d%n", toolName, indelSize, i,
+							r.getPrecision(), r.getRecall(),
+							ar.timeMap.get(AlignmentOperation.TOTAL)));
 					}
 				}
 			}
@@ -482,19 +489,19 @@ public class AlignmentToolService
 			System.out.printf("Writing overall ROC data to %s%n", roc_filename);
 			w = new FileWriter(new File(path, roc_filename));
 			w.write(String.format("%s,%s,%s,%s%n", "Tool", "ErrorRate", "Score", "Label"));
-			for (Double d : m.keySet())
+			for (Integer indelSize : m.keySet())
 			{
-				for (String s : m.get(d).keySet())
+				for (String toolName : m.get(indelSize).keySet())
 				{
 					// TODO: Don't duplicate code here
-					AlignmentResults r = m.get(d).get(s);
+					AlignmentResults r = m.get(indelSize).get(toolName);
 					for (int p : r.positives)
 					{
-						w.write(String.format("%s,%f,%d,%d%n", s, d, p, 1));
+						w.write(String.format("%s,%d,%d,%d%n", toolName, indelSize, p, 1));
 					}
 					for (int n : r.negatives)
 					{
-						w.write(String.format("%s,%f,%d,%d%n", s, d, n, 0));
+						w.write(String.format("%s,%d,%d,%d%n", toolName, indelSize, n, 0));
 					}
 				}
 			}
