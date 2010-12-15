@@ -477,7 +477,7 @@ public class AlignmentToolService
 					{
 						AlignmentResults ar = m.get(indelSize).get(toolName);
 						FilteredAlignmentResults r = ar.filter(i);
-						w.write(String.format("%s,%f,%d,%f,%f,%d%n", toolName, indelSize, i,
+						w.write(String.format("%s,%d,%d,%f,%f,%d%n", toolName, indelSize, i,
 							r.getPrecision(), r.getRecall(),
 							ar.timeMap.get(AlignmentOperation.TOTAL)));
 					}
