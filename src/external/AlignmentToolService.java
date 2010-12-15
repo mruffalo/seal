@@ -32,6 +32,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import assembly.Fragment;
 
+/**
+ * Very large TODO: Refactor to avoid this ridiculous code duplication
+ * 
+ * @author mruffalo
+ */
 public class AlignmentToolService
 {
 	/**
@@ -64,6 +69,444 @@ public class AlignmentToolService
 	}
 
 	public void errorRateEvaluation(boolean paired_end, Genome genome)
+	{
+		final int generated_genome_length = 1000000;
+		CharSequence sequence = null;
+		SequenceGenerator g = null;
+		SequenceGenerator.Options sgo = null;
+		final File path = new File("data");
+
+		System.out.print("Reading/creating genome...");
+		switch (genome)
+		{
+			case HUMAN_CHR22:
+				final File chr22 = new File(path, "chr22.fa");
+				try
+				{
+					/*
+					 * Don't worry about casting file size to an int: we can't
+					 * have strings longer than Integer.MAX_VALUE anyway
+					 */
+					sequence = FastaReader.getSequence(chr22, (int) chr22.length());
+				}
+				catch (IOException e)
+				{
+					e.printStackTrace();
+				}
+				break;
+			case RANDOM_EASY:
+				g = new SeqGenSingleSequenceMultipleRepeats();
+				sgo = new SequenceGenerator.Options();
+				sgo.length = generated_genome_length;
+				sgo.repeatCount = 0;
+				System.out.print("Generating sequence...");
+				sequence = g.generateSequence(sgo);
+				System.out.println("done.");
+				break;
+			case RANDOM_HARD:
+				g = new SeqGenSingleSequenceMultipleRepeats();
+				sgo = new SequenceGenerator.Options();
+				sgo.length = generated_genome_length;
+				sgo.repeatCount = 100;
+				sgo.repeatLength = 500;
+				sgo.repeatErrorProbability = 0.03;
+				System.out.print("Generating sequence...");
+				sequence = g.generateSequence(sgo);
+				System.out.println("done.");
+				break;
+			default:
+				break;
+		}
+
+		System.out.println("done.");
+		System.out.printf("Genome length: %d%n", sequence.length());
+		Fragmentizer.Options fo = new Fragmentizer.Options();
+		fo.k = 50;
+		fo.n = 50000;
+		fo.ksd = 1;
+
+		System.out.print("Reading fragments...");
+		List<? extends Fragment> list = Fragmentizer.fragmentize(sequence, fo);
+		System.out.println("done.");
+
+		path.mkdirs();
+
+		final int alignmentToolCount = ERROR_PROBABILITIES.size() * PHRED_THRESHOLDS.size() * 7;
+		List<AlignmentToolInterface> atiList = new ArrayList<AlignmentToolInterface>(
+			alignmentToolCount);
+
+		Map<Double, Map<String, AlignmentResults>> m = Collections.synchronizedMap(new TreeMap<Double, Map<String, AlignmentResults>>());
+		List<Future<AlignmentResults>> futureList = new ArrayList<Future<AlignmentResults>>(
+			alignmentToolCount);
+
+		int index = 0;
+		for (double errorProbability : ERROR_PROBABILITIES)
+		{
+			Map<String, AlignmentResults> m_ep = Collections.synchronizedMap(new TreeMap<String, AlignmentResults>());
+			m.put(errorProbability, m_ep);
+			System.out.print("Introducing fragment read errors...");
+			FragmentErrorGenerator base_call_eg = new LinearIncreasingErrorGenerator(
+				SequenceGenerator.NUCLEOTIDES, errorProbability / 2.0, errorProbability);
+			IndelGenerator.Options igo = new IndelGenerator.Options();
+			igo.deleteLengthMean = 2;
+			igo.deleteLengthStdDev = 0.7;
+			igo.deleteProbability = errorProbability / 40.0;
+			igo.insertLengthMean = 2;
+			igo.insertLengthStdDev = 0.7;
+			igo.insertProbability = errorProbability / 40.0;
+			FragmentErrorGenerator indel_eg = new IndelGenerator(SequenceGenerator.NUCLEOTIDES, igo);
+			List<? extends Fragment> errored_list = indel_eg.generateErrors(base_call_eg.generateErrors(list));
+			System.out.println("done.");
+			List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
+
+			Options o = new Options(paired_end, errorProbability);
+			o.penalize_duplicate_mappings = false;
+			alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast-R", PHRED_THRESHOLDS,
+				sequence, errored_list, o, m_ep));
+			alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast-S", PHRED_THRESHOLDS,
+				sequence, errored_list, new Options(paired_end, errorProbability), m_ep));
+			o = new Options(paired_end, errorProbability);
+			o.penalize_duplicate_mappings = false;
+			alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast-R", PHRED_THRESHOLDS,
+				sequence, errored_list, o, m_ep));
+			alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast-S", PHRED_THRESHOLDS,
+				sequence, errored_list, new Options(paired_end, errorProbability), m_ep));
+			alignmentInterfaceList.add(new SoapInterface(++index, "SOAP", PHRED_THRESHOLDS,
+				sequence, errored_list, new Options(paired_end, errorProbability), m_ep));
+			alignmentInterfaceList.add(new BwaInterface(++index, "BWA", PHRED_THRESHOLDS, sequence,
+				errored_list, new Options(paired_end, errorProbability), m_ep));
+			o = new Options(paired_end, errorProbability);
+			o.penalize_duplicate_mappings = false;
+			alignmentInterfaceList.add(new ShrimpInterface(++index, "SHRiMP-R", PHRED_THRESHOLDS,
+				sequence, errored_list, o, m_ep));
+			alignmentInterfaceList.add(new ShrimpInterface(++index, "SHRiMP-S", PHRED_THRESHOLDS,
+				sequence, errored_list, new Options(paired_end, errorProbability), m_ep));
+			alignmentInterfaceList.add(new BowtieInterface(++index, "Bowtie", PHRED_THRESHOLDS,
+				sequence, errored_list, new Options(paired_end, errorProbability), m_ep));
+			alignmentInterfaceList.add(new NovoalignInterface(++index, "Novoalign",
+				PHRED_THRESHOLDS, sequence, errored_list,
+				new Options(paired_end, errorProbability), m_ep));
+
+			for (AlignmentToolInterface ati : alignmentInterfaceList)
+			{
+				File tool_path = new File(path, String.format("%03d-%s-%s", ati.index,
+					ati.description, genome.toString().toLowerCase()));
+				tool_path.mkdirs();
+				ati.o.genome = new File(tool_path, "genome.fasta");
+				ati.o.binary_genome = new File(tool_path, "genome.bfa");
+
+				int read_count = paired_end ? 2 : 1;
+				for (int i = 1; i <= read_count; i++)
+				{
+					Options.Reads r = new Options.Reads(i);
+					r.reads = new File(tool_path, String.format("fragments%d.fastq", i));
+					r.binary_reads = new File(tool_path, String.format("fragments%d.bfq", i));
+					r.aligned_reads = new File(tool_path, String.format("alignment%d.sai", i));
+					ati.o.reads.add(r);
+				}
+				ati.o.raw_output = new File(tool_path, "out.raw");
+				ati.o.sam_output = new File(tool_path, "alignment.sam");
+				ati.o.converted_output = new File(tool_path, "out.txt");
+				ati.o.roc_output = new File(tool_path, "roc.csv");
+
+				System.out.printf("*** %03d %s: %f%n", ati.index, ati.description,
+					ati.o.error_probability);
+
+				atiList.add(ati);
+			}
+		}
+		for (AlignmentToolInterface ati : atiList)
+		{
+			futureList.add(pool.submit(ati));
+		}
+
+		pool.shutdown();
+		for (Future<AlignmentResults> f : futureList)
+		{
+			try
+			{
+				f.get();
+			}
+			catch (InterruptedException e)
+			{
+				e.printStackTrace();
+			}
+			catch (ExecutionException e)
+			{
+				e.printStackTrace();
+			}
+		}
+
+		String filename = genome.toString().toLowerCase() + ".csv";
+		try
+		{
+			System.out.printf("Writing results to %s%n", filename);
+			FileWriter w = new FileWriter(new File(path, filename));
+			w.write(String.format("%s,%s,%s,%s,%s,%s%n", "Tool", "ErrorRate", "Threshold",
+				"Precision", "Recall", "Time"));
+			for (Double d : m.keySet())
+			{
+				for (String s : m.get(d).keySet())
+				{
+					for (Integer i : PHRED_THRESHOLDS)
+					{
+						AlignmentResults ar = m.get(d).get(s);
+						FilteredAlignmentResults r = ar.filter(i);
+						w.write(String.format("%s,%f,%d,%f,%f,%d%n", s, d, i, r.getPrecision(),
+							r.getRecall(), ar.timeMap.get(AlignmentOperation.TOTAL)));
+					}
+				}
+			}
+			w.close();
+
+			String roc_filename = genome.toString().toLowerCase() + "_roc.csv";
+			System.out.printf("Writing overall ROC data to %s%n", roc_filename);
+			w = new FileWriter(new File(path, roc_filename));
+			w.write(String.format("%s,%s,%s,%s%n", "Tool", "ErrorRate", "Score", "Label"));
+			for (Double d : m.keySet())
+			{
+				for (String s : m.get(d).keySet())
+				{
+					// TODO: Don't duplicate code here
+					AlignmentResults r = m.get(d).get(s);
+					for (int p : r.positives)
+					{
+						w.write(String.format("%s,%f,%d,%d%n", s, d, p, 1));
+					}
+					for (int n : r.negatives)
+					{
+						w.write(String.format("%s,%f,%d,%d%n", s, d, n, 0));
+					}
+				}
+			}
+			w.close();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	public void indelSizeEvaluation(boolean paired_end, Genome genome)
+	{
+		final int generated_genome_length = 1000000;
+		CharSequence sequence = null;
+		SequenceGenerator g = null;
+		SequenceGenerator.Options sgo = null;
+		final File path = new File("data");
+
+		System.out.print("Reading/creating genome...");
+		switch (genome)
+		{
+			case HUMAN_CHR22:
+				final File chr22 = new File(path, "chr22.fa");
+				try
+				{
+					/*
+					 * Don't worry about casting file size to an int: we can't
+					 * have strings longer than Integer.MAX_VALUE anyway
+					 */
+					sequence = FastaReader.getSequence(chr22, (int) chr22.length());
+				}
+				catch (IOException e)
+				{
+					e.printStackTrace();
+				}
+				break;
+			case RANDOM_EASY:
+				g = new SeqGenSingleSequenceMultipleRepeats();
+				sgo = new SequenceGenerator.Options();
+				sgo.length = generated_genome_length;
+				sgo.repeatCount = 0;
+				System.out.print("Generating sequence...");
+				sequence = g.generateSequence(sgo);
+				System.out.println("done.");
+				break;
+			case RANDOM_HARD:
+				g = new SeqGenSingleSequenceMultipleRepeats();
+				sgo = new SequenceGenerator.Options();
+				sgo.length = generated_genome_length;
+				sgo.repeatCount = 100;
+				sgo.repeatLength = 500;
+				sgo.repeatErrorProbability = 0.03;
+				System.out.print("Generating sequence...");
+				sequence = g.generateSequence(sgo);
+				System.out.println("done.");
+				break;
+			default:
+				break;
+		}
+
+		System.out.println("done.");
+		System.out.printf("Genome length: %d%n", sequence.length());
+		Fragmentizer.Options fo = new Fragmentizer.Options();
+		fo.k = 50;
+		fo.n = 50000;
+		fo.ksd = 1;
+
+		System.out.print("Reading fragments...");
+		List<? extends Fragment> list = Fragmentizer.fragmentize(sequence, fo);
+		System.out.println("done.");
+
+		path.mkdirs();
+
+		final int alignmentToolCount = ERROR_PROBABILITIES.size() * PHRED_THRESHOLDS.size() * 7;
+		List<AlignmentToolInterface> atiList = new ArrayList<AlignmentToolInterface>(
+			alignmentToolCount);
+
+		Map<Double, Map<String, AlignmentResults>> m = Collections.synchronizedMap(new TreeMap<Double, Map<String, AlignmentResults>>());
+		List<Future<AlignmentResults>> futureList = new ArrayList<Future<AlignmentResults>>(
+			alignmentToolCount);
+
+		int index = 0;
+		for (double errorProbability : ERROR_PROBABILITIES)
+		{
+			Map<String, AlignmentResults> m_ep = Collections.synchronizedMap(new TreeMap<String, AlignmentResults>());
+			m.put(errorProbability, m_ep);
+			System.out.print("Introducing fragment read errors...");
+			FragmentErrorGenerator base_call_eg = new LinearIncreasingErrorGenerator(
+				SequenceGenerator.NUCLEOTIDES, errorProbability / 2.0, errorProbability);
+			IndelGenerator.Options igo = new IndelGenerator.Options();
+			igo.deleteLengthMean = 2;
+			igo.deleteLengthStdDev = 0.7;
+			igo.deleteProbability = errorProbability / 40.0;
+			igo.insertLengthMean = 2;
+			igo.insertLengthStdDev = 0.7;
+			igo.insertProbability = errorProbability / 40.0;
+			FragmentErrorGenerator indel_eg = new IndelGenerator(SequenceGenerator.NUCLEOTIDES, igo);
+			List<? extends Fragment> errored_list = indel_eg.generateErrors(base_call_eg.generateErrors(list));
+			System.out.println("done.");
+			List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
+
+			Options o = new Options(paired_end, errorProbability);
+			o.penalize_duplicate_mappings = false;
+			alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast-R", PHRED_THRESHOLDS,
+				sequence, errored_list, o, m_ep));
+			alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast-S", PHRED_THRESHOLDS,
+				sequence, errored_list, new Options(paired_end, errorProbability), m_ep));
+			o = new Options(paired_end, errorProbability);
+			o.penalize_duplicate_mappings = false;
+			alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast-R", PHRED_THRESHOLDS,
+				sequence, errored_list, o, m_ep));
+			alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast-S", PHRED_THRESHOLDS,
+				sequence, errored_list, new Options(paired_end, errorProbability), m_ep));
+			alignmentInterfaceList.add(new SoapInterface(++index, "SOAP", PHRED_THRESHOLDS,
+				sequence, errored_list, new Options(paired_end, errorProbability), m_ep));
+			alignmentInterfaceList.add(new BwaInterface(++index, "BWA", PHRED_THRESHOLDS, sequence,
+				errored_list, new Options(paired_end, errorProbability), m_ep));
+			o = new Options(paired_end, errorProbability);
+			o.penalize_duplicate_mappings = false;
+			alignmentInterfaceList.add(new ShrimpInterface(++index, "SHRiMP-R", PHRED_THRESHOLDS,
+				sequence, errored_list, o, m_ep));
+			alignmentInterfaceList.add(new ShrimpInterface(++index, "SHRiMP-S", PHRED_THRESHOLDS,
+				sequence, errored_list, new Options(paired_end, errorProbability), m_ep));
+			alignmentInterfaceList.add(new BowtieInterface(++index, "Bowtie", PHRED_THRESHOLDS,
+				sequence, errored_list, new Options(paired_end, errorProbability), m_ep));
+			alignmentInterfaceList.add(new NovoalignInterface(++index, "Novoalign",
+				PHRED_THRESHOLDS, sequence, errored_list,
+				new Options(paired_end, errorProbability), m_ep));
+
+			for (AlignmentToolInterface ati : alignmentInterfaceList)
+			{
+				File tool_path = new File(path, String.format("%03d-%s-%s", ati.index,
+					ati.description, genome.toString().toLowerCase()));
+				tool_path.mkdirs();
+				ati.o.genome = new File(tool_path, "genome.fasta");
+				ati.o.binary_genome = new File(tool_path, "genome.bfa");
+
+				int read_count = paired_end ? 2 : 1;
+				for (int i = 1; i <= read_count; i++)
+				{
+					Options.Reads r = new Options.Reads(i);
+					r.reads = new File(tool_path, String.format("fragments%d.fastq", i));
+					r.binary_reads = new File(tool_path, String.format("fragments%d.bfq", i));
+					r.aligned_reads = new File(tool_path, String.format("alignment%d.sai", i));
+					ati.o.reads.add(r);
+				}
+				ati.o.raw_output = new File(tool_path, "out.raw");
+				ati.o.sam_output = new File(tool_path, "alignment.sam");
+				ati.o.converted_output = new File(tool_path, "out.txt");
+				ati.o.roc_output = new File(tool_path, "roc.csv");
+
+				System.out.printf("*** %03d %s: %f%n", ati.index, ati.description,
+					ati.o.error_probability);
+
+				atiList.add(ati);
+			}
+		}
+		for (AlignmentToolInterface ati : atiList)
+		{
+			futureList.add(pool.submit(ati));
+		}
+
+		pool.shutdown();
+		for (Future<AlignmentResults> f : futureList)
+		{
+			try
+			{
+				f.get();
+			}
+			catch (InterruptedException e)
+			{
+				e.printStackTrace();
+			}
+			catch (ExecutionException e)
+			{
+				e.printStackTrace();
+			}
+		}
+
+		String filename = genome.toString().toLowerCase() + ".csv";
+		try
+		{
+			System.out.printf("Writing results to %s%n", filename);
+			FileWriter w = new FileWriter(new File(path, filename));
+			w.write(String.format("%s,%s,%s,%s,%s,%s%n", "Tool", "ErrorRate", "Threshold",
+				"Precision", "Recall", "Time"));
+			for (Double d : m.keySet())
+			{
+				for (String s : m.get(d).keySet())
+				{
+					for (Integer i : PHRED_THRESHOLDS)
+					{
+						AlignmentResults ar = m.get(d).get(s);
+						FilteredAlignmentResults r = ar.filter(i);
+						w.write(String.format("%s,%f,%d,%f,%f,%d%n", s, d, i, r.getPrecision(),
+							r.getRecall(), ar.timeMap.get(AlignmentOperation.TOTAL)));
+					}
+				}
+			}
+			w.close();
+
+			String roc_filename = genome.toString().toLowerCase() + "_roc.csv";
+			System.out.printf("Writing overall ROC data to %s%n", roc_filename);
+			w = new FileWriter(new File(path, roc_filename));
+			w.write(String.format("%s,%s,%s,%s%n", "Tool", "ErrorRate", "Score", "Label"));
+			for (Double d : m.keySet())
+			{
+				for (String s : m.get(d).keySet())
+				{
+					// TODO: Don't duplicate code here
+					AlignmentResults r = m.get(d).get(s);
+					for (int p : r.positives)
+					{
+						w.write(String.format("%s,%f,%d,%d%n", s, d, p, 1));
+					}
+					for (int n : r.negatives)
+					{
+						w.write(String.format("%s,%f,%d,%d%n", s, d, n, 0));
+					}
+				}
+			}
+			w.close();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	public void indelFrequencyEvaluation(boolean paired_end, Genome genome)
 	{
 		final int generated_genome_length = 1000000;
 		CharSequence sequence = null;
