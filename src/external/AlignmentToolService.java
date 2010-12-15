@@ -467,7 +467,7 @@ public class AlignmentToolService
 		{
 			System.out.printf("Writing results to %s%n", filename);
 			FileWriter w = new FileWriter(new File(path, filename));
-			w.write(String.format("%s,%s,%s,%s,%s,%s%n", "Tool", "ErrorRate", "Threshold",
+			w.write(String.format("%s,%s,%s,%s,%s,%s%n", "Tool", "IndelSize", "Threshold",
 				"Precision", "Recall", "Time"));
 			for (Integer indelSize : m.keySet())
 			{
@@ -488,7 +488,7 @@ public class AlignmentToolService
 			String roc_filename = genome.toString().toLowerCase() + "_roc.csv";
 			System.out.printf("Writing overall ROC data to %s%n", roc_filename);
 			w = new FileWriter(new File(path, roc_filename));
-			w.write(String.format("%s,%s,%s,%s%n", "Tool", "ErrorRate", "Score", "Label"));
+			w.write(String.format("%s,%s,%s,%s%n", "Tool", "IndelSize", "Score", "Label"));
 			for (Integer indelSize : m.keySet())
 			{
 				for (String toolName : m.get(indelSize).keySet())
