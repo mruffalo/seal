@@ -690,16 +690,17 @@ public class AlignmentToolService
 			FileWriter w = new FileWriter(new File(path, filename));
 			w.write(String.format("%s,%s,%s,%s,%s,%s%n", "Tool", "IndelFrequency", "Threshold",
 				"Precision", "Recall", "Time"));
-			for (Double d : m.keySet())
+			for (Double indelFrequency : m.keySet())
 			{
-				for (String s : m.get(d).keySet())
+				for (String toolName : m.get(indelFrequency).keySet())
 				{
-					for (Integer i : PHRED_THRESHOLDS)
+					for (Integer threshold : PHRED_THRESHOLDS)
 					{
-						AlignmentResults ar = m.get(d).get(s);
-						FilteredAlignmentResults r = ar.filter(i);
-						w.write(String.format("%s,%f,%d,%f,%f,%d%n", s, d, i, r.getPrecision(),
-							r.getRecall(), ar.timeMap.get(AlignmentOperation.TOTAL)));
+						AlignmentResults ar = m.get(indelFrequency).get(toolName);
+						FilteredAlignmentResults r = ar.filter(threshold);
+						w.write(String.format("%s,%f,%d,%f,%f,%d%n", toolName, indelFrequency,
+							threshold, r.getPrecision(), r.getRecall(),
+							ar.timeMap.get(AlignmentOperation.TOTAL)));
 					}
 				}
 			}
@@ -709,19 +710,19 @@ public class AlignmentToolService
 			System.out.printf("Writing overall ROC data to %s%n", roc_filename);
 			w = new FileWriter(new File(path, roc_filename));
 			w.write(String.format("%s,%s,%s,%s%n", "Tool", "IndelFrequency", "Score", "Label"));
-			for (Double d : m.keySet())
+			for (Double indelFrequency : m.keySet())
 			{
-				for (String s : m.get(d).keySet())
+				for (String toolName : m.get(indelFrequency).keySet())
 				{
 					// TODO: Don't duplicate code here
-					AlignmentResults r = m.get(d).get(s);
+					AlignmentResults r = m.get(indelFrequency).get(toolName);
 					for (int p : r.positives)
 					{
-						w.write(String.format("%s,%f,%d,%d%n", s, d, p, 1));
+						w.write(String.format("%s,%f,%d,%d%n", toolName, indelFrequency, p, 1));
 					}
 					for (int n : r.negatives)
 					{
-						w.write(String.format("%s,%f,%d,%d%n", s, d, n, 0));
+						w.write(String.format("%s,%f,%d,%d%n", toolName, indelFrequency, n, 0));
 					}
 				}
 			}
@@ -1021,8 +1022,8 @@ public class AlignmentToolService
 
 	public static void main(String[] args)
 	{
-		new AlignmentToolService().errorRateEvaluation(false, Genome.RANDOM_EASY);
-		new AlignmentToolService().errorRateEvaluation(false, Genome.RANDOM_HARD);
-		new AlignmentToolService().errorRateEvaluation(false, Genome.HUMAN_CHR22);
+		new AlignmentToolService().indelFrequencyEvaluation(false, Genome.RANDOM_EASY);
+		new AlignmentToolService().indelFrequencyEvaluation(false, Genome.RANDOM_HARD);
+		new AlignmentToolService().indelFrequencyEvaluation(false, Genome.HUMAN_CHR22);
 	}
 }
