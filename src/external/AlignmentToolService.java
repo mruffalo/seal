@@ -74,6 +74,7 @@ public class AlignmentToolService
 
 	public void errorRateEvaluation(boolean paired_end, Genome genome)
 	{
+		final String testDescription = "error_rate";
 		final int generated_genome_length = 1000000;
 		CharSequence sequence = null;
 		SequenceGenerator g = null;
@@ -241,7 +242,10 @@ public class AlignmentToolService
 			}
 		}
 
-		String filename = genome.toString().toLowerCase() + ".csv";
+		String filename = String.format("%s_%s.csv", testDescription,
+			genome.toString().toLowerCase());
+		String roc_filename = String.format("%s_%s_roc.csv", testDescription,
+			genome.toString().toLowerCase());
 		try
 		{
 			System.out.printf("Writing results to %s%n", filename);
@@ -263,7 +267,6 @@ public class AlignmentToolService
 			}
 			w.close();
 
-			String roc_filename = genome.toString().toLowerCase() + "_roc.csv";
 			System.out.printf("Writing overall ROC data to %s%n", roc_filename);
 			w = new FileWriter(new File(path, roc_filename));
 			w.write(String.format("%s,%s,%s,%s%n", "Tool", "ErrorRate", "Score", "Label"));
@@ -293,6 +296,7 @@ public class AlignmentToolService
 
 	public void indelSizeEvaluation(boolean paired_end, Genome genome)
 	{
+		final String testDescription = "indel_size";
 		final int generated_genome_length = 1000000;
 		CharSequence sequence = null;
 		SequenceGenerator g = null;
@@ -472,7 +476,10 @@ public class AlignmentToolService
 			}
 		}
 
-		String filename = genome.toString().toLowerCase() + "_indel_size.csv";
+		String filename = String.format("%s_%s.csv", testDescription,
+			genome.toString().toLowerCase());
+		String roc_filename = String.format("%s_%s_roc.csv", testDescription,
+			genome.toString().toLowerCase());
 		try
 		{
 			System.out.printf("Writing results to %s%n", filename);
@@ -495,7 +502,6 @@ public class AlignmentToolService
 			}
 			w.close();
 
-			String roc_filename = genome.toString().toLowerCase() + "_roc.csv";
 			System.out.printf("Writing overall ROC data to %s%n", roc_filename);
 			w = new FileWriter(new File(path, roc_filename));
 			w.write(String.format("%s,%s,%s,%s%n", "Tool", "IndelSize", "Score", "Label"));
@@ -525,6 +531,7 @@ public class AlignmentToolService
 
 	public void indelFrequencyEvaluation(boolean paired_end, Genome genome)
 	{
+		final String testDescription = "indel_freq";
 		final int generated_genome_length = 1000000;
 		CharSequence sequence = null;
 		SequenceGenerator g = null;
@@ -700,7 +707,10 @@ public class AlignmentToolService
 			}
 		}
 
-		String filename = genome.toString().toLowerCase() + "_indel_freq.csv";
+		String filename = String.format("%s_%s.csv", testDescription,
+			genome.toString().toLowerCase());
+		String roc_filename = String.format("%s_%s_roc.csv", testDescription,
+			genome.toString().toLowerCase());
 		try
 		{
 			System.out.printf("Writing results to %s%n", filename);
@@ -723,7 +733,6 @@ public class AlignmentToolService
 			}
 			w.close();
 
-			String roc_filename = genome.toString().toLowerCase() + "_roc.csv";
 			System.out.printf("Writing overall ROC data to %s%n", roc_filename);
 			w = new FileWriter(new File(path, roc_filename));
 			w.write(String.format("%s,%s,%s,%s%n", "Tool", "IndelFrequency", "Score", "Label"));
@@ -756,6 +765,7 @@ public class AlignmentToolService
 	 */
 	public void runtimeCoverageEvaluation()
 	{
+		final String testDescription = "runtime_coverage";
 		List<Map<Integer, Map<String, AlignmentResults>>> l = new ArrayList<Map<Integer, Map<String, AlignmentResults>>>(
 			EVAL_RUN_COUNT);
 		final boolean paired_end = false;
@@ -865,7 +875,7 @@ public class AlignmentToolService
 				e.printStackTrace();
 			}
 		}
-		String roc_filename = "time_data.csv";
+		String roc_filename = testDescription + "_data.csv";
 		System.out.printf("Writing time data to %s%n", roc_filename);
 		try
 		{
@@ -899,6 +909,7 @@ public class AlignmentToolService
 	 */
 	public void runtimeGenomeSizeEvaluation()
 	{
+		final String testDescription = "runtime_genome_size";
 		List<Map<Integer, Map<String, AlignmentResults>>> l = new ArrayList<Map<Integer, Map<String, AlignmentResults>>>(
 			EVAL_RUN_COUNT);
 		final boolean paired_end = false;
@@ -1008,7 +1019,7 @@ public class AlignmentToolService
 				e.printStackTrace();
 			}
 		}
-		String roc_filename = "time_data.csv";
+		String roc_filename = testDescription + "_data.csv";
 		System.out.printf("Writing time data to %s%n", roc_filename);
 		try
 		{
