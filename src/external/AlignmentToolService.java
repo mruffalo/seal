@@ -458,6 +458,7 @@ public class AlignmentToolService
 		{
 			futureList.add(pool.submit(ati));
 		}
+		System.out.printf("Running %d total tool evaluations%n", futureList.size());
 
 		pool.shutdown();
 		for (Future<AlignmentResults> f : futureList)
@@ -692,6 +693,7 @@ public class AlignmentToolService
 		{
 			futureList.add(pool.submit(ati));
 		}
+		System.out.printf("Running %d total tool evaluations%n", futureList.size());
 
 		pool.shutdown();
 		for (Future<AlignmentResults> f : futureList)
