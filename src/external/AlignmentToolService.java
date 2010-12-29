@@ -627,32 +627,35 @@ public class AlignmentToolService
 
 				Options o = new Options(paired_end, indelFrequency);
 				o.penalize_duplicate_mappings = false;
-				alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast-R",
+				alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast-R-" + run,
 					PHRED_THRESHOLDS, sequence, errored_list, o, m_ep));
-				alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast-S",
+				alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast-S-" + run,
 					PHRED_THRESHOLDS, sequence, errored_list, new Options(paired_end,
 						indelFrequency), m_ep));
 				o = new Options(paired_end, indelFrequency);
 				o.penalize_duplicate_mappings = false;
-				alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast-R",
+				alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast-R-" + run,
 					PHRED_THRESHOLDS, sequence, errored_list, o, m_ep));
-				alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast-S",
+				alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast-S-" + run,
 					PHRED_THRESHOLDS, sequence, errored_list, new Options(paired_end,
 						indelFrequency), m_ep));
-				alignmentInterfaceList.add(new SoapInterface(++index, "SOAP", PHRED_THRESHOLDS,
-					sequence, errored_list, new Options(paired_end, indelFrequency), m_ep));
-				alignmentInterfaceList.add(new BwaInterface(++index, "BWA", PHRED_THRESHOLDS,
-					sequence, errored_list, new Options(paired_end, indelFrequency), m_ep));
+				alignmentInterfaceList.add(new SoapInterface(++index, "SOAP-" + run,
+					PHRED_THRESHOLDS, sequence, errored_list, new Options(paired_end,
+						indelFrequency), m_ep));
+				alignmentInterfaceList.add(new BwaInterface(++index, "BWA-" + run,
+					PHRED_THRESHOLDS, sequence, errored_list, new Options(paired_end,
+						indelFrequency), m_ep));
 				o = new Options(paired_end, indelFrequency);
 				o.penalize_duplicate_mappings = false;
-				alignmentInterfaceList.add(new ShrimpInterface(++index, "SHRiMP-R",
+				alignmentInterfaceList.add(new ShrimpInterface(++index, "SHRiMP-R-" + run,
 					PHRED_THRESHOLDS, sequence, errored_list, o, m_ep));
-				alignmentInterfaceList.add(new ShrimpInterface(++index, "SHRiMP-S",
+				alignmentInterfaceList.add(new ShrimpInterface(++index, "SHRiMP-S-" + run,
 					PHRED_THRESHOLDS, sequence, errored_list, new Options(paired_end,
 						indelFrequency), m_ep));
-				alignmentInterfaceList.add(new BowtieInterface(++index, "Bowtie", PHRED_THRESHOLDS,
-					sequence, errored_list, new Options(paired_end, indelFrequency), m_ep));
-				alignmentInterfaceList.add(new NovoalignInterface(++index, "Novoalign",
+				alignmentInterfaceList.add(new BowtieInterface(++index, "Bowtie-" + run,
+					PHRED_THRESHOLDS, sequence, errored_list, new Options(paired_end,
+						indelFrequency), m_ep));
+				alignmentInterfaceList.add(new NovoalignInterface(++index, "Novoalign-" + run,
 					PHRED_THRESHOLDS, sequence, errored_list, new Options(paired_end,
 						indelFrequency), m_ep));
 
