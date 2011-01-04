@@ -371,12 +371,12 @@ public class AlignmentToolService
 		final double indelFrequency = 5e-2;
 
 		int index = 0;
-		for (int run = 0; run < EVAL_RUN_COUNT; run++)
+		for (int indelSize : INDEL_SIZES)
 		{
-			for (int indelSize : INDEL_SIZES)
+			Map<String, AlignmentResults> m_ep = Collections.synchronizedMap(new TreeMap<String, AlignmentResults>());
+			m.put(indelSize, m_ep);
+			for (int run = 0; run < EVAL_RUN_COUNT; run++)
 			{
-				Map<String, AlignmentResults> m_ep = Collections.synchronizedMap(new TreeMap<String, AlignmentResults>());
-				m.put(indelSize, m_ep);
 				System.out.print("Introducing fragment read errors...");
 				IndelGenerator.Options igo = new IndelGenerator.Options();
 				igo.deleteLengthMean = indelSize;
@@ -606,12 +606,12 @@ public class AlignmentToolService
 		final double indelLengthStdDev = 0.2;
 
 		int index = 0;
-		for (int run = 0; run < EVAL_RUN_COUNT; run++)
+		for (double indelFrequency : INDEL_FREQUENCIES)
 		{
-			for (double indelFrequency : INDEL_FREQUENCIES)
+			Map<String, AlignmentResults> m_ep = Collections.synchronizedMap(new TreeMap<String, AlignmentResults>());
+			m.put(indelFrequency, m_ep);
+			for (int run = 0; run < EVAL_RUN_COUNT; run++)
 			{
-				Map<String, AlignmentResults> m_ep = Collections.synchronizedMap(new TreeMap<String, AlignmentResults>());
-				m.put(indelFrequency, m_ep);
 				System.out.print("Introducing fragment read errors...");
 				IndelGenerator.Options igo = new IndelGenerator.Options();
 				igo.deleteLengthMean = indelLengthMean;
