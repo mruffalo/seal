@@ -421,7 +421,7 @@ public class AlignmentToolService
 				alignmentInterfaceList.add(new BowtieInterface(++index, "Bowtie-" + run,
 					PHRED_THRESHOLDS, sequence, errored_list, new Options(paired_end,
 						errorProbability), m_ep));
-				alignmentInterfaceList.add(new NovoalignInterface(++index, "Novoalign",
+				alignmentInterfaceList.add(new NovoalignInterface(++index, "Novoalign-" + run,
 					PHRED_THRESHOLDS, sequence, errored_list, new Options(paired_end,
 						errorProbability), m_ep));
 
