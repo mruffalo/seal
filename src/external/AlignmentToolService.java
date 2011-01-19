@@ -1055,11 +1055,8 @@ public class AlignmentToolService
 
 	public static void main(String[] args)
 	{
-		new AlignmentToolService().indelFrequencyEvaluation(false, Genome.RANDOM_EASY);
-		new AlignmentToolService().indelFrequencyEvaluation(false, Genome.RANDOM_HARD);
-		new AlignmentToolService().indelFrequencyEvaluation(false, Genome.HUMAN_CHR22);
-		new AlignmentToolService().indelSizeEvaluation(false, Genome.RANDOM_EASY);
-		new AlignmentToolService().indelSizeEvaluation(false, Genome.RANDOM_HARD);
-		new AlignmentToolService().indelSizeEvaluation(false, Genome.HUMAN_CHR22);
+		new AlignmentToolService().errorRateEvaluation(false, Genome.RANDOM_EASY);
+		new AlignmentToolService().errorRateEvaluation(false, Genome.RANDOM_HARD);
+		new AlignmentToolService().errorRateEvaluation(false, Genome.HUMAN_CHR22);
 	}
 }

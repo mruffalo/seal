@@ -1,14 +1,14 @@
-<project name="fragment-assembly" default="build" basedir=".">
+<project name="seal" default="build" basedir=".">
 	<!-- set global properties for this build -->
-	<property name="project.name" value="fragment-assembly"/>
-	<property name="project.description" value="Fragment Assembly GUI"/>
+	<property name="project.name" value="seal"/>
+	<property name="project.description" value="SEAL Sequencing Simulation/Evaluation Suite"/>
 	<property name="src" location="src" />
 	<property name="build" location="build" />
 	<property name="distrib" location="distrib"/>
 	<property name="manifest.template" location="${src}/manifest.template"/>
 	<property name="manifest.file" location="${src}/MANIFEST.MF"/>
 	<property name="version.properties.file" location="${src}/util/version.properties"/>
-	<property name="main.class" value="gui.FragmentDisplay"/>
+	<property name="main.class" value="external.AlignmentToolService"/>
 
 	<target name="init">
 		<!-- Create the time stamp -->

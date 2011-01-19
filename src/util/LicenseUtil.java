@@ -2,8 +2,8 @@ package util;
 
 public class LicenseUtil
 {
-	public static final String[] STARTUP_TEXT = { "Shotgun sequence assembly GUI",
-			"Copyright (C) 2010 Matthew Ruffalo", "",
+	public static final String[] STARTUP_TEXT = { "SEAL Sequencing Simulation/Evaluation Suite",
+			"Copyright (C) 2010-2011 Matthew Ruffalo", "",
 			"This program is free software: you can redistribute it and/or modify",
 			"it under the terms of the GNU General Public License as published by",
 			"the Free Software Foundation, either version 3 of the License, or",
