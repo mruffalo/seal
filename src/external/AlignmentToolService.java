@@ -11,6 +11,7 @@ import external.tool.ShrimpInterface;
 import external.tool.SoapInterface;
 import generator.Fragmentizer;
 import generator.SeqGenSingleSequenceMultipleRepeats;
+import generator.SeqGenTandemRepeats;
 import generator.SequenceGenerator;
 import generator.errors.FragmentErrorGenerator;
 import generator.errors.IndelGenerator;
@@ -765,6 +766,178 @@ public class AlignmentToolService
 		}
 	}
 
+	public void tandemIndelFrequencyEvaluation(boolean paired_end)
+	{
+		final String testDescription = "indel_freq_tandem";
+		final int generated_genome_length = 1000000;
+		CharSequence sequence = null;
+		SequenceGenerator g = null;
+		SequenceGenerator.Options sgo = null;
+		final File path = new File("data");
+
+		System.out.print("Creating genome...");
+		g = new SeqGenTandemRepeats();
+		sgo = new SequenceGenerator.Options();
+		sgo.length = generated_genome_length;
+		sgo.repeatCount = 100;
+		sgo.repeatLength = 500;
+		sgo.repeatErrorProbability = 0.03;
+		System.out.print("Generating sequence...");
+		sequence = g.generateSequence(sgo);
+
+		System.out.println("done.");
+		System.out.printf("Genome length: %d%n", sequence.length());
+		Fragmentizer.Options fo = new Fragmentizer.Options();
+		fo.k = 50;
+		fo.n = 500000;
+		fo.ksd = 1;
+
+		System.out.print("Reading fragments...");
+		List<? extends Fragment> list = Fragmentizer.fragmentize(sequence, fo);
+		System.out.println("done.");
+
+		path.mkdirs();
+
+		final int alignmentToolCount = ERROR_PROBABILITIES.size() * PHRED_THRESHOLDS.size() * 7;
+		List<AlignmentToolInterface> atiList = new ArrayList<AlignmentToolInterface>(
+			alignmentToolCount);
+
+		Map<Double, Map<String, AlignmentResults>> m = Collections.synchronizedMap(new TreeMap<Double, Map<String, AlignmentResults>>());
+		List<Future<AlignmentResults>> futureList = new ArrayList<Future<AlignmentResults>>(
+			alignmentToolCount);
+
+		List<Double> new_freqs = Arrays.asList(0.0);
+		int index = 0;
+		for (double indelFrequency : new_freqs)
+		{
+			Map<String, AlignmentResults> m_ep = Collections.synchronizedMap(new TreeMap<String, AlignmentResults>());
+			m.put(indelFrequency, m_ep);
+			for (int run = 0; run < EVAL_RUN_COUNT; run++)
+			{
+				List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
+
+				Options o = new Options(paired_end, indelFrequency);
+				o.penalize_duplicate_mappings = false;
+				alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast-R-" + run,
+					PHRED_THRESHOLDS, sequence, list, o, m_ep));
+				alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast-S-" + run,
+					PHRED_THRESHOLDS, sequence, list, new Options(paired_end, indelFrequency), m_ep));
+				o = new Options(paired_end, indelFrequency);
+				o.penalize_duplicate_mappings = false;
+				alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast-R-" + run,
+					PHRED_THRESHOLDS, sequence, list, o, m_ep));
+				alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast-S-" + run,
+					PHRED_THRESHOLDS, sequence, list, new Options(paired_end, indelFrequency), m_ep));
+				alignmentInterfaceList.add(new SoapInterface(++index, "SOAP-" + run,
+					PHRED_THRESHOLDS, sequence, list, new Options(paired_end, indelFrequency), m_ep));
+				alignmentInterfaceList.add(new BwaInterface(++index, "BWA-" + run,
+					PHRED_THRESHOLDS, sequence, list, new Options(paired_end, indelFrequency), m_ep));
+				alignmentInterfaceList.add(new BowtieInterface(++index, "Bowtie-" + run,
+					PHRED_THRESHOLDS, sequence, list, new Options(paired_end, indelFrequency), m_ep));
+
+				for (AlignmentToolInterface ati : alignmentInterfaceList)
+				{
+					File tool_path = new File(path, String.format("%03d-%s-%s", ati.index,
+						ati.description, "tandem"));
+					tool_path.mkdirs();
+					ati.o.genome = new File(tool_path, "genome.fasta");
+					ati.o.binary_genome = new File(tool_path, "genome.bfa");
+
+					int read_count = paired_end ? 2 : 1;
+					for (int i = 1; i <= read_count; i++)
+					{
+						Options.Reads r = new Options.Reads(i);
+						r.reads = new File(tool_path, String.format("fragments%d.fastq", i));
+						r.binary_reads = new File(tool_path, String.format("fragments%d.bfq", i));
+						r.aligned_reads = new File(tool_path, String.format("alignment%d.sai", i));
+						ati.o.reads.add(r);
+					}
+					ati.o.raw_output = new File(tool_path, "out.raw");
+					ati.o.sam_output = new File(tool_path, "alignment.sam");
+					ati.o.converted_output = new File(tool_path, "out.txt");
+					ati.o.roc_output = new File(tool_path, "roc.csv");
+
+					System.out.printf("*** %03d %s: %f%n", ati.index, ati.description,
+						ati.o.error_probability);
+
+					atiList.add(ati);
+				}
+			}
+		}
+		for (AlignmentToolInterface ati : atiList)
+		{
+			futureList.add(pool.submit(ati));
+		}
+		System.out.printf("Running %d total tool evaluations%n", futureList.size());
+
+		pool.shutdown();
+		for (Future<AlignmentResults> f : futureList)
+		{
+			try
+			{
+				f.get();
+			}
+			catch (InterruptedException e)
+			{
+				e.printStackTrace();
+			}
+			catch (ExecutionException e)
+			{
+				e.printStackTrace();
+			}
+		}
+
+		String filename = String.format("%s_%s.csv", testDescription, "tandem");
+		String roc_filename = String.format("%s_%s_roc.csv", testDescription, "tandem");
+		try
+		{
+			System.out.printf("Writing results to %s%n", filename);
+			FileWriter w = new FileWriter(new File(path, filename));
+			w.write(String.format("%s,%s,%s,%s,%s,%s%n", "Tool", "IndelFrequency", "Threshold",
+				"Precision", "Recall", "Time"));
+			for (Double indelFrequency : m.keySet())
+			{
+				for (String toolName : m.get(indelFrequency).keySet())
+				{
+					for (Integer threshold : PHRED_THRESHOLDS)
+					{
+						AlignmentResults ar = m.get(indelFrequency).get(toolName);
+						FilteredAlignmentResults r = ar.filter(threshold);
+						w.write(String.format("%s,%f,%d,%f,%f,%d%n", toolName, indelFrequency,
+							threshold, r.getPrecision(), r.getRecall(),
+							ar.timeMap.get(AlignmentOperation.TOTAL)));
+					}
+				}
+			}
+			w.close();
+
+			System.out.printf("Writing overall ROC data to %s%n", roc_filename);
+			w = new FileWriter(new File(path, roc_filename));
+			w.write(String.format("%s,%s,%s,%s%n", "Tool", "IndelFrequency", "Score", "Label"));
+			for (Double indelFrequency : m.keySet())
+			{
+				for (String toolName : m.get(indelFrequency).keySet())
+				{
+					// TODO: Don't duplicate code here
+					AlignmentResults r = m.get(indelFrequency).get(toolName);
+					for (int p : r.positives)
+					{
+						w.write(String.format("%s,%f,%d,%d%n", toolName, indelFrequency, p, 1));
+					}
+					for (int n : r.negatives)
+					{
+						w.write(String.format("%s,%f,%d,%d%n", toolName, indelFrequency, n, 0));
+					}
+				}
+			}
+			w.close();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
 	/**
 	 * TODO: Don't duplicate code
 	 */
@@ -1055,8 +1228,6 @@ public class AlignmentToolService
 
 	public static void main(String[] args)
 	{
-		new AlignmentToolService().errorRateEvaluation(false, Genome.RANDOM_EASY);
-		new AlignmentToolService().errorRateEvaluation(false, Genome.RANDOM_HARD);
-		new AlignmentToolService().errorRateEvaluation(false, Genome.HUMAN_CHR22);
+		new AlignmentToolService().runtimeCoverageEvaluation();
 	}
 }
