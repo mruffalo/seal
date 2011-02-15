@@ -1228,6 +1228,6 @@ public class AlignmentToolService
 
 	public static void main(String[] args)
 	{
-		new AlignmentToolService().runtimeCoverageEvaluation();
+		new AlignmentToolService().tandemIndelFrequencyEvaluation(false);
 	}
 }
