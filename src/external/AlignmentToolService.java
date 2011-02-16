@@ -810,7 +810,6 @@ public class AlignmentToolService
 			List<? extends Fragment> list = Fragmentizer.fragmentize(sequence, fo);
 			System.out.println("done.");
 
-			List<Double> new_freqs = Arrays.asList(0.0);
 			int index = 0;
 			Map<String, AlignmentResults> m_ep = Collections.synchronizedMap(new TreeMap<String, AlignmentResults>());
 			m.put(repeatCount, m_ep);
@@ -895,7 +894,7 @@ public class AlignmentToolService
 		{
 			System.out.printf("Writing results to %s%n", filename);
 			FileWriter w = new FileWriter(new File(path, filename));
-			w.write(String.format("%s,%s,%s,%s,%s,%s%n", "Tool", "IndelFrequency", "Threshold",
+			w.write(String.format("%s,%s,%s,%s,%s,%s%n", "Tool", "GenomeRepeatCount", "Threshold",
 				"Precision", "Recall", "Time"));
 			for (int repeatCount : m.keySet())
 			{
