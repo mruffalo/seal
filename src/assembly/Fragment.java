@@ -7,6 +7,8 @@ import java.util.Map;
 
 public class Fragment implements Cloneable
 {
+	public static final int MAXIMUM_BASE_QUALITY = 40;
+
 	protected final CharSequence sequence;
 	protected final Map<FragmentPositionSource, Integer> positions;
 	/**
@@ -19,6 +21,10 @@ public class Fragment implements Cloneable
 		sequence = sequence_;
 		positions = new EnumMap<FragmentPositionSource, Integer>(FragmentPositionSource.class);
 		readQuality = new int[getSequence().length()];
+		for (int i = 0; i < getSequence().length(); i++)
+		{
+			readQuality[i] = MAXIMUM_BASE_QUALITY;
+		}
 	}
 
 	public Integer getPosition(FragmentPositionSource source)
