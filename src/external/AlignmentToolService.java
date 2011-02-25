@@ -786,6 +786,7 @@ public class AlignmentToolService
 		List<Future<AlignmentResults>> futureList = new ArrayList<Future<AlignmentResults>>(
 			alignmentToolCount);
 
+		int index = 0;
 		for (int repeatCount : TANDEM_GENOME_REPEAT_COUNTS)
 		{
 			double dRepeatCount = repeatCount;
@@ -810,7 +811,6 @@ public class AlignmentToolService
 			List<? extends Fragment> list = Fragmentizer.fragmentize(sequence, fo);
 			System.out.println("done.");
 
-			int index = 0;
 			Map<String, AlignmentResults> m_ep = Collections.synchronizedMap(new TreeMap<String, AlignmentResults>());
 			m.put(repeatCount, m_ep);
 			for (int run = 0; run < EVAL_RUN_COUNT; run++)
