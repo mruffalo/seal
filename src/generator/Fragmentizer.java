@@ -72,18 +72,37 @@ public class Fragmentizer
 			int index = random.nextInt(string.length() - fragmentLength);
 			Fragment f = new Fragment(string.subSequence(index, index + fragmentLength));
 			f.setPosition(FragmentPositionSource.ORIGINAL_SEQUENCE, index);
-			if (o.pairedEnd)
+			list.add(f);
+		}
+		return list;
+	}
+
+	/**
+	 * Produces two fragment lists, one for each end (forward, reverse)
+	 * 
+	 * @param sequence
+	 * @param o
+	 * @return
+	 */
+	public static List<List<? extends Fragment>> fragmentizePairedEnd(CharSequence sequence,
+		Options o)
+	{
+		Random random = new Random();
+		final int paired = 2;
+		List<List<? extends Fragment>> list = new ArrayList<List<? extends Fragment>>(paired);
+		List<? extends Fragment> orig = fragmentize(sequence, o);
+		for (int i = 0; i < paired; i++)
+		{
+			list.add(new ArrayList<Fragment>(o.n));
+		}
+		for (Fragment f : orig)
+		{
+			int readLengthAddition = (int) (random.nextGaussian() * o.readLengthSd);
+			int readLength = o.readLength + readLengthAddition;
+			List<? extends Fragment> ends = f.pairedEndClone(readLength);
+			for (int i = 0; i < paired; i++)
 			{
-				int readLengthAddition = (int) (random.nextGaussian() * o.readLengthSd);
-				int readLength = o.readLength + readLengthAddition;
-				for (Fragment fp : f.pairedEndClone(readLength))
-				{
-					list.add(fp);
-				}
-			}
-			else
-			{
-				list.add(f);
+				list.get(i).add(ends.get(i));
 			}
 		}
 		return list;
