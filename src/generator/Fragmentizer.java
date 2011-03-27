@@ -72,7 +72,19 @@ public class Fragmentizer
 			int index = random.nextInt(string.length() - fragmentLength);
 			Fragment f = new Fragment(string.subSequence(index, index + fragmentLength));
 			f.setPosition(FragmentPositionSource.ORIGINAL_SEQUENCE, index);
-			list.add(f);
+			if (o.pairedEnd)
+			{
+				int readLengthAddition = (int) (random.nextGaussian() * o.readLengthSd);
+				int readLength = o.readLength + readLengthAddition;
+				for (Fragment fp : f.pairedEndClone(readLength))
+				{
+					list.add(fp);
+				}
+			}
+			else
+			{
+				list.add(f);
+			}
 		}
 		return list;
 	}
