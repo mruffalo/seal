@@ -152,18 +152,7 @@ public class Fragmentizer
 	 */
 	public static List<Fragment> fragmentizeForShotgun(CharSequence string, Options o)
 	{
-		Random random = new Random();
-		List<Fragment> list = new ArrayList<Fragment>(o.n);
-		for (int i = 0; i < o.n; i++)
-		{
-			int sizeAddition = (int) (random.nextGaussian() * o.ksd);
-			int fragmentLength = o.k + sizeAddition;
-			int index = random.nextInt(string.length() - fragmentLength);
-			Fragment f = new Fragment(string.subSequence(index, index + fragmentLength));
-			f.setPosition(FragmentPositionSource.ORIGINAL_SEQUENCE, index);
-			list.add(f);
-		}
-		return removeSubstrings(list);
+		return removeSubstrings(fragmentize(string, o));
 	}
 
 	/**
