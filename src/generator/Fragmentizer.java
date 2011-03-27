@@ -27,6 +27,14 @@ public class Fragmentizer
 		 */
 		public double ksd;
 		/**
+		 * Only used for paired-end.
+		 */
+		public int readLength;
+		/**
+		 * Only used for paired-end.
+		 */
+		public double readLengthSd;
+		/**
 		 * If a simulated read error occurs, another character will be randomly
 		 * sampled from this String
 		 */
@@ -36,6 +44,11 @@ public class Fragmentizer
 		 * introduce read errors
 		 */
 		public FragmentErrorGenerator errorGenerator;
+		/**
+		 * If this is true, the <code>readLength</code> and
+		 * <code>readLengthSd</code> parameters will be used.
+		 */
+		public boolean pairedEnd;
 	}
 
 	/**
@@ -285,7 +298,8 @@ public class Fragmentizer
 	{
 		if (args.length < 4)
 		{
-			System.err.printf("*** Usage: %s string n k kVariance",
+			System.err.printf(
+				"*** Usage: %s string n k kVariance pairedEnd readLength readLengthSd%n",
 				Fragmentizer.class.getCanonicalName());
 			System.exit(1);
 		}
@@ -294,6 +308,9 @@ public class Fragmentizer
 		options.n = Integer.parseInt(args[1]);
 		options.k = Integer.parseInt(args[2]);
 		options.ksd = Integer.parseInt(args[3]);
+		options.pairedEnd = Boolean.parseBoolean(args[4]);
+		options.readLength = Integer.parseInt(args[5]);
+		options.readLengthSd = Double.parseDouble(args[3]);
 		FragmentPositionSource source = FragmentPositionSource.ORIGINAL_SEQUENCE;
 		List<Fragment> fragments = fragmentizeForShotgun(string, options);
 		for (Fragment fragment : fragments)
