@@ -91,7 +91,7 @@ public class SeqGenTandemRepeats extends SequenceGenerator
 		{
 			int begin = repeatedSequenceIndices[i] + (i - 1) * o.repeatLength;
 			int end = repeatedSequenceIndices[i] + i * o.repeatLength;
-			positions.add(new TandemRepeatDescriptor(begin, o.repeatLength));
+			positions.add(new TandemRepeatDescriptor(begin, o.repeatLength - 1));
 			CharSequence repeatedSequence = sb.subSequence(begin, end);
 			if (o.repeatErrorProbability > 0.0)
 			{
