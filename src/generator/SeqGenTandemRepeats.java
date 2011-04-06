@@ -57,6 +57,10 @@ public class SeqGenTandemRepeats extends SequenceGenerator
 		StringBuilder sb = new StringBuilder(o.length);
 		int[] repeatedSequenceIndices = new int[o.repeatCount];
 		int nonRepeatedLength = o.length - o.repeatCount * o.repeatLength;
+		if (verbose)
+		{
+			System.out.printf("Non-repeated sequence length: %d%n", nonRepeatedLength);
+		}
 		if (nonRepeatedLength > 0)
 		{
 			for (int i = 0; i < o.repeatCount; i++)
@@ -65,6 +69,16 @@ public class SeqGenTandemRepeats extends SequenceGenerator
 						+ o.repeatLength;
 			}
 			Arrays.sort(repeatedSequenceIndices);
+			if (verbose)
+			{
+				System.out.print("Raw repeat positions: ");
+				for (int position : repeatedSequenceIndices)
+				{
+					System.out.print(position);
+					System.out.print(' ');
+				}
+				System.out.println();
+			}
 			sb.append(generateSequence(o.characters, nonRepeatedLength));
 		}
 		if (verbose)
