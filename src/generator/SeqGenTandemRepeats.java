@@ -10,18 +10,27 @@ import java.util.Random;
 
 public class SeqGenTandemRepeats extends SequenceGenerator
 {
+	public static class TandemRepeatDescriptor
+	{
+		final int position;
+		final int length;
+
+		public TandemRepeatDescriptor(int position_, int length_)
+		{
+			position = position_;
+			length = length_;
+		}
+	}
+
 	public static class GeneratedSequence
 	{
 		public final CharSequence sequence;
-		public final List<Integer> positions;
-		public final List<Integer> lengths;
+		public final List<TandemRepeatDescriptor> repeats;
 
-		public GeneratedSequence(CharSequence sequence_, List<Integer> positions_,
-			List<Integer> lengths_)
+		public GeneratedSequence(CharSequence sequence_, List<TandemRepeatDescriptor> repeats_)
 		{
 			sequence = sequence_;
-			positions = Collections.unmodifiableList(positions_);
-			lengths = Collections.unmodifiableList(lengths_);
+			repeats = Collections.unmodifiableList(repeats_);
 		}
 	}
 
@@ -43,8 +52,8 @@ public class SeqGenTandemRepeats extends SequenceGenerator
 	{
 		final FragmentErrorGenerator eg = new UniformErrorGenerator(o.characters,
 			o.repeatErrorProbability);
-		List<Integer> positions = new ArrayList<Integer>(o.repeatCount);
-		List<Integer> lengths = new ArrayList<Integer>(o.repeatCount);
+		List<TandemRepeatDescriptor> positions = new ArrayList<TandemRepeatDescriptor>(
+			o.repeatCount);
 		StringBuilder sb = new StringBuilder(o.length);
 		int[] repeatedSequenceIndices = new int[o.repeatCount];
 		int nonRepeatedLength = o.length - o.repeatCount * o.repeatLength;
@@ -63,6 +72,7 @@ public class SeqGenTandemRepeats extends SequenceGenerator
 		{
 			int begin = repeatedSequenceIndices[i] + (i - 1) * o.repeatLength;
 			int end = repeatedSequenceIndices[i] + i * o.repeatLength;
+			positions.add(new TandemRepeatDescriptor(begin, i * o.repeatLength));
 			CharSequence repeatedSequence = sb.subSequence(begin, end);
 			if (o.repeatErrorProbability > 0.0)
 			{
@@ -89,7 +99,7 @@ public class SeqGenTandemRepeats extends SequenceGenerator
 			System.out.println();
 			System.out.println(string);
 		}
-		return new GeneratedSequence(string, positions, lengths);
+		return new GeneratedSequence(string, positions);
 	}
 
 	/**
@@ -107,5 +117,9 @@ public class SeqGenTandemRepeats extends SequenceGenerator
 		SeqGenTandemRepeats generator = new SeqGenTandemRepeats();
 		generator.setVerboseOutput(true);
 		GeneratedSequence generated = generator.generateSequenceWithPositions(o);
+		for (TandemRepeatDescriptor repeat : generated.repeats)
+		{
+			System.out.printf("");
+		}
 	}
 }
