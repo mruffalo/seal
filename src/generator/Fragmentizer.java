@@ -6,7 +6,13 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
 import assembly.Fragment;
 import assembly.FragmentPositionSource;
 
@@ -27,6 +33,14 @@ public class Fragmentizer
 		 */
 		public double ksd;
 		/**
+		 * Only used for paired-end.
+		 */
+		public int readLength;
+		/**
+		 * Only used for paired-end.
+		 */
+		public double readLengthSd;
+		/**
 		 * If a simulated read error occurs, another character will be randomly
 		 * sampled from this String
 		 */
@@ -36,6 +50,11 @@ public class Fragmentizer
 		 * introduce read errors
 		 */
 		public FragmentErrorGenerator errorGenerator;
+		/**
+		 * If this is true, the <code>readLength</code> and
+		 * <code>readLengthSd</code> parameters will be used.
+		 */
+		public boolean pairedEnd;
 	}
 
 	/**
@@ -60,6 +79,43 @@ public class Fragmentizer
 			Fragment f = new Fragment(string.subSequence(index, index + fragmentLength));
 			f.setPosition(FragmentPositionSource.ORIGINAL_SEQUENCE, index);
 			list.add(f);
+		}
+		return list;
+	}
+
+	/**
+	 * Produces two fragment lists, one for each end (forward, reverse)
+	 * 
+	 * @param sequence
+	 * @param o
+	 *            Options. You probably want to set
+	 *            <code>readLengthSd = 0</code> to accurately represent
+	 *            real-world data.
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public static List<List<? extends Fragment>> fragmentizePairedEnd(CharSequence sequence,
+		Options o)
+	{
+		Random random = new Random();
+		final int paired = 2;
+		List<List<? extends Fragment>> list = new ArrayList<List<? extends Fragment>>(paired);
+		List<Fragment> orig = fragmentize(sequence, o);
+		for (int i = 0; i < paired; i++)
+		{
+			list.add(new ArrayList<Fragment>(o.n));
+		}
+		List firstList = list.get(0);
+		List secondList = list.get(1);
+		for (Fragment f : orig)
+		{
+			int readLengthAddition = (int) (random.nextGaussian() * o.readLengthSd);
+			int readLength = o.readLength + readLengthAddition;
+			List<? extends Fragment> ends = f.pairedEndClone(readLength);
+			Fragment first = ends.get(0);
+			Fragment second = ends.get(1);
+			firstList.add(first);
+			secondList.add(second);
 		}
 		return list;
 	}
@@ -152,18 +208,7 @@ public class Fragmentizer
 	 */
 	public static List<Fragment> fragmentizeForShotgun(CharSequence string, Options o)
 	{
-		Random random = new Random();
-		List<Fragment> list = new ArrayList<Fragment>(o.n);
-		for (int i = 0; i < o.n; i++)
-		{
-			int sizeAddition = (int) (random.nextGaussian() * o.ksd);
-			int fragmentLength = o.k + sizeAddition;
-			int index = random.nextInt(string.length() - fragmentLength);
-			Fragment f = new Fragment(string.subSequence(index, index + fragmentLength));
-			f.setPosition(FragmentPositionSource.ORIGINAL_SEQUENCE, index);
-			list.add(f);
-		}
-		return removeSubstrings(list);
+		return removeSubstrings(fragmentize(string, o));
 	}
 
 	/**
@@ -296,7 +341,8 @@ public class Fragmentizer
 	{
 		if (args.length < 4)
 		{
-			System.err.printf("*** Usage: %s string n k kVariance",
+			System.err.printf(
+				"*** Usage: %s string n k kVariance pairedEnd readLength readLengthSd%n",
 				Fragmentizer.class.getCanonicalName());
 			System.exit(1);
 		}
@@ -305,6 +351,9 @@ public class Fragmentizer
 		options.n = Integer.parseInt(args[1]);
 		options.k = Integer.parseInt(args[2]);
 		options.ksd = Integer.parseInt(args[3]);
+		options.pairedEnd = Boolean.parseBoolean(args[4]);
+		options.readLength = Integer.parseInt(args[5]);
+		options.readLengthSd = Double.parseDouble(args[3]);
 		FragmentPositionSource source = FragmentPositionSource.ORIGINAL_SEQUENCE;
 		List<Fragment> fragments = fragmentizeForShotgun(string, options);
 		for (Fragment fragment : fragments)

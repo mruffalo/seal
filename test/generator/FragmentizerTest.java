@@ -1,9 +1,15 @@
 package generator;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import generator.errors.UniformErrorGenerator;
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import assembly.Fragment;
@@ -154,5 +160,28 @@ public class FragmentizerTest
 		fo.ksd = 1.0;
 		fo.errorGenerator = new UniformErrorGenerator(SequenceGenerator.NUCLEOTIDES, 0.01);
 		Fragmentizer.fragmentizeToFiles(s, fo, fl);
+	}
+
+	@Test
+	public void testFragmentizePairedEnd()
+	{
+		SequenceGenerator g = new SeqGenSingleSequenceMultipleRepeats();
+		SequenceGenerator.Options sgo = new SequenceGenerator.Options();
+		sgo.length = 10000;
+		CharSequence s = g.generateSequence(sgo);
+		Fragmentizer.Options fo = new Fragmentizer.Options();
+		fo.n = 500;
+		fo.k = 200;
+		fo.ksd = 4.0;
+		fo.readLength = 50;
+		List<List<? extends Fragment>> list = Fragmentizer.fragmentizePairedEnd(s, fo);
+		assertEquals(2, list.size());
+		for (List<? extends Fragment> l : list)
+		{
+			for (Fragment f : l)
+			{
+				assertTrue("Fragment was empty", !f.getSequence().equals(""));
+			}
+		}
 	}
 }
