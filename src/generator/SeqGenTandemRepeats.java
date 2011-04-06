@@ -2,15 +2,41 @@ package generator;
 
 import generator.errors.FragmentErrorGenerator;
 import generator.errors.UniformErrorGenerator;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 
 public class SeqGenTandemRepeats extends SequenceGenerator
 {
+	public static class GeneratedSequence
+	{
+		public final CharSequence sequence;
+		public final List<Integer> tandemRepeatPositions;
+
+		public GeneratedSequence(CharSequence sequence_, List<Integer> positions_)
+		{
+			sequence = sequence_;
+			tandemRepeatPositions = Collections.unmodifiableList(positions_);
+		}
+	}
+
 	Random random = new Random();
 
 	@Override
 	public CharSequence generateSequence(Options o)
+	{
+		return generateSequenceWithPositions(o).sequence;
+	}
+
+	/**
+	 * This is a <b>huge</b> hack and I feel bad about it.
+	 * 
+	 * @param o
+	 * @return
+	 */
+	public GeneratedSequence generateSequenceWithPositions(Options o)
 	{
 		final FragmentErrorGenerator eg = new UniformErrorGenerator(o.characters,
 			o.repeatErrorProbability);
@@ -58,7 +84,7 @@ public class SeqGenTandemRepeats extends SequenceGenerator
 			System.out.println();
 			System.out.println(string);
 		}
-		return string;
+		return new GeneratedSequence(string, new ArrayList<Integer>());
 	}
 
 	/**
