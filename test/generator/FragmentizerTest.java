@@ -171,8 +171,9 @@ public class FragmentizerTest
 		CharSequence s = g.generateSequence(sgo);
 		Fragmentizer.Options fo = new Fragmentizer.Options();
 		fo.n = 500;
-		fo.k = 60;
-		fo.ksd = 1.0;
+		fo.k = 200;
+		fo.ksd = 4.0;
+		fo.readLength = 50;
 		List<List<? extends Fragment>> list = Fragmentizer.fragmentizePairedEnd(s, fo);
 		assertEquals(2, list.size());
 		for (List<? extends Fragment> l : list)
