@@ -88,6 +88,9 @@ public class Fragmentizer
 	 * 
 	 * @param sequence
 	 * @param o
+	 *            Options. You probably want to set
+	 *            <code>readLengthSd = 0</code> to accurately represent
+	 *            real-world data.
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
