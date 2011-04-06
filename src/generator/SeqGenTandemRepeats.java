@@ -69,23 +69,22 @@ public class SeqGenTandemRepeats extends SequenceGenerator
 		}
 		if (verbose)
 		{
-			for (int i = 0; i < o.length; i++)
+			for (double l = Math.log10(o.length); l > 0; l--)
 			{
-				if (i % 10 == 0)
+				int p = (int) Math.pow(10, (int) l);
+				for (int j = 0; j < o.length; j++)
 				{
-					System.out.print(i / 10);
+					if (j % p == 0)
+					{
+						System.out.print((j / p) % 10);
+					}
+					else
+					{
+						System.out.print(' ');
+					}
 				}
-				else
-				{
-					System.out.print(' ');
-				}
+				System.out.println();
 			}
-			System.out.println();
-			for (int i = 0; i < o.length; i++)
-			{
-				System.out.print(i % 10);
-			}
-			System.out.println();
 		}
 		int repeatStart = 0;
 		for (int i = 0; i < o.repeatCount; i++)
@@ -131,7 +130,7 @@ public class SeqGenTandemRepeats extends SequenceGenerator
 	public static void main(String[] args)
 	{
 		Options o = new Options();
-		o.length = 100;
+		o.length = 101;
 		o.repeatCount = 4;
 		o.repeatLength = 5;
 		SeqGenTandemRepeats generator = new SeqGenTandemRepeats();
