@@ -6,7 +6,13 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
 import assembly.Fragment;
 import assembly.FragmentPositionSource;
 
@@ -84,26 +90,29 @@ public class Fragmentizer
 	 * @param o
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public static List<List<? extends Fragment>> fragmentizePairedEnd(CharSequence sequence,
 		Options o)
 	{
 		Random random = new Random();
 		final int paired = 2;
 		List<List<? extends Fragment>> list = new ArrayList<List<? extends Fragment>>(paired);
-		List<? extends Fragment> orig = fragmentize(sequence, o);
+		List<Fragment> orig = fragmentize(sequence, o);
 		for (int i = 0; i < paired; i++)
 		{
 			list.add(new ArrayList<Fragment>(o.n));
 		}
+		List firstList = list.get(0);
+		List secondList = list.get(1);
 		for (Fragment f : orig)
 		{
 			int readLengthAddition = (int) (random.nextGaussian() * o.readLengthSd);
 			int readLength = o.readLength + readLengthAddition;
 			List<? extends Fragment> ends = f.pairedEndClone(readLength);
-			for (int i = 0; i < paired; i++)
-			{
-				list.get(i).add(ends.get(i));
-			}
+			Fragment first = ends.get(0);
+			Fragment second = ends.get(1);
+			firstList.add(first);
+			secondList.add(second);
 		}
 		return list;
 	}
