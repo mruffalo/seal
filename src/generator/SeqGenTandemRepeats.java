@@ -67,12 +67,32 @@ public class SeqGenTandemRepeats extends SequenceGenerator
 			Arrays.sort(repeatedSequenceIndices);
 			sb.append(generateSequence(o.characters, nonRepeatedLength));
 		}
+		if (verbose)
+		{
+			for (int i = 0; i < o.length; i++)
+			{
+				if (i % 10 == 0)
+				{
+					System.out.print(i / 10);
+				}
+				else
+				{
+					System.out.print(' ');
+				}
+			}
+			System.out.println();
+			for (int i = 0; i < o.length; i++)
+			{
+				System.out.print(i % 10);
+			}
+			System.out.println();
+		}
 		int repeatStart = 0;
 		for (int i = 0; i < o.repeatCount; i++)
 		{
 			int begin = repeatedSequenceIndices[i] + (i - 1) * o.repeatLength;
 			int end = repeatedSequenceIndices[i] + i * o.repeatLength;
-			positions.add(new TandemRepeatDescriptor(begin, i * o.repeatLength));
+			positions.add(new TandemRepeatDescriptor(begin, o.repeatLength));
 			CharSequence repeatedSequence = sb.subSequence(begin, end);
 			if (o.repeatErrorProbability > 0.0)
 			{
@@ -112,14 +132,15 @@ public class SeqGenTandemRepeats extends SequenceGenerator
 	{
 		Options o = new Options();
 		o.length = 100;
-		o.repeatCount = 2;
-		o.repeatLength = 10;
+		o.repeatCount = 4;
+		o.repeatLength = 5;
 		SeqGenTandemRepeats generator = new SeqGenTandemRepeats();
 		generator.setVerboseOutput(true);
 		GeneratedSequence generated = generator.generateSequenceWithPositions(o);
 		for (TandemRepeatDescriptor repeat : generated.repeats)
 		{
-			System.out.printf("");
+			System.out.printf("Repeat: %04d - %04d%n", repeat.position, repeat.position
+					+ repeat.length);
 		}
 	}
 }
