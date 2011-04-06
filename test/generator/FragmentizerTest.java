@@ -175,5 +175,12 @@ public class FragmentizerTest
 		fo.ksd = 1.0;
 		List<List<? extends Fragment>> list = Fragmentizer.fragmentizePairedEnd(s, fo);
 		assertEquals(2, list.size());
+		for (List<? extends Fragment> l : list)
+		{
+			for (Fragment f : l)
+			{
+				assertTrue("Fragment was empty", !f.getSequence().equals(""));
+			}
+		}
 	}
 }
