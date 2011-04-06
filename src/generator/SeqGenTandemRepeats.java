@@ -13,12 +13,15 @@ public class SeqGenTandemRepeats extends SequenceGenerator
 	public static class GeneratedSequence
 	{
 		public final CharSequence sequence;
-		public final List<Integer> tandemRepeatPositions;
+		public final List<Integer> positions;
+		public final List<Integer> lengths;
 
-		public GeneratedSequence(CharSequence sequence_, List<Integer> positions_)
+		public GeneratedSequence(CharSequence sequence_, List<Integer> positions_,
+			List<Integer> lengths_)
 		{
 			sequence = sequence_;
-			tandemRepeatPositions = Collections.unmodifiableList(positions_);
+			positions = Collections.unmodifiableList(positions_);
+			lengths = Collections.unmodifiableList(lengths_);
 		}
 	}
 
@@ -40,6 +43,8 @@ public class SeqGenTandemRepeats extends SequenceGenerator
 	{
 		final FragmentErrorGenerator eg = new UniformErrorGenerator(o.characters,
 			o.repeatErrorProbability);
+		List<Integer> positions = new ArrayList<Integer>(o.repeatCount);
+		List<Integer> lengths = new ArrayList<Integer>(o.repeatCount);
 		StringBuilder sb = new StringBuilder(o.length);
 		int[] repeatedSequenceIndices = new int[o.repeatCount];
 		int nonRepeatedLength = o.length - o.repeatCount * o.repeatLength;
@@ -84,7 +89,7 @@ public class SeqGenTandemRepeats extends SequenceGenerator
 			System.out.println();
 			System.out.println(string);
 		}
-		return new GeneratedSequence(string, new ArrayList<Integer>());
+		return new GeneratedSequence(string, positions, lengths);
 	}
 
 	/**
@@ -99,8 +104,8 @@ public class SeqGenTandemRepeats extends SequenceGenerator
 		o.length = 100;
 		o.repeatCount = 2;
 		o.repeatLength = 10;
-		SequenceGenerator generator = new SeqGenTandemRepeats();
+		SeqGenTandemRepeats generator = new SeqGenTandemRepeats();
 		generator.setVerboseOutput(true);
-		CharSequence generated = generator.generateSequence(o);
+		GeneratedSequence generated = generator.generateSequenceWithPositions(o);
 	}
 }
