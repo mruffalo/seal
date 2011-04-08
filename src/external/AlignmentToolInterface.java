@@ -83,6 +83,15 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 		public File unmapped_output;
 		public File roc_output;
 		public boolean penalize_duplicate_mappings = true;
+
+		/**
+		 * Only used for paired-end. XXX Move this
+		 */
+		public int readLength;
+		/**
+		 * Only used for paired-end. XXX move this
+		 */
+		public double readLengthSd;
 	}
 
 	public AlignmentToolInterface(int index_, String description_, List<Integer> thresholds_,
@@ -99,7 +108,7 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 		totalMappedFragments = new HashSet<String>(fragments.size());
 		if (o.is_paired_end)
 		{
-			pairedEndFragments = Fragment.pairedEndClone(fragments, 100);
+			pairedEndFragments = Fragment.pairedEndClone(fragments, o.readLength);
 		}
 		else
 		{
@@ -170,8 +179,8 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 
 	public void writeRocData(AlignmentResults r)
 	{
-		System.out.printf("%03d: %s%n", index, String.format("Writing ROC data to %s...%n",
-			o.roc_output.getAbsolutePath()));
+		System.out.printf("%03d: %s%n", index,
+			String.format("Writing ROC data to %s...%n", o.roc_output.getAbsolutePath()));
 		FileWriter w;
 		try
 		{
