@@ -1059,21 +1059,40 @@ public class AlignmentToolService
 	 */
 	public void tandemRepeatEvaluation(String[] args)
 	{
-		final int requiredArgumentCount = 4;
+		final int requiredArgumentCount = 8;
 		if (args.length < requiredArgumentCount)
 		{
-			System.err.printf("*** Usage: %s action arguments",
+			System.err.printf("*** Usage: %s action [arguments]%n",
 				AlignmentToolService.class.getCanonicalName());
 			System.err.println("Defined actions: read generate");
-			System.err.println("'read' arguments: filename tandemRepeatCount tandemRepeatSize");
-			System.err.println("'generate' arguments: genomeSize tandemRepeatCount tandemRepeatSize");
+			System.err.println("'read' arguments: filename tandemRepeatCount tandemRepeatSize fragmentLengthMean");
+			System.err.println("\tfragmentLengthSd readLengthMean readLengthSd");
+			System.err.println("'generate' arguments: genomeSize tandemRepeatCount tandemRepeatSize fragmentLengthMean");
+			System.err.println("\tfragmentLengthSd readLengthMean readLengthSd");
+			System.exit(1);
 		}
+		String filename = null;
+		int genomeSize = 0;
+		if (args[0].equals("read"))
+		{
+			filename = args[1];
+		}
+		else
+		{
+			genomeSize = Integer.parseInt(args[1]);
+		}
+		int tandemRepeatCount = Integer.parseInt(args[2]);
+		int tandemRepeatSize = Integer.parseInt(args[3]);
+		int fragmentLengthMean = Integer.parseInt(args[4]);
+		double fragmentLengthSd = Double.parseDouble(args[5]);
+		int readLengthMean = Integer.parseInt(args[6]);
+		double readLengthSd = Double.parseDouble(args[7]);
 
 		final String testDescription = "tandem_repeat";
 		List<Map<Integer, Map<String, AlignmentResults>>> l = new ArrayList<Map<Integer, Map<String, AlignmentResults>>>(
 			EVAL_RUN_COUNT);
 		final boolean paired_end = true;
-		final double errorProbability = 0.05;
+		// final double errorProbability = 0.05;
 		final int coverage = 3;
 		final File path = new File("data");
 
@@ -1109,16 +1128,18 @@ public class AlignmentToolService
 				List<? extends Fragment> list = Fragmentizer.fragmentize(sequence, fo);
 				System.out.println("done.");
 
-				System.out.print("Introducing fragment read errors...");
-				UniformErrorGenerator eg = new UniformErrorGenerator(SequenceGenerator.NUCLEOTIDES,
-					errorProbability);
-				List<? extends Fragment> errored_list = eg.generateErrors(list);
-				System.out.println("done.");
+				/*
+				 * System.out.print("Introducing fragment read errors...");
+				 * UniformErrorGenerator eg = new
+				 * UniformErrorGenerator(SequenceGenerator.NUCLEOTIDES,
+				 * errorProbability); List<? extends Fragment> errored_list =
+				 * eg.generateErrors(list); System.out.println("done.");
+				 */
 
 				List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
 
 				alignmentInterfaceList.add(new BwaInterface(++index, "BWA", RUNTIME_THRESHOLDS,
-					sequence, errored_list, new Options(paired_end, errorProbability), m_c));
+					sequence, list, new Options(paired_end, 0.0), m_c));
 
 				for (AlignmentToolInterface ati : alignmentInterfaceList)
 				{
