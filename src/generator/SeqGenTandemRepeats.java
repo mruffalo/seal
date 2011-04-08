@@ -177,6 +177,8 @@ public class SeqGenTandemRepeats extends SequenceGenerator
 					System.out.println();
 				}
 				sb.append(FastaReader.getSequence(f));
+				// XXX HUGE HACK :(
+				o.length = sb.length();
 			}
 			if (verbose)
 			{
