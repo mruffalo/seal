@@ -143,100 +143,91 @@ public class SeqGenTandemRepeats extends SequenceGenerator
 	 * improvement: separate the generation or reading of a sequence from
 	 * inserting tandem duplications or other repeats
 	 */
-	public GeneratedSequence readSequenceWithPositions(Options o, File f)
+	public GeneratedSequence insertRepeatsWithPositions(Options o, CharSequence s)
 	{
-		try
+		final FragmentErrorGenerator eg = new UniformErrorGenerator(o.characters,
+			o.repeatErrorProbability);
+		List<TandemRepeatDescriptor> positions = new ArrayList<TandemRepeatDescriptor>(
+			o.repeatCount);
+		StringBuilder sb = new StringBuilder(s);
+		int[] repeatedSequenceIndices = new int[o.repeatCount];
+		int nonRepeatedLength = o.length - o.repeatCount * o.repeatLength;
+		if (verbose)
 		{
-			final FragmentErrorGenerator eg = new UniformErrorGenerator(o.characters,
-				o.repeatErrorProbability);
-			List<TandemRepeatDescriptor> positions = new ArrayList<TandemRepeatDescriptor>(
-				o.repeatCount);
-			StringBuilder sb = new StringBuilder(o.length);
-			int[] repeatedSequenceIndices = new int[o.repeatCount];
-			int nonRepeatedLength = o.length - o.repeatCount * o.repeatLength;
-			if (verbose)
-			{
-				System.out.printf("Non-repeated sequence length: %d%n", nonRepeatedLength);
-			}
-			if (nonRepeatedLength > 0)
-			{
-				for (int i = 0; i < o.repeatCount; i++)
-				{
-					repeatedSequenceIndices[i] = random.nextInt(nonRepeatedLength - o.repeatLength)
-							+ o.repeatLength;
-				}
-				Arrays.sort(repeatedSequenceIndices);
-				if (verbose)
-				{
-					System.out.print("Raw repeat positions: ");
-					for (int position : repeatedSequenceIndices)
-					{
-						System.out.print(position);
-						System.out.print(' ');
-					}
-					System.out.println();
-				}
-				sb.append(FastaReader.getSequence(f));
-				// XXX HUGE HACK :(
-				o.length = sb.length();
-			}
-			if (verbose)
-			{
-				for (double l = Math.log10(o.length); l > 0; l--)
-				{
-					int p = (int) Math.pow(10, (int) l);
-					for (int j = 0; j < o.length; j++)
-					{
-						if (j % p == 0)
-						{
-							System.out.print((j / p) % 10);
-						}
-						else
-						{
-							System.out.print(' ');
-						}
-					}
-					System.out.println();
-				}
-			}
-			int repeatStart = 0;
+			System.out.printf("Non-repeated sequence length: %d%n", nonRepeatedLength);
+		}
+		if (nonRepeatedLength > 0)
+		{
 			for (int i = 0; i < o.repeatCount; i++)
 			{
-				int begin = repeatedSequenceIndices[i] + (i - 1) * o.repeatLength;
-				int end = repeatedSequenceIndices[i] + i * o.repeatLength;
-				positions.add(new TandemRepeatDescriptor(begin, o.repeatLength - 1));
-				CharSequence repeatedSequence = sb.subSequence(begin, end);
-				if (o.repeatErrorProbability > 0.0)
-				{
-					repeatedSequence = eg.generateErrors(repeatedSequence);
-				}
-				if (verbose)
-				{
-					for (int j = 0; j < repeatedSequenceIndices[i] - repeatStart - o.repeatLength; j++)
-					{
-						System.out.print(" ");
-					}
-					for (int j = 0; j < o.repeatLength; j++)
-					{
-						System.out.print("-");
-					}
-					System.out.print(repeatedSequence);
-					repeatStart = repeatedSequenceIndices[i];
-				}
-				sb.insert(i * o.repeatLength + repeatedSequenceIndices[i], repeatedSequence);
+				repeatedSequenceIndices[i] = random.nextInt(nonRepeatedLength - o.repeatLength)
+						+ o.repeatLength;
 			}
-			String string = sb.toString();
+			Arrays.sort(repeatedSequenceIndices);
 			if (verbose)
 			{
+				System.out.print("Raw repeat positions: ");
+				for (int position : repeatedSequenceIndices)
+				{
+					System.out.print(position);
+					System.out.print(' ');
+				}
 				System.out.println();
-				System.out.println(string);
 			}
-			return new GeneratedSequence(string, positions);
+			o.length = sb.length();
 		}
-		catch (IOException e)
+		if (verbose)
 		{
-			return null;
+			for (double l = Math.log10(o.length); l > 0; l--)
+			{
+				int p = (int) Math.pow(10, (int) l);
+				for (int j = 0; j < o.length; j++)
+				{
+					if (j % p == 0)
+					{
+						System.out.print((j / p) % 10);
+					}
+					else
+					{
+						System.out.print(' ');
+					}
+				}
+				System.out.println();
+			}
 		}
+		int repeatStart = 0;
+		for (int i = 0; i < o.repeatCount; i++)
+		{
+			int begin = repeatedSequenceIndices[i] + (i - 1) * o.repeatLength;
+			int end = repeatedSequenceIndices[i] + i * o.repeatLength;
+			positions.add(new TandemRepeatDescriptor(begin, o.repeatLength - 1));
+			CharSequence repeatedSequence = sb.subSequence(begin, end);
+			if (o.repeatErrorProbability > 0.0)
+			{
+				repeatedSequence = eg.generateErrors(repeatedSequence);
+			}
+			if (verbose)
+			{
+				for (int j = 0; j < repeatedSequenceIndices[i] - repeatStart - o.repeatLength; j++)
+				{
+					System.out.print(" ");
+				}
+				for (int j = 0; j < o.repeatLength; j++)
+				{
+					System.out.print("-");
+				}
+				System.out.print(repeatedSequence);
+				repeatStart = repeatedSequenceIndices[i];
+			}
+			sb.insert(i * o.repeatLength + repeatedSequenceIndices[i], repeatedSequence);
+		}
+		String string = sb.toString();
+		if (verbose)
+		{
+			System.out.println();
+			System.out.println(string);
+		}
+		return new GeneratedSequence(string, positions);
 	}
 
 	/**
@@ -253,7 +244,10 @@ public class SeqGenTandemRepeats extends SequenceGenerator
 		o.repeatLength = 5;
 		SeqGenTandemRepeats generator = new SeqGenTandemRepeats();
 		generator.setVerboseOutput(true);
-		GeneratedSequence generated = generator.generateSequenceWithPositions(o);
+		CharSequence s = SequenceGenerator.generateSequence(NUCLEOTIDES, 100);
+		System.out.println("Original sequence:");
+		System.out.println(s);
+		GeneratedSequence generated = generator.insertRepeatsWithPositions(o, s);
 		for (TandemRepeatDescriptor repeat : generated.repeats)
 		{
 			System.out.printf("Repeat: %04d - %04d%n", repeat.position, repeat.position
