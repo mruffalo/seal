@@ -28,13 +28,14 @@ public abstract class SequenceGenerator
 
 	/**
 	 * Generates a single sequence with the provided length from the given
-	 * characters
+	 * characters. XXX Make this protected again after fixing all of the
+	 * horrible design decisions I've recently made
 	 * 
 	 * @param sample
 	 * @param length
 	 * @return
 	 */
-	protected static CharSequence generateSequence(String sample, int length)
+	public static CharSequence generateSequence(String sample, int length)
 	{
 		Random random = new Random();
 		StringBuilder sb = new StringBuilder(length);

@@ -23,15 +23,15 @@ public class Fragmentizer
 		/**
 		 * Number of fragments to read
 		 */
-		public int n;
+		public int fragmentCount;
 		/**
 		 * Approximate length of each fragment
 		 */
-		public int k;
+		public int fragmentLength;
 		/**
 		 * Standard deviation of normally-distributed fragment size
 		 */
-		public double ksd;
+		public double fragmentLengthSd;
 		/**
 		 * Only used for paired-end.
 		 */
@@ -60,9 +60,9 @@ public class Fragmentizer
 	/**
 	 * @param string
 	 *            String to fragmentize
-	 * @param n
+	 * @param fragmentCount
 	 *            Number of fragments to read from <code>string</code>
-	 * @param k
+	 * @param fragmentLength
 	 * @param kTolerance
 	 * @return A list of fragments that were randomly read from the provided
 	 *         string.
@@ -70,11 +70,11 @@ public class Fragmentizer
 	public static List<Fragment> fragmentize(CharSequence string, Options o)
 	{
 		Random random = new Random();
-		List<Fragment> list = new ArrayList<Fragment>(o.n);
-		for (int i = 0; i < o.n; i++)
+		List<Fragment> list = new ArrayList<Fragment>(o.fragmentCount);
+		for (int i = 0; i < o.fragmentCount; i++)
 		{
-			int sizeAddition = (int) (random.nextGaussian() * o.ksd);
-			int fragmentLength = o.k + sizeAddition;
+			int sizeAddition = (int) (random.nextGaussian() * o.fragmentLengthSd);
+			int fragmentLength = o.fragmentLength + sizeAddition;
 			int index = random.nextInt(string.length() - fragmentLength);
 			Fragment f = new Fragment(string.subSequence(index, index + fragmentLength));
 			f.setPosition(FragmentPositionSource.ORIGINAL_SEQUENCE, index);
@@ -103,7 +103,7 @@ public class Fragmentizer
 		List<Fragment> orig = fragmentize(sequence, o);
 		for (int i = 0; i < paired; i++)
 		{
-			list.add(new ArrayList<Fragment>(o.n));
+			list.add(new ArrayList<Fragment>(o.fragmentCount));
 		}
 		List firstList = list.get(0);
 		List secondList = list.get(1);
@@ -162,10 +162,10 @@ public class Fragmentizer
 		Random random = new Random();
 		try
 		{
-			for (int i = 0; i < o.n; i++)
+			for (int i = 0; i < o.fragmentCount; i++)
 			{
-				int sizeAddition = (int) (random.nextGaussian() * o.ksd);
-				int fragmentLength = o.k + sizeAddition;
+				int sizeAddition = (int) (random.nextGaussian() * o.fragmentLengthSd);
+				int fragmentLength = o.fragmentLength + sizeAddition;
 				int startPosition = random.nextInt(sequence.length() - fragmentLength);
 				Fragment f = new Fragment(sequence.subSequence(startPosition, startPosition
 						+ fragmentLength));
@@ -197,9 +197,9 @@ public class Fragmentizer
 	/**
 	 * @param string
 	 *            String to fragmentize
-	 * @param n
+	 * @param fragmentCount
 	 *            Number of fragments to read from <code>string</code>
-	 * @param k
+	 * @param fragmentLength
 	 * @param kTolerance
 	 * @return A list of fragments that were randomly read from the provided
 	 *         String. Fragments that are entirely contained in another fragment
@@ -348,9 +348,9 @@ public class Fragmentizer
 		}
 		String string = args[0];
 		Options options = new Options();
-		options.n = Integer.parseInt(args[1]);
-		options.k = Integer.parseInt(args[2]);
-		options.ksd = Integer.parseInt(args[3]);
+		options.fragmentCount = Integer.parseInt(args[1]);
+		options.fragmentLength = Integer.parseInt(args[2]);
+		options.fragmentLengthSd = Integer.parseInt(args[3]);
 		options.pairedEnd = Boolean.parseBoolean(args[4]);
 		options.readLength = Integer.parseInt(args[5]);
 		options.readLengthSd = Double.parseDouble(args[3]);

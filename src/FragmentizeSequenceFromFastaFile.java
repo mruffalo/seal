@@ -20,9 +20,9 @@ public class FragmentizeSequenceFromFastaFile
 			return;
 		}
 		Fragmentizer.Options options = new Fragmentizer.Options();
-		options.n = Integer.parseInt(args[2]);
-		options.k = Integer.parseInt(args[3]);
-		options.ksd = Double.parseDouble(args[4]);
+		options.fragmentCount = Integer.parseInt(args[2]);
+		options.fragmentLength = Integer.parseInt(args[3]);
+		options.fragmentLengthSd = Double.parseDouble(args[4]);
 		String string = null;
 		try
 		{
