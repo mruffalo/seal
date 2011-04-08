@@ -1135,7 +1135,9 @@ public class AlignmentToolService
 
 			// Insert some repeats
 			SeqGenTandemRepeats g = new SeqGenTandemRepeats();
+			// g.setVerboseOutput(true);
 			SequenceGenerator.Options sgo = new SequenceGenerator.Options();
+			sgo.length = genome_size;
 			sgo.repeatCount = tandemRepeatCount;
 			sgo.repeatLength = tandemRepeatLength;
 			SeqGenTandemRepeats.GeneratedSequence repeated = g.insertRepeatsWithPositions(sgo,
