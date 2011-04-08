@@ -1059,16 +1059,18 @@ public class AlignmentToolService
 	 */
 	public void tandemRepeatEvaluation(String[] args)
 	{
-		final int requiredArgumentCount = 8;
+		final int requiredArgumentCount = 9;
 		if (args.length < requiredArgumentCount)
 		{
 			System.err.printf("*** Usage: %s action [arguments]%n",
 				AlignmentToolService.class.getCanonicalName());
 			System.err.println("Defined actions: read generate");
-			System.err.println("'read' arguments: filename tandemRepeatCount tandemRepeatSize fragmentLengthMean");
-			System.err.println("\tfragmentLengthSd readLengthMean readLengthSd");
-			System.err.println("'generate' arguments: genomeSize tandemRepeatCount tandemRepeatSize fragmentLengthMean");
-			System.err.println("\tfragmentLengthSd readLengthMean readLengthSd");
+			System.err.println("'read' arguments: genomeFilename repeatPositionsFilename tandemRepeatCount");
+			System.err.println("\ttandemRepeatSize fragmentLengthMean fragmentLengthSd");
+			System.err.println("\treadLengthMean readLengthSd");
+			System.err.println("'generate' arguments: genomeSize repeatPositionsFilename tandemRepeatCount");
+			System.err.println("\ttandemRepeatSize fragmentLengthMean fragmentLengthSd");
+			System.err.println("\treadLengthMean readLengthSd");
 			System.exit(1);
 		}
 		String filename = null;
@@ -1084,12 +1086,13 @@ public class AlignmentToolService
 			generate = true;
 			genome_size = Integer.parseInt(args[1]);
 		}
-		int tandemRepeatCount = Integer.parseInt(args[2]);
-		int tandemRepeatLength = Integer.parseInt(args[3]);
-		int fragmentLengthMean = Integer.parseInt(args[4]);
-		double fragmentLengthSd = Double.parseDouble(args[5]);
-		int readLengthMean = Integer.parseInt(args[6]);
-		double readLengthSd = Double.parseDouble(args[7]);
+		String repeatPositionsFilename = args[2];
+		int tandemRepeatCount = Integer.parseInt(args[3]);
+		int tandemRepeatLength = Integer.parseInt(args[4]);
+		int fragmentLengthMean = Integer.parseInt(args[5]);
+		double fragmentLengthSd = Double.parseDouble(args[6]);
+		int readLengthMean = Integer.parseInt(args[7]);
+		double readLengthSd = Double.parseDouble(args[8]);
 
 		final String testDescription = "tandem_repeat";
 		List<Map<Integer, Map<String, AlignmentResults>>> l = new ArrayList<Map<Integer, Map<String, AlignmentResults>>>(
