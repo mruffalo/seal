@@ -15,8 +15,8 @@ public class SeqGenTandemRepeats extends SequenceGenerator
 {
 	public static class TandemRepeatDescriptor
 	{
-		final int position;
-		final int length;
+		public final int position;
+		public final int length;
 
 		public TandemRepeatDescriptor(int position_, int length_)
 		{

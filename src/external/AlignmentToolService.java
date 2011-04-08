@@ -18,6 +18,7 @@ import generator.errors.IndelGenerator;
 import generator.errors.LinearIncreasingErrorGenerator;
 import generator.errors.UniformErrorGenerator;
 import io.FastaReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -1175,6 +1176,25 @@ public class AlignmentToolService
 				File tool_path = new File(path,
 					String.format("%03d-%s", ati.index, ati.description));
 				tool_path.mkdirs();
+
+				// TODO: move this
+				File repeatPositionsFile = new File(path, repeatPositionsFilename);
+				try
+				{
+					BufferedWriter w = new BufferedWriter(new FileWriter(repeatPositionsFile));
+					w.write("#position,length\n");
+					for (SeqGenTandemRepeats.TandemRepeatDescriptor t : repeated.repeats)
+					{
+						w.write(String.format("%d,%d%n", t.position, t.length));
+					}
+					// TODO: move this into a 'finally' block
+					w.close();
+				}
+				catch (IOException e)
+				{
+					e.printStackTrace();
+				}
+
 				ati.o.genome = new File(tool_path, "genome.fasta");
 				ati.o.binary_genome = new File(tool_path, "genome.bfa");
 
