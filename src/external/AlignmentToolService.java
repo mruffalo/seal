@@ -1158,13 +1158,14 @@ public class AlignmentToolService
 			List<? extends Fragment> list = Fragmentizer.fragmentize(repeated.sequence, fo);
 			System.out.println("done.");
 
-			/*
-			 * System.out.print("Introducing fragment read errors...");
-			 * UniformErrorGenerator eg = new
-			 * UniformErrorGenerator(SequenceGenerator.NUCLEOTIDES,
-			 * errorProbability); List<? extends Fragment> errored_list =
-			 * eg.generateErrors(list); System.out.println("done.");
-			 */
+			if (baseCallErrorProbability > 0.0)
+			{
+				System.out.print("Introducing fragment read errors...");
+				UniformErrorGenerator eg = new UniformErrorGenerator(SequenceGenerator.NUCLEOTIDES,
+					baseCallErrorProbability);
+				list = eg.generateErrors(list);
+				System.out.println("done.");
+			}
 
 			List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
 
