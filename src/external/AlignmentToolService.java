@@ -1060,13 +1060,14 @@ public class AlignmentToolService
 	 */
 	public void tandemRepeatEvaluation(String[] args)
 	{
-		final int requiredArgumentCount = 9;
+		final int requiredArgumentCount = 11;
 		if (args.length < requiredArgumentCount)
 		{
 			System.err.printf("*** Usage: %s [action] genomeFilenameOrSize %n",
 				AlignmentToolService.class.getCanonicalName());
 			System.err.println("\trepeatPositionsFilename tandemRepeatCount tandemRepeatSize");
 			System.err.println("\tfragmentLengthMean fragmentLengthSd readLengthMean readLengthSd");
+			System.err.println("\tcoverage baseCallErrorProbability");
 			System.err.println("Defined actions: read generate");
 			System.exit(1);
 		}
@@ -1083,20 +1084,21 @@ public class AlignmentToolService
 			generate = true;
 			genome_size = Integer.parseInt(args[1]);
 		}
-		String repeatPositionsFilename = args[2];
-		int tandemRepeatCount = Integer.parseInt(args[3]);
-		int tandemRepeatLength = Integer.parseInt(args[4]);
-		int fragmentLengthMean = Integer.parseInt(args[5]);
-		double fragmentLengthSd = Double.parseDouble(args[6]);
-		int readLengthMean = Integer.parseInt(args[7]);
-		double readLengthSd = Double.parseDouble(args[8]);
+		final String repeatPositionsFilename = args[2];
+		final int tandemRepeatCount = Integer.parseInt(args[3]);
+		final int tandemRepeatLength = Integer.parseInt(args[4]);
+		final int fragmentLengthMean = Integer.parseInt(args[5]);
+		final double fragmentLengthSd = Double.parseDouble(args[6]);
+		final int readLengthMean = Integer.parseInt(args[7]);
+		final double readLengthSd = Double.parseDouble(args[8]);
+		final int coverage = Integer.parseInt(args[9]);
+		final double baseCallErrorProbability = Double.parseDouble(args[10]);
 
 		final String testDescription = "tandem_repeat";
 		List<Map<Integer, Map<String, AlignmentResults>>> l = new ArrayList<Map<Integer, Map<String, AlignmentResults>>>(
 			EVAL_RUN_COUNT);
 		final boolean paired_end = true;
 		// final double errorProbability = 0.05;
-		final int coverage = 8;
 		final File path = new File("data");
 
 		path.mkdirs();
