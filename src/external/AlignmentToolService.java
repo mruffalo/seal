@@ -1238,32 +1238,37 @@ public class AlignmentToolService
 				e.printStackTrace();
 			}
 		}
-		String roc_filename = testDescription + "_data.csv";
-		System.out.printf("Writing time data to %s%n", roc_filename);
-		try
+
+		String results_filename = testDescription + "_data.csv";
+		for (Map<Integer, Map<String, AlignmentResults>> m : l)
 		{
-			FileWriter w = new FileWriter(new File(path, roc_filename));
-			w.write(String.format("Tool,GenomeLength,PreprocessingTime,AlignmentTime,PostprocessingTime,TotalTime%n"));
-			for (Map<Integer, Map<String, AlignmentResults>> m : l)
+			System.out.printf("Writing results to %s%n", results_filename);
+			try
 			{
-				for (Integer c : m.keySet())
+				FileWriter w = new FileWriter(new File(path, results_filename));
+				w.write(String.format("%s,%s,%s,%s,%s,%s%n", "Tool", "ErrorRate", "Threshold",
+					"Precision", "Recall", "Time"));
+				for (Integer d : m.keySet())
 				{
-					for (String s : m.get(c).keySet())
+					for (String s : m.get(d).keySet())
 					{
-						AlignmentResults r = m.get(c).get(s);
-						w.write(String.format("%s,%d,%d,%d,%d,%d%n", s, c,
-							r.timeMap.get(AlignmentOperation.PREPROCESSING),
-							r.timeMap.get(AlignmentOperation.ALIGNMENT),
-							r.timeMap.get(AlignmentOperation.POSTPROCESSING),
-							r.timeMap.get(AlignmentOperation.TOTAL)));
+						for (Integer i : PHRED_THRESHOLDS)
+						{
+							AlignmentResults ar = m.get(d).get(s);
+							FilteredAlignmentResults r = ar.filter(i);
+							w.write(String.format("%s,%f,%d,%f,%f,%d%n", s,
+								baseCallErrorProbability, i, r.getPrecision(), r.getRecall(),
+								ar.timeMap.get(AlignmentOperation.TOTAL)));
+						}
 					}
 				}
+				w.close();
 			}
-			w.close();
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
+			catch (IOException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 
