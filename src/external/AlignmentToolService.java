@@ -1063,15 +1063,11 @@ public class AlignmentToolService
 		final int requiredArgumentCount = 9;
 		if (args.length < requiredArgumentCount)
 		{
-			System.err.printf("*** Usage: %s action [arguments]%n",
+			System.err.printf("*** Usage: %s [action] genomeFilenameOrSize %n",
 				AlignmentToolService.class.getCanonicalName());
+			System.err.println("\trepeatPositionsFilename tandemRepeatCount tandemRepeatSize");
+			System.err.println("\tfragmentLengthMean fragmentLengthSd readLengthMean readLengthSd");
 			System.err.println("Defined actions: read generate");
-			System.err.println("'read' arguments: genomeFilename repeatPositionsFilename tandemRepeatCount");
-			System.err.println("\ttandemRepeatSize fragmentLengthMean fragmentLengthSd");
-			System.err.println("\treadLengthMean readLengthSd");
-			System.err.println("'generate' arguments: genomeSize repeatPositionsFilename tandemRepeatCount");
-			System.err.println("\ttandemRepeatSize fragmentLengthMean fragmentLengthSd");
-			System.err.println("\treadLengthMean readLengthSd");
 			System.exit(1);
 		}
 		String filename = null;
