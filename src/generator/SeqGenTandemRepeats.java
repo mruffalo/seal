@@ -2,9 +2,6 @@ package generator;
 
 import generator.errors.FragmentErrorGenerator;
 import generator.errors.UniformErrorGenerator;
-import io.FastaReader;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -151,7 +148,7 @@ public class SeqGenTandemRepeats extends SequenceGenerator
 			o.repeatCount);
 		StringBuilder sb = new StringBuilder(s);
 		int[] repeatedSequenceIndices = new int[o.repeatCount];
-		int nonRepeatedLength = o.length - o.repeatCount * o.repeatLength;
+		int nonRepeatedLength = s.length() - o.repeatCount * o.repeatLength;
 		if (verbose)
 		{
 			System.out.printf("Non-repeated sequence length: %d%n", nonRepeatedLength);

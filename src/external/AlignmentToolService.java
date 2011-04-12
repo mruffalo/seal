@@ -1073,7 +1073,7 @@ public class AlignmentToolService
 		}
 		String filename = null;
 		// TODO: rename this
-		boolean generate = true;
+		boolean generate = false;
 		int genome_size = 0;
 		if (args[0].equals("read"))
 		{
@@ -1122,7 +1122,11 @@ public class AlignmentToolService
 			{
 				try
 				{
-					sequence = FastaReader.getSequence(new File(filename));
+					File f = new File(filename);
+					// System.err.println(f.getAbsolutePath());
+					sequence = FastaReader.getSequence(f);
+					// TODO: Fix this
+					genome_size = sequence.length();
 				}
 				catch (IOException e)
 				{
