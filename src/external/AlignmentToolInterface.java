@@ -179,8 +179,8 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 
 	public void writeRocData(AlignmentResults r)
 	{
-		System.out.printf("%03d: %s%n", index,
-			String.format("Writing ROC data to %s...%n", o.roc_output.getAbsolutePath()));
+		System.out.printf("%03d: %s%n", index, String.format("Writing ROC data to %s...%n",
+			o.roc_output.getAbsolutePath()));
 		FileWriter w;
 		try
 		{
@@ -205,19 +205,12 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 
 	public void cleanup()
 	{
-		o.binary_genome.delete();
-		for (Options.Reads r : o.reads)
-		{
-			r.aligned_reads.delete();
-			r.binary_reads.delete();
-			r.reads.delete();
-		}
-		o.raw_output.delete();
-		o.sam_output.delete();
-		if (o.unmapped_output != null)
-		{
-			o.unmapped_output.delete();
-		}
+		/*
+		 * o.binary_genome.delete(); for (Options.Reads r : o.reads) {
+		 * r.aligned_reads.delete(); r.binary_reads.delete(); r.reads.delete();
+		 * } o.raw_output.delete(); o.sam_output.delete(); if (o.unmapped_output
+		 * != null) { o.unmapped_output.delete(); }
+		 */
 		if (o.index != null)
 		{
 			o.index.delete();
@@ -250,7 +243,7 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 		writeRocData(results);
 
 		m.put(description, results);
-		// cleanup();
+		cleanup();
 		return results;
 	}
 }
