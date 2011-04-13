@@ -804,9 +804,9 @@ public class AlignmentToolService
 			System.out.println("done.");
 			System.out.printf("Genome length: %d%n", sequence.length());
 			Fragmentizer.Options fo = new Fragmentizer.Options();
-			fo.k = 50;
-			fo.n = 500000;
-			fo.ksd = 1;
+			fo.fragmentLength = 50;
+			fo.fragmentCount = 500000;
+			fo.fragmentLengthSd = 1;
 
 			System.out.print("Reading fragments...");
 			List<? extends Fragment> list = Fragmentizer.fragmentize(sequence, fo);
