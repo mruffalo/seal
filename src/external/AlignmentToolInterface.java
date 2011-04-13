@@ -83,6 +83,15 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 		public File unmapped_output;
 		public File roc_output;
 		public boolean penalize_duplicate_mappings = true;
+
+		/**
+		 * Only used for paired-end. XXX Move this
+		 */
+		public int readLength;
+		/**
+		 * Only used for paired-end. XXX move this
+		 */
+		public double readLengthSd;
 	}
 
 	public AlignmentToolInterface(int index_, String description_, List<Integer> thresholds_,
@@ -99,7 +108,7 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 		totalMappedFragments = new HashSet<String>(fragments.size());
 		if (o.is_paired_end)
 		{
-			pairedEndFragments = Fragment.pairedEndClone(fragments, 100);
+			pairedEndFragments = Fragment.pairedEndClone(fragments, o.readLength);
 		}
 		else
 		{
@@ -196,19 +205,12 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 
 	public void cleanup()
 	{
-		o.binary_genome.delete();
-		for (Options.Reads r : o.reads)
-		{
-			r.aligned_reads.delete();
-			r.binary_reads.delete();
-			r.reads.delete();
-		}
-		o.raw_output.delete();
-		o.sam_output.delete();
-		if (o.unmapped_output != null)
-		{
-			o.unmapped_output.delete();
-		}
+		/*
+		 * o.binary_genome.delete(); for (Options.Reads r : o.reads) {
+		 * r.aligned_reads.delete(); r.binary_reads.delete(); r.reads.delete();
+		 * } o.raw_output.delete(); o.sam_output.delete(); if (o.unmapped_output
+		 * != null) { o.unmapped_output.delete(); }
+		 */
 		if (o.index != null)
 		{
 			o.index.delete();
@@ -241,7 +243,7 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 		writeRocData(results);
 
 		m.put(description, results);
-		// cleanup();
+		cleanup();
 		return results;
 	}
 }

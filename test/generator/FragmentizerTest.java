@@ -65,21 +65,21 @@ public class FragmentizerTest
 		CharSequence string = SequenceGenerator.generateSequence(SequenceGenerator.NUCLEOTIDES, 100);
 		System.out.println(string);
 		Fragmentizer.Options o = new Fragmentizer.Options();
-		o.n = 50;
-		o.k = 10;
-		o.ksd = 2;
+		o.fragmentCount = 50;
+		o.fragmentLength = 10;
+		o.fragmentLengthSd = 2;
 		List<Fragment> list = Fragmentizer.fragmentizeForShotgun(string, o);
-		assertTrue(o.n >= list.size());
+		assertTrue(o.fragmentCount >= list.size());
 		for (Fragment fragment : list)
 		{
 			System.out.println(fragment);
 			assertTrue(string.toString().contains(fragment.getSequence()));
 		}
-		o.n = 20;
-		o.k = 20;
-		o.ksd = 4;
+		o.fragmentCount = 20;
+		o.fragmentLength = 20;
+		o.fragmentLengthSd = 4;
 		list = Fragmentizer.fragmentizeForShotgun(string, o);
-		assertTrue(o.n >= list.size());
+		assertTrue(o.fragmentCount >= list.size());
 		for (Fragment fragment : list)
 		{
 			System.out.println(fragment);
@@ -155,9 +155,9 @@ public class FragmentizerTest
 			fl.add(new File(String.format("%d.fasta", i)));
 		}
 		Fragmentizer.Options fo = new Fragmentizer.Options();
-		fo.n = 500;
-		fo.k = 60;
-		fo.ksd = 1.0;
+		fo.fragmentCount = 500;
+		fo.fragmentLength = 60;
+		fo.fragmentLengthSd = 1.0;
 		fo.errorGenerator = new UniformErrorGenerator(SequenceGenerator.NUCLEOTIDES, 0.01);
 		Fragmentizer.fragmentizeToFiles(s, fo, fl);
 	}
@@ -170,9 +170,9 @@ public class FragmentizerTest
 		sgo.length = 10000;
 		CharSequence s = g.generateSequence(sgo);
 		Fragmentizer.Options fo = new Fragmentizer.Options();
-		fo.n = 500;
-		fo.k = 200;
-		fo.ksd = 4.0;
+		fo.fragmentCount = 500;
+		fo.fragmentLength = 200;
+		fo.fragmentLengthSd = 4.0;
 		fo.readLength = 50;
 		List<List<? extends Fragment>> list = Fragmentizer.fragmentizePairedEnd(s, fo);
 		assertEquals(2, list.size());

@@ -20,8 +20,8 @@ public class Fragment implements Cloneable
 	{
 		sequence = sequence_;
 		positions = new EnumMap<FragmentPositionSource, Integer>(FragmentPositionSource.class);
-		readQuality = new int[getSequence().length()];
-		for (int i = 0; i < getSequence().length(); i++)
+		readQuality = new int[sequence.length()];
+		for (int i = 0; i < sequence.length(); i++)
 		{
 			readQuality[i] = MAXIMUM_BASE_QUALITY;
 		}

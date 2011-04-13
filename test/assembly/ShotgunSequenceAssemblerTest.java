@@ -159,9 +159,9 @@ public class ShotgunSequenceAssemblerTest
 		CharSequence string = sg.generateSequence(sgo);
 		assertEquals(10000, string.length());
 		Fragmentizer.Options fo = new Fragmentizer.Options();
-		fo.n = 1000;
-		fo.k = 50;
-		fo.ksd = 5;
+		fo.fragmentCount = 1000;
+		fo.fragmentLength = 50;
+		fo.fragmentLengthSd = 5;
 		List<Fragment> list = Fragmentizer.fragmentizeForShotgun(string, fo);
 		assertTrue(list.size() <= 1000);
 		String assembled = sa.assembleSequence(list);
@@ -184,9 +184,9 @@ public class ShotgunSequenceAssemblerTest
 		sgo.length = 100;
 		CharSequence string = sg.generateSequence(sgo);
 		Fragmentizer.Options fo = new Fragmentizer.Options();
-		fo.n = 50;
-		fo.k = 10;
-		fo.ksd = 0;
+		fo.fragmentCount = 50;
+		fo.fragmentLength = 10;
+		fo.fragmentLengthSd = 0;
 		List<Fragment> list = Fragmentizer.fragmentizeForShotgun(string, fo);
 		String assembled = sa.assembleSequence(list);
 		ArrayList<ArrayList<Fragment>> fragmentCounts = new ArrayList<ArrayList<Fragment>>(

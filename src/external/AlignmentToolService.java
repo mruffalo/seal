@@ -18,6 +18,7 @@ import generator.errors.IndelGenerator;
 import generator.errors.LinearIncreasingErrorGenerator;
 import generator.errors.UniformErrorGenerator;
 import io.FastaReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -44,7 +45,7 @@ public class AlignmentToolService
 	 * The number of CPUs in your system (maybe - 1) is a good value for this
 	 */
 	private static final int NUMBER_OF_CONCURRENT_THREADS = 2;
-	private static final int EVAL_RUN_COUNT = 5;
+	private static final int EVAL_RUN_COUNT = 1;
 	protected static final List<Double> ERROR_PROBABILITIES = Collections.unmodifiableList(Arrays.asList(
 		0.0, 0.001, 0.004, 0.01, 0.025, 0.05, 0.1));
 	protected static final List<Integer> PHRED_THRESHOLDS = Collections.unmodifiableList(Arrays.asList(
@@ -129,9 +130,9 @@ public class AlignmentToolService
 		System.out.println("done.");
 		System.out.printf("Genome length: %d%n", sequence.length());
 		Fragmentizer.Options fo = new Fragmentizer.Options();
-		fo.k = 50;
-		fo.n = 50000;
-		fo.ksd = 1;
+		fo.fragmentLength = 50;
+		fo.fragmentCount = 50000;
+		fo.fragmentLengthSd = 1;
 
 		System.out.print("Reading fragments...");
 		List<? extends Fragment> list = Fragmentizer.fragmentize(sequence, fo);
@@ -351,9 +352,9 @@ public class AlignmentToolService
 		System.out.println("done.");
 		System.out.printf("Genome length: %d%n", sequence.length());
 		Fragmentizer.Options fo = new Fragmentizer.Options();
-		fo.k = 50;
-		fo.n = 50000;
-		fo.ksd = 1;
+		fo.fragmentLength = 50;
+		fo.fragmentCount = 50000;
+		fo.fragmentLengthSd = 1;
 
 		System.out.print("Reading fragments...");
 		List<? extends Fragment> list = Fragmentizer.fragmentize(sequence, fo);
@@ -587,9 +588,9 @@ public class AlignmentToolService
 		System.out.println("done.");
 		System.out.printf("Genome length: %d%n", sequence.length());
 		Fragmentizer.Options fo = new Fragmentizer.Options();
-		fo.k = 50;
-		fo.n = 50000;
-		fo.ksd = 1;
+		fo.fragmentLength = 50;
+		fo.fragmentCount = 50000;
+		fo.fragmentLengthSd = 1;
 
 		System.out.print("Reading fragments...");
 		List<? extends Fragment> list = Fragmentizer.fragmentize(sequence, fo);
@@ -973,14 +974,14 @@ public class AlignmentToolService
 				Map<String, AlignmentResults> m_c = Collections.synchronizedMap(new TreeMap<String, AlignmentResults>());
 				m.put(coverage, m_c);
 				Fragmentizer.Options fo = new Fragmentizer.Options();
-				fo.k = 50;
+				fo.fragmentLength = 50;
 				/*
 				 * Integer truncation is okay here
 				 */
-				fo.n = (coverage * sequence.length()) / fo.k;
-				fo.ksd = 1;
+				fo.fragmentCount = (coverage * sequence.length()) / fo.fragmentLength;
+				fo.fragmentLengthSd = 1;
 
-				System.out.printf("Reading %d fragments...", fo.n);
+				System.out.printf("Reading %d fragments...", fo.fragmentCount);
 				List<? extends Fragment> list = Fragmentizer.fragmentize(sequence, fo);
 				System.out.println("done.");
 
@@ -1117,14 +1118,14 @@ public class AlignmentToolService
 				Map<String, AlignmentResults> m_c = Collections.synchronizedMap(new TreeMap<String, AlignmentResults>());
 				m.put(genome_size, m_c);
 				Fragmentizer.Options fo = new Fragmentizer.Options();
-				fo.k = 50;
+				fo.fragmentLength = 50;
 				/*
 				 * Integer truncation is okay here
 				 */
-				fo.n = (genome_size * coverage) / fo.k;
-				fo.ksd = 1;
+				fo.fragmentCount = (genome_size * coverage) / fo.fragmentLength;
+				fo.fragmentLengthSd = 1;
 
-				System.out.printf("Reading %d fragments...", fo.n);
+				System.out.printf("Reading %d fragments...", fo.fragmentCount);
 				List<? extends Fragment> list = Fragmentizer.fragmentize(sequence, fo);
 				System.out.println("done.");
 
@@ -1224,6 +1225,227 @@ public class AlignmentToolService
 		catch (IOException e)
 		{
 			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * TODO: Don't duplicate code, and make this method a lot less stupid
+	 */
+	public void tandemRepeatEvaluation(String[] args)
+	{
+		final int requiredArgumentCount = 11;
+		if (args.length < requiredArgumentCount)
+		{
+			System.err.printf("*** Usage: %s [action] genomeFilenameOrSize %n",
+				AlignmentToolService.class.getCanonicalName());
+			System.err.println("\trepeatPositionsFilename tandemRepeatCount tandemRepeatSize");
+			System.err.println("\tfragmentLengthMean fragmentLengthSd readLengthMean readLengthSd");
+			System.err.println("\tcoverage baseCallErrorProbability");
+			System.err.println("Defined actions: read generate");
+			System.exit(1);
+		}
+		String filename = null;
+		// TODO: rename this
+		boolean generate = false;
+		int genome_size = 0;
+		if (args[0].equals("read"))
+		{
+			filename = args[1];
+		}
+		else
+		{
+			generate = true;
+			genome_size = Integer.parseInt(args[1]);
+		}
+		final String repeatPositionsFilename = args[2];
+		final int tandemRepeatCount = Integer.parseInt(args[3]);
+		final int tandemRepeatLength = Integer.parseInt(args[4]);
+		final int fragmentLengthMean = Integer.parseInt(args[5]);
+		final double fragmentLengthSd = Double.parseDouble(args[6]);
+		final int readLengthMean = Integer.parseInt(args[7]);
+		final double readLengthSd = Double.parseDouble(args[8]);
+		final int coverage = Integer.parseInt(args[9]);
+		final double baseCallErrorProbability = Double.parseDouble(args[10]);
+
+		final String testDescription = "tandem_repeat";
+		List<Map<Integer, Map<String, AlignmentResults>>> l = new ArrayList<Map<Integer, Map<String, AlignmentResults>>>(
+			EVAL_RUN_COUNT);
+		final boolean paired_end = true;
+		// final double errorProbability = 0.05;
+		final File path = new File("data");
+
+		path.mkdirs();
+		List<Future<AlignmentResults>> futureList = new ArrayList<Future<AlignmentResults>>(
+			RUNTIME_COVERAGES.size() * EVAL_RUN_COUNT * 7);
+		int index = 0;
+		for (int which_run = 0; which_run < EVAL_RUN_COUNT; which_run++)
+		{
+			Map<Integer, Map<String, AlignmentResults>> m = Collections.synchronizedMap(new TreeMap<Integer, Map<String, AlignmentResults>>());
+			l.add(m);
+
+			CharSequence sequence = null;
+			if (generate)
+			{
+				System.out.print("Generating sequence...");
+				sequence = SequenceGenerator.generateSequence(SequenceGenerator.NUCLEOTIDES,
+					genome_size);
+				System.out.println("done.");
+			}
+			else
+			{
+				try
+				{
+					File f = new File(filename);
+					// System.err.println(f.getAbsolutePath());
+					sequence = FastaReader.getSequence(f);
+					// TODO: Fix this
+					genome_size = sequence.length();
+				}
+				catch (IOException e)
+				{
+					throw new RuntimeException(e);
+				}
+			}
+			System.out.printf("Original genome length: %d%n", sequence.length());
+
+			// Insert some repeats
+			SeqGenTandemRepeats g = new SeqGenTandemRepeats();
+			// g.setVerboseOutput(true);
+			SequenceGenerator.Options sgo = new SequenceGenerator.Options();
+			sgo.length = genome_size;
+			sgo.repeatCount = tandemRepeatCount;
+			sgo.repeatLength = tandemRepeatLength;
+			SeqGenTandemRepeats.GeneratedSequence repeated = g.insertRepeatsWithPositions(sgo,
+				sequence);
+
+			Map<String, AlignmentResults> m_c = Collections.synchronizedMap(new TreeMap<String, AlignmentResults>());
+			m.put(genome_size, m_c);
+			Fragmentizer.Options fo = new Fragmentizer.Options();
+			fo.fragmentLength = fragmentLengthMean;
+			/*
+			 * Integer truncation is okay here
+			 */
+			fo.fragmentCount = (genome_size * coverage) / fo.fragmentLength;
+			fo.fragmentLengthSd = fragmentLengthSd;
+
+			fo.readLength = readLengthMean;
+			fo.readLengthSd = readLengthSd;
+
+			System.out.printf("Reading %d fragments...", fo.fragmentCount);
+			List<? extends Fragment> list = Fragmentizer.fragmentize(repeated.sequence, fo);
+			System.out.println("done.");
+
+			if (baseCallErrorProbability > 0.0)
+			{
+				System.out.print("Introducing fragment read errors...");
+				UniformErrorGenerator eg = new UniformErrorGenerator(SequenceGenerator.NUCLEOTIDES,
+					baseCallErrorProbability);
+				list = eg.generateErrors(list);
+				System.out.println("done.");
+			}
+
+			List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
+
+			Options o = new Options(paired_end, 0.0);
+			o.readLength = readLengthMean;
+			o.readLengthSd = readLengthSd;
+			alignmentInterfaceList.add(new BwaInterface(++index, "BWA", RUNTIME_THRESHOLDS,
+				sequence, list, o, m_c));
+
+			for (AlignmentToolInterface ati : alignmentInterfaceList)
+			{
+				File tool_path = new File(path,
+					String.format("%03d-%s", ati.index, ati.description));
+				tool_path.mkdirs();
+
+				// TODO: move this
+				File repeatPositionsFile = new File(path, repeatPositionsFilename);
+				try
+				{
+					BufferedWriter w = new BufferedWriter(new FileWriter(repeatPositionsFile));
+					w.write("#position,length\n");
+					for (SeqGenTandemRepeats.TandemRepeatDescriptor t : repeated.repeats)
+					{
+						w.write(String.format("%d,%d%n", t.position, t.length));
+					}
+					// TODO: move this into a 'finally' block
+					w.close();
+				}
+				catch (IOException e)
+				{
+					e.printStackTrace();
+				}
+
+				ati.o.genome = new File(tool_path, "genome.fasta");
+				ati.o.binary_genome = new File(tool_path, "genome.bfa");
+
+				int read_count = paired_end ? 2 : 1;
+				for (int i = 1; i <= read_count; i++)
+				{
+					Options.Reads r = new Options.Reads(i);
+					r.reads = new File(tool_path, String.format("fragments%d.fastq", i));
+					r.binary_reads = new File(tool_path, String.format("fragments%d.bfq", i));
+					r.aligned_reads = new File(tool_path, String.format("alignment%d.sai", i));
+					ati.o.reads.add(r);
+				}
+				ati.o.raw_output = new File(tool_path, "out.raw");
+				ati.o.sam_output = new File(tool_path, "alignment.sam");
+				ati.o.converted_output = new File(tool_path, "out.txt");
+				ati.o.roc_output = new File(tool_path, "roc.csv");
+
+				System.out.printf("*** %03d %s: %d%n", ati.index, ati.description, genome_size);
+
+				futureList.add(pool.submit(ati));
+			}
+
+		}
+		pool.shutdown();
+		for (Future<AlignmentResults> f : futureList)
+		{
+			try
+			{
+				f.get();
+			}
+			catch (InterruptedException e)
+			{
+				e.printStackTrace();
+			}
+			catch (ExecutionException e)
+			{
+				e.printStackTrace();
+			}
+		}
+
+		String results_filename = testDescription + "_data.csv";
+		for (Map<Integer, Map<String, AlignmentResults>> m : l)
+		{
+			System.out.printf("Writing results to %s%n", results_filename);
+			try
+			{
+				FileWriter w = new FileWriter(new File(path, results_filename));
+				w.write(String.format("%s,%s,%s,%s,%s,%s%n", "Tool", "ErrorRate", "Threshold",
+					"Precision", "Recall", "Time"));
+				for (Integer d : m.keySet())
+				{
+					for (String s : m.get(d).keySet())
+					{
+						for (Integer i : PHRED_THRESHOLDS)
+						{
+							AlignmentResults ar = m.get(d).get(s);
+							FilteredAlignmentResults r = ar.filter(i);
+							w.write(String.format("%s,%f,%d,%f,%f,%d%n", s,
+								baseCallErrorProbability, i, r.getPrecision(), r.getRecall(),
+								ar.timeMap.get(AlignmentOperation.TOTAL)));
+						}
+					}
+				}
+				w.close();
+			}
+			catch (IOException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 
