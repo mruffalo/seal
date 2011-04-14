@@ -773,8 +773,8 @@ public class AlignmentToolService
 	{
 		final String testDescription = "indel_freq_tandem";
 		final int generated_genome_length = 1000000;
-		CharSequence sequence = null;
-		SequenceGenerator g = null;
+		CharSequence origSequence = null;
+		SeqGenTandemRepeats g = null;
 		SequenceGenerator.Options sgo = null;
 		final File path = new File("data");
 		path.mkdirs();
@@ -787,6 +787,11 @@ public class AlignmentToolService
 		List<Future<AlignmentResults>> futureList = new ArrayList<Future<AlignmentResults>>(
 			alignmentToolCount);
 
+		System.out.print("Generating clean sequence...");
+		origSequence = SequenceGenerator.generateSequence(SequenceGenerator.NUCLEOTIDES,
+			generated_genome_length);
+		System.out.println("done.");
+
 		int index = 0;
 		for (int repeatCount : TANDEM_GENOME_REPEAT_COUNTS)
 		{
@@ -798,18 +803,19 @@ public class AlignmentToolService
 			sgo.repeatCount = repeatCount;
 			sgo.repeatLength = 500;
 			sgo.repeatErrorProbability = 0.03;
-			System.out.print("Generating sequence...");
-			sequence = g.generateSequence(sgo);
+			System.out.print("Inserting repeats into generated sequence...");
+			SeqGenTandemRepeats.GeneratedSequence repeated = g.insertRepeatsWithPositions(sgo,
+				origSequence);
 
 			System.out.println("done.");
-			System.out.printf("Genome length: %d%n", sequence.length());
+			System.out.printf("Genome length: %d%n", repeated.sequence.length());
 			Fragmentizer.Options fo = new Fragmentizer.Options();
 			fo.fragmentLength = 50;
 			fo.fragmentCount = 500000;
 			fo.fragmentLengthSd = 1;
 
 			System.out.print("Reading fragments...");
-			List<? extends Fragment> list = Fragmentizer.fragmentize(sequence, fo);
+			List<? extends Fragment> list = Fragmentizer.fragmentize(repeated.sequence, fo);
 			System.out.println("done.");
 
 			Map<String, AlignmentResults> m_ep = Collections.synchronizedMap(new TreeMap<String, AlignmentResults>());
@@ -821,21 +827,26 @@ public class AlignmentToolService
 				Options o = new Options(paired_end, dRepeatCount);
 				o.penalize_duplicate_mappings = false;
 				alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast-R-" + run,
-					PHRED_THRESHOLDS, sequence, list, o, m_ep));
+					PHRED_THRESHOLDS, repeated.sequence, list, o, m_ep));
 				alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast-S-" + run,
-					PHRED_THRESHOLDS, sequence, list, new Options(paired_end, dRepeatCount), m_ep));
+					PHRED_THRESHOLDS, repeated.sequence, list,
+					new Options(paired_end, dRepeatCount), m_ep));
 				o = new Options(paired_end, dRepeatCount);
 				o.penalize_duplicate_mappings = false;
 				alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast-R-" + run,
-					PHRED_THRESHOLDS, sequence, list, o, m_ep));
+					PHRED_THRESHOLDS, repeated.sequence, list, o, m_ep));
 				alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast-S-" + run,
-					PHRED_THRESHOLDS, sequence, list, new Options(paired_end, dRepeatCount), m_ep));
+					PHRED_THRESHOLDS, repeated.sequence, list,
+					new Options(paired_end, dRepeatCount), m_ep));
 				alignmentInterfaceList.add(new SoapInterface(++index, "SOAP-" + run,
-					PHRED_THRESHOLDS, sequence, list, new Options(paired_end, dRepeatCount), m_ep));
+					PHRED_THRESHOLDS, repeated.sequence, list,
+					new Options(paired_end, dRepeatCount), m_ep));
 				alignmentInterfaceList.add(new BwaInterface(++index, "BWA-" + run,
-					PHRED_THRESHOLDS, sequence, list, new Options(paired_end, dRepeatCount), m_ep));
+					PHRED_THRESHOLDS, repeated.sequence, list,
+					new Options(paired_end, dRepeatCount), m_ep));
 				alignmentInterfaceList.add(new BowtieInterface(++index, "Bowtie-" + run,
-					PHRED_THRESHOLDS, sequence, list, new Options(paired_end, dRepeatCount), m_ep));
+					PHRED_THRESHOLDS, repeated.sequence, list,
+					new Options(paired_end, dRepeatCount), m_ep));
 
 				for (AlignmentToolInterface ati : alignmentInterfaceList)
 				{
