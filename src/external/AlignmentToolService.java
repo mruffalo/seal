@@ -1121,6 +1121,7 @@ public class AlignmentToolService
 			FileWriter e = new FileWriter(new File(path, extra_filename));
 			e.write(String.format("#Fragments straddling breakpoint: %d%n",
 				fragmentsAcrossBreakpoint));
+			e.write(String.format("#Breakpoint position: %d%n", sfsd.getDeletePosition()));
 			e.write("ToolName,UnmappedFragments\n");
 			w = new FileWriter(new File(path, roc_filename));
 			w.write(String.format("%s,%s,%s,%s%n", "Tool", "IndelFrequency", "Score", "Label"));
@@ -1130,7 +1131,7 @@ public class AlignmentToolService
 				{
 					// TODO: Don't duplicate code here
 					AlignmentResults r = m.get(repeatCount).get(toolName);
-					e.write(String.format("%s,%d", toolName, r.missingFragments));
+					e.write(String.format("%s,%d%n", toolName, r.missingFragments));
 					for (int p : r.positives)
 					{
 						w.write(String.format("%s,%d,%d,%d%n", toolName, repeatCount, p, 1));
