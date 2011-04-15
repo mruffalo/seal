@@ -25,8 +25,9 @@ public class PairedEndFragment extends Fragment
 		}
 		else
 		{
-			// TODO: Test this
-			return sequence.subSequence(sequence.length() - length, sequence.length());
+			// TODO: Return the complement of the reversed sequence
+			return new StringBuilder(sequence.subSequence(sequence.length() - length,
+				sequence.length())).reverse().toString();
 		}
 	}
 
