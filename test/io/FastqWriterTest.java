@@ -22,7 +22,7 @@ public class FastqWriterTest
 		Fragmentizer.Options o = new Fragmentizer.Options();
 		o.fragmentLength = 200;
 		o.fragmentLengthSd = 10;
-		o.fragmentCount = 500;
+		o.fragmentCount = 5;
 		o.readLength = 50;
 		o.readLengthSd = 1;
 		List<? extends Fragment> l = Fragmentizer.fragmentize(s, o);
