@@ -802,7 +802,7 @@ public class AlignmentToolService
 			sgo.length = generated_genome_length;
 			sgo.repeatCount = repeatCount;
 			sgo.repeatLength = 500;
-			sgo.repeatErrorProbability = 0.03;
+			sgo.repeatErrorProbability = 0.0;
 			System.out.print("Inserting repeats into generated sequence...");
 			SeqGenTandemRepeats.GeneratedSequence repeated = g.insertRepeatsWithPositions(sgo,
 				origSequence);
