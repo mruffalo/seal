@@ -86,15 +86,15 @@ public class FastqWriter
 	public static void writeFragments(List<? extends Fragment> fragments, File file, int pairedIndex)
 		throws IOException
 	{
-		BufferedWriter output = null;
+		FastqWriter output = null;
 		try
 		{
-			FastqWriter writer = new FastqWriter(new BufferedWriter(new FileWriter(file)));
+			output = new FastqWriter(new BufferedWriter(new FileWriter(file)));
 
 			int i = 0;
 			for (Fragment fragment : fragments)
 			{
-				writer.writeFragment(fragment, pairedIndex, i++);
+				output.writeFragment(fragment, pairedIndex, i++);
 			}
 		}
 		finally
