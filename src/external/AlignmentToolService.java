@@ -13,9 +13,7 @@ import generator.Fragmentizer;
 import generator.SeqFilterSingleDeletion;
 import generator.SeqGenSingleSequenceMultipleRepeats;
 import generator.SeqGenTandemRepeats;
-import generator.SequenceFilter;
 import generator.SequenceGenerator;
-import generator.SeqGenTandemRepeats.TandemRepeatDescriptor;
 import generator.errors.FragmentErrorGenerator;
 import generator.errors.IndelGenerator;
 import generator.errors.LinearIncreasingErrorGenerator;
@@ -966,8 +964,6 @@ public class AlignmentToolService
 		final String testDescription = "big_deletion";
 		final int generated_genome_length = 1000000;
 		CharSequence origSequence = null;
-		SeqGenTandemRepeats g = null;
-		SequenceGenerator.Options sgo = null;
 		final File path = new File("data");
 		path.mkdirs();
 
@@ -985,79 +981,76 @@ public class AlignmentToolService
 		System.out.println("done.");
 
 		int index = 0;
-		for (int repeatCount : TANDEM_GENOME_REPEAT_COUNTS)
+		double dRepeatCount = 0;
+
+		System.out.print("Deleting part of sequence...");
+		SeqFilterSingleDeletion.Options so = new SeqFilterSingleDeletion.Options();
+		so.length = 10000;
+		SeqFilterSingleDeletion sfsd = new SeqFilterSingleDeletion(so);
+		CharSequence filtered = sfsd.filter(origSequence);
+
+		System.out.println("done.");
+		System.out.printf("Genome length: %d%n", filtered.length());
+		Fragmentizer.Options fo = new Fragmentizer.Options();
+		fo.fragmentLength = 50;
+		fo.fragmentCount = 500000;
+		fo.fragmentLengthSd = 1;
+
+		System.out.print("Reading fragments...");
+		List<? extends Fragment> list = Fragmentizer.fragmentize(filtered, fo);
+		System.out.println("done.");
+
+		Map<String, AlignmentResults> m_ep = Collections.synchronizedMap(new TreeMap<String, AlignmentResults>());
+		m.put(0, m_ep);
+		for (int run = 0; run < EVAL_RUN_COUNT; run++)
 		{
-			double dRepeatCount = repeatCount;
+			List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
 
-			System.out.print("Deleting part of sequence...");
-			SeqFilterSingleDeletion.Options so = new SeqFilterSingleDeletion.Options();
-			so.length = 10000;
-			SeqFilterSingleDeletion sfsd = new SeqFilterSingleDeletion(so);
-			CharSequence filtered = sfsd.filter(origSequence);
+			Options o = new Options(paired_end, dRepeatCount);
+			o.penalize_duplicate_mappings = false;
+			alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast-R-" + run,
+				PHRED_THRESHOLDS, filtered, list, o, m_ep));
+			alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast-S-" + run,
+				PHRED_THRESHOLDS, filtered, list, new Options(paired_end, dRepeatCount), m_ep));
+			o = new Options(paired_end, dRepeatCount);
+			o.penalize_duplicate_mappings = false;
+			alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast-R-" + run,
+				PHRED_THRESHOLDS, filtered, list, o, m_ep));
+			alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast-S-" + run,
+				PHRED_THRESHOLDS, filtered, list, new Options(paired_end, dRepeatCount), m_ep));
+			alignmentInterfaceList.add(new SoapInterface(++index, "SOAP-" + run, PHRED_THRESHOLDS,
+				filtered, list, new Options(paired_end, dRepeatCount), m_ep));
+			alignmentInterfaceList.add(new BwaInterface(++index, "BWA-" + run, PHRED_THRESHOLDS,
+				filtered, list, new Options(paired_end, dRepeatCount), m_ep));
+			alignmentInterfaceList.add(new BowtieInterface(++index, "Bowtie-" + run,
+				PHRED_THRESHOLDS, filtered, list, new Options(paired_end, dRepeatCount), m_ep));
 
-			System.out.println("done.");
-			System.out.printf("Genome length: %d%n", filtered.length());
-			Fragmentizer.Options fo = new Fragmentizer.Options();
-			fo.fragmentLength = 50;
-			fo.fragmentCount = 500000;
-			fo.fragmentLengthSd = 1;
-
-			System.out.print("Reading fragments...");
-			List<? extends Fragment> list = Fragmentizer.fragmentize(filtered, fo);
-			System.out.println("done.");
-
-			Map<String, AlignmentResults> m_ep = Collections.synchronizedMap(new TreeMap<String, AlignmentResults>());
-			m.put(repeatCount, m_ep);
-			for (int run = 0; run < EVAL_RUN_COUNT; run++)
+			for (AlignmentToolInterface ati : alignmentInterfaceList)
 			{
-				List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
+				File tool_path = new File(path, String.format("%03d-%s-%s", ati.index,
+					ati.description, "tandem"));
+				tool_path.mkdirs();
+				ati.o.genome = new File(tool_path, "genome.fasta");
+				ati.o.binary_genome = new File(tool_path, "genome.bfa");
 
-				Options o = new Options(paired_end, dRepeatCount);
-				o.penalize_duplicate_mappings = false;
-				alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast-R-" + run,
-					PHRED_THRESHOLDS, filtered, list, o, m_ep));
-				alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast-S-" + run,
-					PHRED_THRESHOLDS, filtered, list, new Options(paired_end, dRepeatCount), m_ep));
-				o = new Options(paired_end, dRepeatCount);
-				o.penalize_duplicate_mappings = false;
-				alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast-R-" + run,
-					PHRED_THRESHOLDS, filtered, list, o, m_ep));
-				alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast-S-" + run,
-					PHRED_THRESHOLDS, filtered, list, new Options(paired_end, dRepeatCount), m_ep));
-				alignmentInterfaceList.add(new SoapInterface(++index, "SOAP-" + run,
-					PHRED_THRESHOLDS, filtered, list, new Options(paired_end, dRepeatCount), m_ep));
-				alignmentInterfaceList.add(new BwaInterface(++index, "BWA-" + run,
-					PHRED_THRESHOLDS, filtered, list, new Options(paired_end, dRepeatCount), m_ep));
-				alignmentInterfaceList.add(new BowtieInterface(++index, "Bowtie-" + run,
-					PHRED_THRESHOLDS, filtered, list, new Options(paired_end, dRepeatCount), m_ep));
-
-				for (AlignmentToolInterface ati : alignmentInterfaceList)
+				int read_count = paired_end ? 2 : 1;
+				for (int i = 1; i <= read_count; i++)
 				{
-					File tool_path = new File(path, String.format("%03d-%s-%s", ati.index,
-						ati.description, "tandem"));
-					tool_path.mkdirs();
-					ati.o.genome = new File(tool_path, "genome.fasta");
-					ati.o.binary_genome = new File(tool_path, "genome.bfa");
-
-					int read_count = paired_end ? 2 : 1;
-					for (int i = 1; i <= read_count; i++)
-					{
-						Options.Reads r = new Options.Reads(i);
-						r.reads = new File(tool_path, String.format("fragments%d.fastq", i));
-						r.binary_reads = new File(tool_path, String.format("fragments%d.bfq", i));
-						r.aligned_reads = new File(tool_path, String.format("alignment%d.sai", i));
-						ati.o.reads.add(r);
-					}
-					ati.o.raw_output = new File(tool_path, "out.raw");
-					ati.o.sam_output = new File(tool_path, "alignment.sam");
-					ati.o.converted_output = new File(tool_path, "out.txt");
-					ati.o.roc_output = new File(tool_path, "roc.csv");
-
-					System.out.printf("*** %03d %s: %f%n", ati.index, ati.description,
-						ati.o.error_probability);
-
-					atiList.add(ati);
+					Options.Reads r = new Options.Reads(i);
+					r.reads = new File(tool_path, String.format("fragments%d.fastq", i));
+					r.binary_reads = new File(tool_path, String.format("fragments%d.bfq", i));
+					r.aligned_reads = new File(tool_path, String.format("alignment%d.sai", i));
+					ati.o.reads.add(r);
 				}
+				ati.o.raw_output = new File(tool_path, "out.raw");
+				ati.o.sam_output = new File(tool_path, "alignment.sam");
+				ati.o.converted_output = new File(tool_path, "out.txt");
+				ati.o.roc_output = new File(tool_path, "roc.csv");
+
+				System.out.printf("*** %03d %s: %f%n", ati.index, ati.description,
+					ati.o.error_probability);
+
+				atiList.add(ati);
 			}
 		}
 		for (AlignmentToolInterface ati : atiList)
