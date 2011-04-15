@@ -34,6 +34,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import assembly.Fragment;
+import assembly.FragmentPositionSource;
 
 /**
  * Very large TODO: Refactor to avoid this ridiculous code duplication
@@ -1002,6 +1003,19 @@ public class AlignmentToolService
 		List<? extends Fragment> list = Fragmentizer.fragmentize(filtered, fo);
 		System.out.println("done.");
 
+		int fragmentsAcrossBreakpoint = 0;
+		for (Fragment f : list)
+		{
+			int distanceFromBreakpoint = sfsd.getDeletePosition()
+					- f.getPosition(FragmentPositionSource.ORIGINAL_SEQUENCE);
+			if (distanceFromBreakpoint > 0 && distanceFromBreakpoint < f.getSequence().length())
+			{
+				fragmentsAcrossBreakpoint++;
+			}
+		}
+		System.out.printf("%d fragments straddle the deletion breakpoint%n",
+			fragmentsAcrossBreakpoint);
+
 		Map<String, AlignmentResults> m_ep = Collections.synchronizedMap(new TreeMap<String, AlignmentResults>());
 		m.put(0, m_ep);
 		for (int run = 0; run < EVAL_RUN_COUNT; run++)
@@ -1078,8 +1092,9 @@ public class AlignmentToolService
 			}
 		}
 
-		String filename = String.format("%s_%s.csv", testDescription, "tandem");
-		String roc_filename = String.format("%s_%s_roc.csv", testDescription, "tandem");
+		String filename = String.format("%s.csv", testDescription);
+		String roc_filename = String.format("%s_roc.csv", testDescription);
+		String extra_filename = String.format("%s_extra.csv", testDescription);
 		try
 		{
 			System.out.printf("Writing results to %s%n", filename);
@@ -1103,6 +1118,10 @@ public class AlignmentToolService
 			w.close();
 
 			System.out.printf("Writing overall ROC data to %s%n", roc_filename);
+			FileWriter e = new FileWriter(new File(path, extra_filename));
+			e.write(String.format("#Fragments straddling breakpoint: %d%n",
+				fragmentsAcrossBreakpoint));
+			e.write("ToolName,UnmappedFragments\n");
 			w = new FileWriter(new File(path, roc_filename));
 			w.write(String.format("%s,%s,%s,%s%n", "Tool", "IndelFrequency", "Score", "Label"));
 			for (int repeatCount : m.keySet())
@@ -1111,6 +1130,7 @@ public class AlignmentToolService
 				{
 					// TODO: Don't duplicate code here
 					AlignmentResults r = m.get(repeatCount).get(toolName);
+					e.write(String.format("%s,%d", toolName, r.missingFragments));
 					for (int p : r.positives)
 					{
 						w.write(String.format("%s,%d,%d,%d%n", toolName, repeatCount, p, 1));
@@ -1121,6 +1141,7 @@ public class AlignmentToolService
 					}
 				}
 			}
+			e.close();
 			w.close();
 		}
 		catch (IOException e)
