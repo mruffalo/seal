@@ -46,7 +46,7 @@ public class AlignmentResults
 	{
 		int tp = 0;
 		int fp = 0;
-		int fn = 0;
+		int fn = missingFragments;
 		for (Integer p : positives)
 		{
 			if (p >= threshold)
