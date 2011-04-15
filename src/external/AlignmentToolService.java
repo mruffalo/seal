@@ -962,7 +962,7 @@ public class AlignmentToolService
 	 */
 	public void bigDeletionEvaluation(boolean paired_end)
 	{
-		final String testDescription = "big_deletion";
+		final String testDescription = "big_deletion_200";
 		final int generated_genome_length = 1000000;
 		CharSequence origSequence = null;
 		final File path = new File("data");
@@ -995,7 +995,7 @@ public class AlignmentToolService
 		System.out.println("done.");
 		System.out.printf("Genome length: %d%n", filtered.length());
 		Fragmentizer.Options fo = new Fragmentizer.Options();
-		fo.fragmentLength = 50;
+		fo.fragmentLength = 200;
 		fo.fragmentCount = 500000;
 		fo.fragmentLengthSd = 1;
 
