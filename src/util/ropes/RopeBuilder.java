@@ -39,7 +39,7 @@ public final class RopeBuilder
 	 *            a character array
 	 * @return a rope representing the underlying character array.
 	 */
-	public Rope build(final char[] sequence)
+	public static Rope build(final char[] sequence)
 	{
 		return new FlatCharArrayRope(sequence);
 	}
@@ -51,7 +51,7 @@ public final class RopeBuilder
 	 *            the underlying character sequence.
 	 * @return a rope representing the underlying character sequnce.
 	 */
-	public Rope build(final CharSequence sequence)
+	public static Rope build(final CharSequence sequence)
 	{
 		if (sequence instanceof Rope)
 			return (Rope) sequence;
