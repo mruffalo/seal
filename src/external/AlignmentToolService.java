@@ -988,6 +988,8 @@ public class AlignmentToolService
 		so.length = 10000;
 		SeqFilterSingleDeletion sfsd = new SeqFilterSingleDeletion(so);
 		CharSequence filtered = sfsd.filter(origSequence);
+		System.out.printf("%d characters removed at position %d%n", so.length,
+			sfsd.getDeletePosition());
 
 		System.out.println("done.");
 		System.out.printf("Genome length: %d%n", filtered.length());
