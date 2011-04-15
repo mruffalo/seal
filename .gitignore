@@ -3,3 +3,4 @@ build
 distrib
 data
 *.fasta
+*.fastq

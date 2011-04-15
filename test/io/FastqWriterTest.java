@@ -29,6 +29,7 @@ public class FastqWriterTest
 		File f = new File("test.fastq");
 		try
 		{
+			System.out.printf("Writing to %s%n", f.getAbsolutePath());
 			FastqWriter.writeFragments(l, f, 0);
 		}
 		catch (IOException e)
