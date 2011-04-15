@@ -1,8 +1,6 @@
 package generator;
 
 import java.util.Random;
-import util.ropes.Rope;
-import util.ropes.RopeBuilder;
 
 public class SeqFilterSingleDeletion implements SequenceFilter
 {
@@ -36,10 +34,11 @@ public class SeqFilterSingleDeletion implements SequenceFilter
 	public CharSequence filter(CharSequence input)
 	{
 		int range = input.length() - o.length;
-		Rope r = RopeBuilder.build(input);
+		StringBuilder sb = new StringBuilder(range);
 		Random random = new Random();
-		int deletePosition = random.nextInt(range);
-
-		return null;
+		deletePosition = random.nextInt(range);
+		sb.append(input.subSequence(0, deletePosition));
+		sb.append(input.subSequence(deletePosition + o.length, input.length()));
+		return sb.toString();
 	}
 }
