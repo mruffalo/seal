@@ -42,9 +42,15 @@ public class PairedEndFragment extends Fragment
 		}
 		else
 		{
-			// TODO: Return the complement of the reversed sequence
-			return new StringBuilder(sequence.subSequence(sequence.length() - length,
-				sequence.length())).reverse().toString();
+			// TODO: Maybe memoize this
+			StringBuilder reversed = new StringBuilder(sequence.subSequence(sequence.length()
+					- length, sequence.length())).reverse();
+			StringBuilder complemented = new StringBuilder(reversed.length());
+			for (int i = 0; i < reversed.length(); i++)
+			{
+				complemented.append(NUCLEOTIDE_COMPLEMENTS.get(reversed.charAt(i)));
+			}
+			return complemented.toString();
 		}
 	}
 
