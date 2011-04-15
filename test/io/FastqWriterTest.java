@@ -1,7 +1,13 @@
 package io;
 
 import static org.junit.Assert.*;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import generator.Fragmentizer;
+import generator.SequenceGenerator;
 import org.junit.Test;
+import assembly.Fragment;
 
 public class FastqWriterTest
 {
@@ -12,6 +18,22 @@ public class FastqWriterTest
 	@Test
 	public void testWriteFragments()
 	{
-		fail("Not yet implemented");
+		CharSequence s = SequenceGenerator.generateSequence(SequenceGenerator.NUCLEOTIDES, 10000);
+		Fragmentizer.Options o = new Fragmentizer.Options();
+		o.fragmentLength = 200;
+		o.fragmentLengthSd = 10;
+		o.fragmentCount = 500;
+		o.readLength = 50;
+		o.readLengthSd = 1;
+		List<? extends Fragment> l = Fragmentizer.fragmentize(s, o);
+		File f = new File("test.fastq");
+		try
+		{
+			FastqWriter.writeFragments(l, f, 0);
+		}
+		catch (IOException e)
+		{
+			throw new RuntimeException(e);
+		}
 	}
 }
