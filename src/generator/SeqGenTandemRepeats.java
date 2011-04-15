@@ -8,6 +8,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * TODO: Make this class implement {@link SequenceFilter} instead of extending
+ * {@link SequenceGenerator}, remove the generation functions and change the
+ * 'insert' method to match {@link SequenceFilter#filter(CharSequence)}
+ * 
+ * @author mruffalo
+ */
 public class SeqGenTandemRepeats extends SequenceGenerator
 {
 	public static class TandemRepeatDescriptor
@@ -135,11 +142,6 @@ public class SeqGenTandemRepeats extends SequenceGenerator
 		return new GeneratedSequence(string, positions);
 	}
 
-	/**
-	 * TODO: Clean this up a lot -- don't duplicate code from above. Eventual
-	 * improvement: separate the generation or reading of a sequence from
-	 * inserting tandem duplications or other repeats
-	 */
 	public GeneratedSequence insertRepeatsWithPositions(Options o, CharSequence s)
 	{
 		final FragmentErrorGenerator eg = new UniformErrorGenerator(o.characters,

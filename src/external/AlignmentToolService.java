@@ -13,6 +13,7 @@ import generator.Fragmentizer;
 import generator.SeqGenSingleSequenceMultipleRepeats;
 import generator.SeqGenTandemRepeats;
 import generator.SequenceGenerator;
+import generator.SeqGenTandemRepeats.TandemRepeatDescriptor;
 import generator.errors.FragmentErrorGenerator;
 import generator.errors.IndelGenerator;
 import generator.errors.LinearIncreasingErrorGenerator;
@@ -951,6 +952,13 @@ public class AlignmentToolService
 		}
 	}
 
+	/**
+	 * This really is the same code as {@link tandemIndelFrequencyEvaluation},
+	 * just with a different sequence filter. This is a promising way to clean
+	 * this up, which I really should do sooner or later
+	 * 
+	 * @param paired_end
+	 */
 	public void bigDeletionEvaluation(boolean paired_end)
 	{
 		final String testDescription = "indel_freq_tandem";
