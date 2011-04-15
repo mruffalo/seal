@@ -10,8 +10,10 @@ import external.tool.NovoalignInterface;
 import external.tool.ShrimpInterface;
 import external.tool.SoapInterface;
 import generator.Fragmentizer;
+import generator.SeqFilterSingleDeletion;
 import generator.SeqGenSingleSequenceMultipleRepeats;
 import generator.SeqGenTandemRepeats;
+import generator.SequenceFilter;
 import generator.SequenceGenerator;
 import generator.SeqGenTandemRepeats.TandemRepeatDescriptor;
 import generator.errors.FragmentErrorGenerator;
@@ -961,7 +963,7 @@ public class AlignmentToolService
 	 */
 	public void bigDeletionEvaluation(boolean paired_end)
 	{
-		final String testDescription = "indel_freq_tandem";
+		final String testDescription = "big_deletion";
 		final int generated_genome_length = 1000000;
 		CharSequence origSequence = null;
 		SeqGenTandemRepeats g = null;
@@ -986,26 +988,22 @@ public class AlignmentToolService
 		for (int repeatCount : TANDEM_GENOME_REPEAT_COUNTS)
 		{
 			double dRepeatCount = repeatCount;
-			System.out.print("Creating genome...");
-			g = new SeqGenTandemRepeats();
-			sgo = new SequenceGenerator.Options();
-			sgo.length = generated_genome_length;
-			sgo.repeatCount = repeatCount;
-			sgo.repeatLength = 500;
-			sgo.repeatErrorProbability = 0.0;
-			System.out.print("Inserting repeats into generated sequence...");
-			SeqGenTandemRepeats.GeneratedSequence repeated = g.insertRepeatsWithPositions(sgo,
-				origSequence);
+
+			System.out.print("Deleting part of sequence...");
+			SeqFilterSingleDeletion.Options so = new SeqFilterSingleDeletion.Options();
+			so.length = 10000;
+			SeqFilterSingleDeletion sfsd = new SeqFilterSingleDeletion(so);
+			CharSequence filtered = sfsd.filter(origSequence);
 
 			System.out.println("done.");
-			System.out.printf("Genome length: %d%n", repeated.sequence.length());
+			System.out.printf("Genome length: %d%n", filtered.length());
 			Fragmentizer.Options fo = new Fragmentizer.Options();
 			fo.fragmentLength = 50;
 			fo.fragmentCount = 500000;
 			fo.fragmentLengthSd = 1;
 
 			System.out.print("Reading fragments...");
-			List<? extends Fragment> list = Fragmentizer.fragmentize(repeated.sequence, fo);
+			List<? extends Fragment> list = Fragmentizer.fragmentize(filtered, fo);
 			System.out.println("done.");
 
 			Map<String, AlignmentResults> m_ep = Collections.synchronizedMap(new TreeMap<String, AlignmentResults>());
@@ -1017,26 +1015,21 @@ public class AlignmentToolService
 				Options o = new Options(paired_end, dRepeatCount);
 				o.penalize_duplicate_mappings = false;
 				alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast-R-" + run,
-					PHRED_THRESHOLDS, repeated.sequence, list, o, m_ep));
+					PHRED_THRESHOLDS, filtered, list, o, m_ep));
 				alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast-S-" + run,
-					PHRED_THRESHOLDS, repeated.sequence, list,
-					new Options(paired_end, dRepeatCount), m_ep));
+					PHRED_THRESHOLDS, filtered, list, new Options(paired_end, dRepeatCount), m_ep));
 				o = new Options(paired_end, dRepeatCount);
 				o.penalize_duplicate_mappings = false;
 				alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast-R-" + run,
-					PHRED_THRESHOLDS, repeated.sequence, list, o, m_ep));
+					PHRED_THRESHOLDS, filtered, list, o, m_ep));
 				alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast-S-" + run,
-					PHRED_THRESHOLDS, repeated.sequence, list,
-					new Options(paired_end, dRepeatCount), m_ep));
+					PHRED_THRESHOLDS, filtered, list, new Options(paired_end, dRepeatCount), m_ep));
 				alignmentInterfaceList.add(new SoapInterface(++index, "SOAP-" + run,
-					PHRED_THRESHOLDS, repeated.sequence, list,
-					new Options(paired_end, dRepeatCount), m_ep));
+					PHRED_THRESHOLDS, filtered, list, new Options(paired_end, dRepeatCount), m_ep));
 				alignmentInterfaceList.add(new BwaInterface(++index, "BWA-" + run,
-					PHRED_THRESHOLDS, repeated.sequence, list,
-					new Options(paired_end, dRepeatCount), m_ep));
+					PHRED_THRESHOLDS, filtered, list, new Options(paired_end, dRepeatCount), m_ep));
 				alignmentInterfaceList.add(new BowtieInterface(++index, "Bowtie-" + run,
-					PHRED_THRESHOLDS, repeated.sequence, list,
-					new Options(paired_end, dRepeatCount), m_ep));
+					PHRED_THRESHOLDS, filtered, list, new Options(paired_end, dRepeatCount), m_ep));
 
 				for (AlignmentToolInterface ati : alignmentInterfaceList)
 				{
@@ -1652,6 +1645,6 @@ public class AlignmentToolService
 
 	public static void main(String[] args)
 	{
-		new AlignmentToolService().tandemIndelFrequencyEvaluation(false);
+		new AlignmentToolService().bigDeletionEvaluation(false);
 	}
 }
