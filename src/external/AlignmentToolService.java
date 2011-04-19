@@ -1152,7 +1152,7 @@ public class AlignmentToolService
 			/*
 			 * Integer truncation is okay here
 			 */
-			fo.fragmentCount = (genome_size * coverage) / fo.fragmentLength;
+			fo.fragmentCount = (2 * genome_size * coverage) / fo.readLength;
 			fo.fragmentLengthSd = fragmentLengthSd;
 
 			fo.readLength = readLengthMean;
