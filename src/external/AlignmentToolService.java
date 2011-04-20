@@ -1149,14 +1149,13 @@ public class AlignmentToolService
 			m.put(genome_size, m_c);
 			Fragmentizer.Options fo = new Fragmentizer.Options();
 			fo.fragmentLength = fragmentLengthMean;
+			fo.fragmentLengthSd = fragmentLengthSd;
+			fo.readLength = readLengthMean;
+			fo.readLengthSd = readLengthSd;
 			/*
 			 * Integer truncation is okay here
 			 */
 			fo.fragmentCount = (2 * genome_size * coverage) / fo.readLength;
-			fo.fragmentLengthSd = fragmentLengthSd;
-
-			fo.readLength = readLengthMean;
-			fo.readLengthSd = readLengthSd;
 
 			System.out.printf("Reading %d fragments...", fo.fragmentCount);
 			List<? extends Fragment> list = Fragmentizer.fragmentize(repeated.sequence, fo);
