@@ -1155,7 +1155,7 @@ public class AlignmentToolService
 			/*
 			 * Integer truncation is okay here
 			 */
-			fo.fragmentCount = (2 * genome_size * coverage) / fo.readLength;
+			fo.fragmentCount = (genome_size * coverage) / (2 * fo.readLength);
 
 			System.out.printf("Reading %d fragments...", fo.fragmentCount);
 			List<? extends Fragment> list = Fragmentizer.fragmentize(repeated.sequence, fo);
