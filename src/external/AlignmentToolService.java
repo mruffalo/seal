@@ -777,7 +777,6 @@ public class AlignmentToolService
 		final int generated_genome_length = 1000000;
 		CharSequence origSequence = null;
 		SeqGenTandemRepeats g = null;
-		SequenceGenerator.Options sgo = null;
 		final File path = new File("data");
 		path.mkdirs();
 
@@ -799,8 +798,7 @@ public class AlignmentToolService
 		{
 			double dRepeatCount = repeatCount;
 			System.out.print("Creating genome...");
-			sgo = new SequenceGenerator.Options();
-			sgo.length = generated_genome_length;
+			SeqGenTandemRepeats.Options sgo = new SeqGenTandemRepeats.Options();
 			sgo.repeatCount = repeatCount;
 			sgo.repeatLength = 500;
 			sgo.repeatErrorProbability = 0.0;
@@ -1515,8 +1513,7 @@ public class AlignmentToolService
 
 			// Insert some repeats
 			// g.setVerboseOutput(true);
-			SequenceGenerator.Options sgo = new SequenceGenerator.Options();
-			sgo.length = genome_size;
+			SeqGenTandemRepeats.Options sgo = new SeqGenTandemRepeats.Options();
 			sgo.repeatCount = tandemRepeatCount;
 			sgo.repeatLength = tandemRepeatLength;
 			SeqGenTandemRepeats g = new SeqGenTandemRepeats(sgo);
