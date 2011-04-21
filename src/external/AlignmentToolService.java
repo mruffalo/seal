@@ -12,7 +12,7 @@ import external.tool.SoapInterface;
 import generator.Fragmentizer;
 import generator.SeqFilterSingleDeletion;
 import generator.SeqGenSingleSequenceMultipleRepeats;
-import generator.SeqGenTandemRepeats;
+import generator.SeqFilterTandemRepeats;
 import generator.SequenceGenerator;
 import generator.errors.FragmentErrorGenerator;
 import generator.errors.IndelGenerator;
@@ -776,7 +776,7 @@ public class AlignmentToolService
 		final String testDescription = "indel_freq_tandem";
 		final int generated_genome_length = 1000000;
 		CharSequence origSequence = null;
-		SeqGenTandemRepeats g = null;
+		SeqFilterTandemRepeats g = null;
 		final File path = new File("data");
 		path.mkdirs();
 
@@ -798,11 +798,11 @@ public class AlignmentToolService
 		{
 			double dRepeatCount = repeatCount;
 			System.out.print("Creating genome...");
-			SeqGenTandemRepeats.Options sgo = new SeqGenTandemRepeats.Options();
+			SeqFilterTandemRepeats.Options sgo = new SeqFilterTandemRepeats.Options();
 			sgo.repeatCount = repeatCount;
 			sgo.repeatLength = 500;
 			sgo.repeatErrorProbability = 0.0;
-			g = new SeqGenTandemRepeats(sgo);
+			g = new SeqFilterTandemRepeats(sgo);
 			System.out.print("Inserting repeats into generated sequence...");
 			CharSequence repeated = g.filter(origSequence);
 
@@ -1513,10 +1513,10 @@ public class AlignmentToolService
 
 			// Insert some repeats
 			// g.setVerboseOutput(true);
-			SeqGenTandemRepeats.Options sgo = new SeqGenTandemRepeats.Options();
+			SeqFilterTandemRepeats.Options sgo = new SeqFilterTandemRepeats.Options();
 			sgo.repeatCount = tandemRepeatCount;
 			sgo.repeatLength = tandemRepeatLength;
-			SeqGenTandemRepeats g = new SeqGenTandemRepeats(sgo);
+			SeqFilterTandemRepeats g = new SeqFilterTandemRepeats(sgo);
 			CharSequence repeated = g.filter(sequence);
 
 			Map<String, AlignmentResults> m_c = Collections.synchronizedMap(new TreeMap<String, AlignmentResults>());
@@ -1564,7 +1564,7 @@ public class AlignmentToolService
 				{
 					BufferedWriter w = new BufferedWriter(new FileWriter(repeatPositionsFile));
 					w.write("#position,length\n");
-					for (SeqGenTandemRepeats.TandemRepeatDescriptor t : g.getRepeats())
+					for (SeqFilterTandemRepeats.TandemRepeatDescriptor t : g.getRepeats())
 					{
 						w.write(String.format("%d,%d%n", t.position, t.length));
 					}

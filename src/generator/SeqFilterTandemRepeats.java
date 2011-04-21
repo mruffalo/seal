@@ -4,7 +4,6 @@ import generator.errors.FragmentErrorGenerator;
 import generator.errors.UniformErrorGenerator;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -15,7 +14,7 @@ import java.util.Random;
  * 
  * @author mruffalo
  */
-public class SeqGenTandemRepeats implements SequenceFilter
+public class SeqFilterTandemRepeats implements SequenceFilter
 {
 	public static class Options
 	{
@@ -47,7 +46,7 @@ public class SeqGenTandemRepeats implements SequenceFilter
 
 	Random random = new Random();
 
-	public SeqGenTandemRepeats(Options o_)
+	public SeqFilterTandemRepeats(Options o_)
 	{
 		o = o_;
 		repeats = new ArrayList<TandemRepeatDescriptor>(o.repeatCount);
@@ -167,7 +166,7 @@ public class SeqGenTandemRepeats implements SequenceFilter
 		Options o = new Options();
 		o.repeatCount = 4;
 		o.repeatLength = 5;
-		SeqGenTandemRepeats generator = new SeqGenTandemRepeats(o);
+		SeqFilterTandemRepeats generator = new SeqFilterTandemRepeats(o);
 		generator.setVerbose(true);
 		CharSequence s = SequenceGenerator.generateSequence(SequenceGenerator.NUCLEOTIDES, 100);
 		System.out.println("Original sequence:");
