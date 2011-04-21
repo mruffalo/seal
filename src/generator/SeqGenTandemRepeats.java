@@ -35,12 +35,12 @@ public class SeqGenTandemRepeats extends SequenceGenerator implements SequenceFi
 	public static class GeneratedSequence
 	{
 		public final CharSequence sequence;
-		public final List<TandemRepeatDescriptor> repeats;
+		public final List<TandemRepeatDescriptor> repeatList;
 
 		public GeneratedSequence(CharSequence sequence_, List<TandemRepeatDescriptor> repeats_)
 		{
 			sequence = sequence_;
-			repeats = Collections.unmodifiableList(repeats_);
+			repeatList = Collections.unmodifiableList(repeats_);
 		}
 	}
 
@@ -156,8 +156,6 @@ public class SeqGenTandemRepeats extends SequenceGenerator implements SequenceFi
 	{
 		final FragmentErrorGenerator eg = new UniformErrorGenerator(o.characters,
 			o.repeatErrorProbability);
-		List<TandemRepeatDescriptor> positions = new ArrayList<TandemRepeatDescriptor>(
-			o.repeatCount);
 		StringBuilder sb = new StringBuilder(s);
 		int[] repeatedSequenceIndices = new int[o.repeatCount];
 		int nonRepeatedLength = s.length() - o.repeatCount * o.repeatLength;
@@ -209,7 +207,7 @@ public class SeqGenTandemRepeats extends SequenceGenerator implements SequenceFi
 		{
 			int begin = repeatedSequenceIndices[i] + (i - 1) * o.repeatLength;
 			int end = repeatedSequenceIndices[i] + i * o.repeatLength;
-			positions.add(new TandemRepeatDescriptor(begin, o.repeatLength - 1));
+			repeats.add(new TandemRepeatDescriptor(begin, o.repeatLength - 1));
 			CharSequence repeatedSequence = sb.subSequence(begin, end);
 			if (o.repeatErrorProbability > 0.0)
 			{
