@@ -91,10 +91,11 @@ public class SeqGenTandemRepeats implements SequenceFilter
 		}
 		if (verbose)
 		{
-			for (double l = Math.log10(sb.length()); l > 0; l--)
+			int newLength = sb.length() + o.repeatCount * o.repeatLength;
+			for (double l = Math.log10(newLength); l > 0; l--)
 			{
 				int p = (int) Math.pow(10, (int) l);
-				for (int j = 0; j < sb.length(); j++)
+				for (int j = 0; j < newLength; j++)
 				{
 					if (j % p == 0)
 					{
@@ -148,6 +149,13 @@ public class SeqGenTandemRepeats implements SequenceFilter
 		return repeats;
 	}
 
+	@Override
+	public String getDescription()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	/**
 	 * Standalone debug method
 	 * 
@@ -170,12 +178,5 @@ public class SeqGenTandemRepeats implements SequenceFilter
 			System.out.printf("Repeat: %04d - %04d%n", repeat.position, repeat.position
 					+ repeat.length);
 		}
-	}
-
-	@Override
-	public String getDescription()
-	{
-		// TODO Auto-generated method stub
-		return null;
 	}
 }
