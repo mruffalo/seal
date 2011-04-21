@@ -46,6 +46,6 @@ public class SeqFilterSingleDeletion implements SequenceFilter
 	public String getDescription()
 	{
 		// TODO: Figure out how useful this is
-		return String.format("Delete positoin: %d", deletePosition);
+		return String.format("Delete position: %d", deletePosition);
 	}
 }
