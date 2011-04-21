@@ -24,9 +24,9 @@ public class FragmentFilter
 		List<Fragment> list = new ArrayList<Fragment>(fragments.size());
 		for (Fragment fragment : fragments)
 		{
-			list.add(new Fragment(f.filter(fragment.getSequence())));
+			Fragment filtered = new Fragment(f.filter(fragment.getSequence()));
+			list.add(filtered);
 		}
 		return list;
 	}
-
 }
