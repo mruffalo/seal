@@ -41,4 +41,11 @@ public class SeqFilterSingleDeletion implements SequenceFilter
 		sb.append(input.subSequence(deletePosition + o.length, input.length()));
 		return sb.toString();
 	}
+
+	@Override
+	public String getDescription()
+	{
+		// TODO: Figure out how useful this is
+		return String.format("Delete positoin: %d", deletePosition);
+	}
 }
