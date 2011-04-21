@@ -799,25 +799,24 @@ public class AlignmentToolService
 		{
 			double dRepeatCount = repeatCount;
 			System.out.print("Creating genome...");
-			g = new SeqGenTandemRepeats();
 			sgo = new SequenceGenerator.Options();
 			sgo.length = generated_genome_length;
 			sgo.repeatCount = repeatCount;
 			sgo.repeatLength = 500;
 			sgo.repeatErrorProbability = 0.0;
+			g = new SeqGenTandemRepeats(sgo);
 			System.out.print("Inserting repeats into generated sequence...");
-			SeqGenTandemRepeats.GeneratedSequence repeated = g.insertRepeatsWithPositions(sgo,
-				origSequence);
+			CharSequence repeated = g.filter(origSequence);
 
 			System.out.println("done.");
-			System.out.printf("Genome length: %d%n", repeated.sequence.length());
+			System.out.printf("Genome length: %d%n", repeated.length());
 			Fragmentizer.Options fo = new Fragmentizer.Options();
 			fo.fragmentLength = 50;
 			fo.fragmentCount = 500000;
 			fo.fragmentLengthSd = 1;
 
 			System.out.print("Reading fragments...");
-			List<? extends Fragment> list = Fragmentizer.fragmentize(repeated.sequence, fo);
+			List<? extends Fragment> list = Fragmentizer.fragmentize(repeated, fo);
 			System.out.println("done.");
 
 			Map<String, AlignmentResults> m_ep = Collections.synchronizedMap(new TreeMap<String, AlignmentResults>());
@@ -829,26 +828,21 @@ public class AlignmentToolService
 				Options o = new Options(paired_end, dRepeatCount);
 				o.penalize_duplicate_mappings = false;
 				alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast-R-" + run,
-					PHRED_THRESHOLDS, repeated.sequence, list, o, m_ep));
+					PHRED_THRESHOLDS, repeated, list, o, m_ep));
 				alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast-S-" + run,
-					PHRED_THRESHOLDS, repeated.sequence, list,
-					new Options(paired_end, dRepeatCount), m_ep));
+					PHRED_THRESHOLDS, repeated, list, new Options(paired_end, dRepeatCount), m_ep));
 				o = new Options(paired_end, dRepeatCount);
 				o.penalize_duplicate_mappings = false;
 				alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast-R-" + run,
-					PHRED_THRESHOLDS, repeated.sequence, list, o, m_ep));
+					PHRED_THRESHOLDS, repeated, list, o, m_ep));
 				alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast-S-" + run,
-					PHRED_THRESHOLDS, repeated.sequence, list,
-					new Options(paired_end, dRepeatCount), m_ep));
+					PHRED_THRESHOLDS, repeated, list, new Options(paired_end, dRepeatCount), m_ep));
 				alignmentInterfaceList.add(new SoapInterface(++index, "SOAP-" + run,
-					PHRED_THRESHOLDS, repeated.sequence, list,
-					new Options(paired_end, dRepeatCount), m_ep));
+					PHRED_THRESHOLDS, repeated, list, new Options(paired_end, dRepeatCount), m_ep));
 				alignmentInterfaceList.add(new BwaInterface(++index, "BWA-" + run,
-					PHRED_THRESHOLDS, repeated.sequence, list,
-					new Options(paired_end, dRepeatCount), m_ep));
+					PHRED_THRESHOLDS, repeated, list, new Options(paired_end, dRepeatCount), m_ep));
 				alignmentInterfaceList.add(new BowtieInterface(++index, "Bowtie-" + run,
-					PHRED_THRESHOLDS, repeated.sequence, list,
-					new Options(paired_end, dRepeatCount), m_ep));
+					PHRED_THRESHOLDS, repeated, list, new Options(paired_end, dRepeatCount), m_ep));
 
 				for (AlignmentToolInterface ati : alignmentInterfaceList)
 				{
@@ -1520,14 +1514,13 @@ public class AlignmentToolService
 			System.out.printf("Original genome length: %d%n", sequence.length());
 
 			// Insert some repeats
-			SeqGenTandemRepeats g = new SeqGenTandemRepeats();
 			// g.setVerboseOutput(true);
 			SequenceGenerator.Options sgo = new SequenceGenerator.Options();
 			sgo.length = genome_size;
 			sgo.repeatCount = tandemRepeatCount;
 			sgo.repeatLength = tandemRepeatLength;
-			SeqGenTandemRepeats.GeneratedSequence repeated = g.insertRepeatsWithPositions(sgo,
-				sequence);
+			SeqGenTandemRepeats g = new SeqGenTandemRepeats(sgo);
+			CharSequence repeated = g.filter(sequence);
 
 			Map<String, AlignmentResults> m_c = Collections.synchronizedMap(new TreeMap<String, AlignmentResults>());
 			m.put(genome_size, m_c);
@@ -1542,7 +1535,7 @@ public class AlignmentToolService
 			fo.fragmentCount = (genome_size * coverage) / (2 * fo.readLength);
 
 			System.out.printf("Reading %d fragments...", fo.fragmentCount);
-			List<? extends Fragment> list = Fragmentizer.fragmentize(repeated.sequence, fo);
+			List<? extends Fragment> list = Fragmentizer.fragmentize(repeated, fo);
 			System.out.println("done.");
 
 			if (baseCallErrorProbability > 0.0)
@@ -1574,7 +1567,7 @@ public class AlignmentToolService
 				{
 					BufferedWriter w = new BufferedWriter(new FileWriter(repeatPositionsFile));
 					w.write("#position,length\n");
-					for (SeqGenTandemRepeats.TandemRepeatDescriptor t : repeated.repeats)
+					for (SeqGenTandemRepeats.TandemRepeatDescriptor t : g.getRepeats())
 					{
 						w.write(String.format("%d,%d%n", t.position, t.length));
 					}
