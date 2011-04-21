@@ -45,18 +45,6 @@ public class SeqGenTandemRepeats implements SequenceFilter
 		}
 	}
 
-	public static class GeneratedSequence
-	{
-		public final CharSequence sequence;
-		public final List<TandemRepeatDescriptor> repeatList;
-
-		public GeneratedSequence(CharSequence sequence_, List<TandemRepeatDescriptor> repeats_)
-		{
-			sequence = sequence_;
-			repeatList = Collections.unmodifiableList(repeats_);
-		}
-	}
-
 	Random random = new Random();
 
 	public SeqGenTandemRepeats(Options o_)
