@@ -15,8 +15,11 @@ import java.util.Random;
  * 
  * @author mruffalo
  */
-public class SeqGenTandemRepeats extends SequenceGenerator
+public class SeqGenTandemRepeats extends SequenceGenerator implements SequenceFilter
 {
+	private Options o;
+	private List<TandemRepeatDescriptor> repeats;
+
 	public static class TandemRepeatDescriptor
 	{
 		public final int position;
@@ -42,6 +45,12 @@ public class SeqGenTandemRepeats extends SequenceGenerator
 	}
 
 	Random random = new Random();
+
+	public SeqGenTandemRepeats(Options o_)
+	{
+		o = o_;
+		repeats = new ArrayList<TandemRepeatDescriptor>(o.repeatCount);
+	}
 
 	@Override
 	public CharSequence generateSequence(Options o)
@@ -142,7 +151,8 @@ public class SeqGenTandemRepeats extends SequenceGenerator
 		return new GeneratedSequence(string, positions);
 	}
 
-	public GeneratedSequence insertRepeatsWithPositions(Options o, CharSequence s)
+	@Override
+	public CharSequence filter(CharSequence s)
 	{
 		final FragmentErrorGenerator eg = new UniformErrorGenerator(o.characters,
 			o.repeatErrorProbability);
@@ -226,7 +236,12 @@ public class SeqGenTandemRepeats extends SequenceGenerator
 			System.out.println();
 			System.out.println(string);
 		}
-		return new GeneratedSequence(string, positions);
+		return string;
+	}
+
+	public List<TandemRepeatDescriptor> getRepeats()
+	{
+		return repeats;
 	}
 
 	/**
@@ -241,16 +256,23 @@ public class SeqGenTandemRepeats extends SequenceGenerator
 		o.length = 101;
 		o.repeatCount = 4;
 		o.repeatLength = 5;
-		SeqGenTandemRepeats generator = new SeqGenTandemRepeats();
+		SeqGenTandemRepeats generator = new SeqGenTandemRepeats(o);
 		generator.setVerboseOutput(true);
 		CharSequence s = SequenceGenerator.generateSequence(NUCLEOTIDES, 100);
 		System.out.println("Original sequence:");
 		System.out.println(s);
-		GeneratedSequence generated = generator.insertRepeatsWithPositions(o, s);
-		for (TandemRepeatDescriptor repeat : generated.repeats)
+		CharSequence generated = generator.filter(s);
+		for (TandemRepeatDescriptor repeat : generator.getRepeats())
 		{
 			System.out.printf("Repeat: %04d - %04d%n", repeat.position, repeat.position
 					+ repeat.length);
 		}
+	}
+
+	@Override
+	public String getDescription()
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
