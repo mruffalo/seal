@@ -9,18 +9,29 @@ package external;
  */
 public class FilteredAlignmentResults
 {
-	public FilteredAlignmentResults(int tp, int fp, int fn)
+	public FilteredAlignmentResults(int thr, int tp, int tn, int fp, int fn)
 	{
+		threshold = thr;
 		truePositives = tp;
+		trueNegatives = tn;
 		falsePositives = fp;
 		falseNegatives = fn;
 	}
 
 	/**
+	 * The mapping quality threshold used to create this object
+	 */
+	public final int threshold;
+	/**
 	 * Number of fragments that are mapped to the correct location in the target
 	 * genome and pass the quality threshold
 	 */
 	public final int truePositives;
+	/**
+	 * Number of fragments that are mapped to an incorrect location in the
+	 * target genome and do not pass the quality threshold
+	 */
+	public final int trueNegatives;
 	/**
 	 * Number of fragments that are mapped to an incorrect location in the
 	 * target genome and pass the quality threshold

@@ -45,6 +45,7 @@ public class AlignmentResults
 	public FilteredAlignmentResults filter(int threshold)
 	{
 		int tp = 0;
+		int tn = 0;
 		int fp = 0;
 		int fn = missingFragments;
 		for (Integer p : positives)
@@ -64,8 +65,12 @@ public class AlignmentResults
 			{
 				fp++;
 			}
+			else
+			{
+				tn++;
+			}
 		}
-		return new FilteredAlignmentResults(tp, fp, fn);
+		return new FilteredAlignmentResults(threshold, tp, tn, fp, fn);
 	}
 
 }
