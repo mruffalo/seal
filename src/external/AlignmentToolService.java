@@ -256,8 +256,8 @@ public class AlignmentToolService
 		{
 			System.out.printf("Writing results to %s%n", filename);
 			FileWriter w = new FileWriter(new File(path, filename));
-			w.write(String.format("%s,%s,%s,%s,%s,%s%n", "Tool", "ErrorRate", "Threshold",
-				"Precision", "Recall", "Time"));
+			w.write(String.format("%s,%s,%s,%s,%s,%s,%s%n", "Tool", "ErrorRate", "Threshold",
+				"Precision", "Recall", "Time", "UsedReadRatio"));
 			for (Double d : m.keySet())
 			{
 				for (String s : m.get(d).keySet())
@@ -266,8 +266,9 @@ public class AlignmentToolService
 					{
 						AlignmentResults ar = m.get(d).get(s);
 						FilteredAlignmentResults r = ar.filter(i);
-						w.write(String.format("%s,%f,%d,%f,%f,%d%n", s, d, i, r.getPrecision(),
-							r.getRecall(), ar.timeMap.get(AlignmentOperation.TOTAL)));
+						w.write(String.format("%s,%f,%d,%f,%f,%d,%f%n", s, d, i, r.getPrecision(),
+							r.getRecall(), ar.timeMap.get(AlignmentOperation.TOTAL),
+							r.getUsedReadRatio()));
 					}
 				}
 			}
@@ -491,7 +492,7 @@ public class AlignmentToolService
 		{
 			System.out.printf("Writing results to %s%n", filename);
 			FileWriter w = new FileWriter(new File(path, filename));
-			w.write(String.format("%s,%s,%s,%s,%s,%s%n", "Tool", "IndelSize", "Threshold",
+			w.write(String.format("%s,%s,%s,%s,%s,%s,%s%n", "Tool", "IndelSize", "Threshold",
 				"Precision", "Recall", "Time"));
 			for (Integer indelSize : m.keySet())
 			{
@@ -501,9 +502,9 @@ public class AlignmentToolService
 					{
 						AlignmentResults ar = m.get(indelSize).get(toolName);
 						FilteredAlignmentResults r = ar.filter(i);
-						w.write(String.format("%s,%d,%d,%f,%f,%d%n", toolName, indelSize, i,
+						w.write(String.format("%s,%d,%d,%f,%f,%d,%f%n", toolName, indelSize, i,
 							r.getPrecision(), r.getRecall(),
-							ar.timeMap.get(AlignmentOperation.TOTAL)));
+							ar.timeMap.get(AlignmentOperation.TOTAL), r.getUsedReadRatio()));
 					}
 				}
 			}
@@ -726,7 +727,7 @@ public class AlignmentToolService
 		{
 			System.out.printf("Writing results to %s%n", filename);
 			FileWriter w = new FileWriter(new File(path, filename));
-			w.write(String.format("%s,%s,%s,%s,%s,%s%n", "Tool", "IndelFrequency", "Threshold",
+			w.write(String.format("%s,%s,%s,%s,%s,%s,%s%n", "Tool", "IndelFrequency", "Threshold",
 				"Precision", "Recall", "Time"));
 			for (Double indelFrequency : m.keySet())
 			{
@@ -736,9 +737,9 @@ public class AlignmentToolService
 					{
 						AlignmentResults ar = m.get(indelFrequency).get(toolName);
 						FilteredAlignmentResults r = ar.filter(threshold);
-						w.write(String.format("%s,%f,%d,%f,%f,%d%n", toolName, indelFrequency,
+						w.write(String.format("%s,%f,%d,%f,%f,%d,%f%n", toolName, indelFrequency,
 							threshold, r.getPrecision(), r.getRecall(),
-							ar.timeMap.get(AlignmentOperation.TOTAL)));
+							ar.timeMap.get(AlignmentOperation.TOTAL), r.getUsedReadRatio()));
 					}
 				}
 			}
@@ -900,8 +901,8 @@ public class AlignmentToolService
 		{
 			System.out.printf("Writing results to %s%n", filename);
 			FileWriter w = new FileWriter(new File(path, filename));
-			w.write(String.format("%s,%s,%s,%s,%s,%s%n", "Tool", "GenomeRepeatCount", "Threshold",
-				"Precision", "Recall", "Time"));
+			w.write(String.format("%s,%s,%s,%s,%s,%s,%s%n", "Tool", "GenomeRepeatCount",
+				"Threshold", "Precision", "Recall", "Time"));
 			for (int repeatCount : m.keySet())
 			{
 				for (String toolName : m.get(repeatCount).keySet())
@@ -910,9 +911,9 @@ public class AlignmentToolService
 					{
 						AlignmentResults ar = m.get(repeatCount).get(toolName);
 						FilteredAlignmentResults r = ar.filter(threshold);
-						w.write(String.format("%s,%d,%d,%f,%f,%d%n", toolName, repeatCount,
+						w.write(String.format("%s,%d,%d,%f,%f,%d,%f%n", toolName, repeatCount,
 							threshold, r.getPrecision(), r.getRecall(),
-							ar.timeMap.get(AlignmentOperation.TOTAL)));
+							ar.timeMap.get(AlignmentOperation.TOTAL), r.getUsedReadRatio()));
 					}
 				}
 			}
@@ -1091,8 +1092,8 @@ public class AlignmentToolService
 		{
 			System.out.printf("Writing results to %s%n", filename);
 			FileWriter w = new FileWriter(new File(path, filename));
-			w.write(String.format("%s,%s,%s,%s,%s,%s%n", "Tool", "GenomeRepeatCount", "Threshold",
-				"Precision", "Recall", "Time"));
+			w.write(String.format("%s,%s,%s,%s,%s,%s,%s%n", "Tool", "GenomeRepeatCount",
+				"Threshold", "Precision", "Recall", "Time", "UsedReadRatio"));
 			for (int repeatCount : m.keySet())
 			{
 				for (String toolName : m.get(repeatCount).keySet())
@@ -1101,9 +1102,9 @@ public class AlignmentToolService
 					{
 						AlignmentResults ar = m.get(repeatCount).get(toolName);
 						FilteredAlignmentResults r = ar.filter(threshold);
-						w.write(String.format("%s,%d,%d,%f,%f,%d%n", toolName, repeatCount,
+						w.write(String.format("%s,%d,%d,%f,%f,%d,%f%n", toolName, repeatCount,
 							threshold, r.getPrecision(), r.getRecall(),
-							ar.timeMap.get(AlignmentOperation.TOTAL)));
+							ar.timeMap.get(AlignmentOperation.TOTAL), r.getUsedReadRatio()));
 					}
 				}
 			}
@@ -1655,6 +1656,6 @@ public class AlignmentToolService
 
 	public static void main(String[] args)
 	{
-		new AlignmentToolService().bigDeletionEvaluation(false);
+		new AlignmentToolService().errorRateEvaluation(false, Genome.RANDOM_HARD);
 	}
 }
