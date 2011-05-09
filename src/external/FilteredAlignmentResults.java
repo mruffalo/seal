@@ -63,7 +63,7 @@ public class FilteredAlignmentResults
 		return (double) truePositives / (double) (truePositives + falseNegatives);
 	}
 
-	public double getUsedFragmentRatio()
+	public double getUsedReadRatio()
 	{
 		double tp = truePositives;
 		double tn = trueNegatives;

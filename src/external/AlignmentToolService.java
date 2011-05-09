@@ -1616,6 +1616,10 @@ public class AlignmentToolService
 			}
 		}
 
+		/*
+		 * Wow, I'd really like something along the lines of Python's "csv"
+		 * module right now
+		 */
 		String results_filename = testDescription + "_data.csv";
 		for (Map<Integer, Map<String, AlignmentResults>> m : l)
 		{
@@ -1623,8 +1627,8 @@ public class AlignmentToolService
 			try
 			{
 				FileWriter w = new FileWriter(new File(path, results_filename));
-				w.write(String.format("%s,%s,%s,%s,%s,%s%n", "Tool", "ErrorRate", "Threshold",
-					"Precision", "Recall", "Time"));
+				w.write(String.format("%s,%s,%s,%s,%s,%s,%s%n", "Tool", "ErrorRate", "Threshold",
+					"Precision", "Recall", "Time", "UsedReadRatio"));
 				for (Integer d : m.keySet())
 				{
 					for (String s : m.get(d).keySet())
@@ -1633,9 +1637,9 @@ public class AlignmentToolService
 						{
 							AlignmentResults ar = m.get(d).get(s);
 							FilteredAlignmentResults r = ar.filter(i);
-							w.write(String.format("%s,%f,%d,%f,%f,%d%n", s,
+							w.write(String.format("%s,%f,%d,%f,%f,%d,%f%n", s,
 								baseCallErrorProbability, i, r.getPrecision(), r.getRecall(),
-								ar.timeMap.get(AlignmentOperation.TOTAL)));
+								ar.timeMap.get(AlignmentOperation.TOTAL), r.getUsedReadRatio()));
 						}
 					}
 				}
