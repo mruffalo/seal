@@ -728,7 +728,7 @@ public class AlignmentToolService
 			System.out.printf("Writing results to %s%n", filename);
 			FileWriter w = new FileWriter(new File(path, filename));
 			w.write(String.format("%s,%s,%s,%s,%s,%s,%s%n", "Tool", "IndelFrequency", "Threshold",
-				"Precision", "Recall", "Time"));
+				"Precision", "Recall", "Time", "UsedReadRatio"));
 			for (Double indelFrequency : m.keySet())
 			{
 				for (String toolName : m.get(indelFrequency).keySet())
@@ -902,7 +902,7 @@ public class AlignmentToolService
 			System.out.printf("Writing results to %s%n", filename);
 			FileWriter w = new FileWriter(new File(path, filename));
 			w.write(String.format("%s,%s,%s,%s,%s,%s,%s%n", "Tool", "GenomeRepeatCount",
-				"Threshold", "Precision", "Recall", "Time"));
+				"Threshold", "Precision", "Recall", "Time", "UsedReadRatio"));
 			for (int repeatCount : m.keySet())
 			{
 				for (String toolName : m.get(repeatCount).keySet())
@@ -1656,6 +1656,7 @@ public class AlignmentToolService
 
 	public static void main(String[] args)
 	{
-		new AlignmentToolService().errorRateEvaluation(false, Genome.RANDOM_HARD);
+		new AlignmentToolService().indelFrequencyEvaluation(false, Genome.RANDOM_HARD);
+		new AlignmentToolService().indelFrequencyEvaluation(false, Genome.HUMAN_CHR22);
 	}
 }
