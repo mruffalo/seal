@@ -38,7 +38,7 @@ public class FilteredAlignmentResults
 	 */
 	public final int falsePositives;
 	/**
-	 * Number fo fragments that are:
+	 * Number of fragments that are:
 	 * <ul>
 	 * <li>Mapped to correct location in target genome and do not pass quality
 	 * threshold</li>
@@ -61,5 +61,14 @@ public class FilteredAlignmentResults
 	public double getRecall()
 	{
 		return (double) truePositives / (double) (truePositives + falseNegatives);
+	}
+
+	public double getUsedFragmentRatio()
+	{
+		double tp = truePositives;
+		double tn = trueNegatives;
+		double fp = falsePositives;
+		double fn = falseNegatives;
+		return (tp + fp) / (tp + tn + fp + fn);
 	}
 }
