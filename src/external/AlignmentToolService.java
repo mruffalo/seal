@@ -74,6 +74,7 @@ public class AlignmentToolService
 	private static enum Genome
 	{
 		HUMAN_CHR22,
+		HUMAN_2GB,
 		RANDOM_EASY,
 		RANDOM_HARD,
 	}
@@ -328,6 +329,21 @@ public class AlignmentToolService
 					e.printStackTrace();
 				}
 				break;
+			case HUMAN_2GB:
+				final File hg19_2gb = new File(path, "hg19_2gb.fa");
+				try
+				{
+					/*
+					 * Don't worry about casting file size to an int: we can't
+					 * have strings longer than Integer.MAX_VALUE anyway
+					 */
+					sequence = FastaReader.getSequence(hg19_2gb, (int) hg19_2gb.length());
+				}
+				catch (IOException e)
+				{
+					e.printStackTrace();
+				}
+				break;
 			case RANDOM_EASY:
 				g = new SeqGenSingleSequenceMultipleRepeats();
 				sgo = new SequenceGenerator.Options();
@@ -558,6 +574,21 @@ public class AlignmentToolService
 					 * have strings longer than Integer.MAX_VALUE anyway
 					 */
 					sequence = FastaReader.getSequence(chr22, (int) chr22.length());
+				}
+				catch (IOException e)
+				{
+					e.printStackTrace();
+				}
+				break;
+			case HUMAN_2GB:
+				final File hg19_2gb = new File(path, "hg19_2gb.fa");
+				try
+				{
+					/*
+					 * Don't worry about casting file size to an int: we can't
+					 * have strings longer than Integer.MAX_VALUE anyway
+					 */
+					sequence = FastaReader.getSequence(hg19_2gb, (int) hg19_2gb.length());
 				}
 				catch (IOException e)
 				{
