@@ -204,10 +204,6 @@ public class AlignmentToolService
 				errored_list, new Options(paired_end, errorProbability), m_ep));
 			o = new Options(paired_end, errorProbability);
 			o.penalize_duplicate_mappings = false;
-			alignmentInterfaceList.add(new ShrimpInterface(++index, "SHRiMP-R", PHRED_THRESHOLDS,
-				sequence, errored_list, o, m_ep));
-			alignmentInterfaceList.add(new ShrimpInterface(++index, "SHRiMP-S", PHRED_THRESHOLDS,
-				sequence, errored_list, new Options(paired_end, errorProbability), m_ep));
 			alignmentInterfaceList.add(new BowtieInterface(++index, "Bowtie", PHRED_THRESHOLDS,
 				sequence, errored_list, new Options(paired_end, errorProbability), m_ep));
 			alignmentInterfaceList.add(new NovoalignInterface(++index, "Novoalign",
@@ -451,11 +447,6 @@ public class AlignmentToolService
 						errorProbability), m_ep));
 				o = new Options(paired_end, errorProbability);
 				o.penalize_duplicate_mappings = false;
-				alignmentInterfaceList.add(new ShrimpInterface(++index, "SHRiMP-R-" + run,
-					PHRED_THRESHOLDS, sequence, errored_list, o, m_ep));
-				alignmentInterfaceList.add(new ShrimpInterface(++index, "SHRiMP-S-" + run,
-					PHRED_THRESHOLDS, sequence, errored_list, new Options(paired_end,
-						errorProbability), m_ep));
 				alignmentInterfaceList.add(new BowtieInterface(++index, "Bowtie-" + run,
 					PHRED_THRESHOLDS, sequence, errored_list, new Options(paired_end,
 						errorProbability), m_ep));
@@ -701,11 +692,6 @@ public class AlignmentToolService
 						indelFrequency), m_ep));
 				o = new Options(paired_end, indelFrequency);
 				o.penalize_duplicate_mappings = false;
-				alignmentInterfaceList.add(new ShrimpInterface(++index, "SHRiMP-R-" + run,
-					PHRED_THRESHOLDS, sequence, errored_list, o, m_ep));
-				alignmentInterfaceList.add(new ShrimpInterface(++index, "SHRiMP-S-" + run,
-					PHRED_THRESHOLDS, sequence, errored_list, new Options(paired_end,
-						indelFrequency), m_ep));
 				alignmentInterfaceList.add(new BowtieInterface(++index, "Bowtie-" + run,
 					PHRED_THRESHOLDS, sequence, errored_list, new Options(paired_end,
 						indelFrequency), m_ep));
