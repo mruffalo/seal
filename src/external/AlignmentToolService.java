@@ -106,6 +106,21 @@ public class AlignmentToolService
 					e.printStackTrace();
 				}
 				break;
+			case HUMAN_2GB:
+				final File hg19_2gb = new File(path, "hg19_2gb.fa");
+				try
+				{
+					/*
+					 * Don't worry about casting file size to an int: we can't
+					 * have strings longer than Integer.MAX_VALUE anyway
+					 */
+					sequence = FastaReader.getSequence(hg19_2gb, (int) hg19_2gb.length());
+				}
+				catch (IOException e)
+				{
+					e.printStackTrace();
+				}
+				break;
 			case RANDOM_EASY:
 				g = new SeqGenSingleSequenceMultipleRepeats();
 				sgo = new SequenceGenerator.Options();
@@ -1687,7 +1702,6 @@ public class AlignmentToolService
 
 	public static void main(String[] args)
 	{
-		new AlignmentToolService().indelSizeEvaluation(false, Genome.RANDOM_HARD);
-		new AlignmentToolService().indelSizeEvaluation(false, Genome.HUMAN_CHR22);
+		new AlignmentToolService().errorRateEvaluation(false, Genome.HUMAN_2GB);
 	}
 }
