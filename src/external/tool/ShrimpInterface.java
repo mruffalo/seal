@@ -71,18 +71,7 @@ public class ShrimpInterface extends AlignmentToolInterface
 	@Override
 	public void writeFragments()
 	{
-		for (int i = 0; i < o.reads.size(); i++)
-		{
-			try
-			{
-				FastaWriter.writeFragments(pairedEndFragments.get(i), o.reads.get(i).reads,
-					o.reads.get(i).index);
-			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
-			}
-		}
+		// XXX Move this to AlignmentToolInterface
 	}
 
 	@Override
@@ -93,6 +82,6 @@ public class ShrimpInterface extends AlignmentToolInterface
 	@Override
 	public void postAlignmentProcessing()
 	{
-		correctlyMappedFragments = SamReader.readMappedFragmentSet(o.sam_output, fragments.size());
+		correctlyMappedFragments = SamReader.readMappedFragmentSet(o.sam_output, fragmentCount);
 	}
 }

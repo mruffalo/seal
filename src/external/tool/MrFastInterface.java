@@ -121,6 +121,6 @@ public class MrFastInterface extends AlignmentToolInterface
 	@Override
 	public void postAlignmentProcessing()
 	{
-		correctlyMappedFragments = SamReader.readMappedFragmentSet(o.sam_output, fragments.size());
+		correctlyMappedFragments = SamReader.readMappedFragmentSet(o.sam_output, fragmentCount);
 	}
 }

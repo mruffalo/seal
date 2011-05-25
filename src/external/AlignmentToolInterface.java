@@ -19,8 +19,6 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 {
 	protected final List<Integer> thresholds;
 	protected CharSequence sequence;
-	protected List<? extends Fragment> fragments;
-	protected List<List<? extends Fragment>> pairedEndFragments;
 	protected Options o;
 	/**
 	 * Not a Set of Fragments since we're getting this from the output of the
@@ -28,6 +26,11 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 	 * to build Fragments out of the data that we read.
 	 */
 	protected Set<String> correctlyMappedFragments;
+	/**
+	 * Used to instantiate various internal data structures to appropriate
+	 * capacities
+	 */
+	protected int fragmentCount;
 	protected Set<String> totalMappedFragments;
 
 	protected Map<String, AlignmentResults> m;
@@ -102,19 +105,8 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 		description = description_;
 		thresholds = thresholds_;
 		sequence = sequence_;
-		fragments = list_;
 		o = o_;
 		m = m_;
-		totalMappedFragments = new HashSet<String>(fragments.size());
-		if (o.is_paired_end)
-		{
-			pairedEndFragments = Fragment.pairedEndClone(fragments, o.readLength);
-		}
-		else
-		{
-			pairedEndFragments = new ArrayList<List<? extends Fragment>>(1);
-			pairedEndFragments.add(fragments);
-		}
 	}
 
 	public enum AlignmentOperation
@@ -127,29 +119,14 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 
 	public void writeGenome()
 	{
-		try
-		{
-			FastaWriter.writeSequence(sequence, o.genome);
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
+		// TODO link genome
 	}
 
 	public void writeFragments()
 	{
 		for (int i = 0; i < o.reads.size(); i++)
 		{
-			try
-			{
-				FastqWriter.writeFragments(pairedEndFragments.get(i), o.reads.get(i).reads,
-					o.reads.get(i).index);
-			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
-			}
+			// TODO link fragments
 		}
 	}
 
@@ -174,7 +151,7 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 	 */
 	public AlignmentResults readAlignment()
 	{
-		return SamReader.readAlignment(index, o, fragments.size(), correctlyMappedFragments);
+		return SamReader.readAlignment(index, o, fragmentCount, correctlyMappedFragments);
 	}
 
 	public void writeRocData(AlignmentResults r)
