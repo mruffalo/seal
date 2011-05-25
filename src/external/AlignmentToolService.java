@@ -79,6 +79,14 @@ public class AlignmentToolService
 		RANDOM_HARD,
 	}
 
+	public void writeGenome()
+	{
+	}
+
+	public void writeFragments()
+	{
+	}
+
 	public void errorRateEvaluation(boolean paired_end, Genome genome)
 	{
 		final String testDescription = "error_rate";
