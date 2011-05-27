@@ -93,7 +93,7 @@ public class AlignmentToolService
 		}
 	}
 
-	public static void writeFragments(File file, List<Fragment> fragments)
+	public static void writeFragments(File file, List<? extends Fragment> fragments)
 	{
 		try
 		{
@@ -208,8 +208,6 @@ public class AlignmentToolService
 			generatorList.add(base_call_eg);
 			generatorList.add(indel_eg);
 			FragmentErrorGenerator.generateErrorsToFile(generatorList, list, fragments);
-
-			List<? extends Fragment> errored_list = indel_eg.generateErrors(base_call_eg.generateErrors(list));
 			System.out.println("done.");
 		}
 
