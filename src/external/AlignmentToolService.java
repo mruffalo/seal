@@ -418,6 +418,31 @@ public class AlignmentToolService
 
 		path.mkdirs();
 
+		final double errorProbability = 0.0;
+		final double indelLengthStdDev = 0.2;
+		final double indelFrequency = 5e-2;
+		Map<Integer, File> fragmentsByIndelSize = new TreeMap<Integer, File>();
+		for (int indelSize : INDEL_SIZES)
+		{
+			String error_identifier = Integer.toString(indelSize);
+			String filename = String.format("fragments-%s.fastq", error_identifier);
+			File fragments = new File(path, filename);
+			fragmentsByIndelSize.put(indelSize, fragments);
+
+			System.out.printf("Introducing fragment read errors for indel size %d...", indelSize);
+			IndelGenerator.Options igo = new IndelGenerator.Options();
+			igo.deleteLengthMean = indelSize;
+			igo.deleteLengthStdDev = indelLengthStdDev;
+			igo.deleteProbability = indelFrequency;
+			igo.insertLengthMean = indelSize;
+			igo.insertLengthStdDev = indelLengthStdDev;
+			igo.insertProbability = indelFrequency;
+			FragmentErrorGenerator indel_eg = new IndelGenerator(SequenceGenerator.NUCLEOTIDES, igo);
+			List<FragmentErrorGenerator> generatorList = new ArrayList<FragmentErrorGenerator>();
+			generatorList.add(indel_eg);
+			FragmentErrorGenerator.generateErrorsToFile(generatorList, list, fragments);
+			System.out.println("done.");
+		}
 		final int alignmentToolCount = ERROR_PROBABILITIES.size() * PHRED_THRESHOLDS.size() * 7;
 		List<AlignmentToolInterface> atiList = new ArrayList<AlignmentToolInterface>(
 			alignmentToolCount);
@@ -426,10 +451,6 @@ public class AlignmentToolService
 		List<Future<AlignmentResults>> futureList = new ArrayList<Future<AlignmentResults>>(
 			alignmentToolCount);
 
-		final double errorProbability = 0.0;
-		final double indelLengthStdDev = 0.2;
-		final double indelFrequency = 5e-2;
-
 		int index = 0;
 		for (int indelSize : INDEL_SIZES)
 		{
@@ -437,18 +458,6 @@ public class AlignmentToolService
 			m.put(indelSize, m_ep);
 			for (int run = 0; run < EVAL_RUN_COUNT; run++)
 			{
-				System.out.print("Introducing fragment read errors...");
-				IndelGenerator.Options igo = new IndelGenerator.Options();
-				igo.deleteLengthMean = indelSize;
-				igo.deleteLengthStdDev = indelLengthStdDev;
-				igo.deleteProbability = indelFrequency;
-				igo.insertLengthMean = indelSize;
-				igo.insertLengthStdDev = indelLengthStdDev;
-				igo.insertProbability = indelFrequency;
-				FragmentErrorGenerator indel_eg = new IndelGenerator(SequenceGenerator.NUCLEOTIDES,
-					igo);
-				List<? extends Fragment> errored_list = indel_eg.generateErrors(list);
-				System.out.println("done.");
 				List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
 
 				Options o = new Options(paired_end, errorProbability);
