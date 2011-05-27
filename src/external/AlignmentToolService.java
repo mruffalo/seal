@@ -179,8 +179,17 @@ public class AlignmentToolService
 		fo.fragmentLengthSd = 1;
 
 		System.out.print("Reading fragments...");
-		List<? extends Fragment> list = Fragmentizer.fragmentize(sequence, fo);
+		final List<? extends Fragment> list = Fragmentizer.fragmentize(sequence, fo);
 		System.out.println("done.");
+
+		Map<Double, File> fragmentsByError = new TreeMap<Double, File>();
+		for (double errorProbability : ERROR_PROBABILITIES)
+		{
+			String error_identifier = Double.toString(errorProbability).replace('.', '_');
+			String filename = String.format("fragments-%s.fastq", error_identifier);
+			File fragments = new File(path, filename);
+			fragmentsByError.put(errorProbability, fragments);
+		}
 
 		path.mkdirs();
 
