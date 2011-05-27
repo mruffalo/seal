@@ -108,7 +108,7 @@ public class AlignmentToolService
 	public void errorRateEvaluation(boolean paired_end, Genome genome)
 	{
 		final String testDescription = "error_rate";
-		final int generated_genome_length = 1000000;
+		final int generated_genome_length = 10000;
 		CharSequence sequence = null;
 		SequenceGenerator g = null;
 		SequenceGenerator.Options sgo = null;
@@ -175,7 +175,7 @@ public class AlignmentToolService
 		System.out.println("done.");
 		System.out.printf("Genome length: %d%n", sequence.length());
 
-		System.out.printf("Writing genome to %s...", genomeFile.getAbsolutePath());
+		System.out.printf("Writing genome to %s  ... ", genomeFile.getAbsolutePath());
 		writeGenome(sequence, genomeFile);
 		System.out.println("done.");
 
@@ -184,7 +184,7 @@ public class AlignmentToolService
 		fo.fragmentCount = 50000;
 		fo.fragmentLengthSd = 1;
 
-		System.out.print("Reading fragments...");
+		System.out.print("Reading fragments ... ");
 		final List<? extends Fragment> list = Fragmentizer.fragmentize(sequence, fo);
 		System.out.println("done.");
 
@@ -196,7 +196,8 @@ public class AlignmentToolService
 			File fragments = new File(path, filename);
 			fragmentsByError.put(errorProbability, fragments);
 
-			System.out.print("Introducing fragment read errors...");
+			System.out.printf("Introducing fragment read errors for error rate %f...",
+				errorProbability);
 			FragmentErrorGenerator base_call_eg = new LinearIncreasingErrorGenerator(
 				SequenceGenerator.NUCLEOTIDES, errorProbability / 2.0, errorProbability);
 			IndelGenerator.Options igo = new IndelGenerator.Options();
