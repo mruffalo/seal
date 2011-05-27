@@ -40,7 +40,8 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 	public final int index;
 	protected final String description;
 
-	private static final String link_command = "ln";
+	private static final String LINK_COMMAND = "ln";
+	private static final String LINK_ARGUMENT_FORCE = "-f";
 
 	/**
 	 * Not all fields are used by every tool
@@ -138,7 +139,7 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 	public void linkGenome()
 	{
 		ProcessBuilder pb = null;
-		pb = new ProcessBuilder(link_command, o.orig_genome.getAbsolutePath(),
+		pb = new ProcessBuilder(LINK_COMMAND, LINK_ARGUMENT_FORCE, o.orig_genome.getAbsolutePath(),
 			o.genome.getAbsolutePath());
 		pb.directory(o.genome.getParentFile());
 		try
@@ -172,8 +173,8 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 		for (int i = 0; i < o.reads.size(); i++)
 		{
 			Options.Reads r = o.reads.get(i);
-			ProcessBuilder pb = new ProcessBuilder(link_command, r.orig_reads.getAbsolutePath(),
-				r.reads.getAbsolutePath());
+			ProcessBuilder pb = new ProcessBuilder(LINK_COMMAND, LINK_ARGUMENT_FORCE,
+				r.orig_reads.getAbsolutePath(), r.reads.getAbsolutePath());
 			pb.directory(o.genome.getParentFile());
 			try
 			{
