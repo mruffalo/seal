@@ -102,7 +102,7 @@ public class AlignmentToolService
 	private ProcessedGenome readOrGenerateGenome(Genome genome, File path)
 	{
 		// TODO: Don't hardcode this
-		final int generated_genome_length = 10000;
+		final int generated_genome_length = 100000;
 
 		File genomeFile = null;
 		CharSequence sequence = null;
@@ -219,7 +219,8 @@ public class AlignmentToolService
 		for (double errorProbability : ERROR_PROBABILITIES)
 		{
 			String error_identifier = Double.toString(errorProbability).replace('.', '_');
-			String filename = String.format("fragments-%s.fastq", error_identifier);
+			String filename = String.format("fragments-%s-%s.fastq", testDescription,
+				error_identifier);
 			File fragments = new File(path, filename);
 			fragmentsByError.put(errorProbability, fragments);
 
@@ -412,14 +413,14 @@ public class AlignmentToolService
 
 		path.mkdirs();
 
-		final double errorProbability = 0.0;
 		final double indelLengthStdDev = 0.2;
 		final double indelFrequency = 5e-2;
 		Map<Integer, File> fragmentsByIndelSize = new TreeMap<Integer, File>();
 		for (int indelSize : INDEL_SIZES)
 		{
 			String error_identifier = Integer.toString(indelSize);
-			String filename = String.format("fragments-%s.fastq", error_identifier);
+			String filename = String.format("fragments-%s-%s.fastq", testDescription,
+				error_identifier);
 			File fragments = new File(path, filename);
 			fragmentsByIndelSize.put(indelSize, fragments);
 
@@ -615,7 +616,8 @@ public class AlignmentToolService
 		for (double indelFrequency : INDEL_FREQUENCIES)
 		{
 			String error_identifier = Double.toString(indelFrequency).replace('.', '_');
-			String filename = String.format("fragments-%s.fastq", error_identifier);
+			String filename = String.format("fragments-%s-%s.fastq", testDescription,
+				error_identifier);
 			File fragments = new File(path, filename);
 			fragmentsByIndelFreq.put(indelFrequency, fragments);
 
@@ -1665,6 +1667,8 @@ public class AlignmentToolService
 
 	public static void main(String[] args)
 	{
-		new AlignmentToolService().indelFrequencyEvaluation(false, Genome.RANDOM_EASY);
+		new AlignmentToolService().errorRateEvaluation(false, Genome.RANDOM_HARD);
+		new AlignmentToolService().indelSizeEvaluation(false, Genome.RANDOM_HARD);
+		new AlignmentToolService().indelFrequencyEvaluation(false, Genome.RANDOM_HARD);
 	}
 }
