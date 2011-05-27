@@ -397,71 +397,16 @@ public class AlignmentToolService
 	public void indelSizeEvaluation(boolean paired_end, Genome genome)
 	{
 		final String testDescription = "indel_size";
-		final int generated_genome_length = 1000000;
-		CharSequence sequence = null;
-		SequenceGenerator g = null;
-		SequenceGenerator.Options sgo = null;
 		final File path = new File("data");
 
-		System.out.print("Reading/creating genome...");
-		switch (genome)
-		{
-			case HUMAN_CHR22:
-				final File chr22 = new File(path, "chr22.fa");
-				try
-				{
-					/*
-					 * Don't worry about casting file size to an int: we can't
-					 * have strings longer than Integer.MAX_VALUE anyway
-					 */
-					sequence = FastaReader.getSequence(chr22, (int) chr22.length());
-				}
-				catch (IOException e)
-				{
-					e.printStackTrace();
-				}
-				break;
-			case HUMAN_2GB:
-				final File hg19_2gb = new File(path, "hg19_2gb.fa");
-				try
-				{
-					/*
-					 * Don't worry about casting file size to an int: we can't
-					 * have strings longer than Integer.MAX_VALUE anyway
-					 */
-					sequence = FastaReader.getSequence(hg19_2gb, (int) hg19_2gb.length());
-				}
-				catch (IOException e)
-				{
-					e.printStackTrace();
-				}
-				break;
-			case RANDOM_EASY:
-				g = new SeqGenSingleSequenceMultipleRepeats();
-				sgo = new SequenceGenerator.Options();
-				sgo.length = generated_genome_length;
-				sgo.repeatCount = 0;
-				System.out.print("Generating sequence...");
-				sequence = g.generateSequence(sgo);
-				System.out.println("done.");
-				break;
-			case RANDOM_HARD:
-				g = new SeqGenSingleSequenceMultipleRepeats();
-				sgo = new SequenceGenerator.Options();
-				sgo.length = generated_genome_length;
-				sgo.repeatCount = 100;
-				sgo.repeatLength = 500;
-				sgo.repeatErrorProbability = 0.03;
-				System.out.print("Generating sequence...");
-				sequence = g.generateSequence(sgo);
-				System.out.println("done.");
-				break;
-			default:
-				break;
-		}
+		ProcessedGenome pg = readOrGenerateGenome(genome, path);
+		CharSequence sequence = pg.sequence;
+		File genomeFile = pg.file;
 
+		System.out.printf("Writing genome to %s  ... ", genomeFile.getAbsolutePath());
+		writeGenome(sequence, genomeFile);
 		System.out.println("done.");
-		System.out.printf("Genome length: %d%n", sequence.length());
+
 		Fragmentizer.Options fo = new Fragmentizer.Options();
 		fo.fragmentLength = 50;
 		fo.fragmentCount = 50000;
@@ -643,71 +588,16 @@ public class AlignmentToolService
 	public void indelFrequencyEvaluation(boolean paired_end, Genome genome)
 	{
 		final String testDescription = "indel_freq";
-		final int generated_genome_length = 1000000;
-		CharSequence sequence = null;
-		SequenceGenerator g = null;
-		SequenceGenerator.Options sgo = null;
 		final File path = new File("data");
 
-		System.out.print("Reading/creating genome...");
-		switch (genome)
-		{
-			case HUMAN_CHR22:
-				final File chr22 = new File(path, "chr22.fa");
-				try
-				{
-					/*
-					 * Don't worry about casting file size to an int: we can't
-					 * have strings longer than Integer.MAX_VALUE anyway
-					 */
-					sequence = FastaReader.getSequence(chr22, (int) chr22.length());
-				}
-				catch (IOException e)
-				{
-					e.printStackTrace();
-				}
-				break;
-			case HUMAN_2GB:
-				final File hg19_2gb = new File(path, "hg19_2gb.fa");
-				try
-				{
-					/*
-					 * Don't worry about casting file size to an int: we can't
-					 * have strings longer than Integer.MAX_VALUE anyway
-					 */
-					sequence = FastaReader.getSequence(hg19_2gb, (int) hg19_2gb.length());
-				}
-				catch (IOException e)
-				{
-					e.printStackTrace();
-				}
-				break;
-			case RANDOM_EASY:
-				g = new SeqGenSingleSequenceMultipleRepeats();
-				sgo = new SequenceGenerator.Options();
-				sgo.length = generated_genome_length;
-				sgo.repeatCount = 0;
-				System.out.print("Generating sequence...");
-				sequence = g.generateSequence(sgo);
-				System.out.println("done.");
-				break;
-			case RANDOM_HARD:
-				g = new SeqGenSingleSequenceMultipleRepeats();
-				sgo = new SequenceGenerator.Options();
-				sgo.length = generated_genome_length;
-				sgo.repeatCount = 100;
-				sgo.repeatLength = 500;
-				sgo.repeatErrorProbability = 0.03;
-				System.out.print("Generating sequence...");
-				sequence = g.generateSequence(sgo);
-				System.out.println("done.");
-				break;
-			default:
-				break;
-		}
+		ProcessedGenome pg = readOrGenerateGenome(genome, path);
+		CharSequence sequence = pg.sequence;
+		File genomeFile = pg.file;
 
+		System.out.printf("Writing genome to %s  ... ", genomeFile.getAbsolutePath());
+		writeGenome(sequence, genomeFile);
 		System.out.println("done.");
-		System.out.printf("Genome length: %d%n", sequence.length());
+
 		Fragmentizer.Options fo = new Fragmentizer.Options();
 		fo.fragmentLength = 50;
 		fo.fragmentCount = 50000;
