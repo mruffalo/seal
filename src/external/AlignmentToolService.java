@@ -224,7 +224,7 @@ public class AlignmentToolService
 			File fragments = new File(path, filename);
 			fragmentsByError.put(errorProbability, fragments);
 
-			System.out.printf("Introducing fragment read errors for error rate %f...",
+			System.out.printf("Introducing fragment read errors for error rate %f ... ",
 				errorProbability);
 			FragmentErrorGenerator base_call_eg = new LinearIncreasingErrorGenerator(
 				SequenceGenerator.NUCLEOTIDES, errorProbability / 2.0, errorProbability);
@@ -424,7 +424,7 @@ public class AlignmentToolService
 			File fragments = new File(path, filename);
 			fragmentsByIndelSize.put(indelSize, fragments);
 
-			System.out.printf("Introducing fragment read errors for indel size %d...", indelSize);
+			System.out.printf("Introducing fragment read errors for indel size %d ... ", indelSize);
 			IndelGenerator.Options igo = new IndelGenerator.Options();
 			igo.deleteLengthMean = indelSize;
 			igo.deleteLengthStdDev = indelLengthStdDev;
@@ -621,7 +621,7 @@ public class AlignmentToolService
 			File fragments = new File(path, filename);
 			fragmentsByIndelFreq.put(indelFrequency, fragments);
 
-			System.out.printf("Introducing fragment read errors for indel frequency %f...",
+			System.out.printf("Introducing fragment read errors for indel frequency %f ... ",
 				indelFrequency);
 			IndelGenerator.Options igo = new IndelGenerator.Options();
 			igo.deleteLengthMean = indelLengthMean;
