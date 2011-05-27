@@ -19,6 +19,8 @@ import generator.errors.IndelGenerator;
 import generator.errors.LinearIncreasingErrorGenerator;
 import generator.errors.UniformErrorGenerator;
 import io.FastaReader;
+import io.FastaWriter;
+import io.FastqWriter;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -79,12 +81,28 @@ public class AlignmentToolService
 		RANDOM_HARD,
 	}
 
-	public void writeGenome()
+	public static void writeGenome(CharSequence genome, File file)
 	{
+		try
+		{
+			FastaWriter.writeSequence(genome, file);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
 	}
 
-	public void writeFragments()
+	public static void writeFragments(File file, List<Fragment> fragments)
 	{
+		try
+		{
+			FastqWriter.writeFragments(fragments, file, 0);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 	public void errorRateEvaluation(boolean paired_end, Genome genome)

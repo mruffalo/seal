@@ -3,9 +3,11 @@ package external;
 import io.FastaWriter;
 import io.FastqWriter;
 import io.SamReader;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashSet;
@@ -38,6 +40,8 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 	public final int index;
 	protected final String description;
 
+	private static final String link_command = "ln";
+
 	/**
 	 * Not all fields are used by every tool
 	 * 
@@ -57,6 +61,13 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 				index = index_;
 			}
 			public final int index;
+			/**
+			 * The original reads that will be linked into this tool's directory
+			 */
+			public File orig_reads;
+			/**
+			 * The read file that is used by this tool
+			 */
 			public File reads;
 			/**
 			 * Not used for every tool
@@ -73,6 +84,14 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 
 		public final boolean is_paired_end;
 		public final double error_probability;
+		/**
+		 * This is the original genome file that is hardlinked to each tool's
+		 * directory
+		 */
+		public File orig_genome;
+		/**
+		 * This is the genome file that is used by each tool
+		 */
 		public File genome;
 		public File binary_genome;
 		public List<Reads> reads = new ArrayList<Reads>(2);
@@ -117,23 +136,79 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 		TOTAL,
 	}
 
-	public void writeGenome()
+	public void linkGenome()
 	{
-		// TODO link genome
+		ProcessBuilder pb = null;
+		pb = new ProcessBuilder(link_command, o.orig_genome.getAbsolutePath(),
+			o.genome.getAbsolutePath());
+		pb.directory(o.genome.getParentFile());
+		try
+		{
+			Process p = pb.start();
+			BufferedReader stdout = new BufferedReader(new InputStreamReader(p.getInputStream()));
+			BufferedReader stderr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+			String line = null;
+			while ((line = stdout.readLine()) != null)
+			{
+				System.out.printf("%03d: %s%n", index, line);
+			}
+			while ((line = stderr.readLine()) != null)
+			{
+				System.err.printf("%03d: %s%n", index, line);
+			}
+			p.waitFor();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+		catch (InterruptedException e)
+		{
+			e.printStackTrace();
+		}
 	}
 
-	public void writeFragments()
+	public void linkFragments()
 	{
 		for (int i = 0; i < o.reads.size(); i++)
 		{
-			// TODO link fragments
+			Options.Reads r = o.reads.get(i);
+			ProcessBuilder pb = new ProcessBuilder(link_command, r.orig_reads.getAbsolutePath(),
+				r.reads.getAbsolutePath());
+			pb.directory(o.genome.getParentFile());
+			try
+			{
+				Process p = pb.start();
+				BufferedReader stdout = new BufferedReader(
+					new InputStreamReader(p.getInputStream()));
+				BufferedReader stderr = new BufferedReader(
+					new InputStreamReader(p.getErrorStream()));
+				String line = null;
+				while ((line = stdout.readLine()) != null)
+				{
+					System.out.printf("%03d: %s%n", index, line);
+				}
+				while ((line = stderr.readLine()) != null)
+				{
+					System.err.printf("%03d: %s%n", index, line);
+				}
+				p.waitFor();
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
+			catch (InterruptedException e)
+			{
+				e.printStackTrace();
+			}
 		}
 	}
 
 	public void commonPreAlignmentProcessing()
 	{
-		writeGenome();
-		writeFragments();
+		linkGenome();
+		linkFragments();
 	}
 
 	public abstract void preAlignmentProcessing();

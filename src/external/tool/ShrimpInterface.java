@@ -69,7 +69,7 @@ public class ShrimpInterface extends AlignmentToolInterface
 	 * Overridden here since SHRiMP requires FASTA reads
 	 */
 	@Override
-	public void writeFragments()
+	public void linkFragments()
 	{
 		// XXX Move this to AlignmentToolInterface
 	}
