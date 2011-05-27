@@ -490,6 +490,7 @@ public class AlignmentToolService
 					tool_path.mkdirs();
 					ati.o.genome = new File(tool_path, "genome.fasta");
 					ati.o.binary_genome = new File(tool_path, "genome.bfa");
+					ati.o.orig_genome = genomeFile;
 
 					int read_count = paired_end ? 2 : 1;
 					for (int i = 1; i <= read_count; i++)
@@ -498,6 +499,7 @@ public class AlignmentToolService
 						r.reads = new File(tool_path, String.format("fragments%d.fastq", i));
 						r.binary_reads = new File(tool_path, String.format("fragments%d.bfq", i));
 						r.aligned_reads = new File(tool_path, String.format("alignment%d.sai", i));
+						r.orig_reads = fragmentsByIndelSize.get(indelSize);
 						ati.o.reads.add(r);
 					}
 					ati.o.raw_output = new File(tool_path, "out.raw");
@@ -1659,6 +1661,6 @@ public class AlignmentToolService
 
 	public static void main(String[] args)
 	{
-		new AlignmentToolService().errorRateEvaluation(false, Genome.RANDOM_EASY);
+		new AlignmentToolService().indelSizeEvaluation(false, Genome.RANDOM_EASY);
 	}
 }
