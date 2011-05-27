@@ -81,41 +81,34 @@ public class AlignmentToolService
 		RANDOM_HARD,
 	}
 
-	public static void writeGenome(CharSequence genome, File file)
+	/**
+	 * I <b>really</b> wish I could just return a tuple instead of making
+	 * classes like this :(
+	 * 
+	 * @author mruffalo
+	 */
+	private static class ProcessedGenome
 	{
-		try
+		public ProcessedGenome(File file_, CharSequence sequence_)
 		{
-			FastaWriter.writeSequence(genome, file);
+			file = file_;
+			sequence = sequence_;
 		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
+
+		public final File file;
+		public final CharSequence sequence;
 	}
 
-	public static void writeFragments(File file, List<? extends Fragment> fragments)
+	private ProcessedGenome readOrGenerateGenome(Genome genome, File path)
 	{
-		try
-		{
-			FastqWriter.writeFragments(fragments, file, 0);
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-	}
-
-	public void errorRateEvaluation(boolean paired_end, Genome genome)
-	{
-		final String testDescription = "error_rate";
+		// TODO: Don't hardcode this
 		final int generated_genome_length = 10000;
+
+		File genomeFile = null;
 		CharSequence sequence = null;
 		SequenceGenerator g = null;
 		SequenceGenerator.Options sgo = null;
-		final File path = new File("data");
-
-		File genomeFile = null;
-		System.out.print("Reading/creating genome...");
+		System.out.print("Reading/creating genome ... ");
 		switch (genome)
 		{
 			case HUMAN_CHR22:
@@ -171,9 +164,43 @@ public class AlignmentToolService
 			default:
 				break;
 		}
-
 		System.out.println("done.");
 		System.out.printf("Genome length: %d%n", sequence.length());
+		return new ProcessedGenome(genomeFile, sequence);
+	}
+
+	public static void writeGenome(CharSequence genome, File file)
+	{
+		try
+		{
+			FastaWriter.writeSequence(genome, file);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	public static void writeFragments(File file, List<? extends Fragment> fragments)
+	{
+		try
+		{
+			FastqWriter.writeFragments(fragments, file, 0);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	public void errorRateEvaluation(boolean paired_end, Genome genome)
+	{
+		final String testDescription = "error_rate";
+		final File path = new File("data");
+
+		ProcessedGenome pg = readOrGenerateGenome(genome, path);
+		CharSequence sequence = pg.sequence;
+		File genomeFile = pg.file;
 
 		System.out.printf("Writing genome to %s  ... ", genomeFile.getAbsolutePath());
 		writeGenome(sequence, genomeFile);
@@ -361,6 +388,12 @@ public class AlignmentToolService
 		}
 	}
 
+	/**
+	 * XXX Fix this after recent memory-reducing changes
+	 * 
+	 * @param paired_end
+	 * @param genome
+	 */
 	public void indelSizeEvaluation(boolean paired_end, Genome genome)
 	{
 		final String testDescription = "indel_size";
@@ -601,6 +634,12 @@ public class AlignmentToolService
 		}
 	}
 
+	/**
+	 * XXX Fix this after recent memory-reducing changes
+	 * 
+	 * @param paired_end
+	 * @param genome
+	 */
 	public void indelFrequencyEvaluation(boolean paired_end, Genome genome)
 	{
 		final String testDescription = "indel_freq";
@@ -1213,7 +1252,10 @@ public class AlignmentToolService
 	}
 
 	/**
-	 * TODO: Don't duplicate code
+	 * XXX Fix this after recent memory-reducing changes
+	 * 
+	 * @param paired_end
+	 * @param genome
 	 */
 	public void runtimeCoverageEvaluation()
 	{
@@ -1352,7 +1394,10 @@ public class AlignmentToolService
 	}
 
 	/**
-	 * TODO: Don't duplicate code
+	 * XXX Fix this after recent memory-reducing changes
+	 * 
+	 * @param paired_end
+	 * @param genome
 	 */
 	public void runtimeGenomeSizeEvaluation()
 	{

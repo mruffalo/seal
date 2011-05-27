@@ -61,12 +61,6 @@ public abstract class FragmentErrorGenerator
 		return list;
 	}
 
-	/**
-	 * XXX: Refactor this
-	 * 
-	 * @param fragments
-	 * @param file
-	 */
 	public static void generateErrorsToFile(List<FragmentErrorGenerator> generators,
 		List<? extends Fragment> fragments, File file)
 	{
