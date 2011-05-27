@@ -587,12 +587,6 @@ public class AlignmentToolService
 		}
 	}
 
-	/**
-	 * XXX Fix this after recent memory-reducing changes
-	 * 
-	 * @param paired_end
-	 * @param genome
-	 */
 	public void indelFrequencyEvaluation(boolean paired_end, Genome genome)
 	{
 		final String testDescription = "indel_freq";
@@ -615,6 +609,32 @@ public class AlignmentToolService
 		List<? extends Fragment> list = Fragmentizer.fragmentize(sequence, fo);
 		System.out.println("done.");
 
+		final int indelLengthMean = 2;
+		final double indelLengthStdDev = 0.2;
+		Map<Double, File> fragmentsByIndelFreq = new TreeMap<Double, File>();
+		for (double indelFrequency : INDEL_FREQUENCIES)
+		{
+			String error_identifier = Double.toString(indelFrequency).replace('.', '_');
+			String filename = String.format("fragments-%s.fastq", error_identifier);
+			File fragments = new File(path, filename);
+			fragmentsByIndelFreq.put(indelFrequency, fragments);
+
+			System.out.printf("Introducing fragment read errors for indel frequency %f...",
+				indelFrequency);
+			IndelGenerator.Options igo = new IndelGenerator.Options();
+			igo.deleteLengthMean = indelLengthMean;
+			igo.deleteLengthStdDev = indelLengthStdDev;
+			igo.deleteProbability = indelFrequency;
+			igo.insertLengthMean = indelLengthMean;
+			igo.insertLengthStdDev = indelLengthStdDev;
+			igo.insertProbability = indelFrequency;
+			FragmentErrorGenerator indel_eg = new IndelGenerator(SequenceGenerator.NUCLEOTIDES, igo);
+			List<FragmentErrorGenerator> generatorList = new ArrayList<FragmentErrorGenerator>();
+			generatorList.add(indel_eg);
+			FragmentErrorGenerator.generateErrorsToFile(generatorList, list, fragments);
+			System.out.println("done.");
+		}
+
 		path.mkdirs();
 
 		final int alignmentToolCount = ERROR_PROBABILITIES.size() * PHRED_THRESHOLDS.size() * 7;
@@ -625,9 +645,6 @@ public class AlignmentToolService
 		List<Future<AlignmentResults>> futureList = new ArrayList<Future<AlignmentResults>>(
 			alignmentToolCount);
 
-		final int indelLengthMean = 2;
-		final double indelLengthStdDev = 0.2;
-
 		int index = 0;
 		for (double indelFrequency : INDEL_FREQUENCIES)
 		{
@@ -635,18 +652,6 @@ public class AlignmentToolService
 			m.put(indelFrequency, m_ep);
 			for (int run = 0; run < EVAL_RUN_COUNT; run++)
 			{
-				System.out.print("Introducing fragment read errors...");
-				IndelGenerator.Options igo = new IndelGenerator.Options();
-				igo.deleteLengthMean = indelLengthMean;
-				igo.deleteLengthStdDev = indelLengthStdDev;
-				igo.deleteProbability = indelFrequency;
-				igo.insertLengthMean = indelLengthMean;
-				igo.insertLengthStdDev = indelLengthStdDev;
-				igo.insertProbability = indelFrequency;
-				FragmentErrorGenerator indel_eg = new IndelGenerator(SequenceGenerator.NUCLEOTIDES,
-					igo);
-				List<? extends Fragment> errored_list = indel_eg.generateErrors(list);
-				System.out.println("done.");
 				List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
 
 				Options o = new Options(paired_end, indelFrequency);
@@ -679,6 +684,7 @@ public class AlignmentToolService
 					tool_path.mkdirs();
 					ati.o.genome = new File(tool_path, "genome.fasta");
 					ati.o.binary_genome = new File(tool_path, "genome.bfa");
+					ati.o.orig_genome = genomeFile;
 
 					int read_count = paired_end ? 2 : 1;
 					for (int i = 1; i <= read_count; i++)
@@ -687,6 +693,7 @@ public class AlignmentToolService
 						r.reads = new File(tool_path, String.format("fragments%d.fastq", i));
 						r.binary_reads = new File(tool_path, String.format("fragments%d.bfq", i));
 						r.aligned_reads = new File(tool_path, String.format("alignment%d.sai", i));
+						r.orig_reads = fragmentsByIndelFreq.get(indelFrequency);
 						ati.o.reads.add(r);
 					}
 					ati.o.raw_output = new File(tool_path, "out.raw");
@@ -1658,6 +1665,6 @@ public class AlignmentToolService
 
 	public static void main(String[] args)
 	{
-		new AlignmentToolService().indelSizeEvaluation(false, Genome.RANDOM_EASY);
+		new AlignmentToolService().indelFrequencyEvaluation(false, Genome.RANDOM_EASY);
 	}
 }
