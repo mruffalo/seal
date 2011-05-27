@@ -1,7 +1,5 @@
 package external;
 
-import io.FastaWriter;
-import io.FastqWriter;
 import io.SamReader;
 import java.io.BufferedReader;
 import java.io.File;
@@ -10,12 +8,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.EnumMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
-import assembly.Fragment;
 
 public abstract class AlignmentToolInterface implements Callable<AlignmentResults>
 {
@@ -139,6 +135,9 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 	public void linkGenome()
 	{
 		ProcessBuilder pb = null;
+		System.out.printf("%03d: Linking%n", index);
+		System.out.printf("%03d:   %s to%n", index, o.orig_genome.getAbsolutePath());
+		System.out.printf("%03d:   %s%n", index, o.genome.getAbsolutePath());
 		pb = new ProcessBuilder(LINK_COMMAND, LINK_ARGUMENT_FORCE, o.orig_genome.getAbsolutePath(),
 			o.genome.getAbsolutePath());
 		pb.directory(o.genome.getParentFile());
@@ -173,6 +172,9 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 		for (int i = 0; i < o.reads.size(); i++)
 		{
 			Options.Reads r = o.reads.get(i);
+			System.out.printf("%03d: Linking%n", index);
+			System.out.printf("%03d:   %s to%n", index, r.orig_reads.getAbsolutePath());
+			System.out.printf("%03d:   %s%n", index, r.reads.getAbsolutePath());
 			ProcessBuilder pb = new ProcessBuilder(LINK_COMMAND, LINK_ARGUMENT_FORCE,
 				r.orig_reads.getAbsolutePath(), r.reads.getAbsolutePath());
 			pb.directory(o.genome.getParentFile());
