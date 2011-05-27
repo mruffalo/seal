@@ -1,6 +1,9 @@
 package generator.errors;
 
 import assembly.Fragment;
+import io.FastqWriter;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -56,6 +59,30 @@ public abstract class FragmentErrorGenerator
 			list.add(generateErrors(fragment));
 		}
 		return list;
+	}
+
+	/**
+	 * XXX: Refactor this
+	 * 
+	 * @param fragments
+	 * @param file
+	 */
+	public static void generateErrorsToFile(List<FragmentErrorGenerator> generators,
+		List<? extends Fragment> fragments, File file)
+	{
+		List<? extends Fragment> list = fragments;
+		for (FragmentErrorGenerator eg : generators)
+		{
+			list = eg.generateErrors(list);
+		}
+		try
+		{
+			FastqWriter.writeFragments(list, file, 0);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 	public abstract int getQuality(int position, int length);
