@@ -1,6 +1,5 @@
 package external.tool;
 
-import io.FastaWriter;
 import io.SamReader;
 import java.io.BufferedReader;
 import java.io.FileWriter;
@@ -11,17 +10,15 @@ import java.util.List;
 import java.util.Map;
 import external.AlignmentResults;
 import external.AlignmentToolInterface;
-import assembly.Fragment;
 
 public class ShrimpInterface extends AlignmentToolInterface
 {
 	private static final String SHRIMP_ALIGN_COMMAND = "gmapper-ls";
 
 	public ShrimpInterface(int index_, String description_, List<Integer> thresholds_,
-		CharSequence sequence_, List<? extends Fragment> list_, Options o_,
-		Map<String, AlignmentResults> m_)
+		CharSequence sequence_, Options o_, Map<String, AlignmentResults> m_)
 	{
-		super(index_, description_, thresholds_, sequence_, list_, o_, m_);
+		super(index_, description_, thresholds_, sequence_, o_, m_);
 	}
 
 	@Override

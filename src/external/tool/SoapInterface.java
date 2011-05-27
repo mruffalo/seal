@@ -1,6 +1,5 @@
 package external.tool;
 
-import io.FastqWriter;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
@@ -11,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import external.AlignmentResults;
 import external.AlignmentToolInterface;
-import assembly.Fragment;
 
 public class SoapInterface extends AlignmentToolInterface
 {
@@ -22,10 +20,9 @@ public class SoapInterface extends AlignmentToolInterface
 	public static final String[] ALIGN_QUERY_OPTIONS = { "-a", "-b" };
 
 	public SoapInterface(int index_, String description_, List<Integer> thresholds_,
-		CharSequence sequence_, List<? extends Fragment> list_, Options o_,
-		Map<String, AlignmentResults> m_)
+		CharSequence sequence_, Options o_, Map<String, AlignmentResults> m_)
 	{
-		super(index_, description_, thresholds_, sequence_, list_, o_, m_);
+		super(index_, description_, thresholds_, sequence_, o_, m_);
 	}
 
 	public void createIndex()

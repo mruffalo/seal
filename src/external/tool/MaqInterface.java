@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import external.AlignmentResults;
 import external.AlignmentToolInterface;
-import assembly.Fragment;
 
 /**
  * TODO: Clean up local variables vs. method parameters
@@ -30,10 +29,9 @@ public class MaqInterface extends AlignmentToolInterface
 	public static final String VIEW_ALIGNMENT_COMMAND = "mapview";
 
 	public MaqInterface(int index_, String description_, List<Integer> thresholds_,
-		CharSequence sequence_, List<? extends Fragment> list_, Options o_,
-		Map<String, AlignmentResults> m_)
+		CharSequence sequence_, Options o_, Map<String, AlignmentResults> m_)
 	{
-		super(index_, description_, thresholds_, sequence_, list_, o_, m_);
+		super(index_, description_, thresholds_, sequence_, o_, m_);
 	}
 
 	@Override

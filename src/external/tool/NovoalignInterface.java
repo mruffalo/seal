@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import external.AlignmentResults;
 import external.AlignmentToolInterface;
-import assembly.Fragment;
 
 public class NovoalignInterface extends AlignmentToolInterface
 {
@@ -22,10 +21,9 @@ public class NovoalignInterface extends AlignmentToolInterface
 	public static final String NOVOALIGN_OUTPUT_FORMAT_SAM = "SAM";
 
 	public NovoalignInterface(int index_, String description_, List<Integer> thresholds_,
-		CharSequence sequence_, List<? extends Fragment> list_, Options o_,
-		Map<String, AlignmentResults> m_)
+		CharSequence sequence_, Options o_, Map<String, AlignmentResults> m_)
 	{
-		super(index_, description_, thresholds_, sequence_, list_, o_, m_);
+		super(index_, description_, thresholds_, sequence_, o_, m_);
 	}
 
 	@Override

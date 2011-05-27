@@ -114,18 +114,19 @@ public class AlignmentToolService
 		SequenceGenerator.Options sgo = null;
 		final File path = new File("data");
 
+		File genomeFile = null;
 		System.out.print("Reading/creating genome...");
 		switch (genome)
 		{
 			case HUMAN_CHR22:
-				final File chr22 = new File(path, "chr22.fa");
+				genomeFile = new File(path, "chr22.fa");
 				try
 				{
 					/*
 					 * Don't worry about casting file size to an int: we can't
 					 * have strings longer than Integer.MAX_VALUE anyway
 					 */
-					sequence = FastaReader.getSequence(chr22, (int) chr22.length());
+					sequence = FastaReader.getSequence(genomeFile, (int) genomeFile.length());
 				}
 				catch (IOException e)
 				{
@@ -133,14 +134,14 @@ public class AlignmentToolService
 				}
 				break;
 			case HUMAN_2GB:
-				final File hg19_2gb = new File(path, "hg19_2gb.fa");
+				genomeFile = new File(path, "hg19_2gb.fa");
 				try
 				{
 					/*
 					 * Don't worry about casting file size to an int: we can't
 					 * have strings longer than Integer.MAX_VALUE anyway
 					 */
-					sequence = FastaReader.getSequence(hg19_2gb, (int) hg19_2gb.length());
+					sequence = FastaReader.getSequence(genomeFile, (int) genomeFile.length());
 				}
 				catch (IOException e)
 				{
@@ -148,6 +149,7 @@ public class AlignmentToolService
 				}
 				break;
 			case RANDOM_EASY:
+				genomeFile = new File(path, "random_easy.fa");
 				g = new SeqGenSingleSequenceMultipleRepeats();
 				sgo = new SequenceGenerator.Options();
 				sgo.length = generated_genome_length;
@@ -157,6 +159,7 @@ public class AlignmentToolService
 				System.out.println("done.");
 				break;
 			case RANDOM_HARD:
+				genomeFile = new File(path, "random_hard.fa");
 				g = new SeqGenSingleSequenceMultipleRepeats();
 				sgo = new SequenceGenerator.Options();
 				sgo.length = generated_genome_length;
@@ -189,6 +192,25 @@ public class AlignmentToolService
 			String filename = String.format("fragments-%s.fastq", error_identifier);
 			File fragments = new File(path, filename);
 			fragmentsByError.put(errorProbability, fragments);
+
+			System.out.print("Introducing fragment read errors...");
+			FragmentErrorGenerator base_call_eg = new LinearIncreasingErrorGenerator(
+				SequenceGenerator.NUCLEOTIDES, errorProbability / 2.0, errorProbability);
+			IndelGenerator.Options igo = new IndelGenerator.Options();
+			igo.deleteLengthMean = 2;
+			igo.deleteLengthStdDev = 0.7;
+			igo.deleteProbability = errorProbability / 40.0;
+			igo.insertLengthMean = 2;
+			igo.insertLengthStdDev = 0.7;
+			igo.insertProbability = errorProbability / 40.0;
+			FragmentErrorGenerator indel_eg = new IndelGenerator(SequenceGenerator.NUCLEOTIDES, igo);
+			List<FragmentErrorGenerator> generatorList = new ArrayList<FragmentErrorGenerator>();
+			generatorList.add(base_call_eg);
+			generatorList.add(indel_eg);
+			FragmentErrorGenerator.generateErrorsToFile(generatorList, list, fragments);
+
+			List<? extends Fragment> errored_list = indel_eg.generateErrors(base_call_eg.generateErrors(list));
+			System.out.println("done.");
 		}
 
 		path.mkdirs();
@@ -206,44 +228,31 @@ public class AlignmentToolService
 		{
 			Map<String, AlignmentResults> m_ep = Collections.synchronizedMap(new TreeMap<String, AlignmentResults>());
 			m.put(errorProbability, m_ep);
-			System.out.print("Introducing fragment read errors...");
-			FragmentErrorGenerator base_call_eg = new LinearIncreasingErrorGenerator(
-				SequenceGenerator.NUCLEOTIDES, errorProbability / 2.0, errorProbability);
-			IndelGenerator.Options igo = new IndelGenerator.Options();
-			igo.deleteLengthMean = 2;
-			igo.deleteLengthStdDev = 0.7;
-			igo.deleteProbability = errorProbability / 40.0;
-			igo.insertLengthMean = 2;
-			igo.insertLengthStdDev = 0.7;
-			igo.insertProbability = errorProbability / 40.0;
-			FragmentErrorGenerator indel_eg = new IndelGenerator(SequenceGenerator.NUCLEOTIDES, igo);
-			List<? extends Fragment> errored_list = indel_eg.generateErrors(base_call_eg.generateErrors(list));
-			System.out.println("done.");
+
 			List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
 
 			Options o = new Options(paired_end, errorProbability);
 			o.penalize_duplicate_mappings = false;
 			alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast-R", PHRED_THRESHOLDS,
-				sequence, errored_list, o, m_ep));
+				sequence, o, m_ep));
 			alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast-S", PHRED_THRESHOLDS,
-				sequence, errored_list, new Options(paired_end, errorProbability), m_ep));
+				sequence, new Options(paired_end, errorProbability), m_ep));
 			o = new Options(paired_end, errorProbability);
 			o.penalize_duplicate_mappings = false;
 			alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast-R", PHRED_THRESHOLDS,
-				sequence, errored_list, o, m_ep));
+				sequence, o, m_ep));
 			alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast-S", PHRED_THRESHOLDS,
-				sequence, errored_list, new Options(paired_end, errorProbability), m_ep));
+				sequence, new Options(paired_end, errorProbability), m_ep));
 			alignmentInterfaceList.add(new SoapInterface(++index, "SOAP", PHRED_THRESHOLDS,
-				sequence, errored_list, new Options(paired_end, errorProbability), m_ep));
+				sequence, new Options(paired_end, errorProbability), m_ep));
 			alignmentInterfaceList.add(new BwaInterface(++index, "BWA", PHRED_THRESHOLDS, sequence,
-				errored_list, new Options(paired_end, errorProbability), m_ep));
+				new Options(paired_end, errorProbability), m_ep));
 			o = new Options(paired_end, errorProbability);
 			o.penalize_duplicate_mappings = false;
 			alignmentInterfaceList.add(new BowtieInterface(++index, "Bowtie", PHRED_THRESHOLDS,
-				sequence, errored_list, new Options(paired_end, errorProbability), m_ep));
+				sequence, new Options(paired_end, errorProbability), m_ep));
 			alignmentInterfaceList.add(new NovoalignInterface(++index, "Novoalign",
-				PHRED_THRESHOLDS, sequence, errored_list,
-				new Options(paired_end, errorProbability), m_ep));
+				PHRED_THRESHOLDS, sequence, new Options(paired_end, errorProbability), m_ep));
 
 			for (AlignmentToolInterface ati : alignmentInterfaceList)
 			{
@@ -252,6 +261,7 @@ public class AlignmentToolService
 				tool_path.mkdirs();
 				ati.o.genome = new File(tool_path, "genome.fasta");
 				ati.o.binary_genome = new File(tool_path, "genome.bfa");
+				ati.o.orig_genome = genomeFile;
 
 				int read_count = paired_end ? 2 : 1;
 				for (int i = 1; i <= read_count; i++)
@@ -260,6 +270,7 @@ public class AlignmentToolService
 					r.reads = new File(tool_path, String.format("fragments%d.fastq", i));
 					r.binary_reads = new File(tool_path, String.format("fragments%d.bfq", i));
 					r.aligned_reads = new File(tool_path, String.format("alignment%d.sai", i));
+					r.orig_reads = fragmentsByError.get(errorProbability);
 					ati.o.reads.add(r);
 				}
 				ati.o.raw_output = new File(tool_path, "out.raw");
@@ -463,31 +474,25 @@ public class AlignmentToolService
 				Options o = new Options(paired_end, errorProbability);
 				o.penalize_duplicate_mappings = false;
 				alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast-R-" + run,
-					PHRED_THRESHOLDS, sequence, errored_list, o, m_ep));
+					PHRED_THRESHOLDS, sequence, o, m_ep));
 				alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast-S-" + run,
-					PHRED_THRESHOLDS, sequence, errored_list, new Options(paired_end,
-						errorProbability), m_ep));
+					PHRED_THRESHOLDS, sequence, new Options(paired_end, errorProbability), m_ep));
 				o = new Options(paired_end, errorProbability);
 				o.penalize_duplicate_mappings = false;
 				alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast-R-" + run,
-					PHRED_THRESHOLDS, sequence, errored_list, o, m_ep));
+					PHRED_THRESHOLDS, sequence, o, m_ep));
 				alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast-S-" + run,
-					PHRED_THRESHOLDS, sequence, errored_list, new Options(paired_end,
-						errorProbability), m_ep));
+					PHRED_THRESHOLDS, sequence, new Options(paired_end, errorProbability), m_ep));
 				alignmentInterfaceList.add(new SoapInterface(++index, "SOAP-" + run,
-					PHRED_THRESHOLDS, sequence, errored_list, new Options(paired_end,
-						errorProbability), m_ep));
+					PHRED_THRESHOLDS, sequence, new Options(paired_end, errorProbability), m_ep));
 				alignmentInterfaceList.add(new BwaInterface(++index, "BWA-" + run,
-					PHRED_THRESHOLDS, sequence, errored_list, new Options(paired_end,
-						errorProbability), m_ep));
+					PHRED_THRESHOLDS, sequence, new Options(paired_end, errorProbability), m_ep));
 				o = new Options(paired_end, errorProbability);
 				o.penalize_duplicate_mappings = false;
 				alignmentInterfaceList.add(new BowtieInterface(++index, "Bowtie-" + run,
-					PHRED_THRESHOLDS, sequence, errored_list, new Options(paired_end,
-						errorProbability), m_ep));
+					PHRED_THRESHOLDS, sequence, new Options(paired_end, errorProbability), m_ep));
 				alignmentInterfaceList.add(new NovoalignInterface(++index, "Novoalign-" + run,
-					PHRED_THRESHOLDS, sequence, errored_list, new Options(paired_end,
-						errorProbability), m_ep));
+					PHRED_THRESHOLDS, sequence, new Options(paired_end, errorProbability), m_ep));
 
 				for (AlignmentToolInterface ati : alignmentInterfaceList)
 				{
@@ -708,31 +713,25 @@ public class AlignmentToolService
 				Options o = new Options(paired_end, indelFrequency);
 				o.penalize_duplicate_mappings = false;
 				alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast-R-" + run,
-					PHRED_THRESHOLDS, sequence, errored_list, o, m_ep));
+					PHRED_THRESHOLDS, sequence, o, m_ep));
 				alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast-S-" + run,
-					PHRED_THRESHOLDS, sequence, errored_list, new Options(paired_end,
-						indelFrequency), m_ep));
+					PHRED_THRESHOLDS, sequence, new Options(paired_end, indelFrequency), m_ep));
 				o = new Options(paired_end, indelFrequency);
 				o.penalize_duplicate_mappings = false;
 				alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast-R-" + run,
-					PHRED_THRESHOLDS, sequence, errored_list, o, m_ep));
+					PHRED_THRESHOLDS, sequence, o, m_ep));
 				alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast-S-" + run,
-					PHRED_THRESHOLDS, sequence, errored_list, new Options(paired_end,
-						indelFrequency), m_ep));
+					PHRED_THRESHOLDS, sequence, new Options(paired_end, indelFrequency), m_ep));
 				alignmentInterfaceList.add(new SoapInterface(++index, "SOAP-" + run,
-					PHRED_THRESHOLDS, sequence, errored_list, new Options(paired_end,
-						indelFrequency), m_ep));
+					PHRED_THRESHOLDS, sequence, new Options(paired_end, indelFrequency), m_ep));
 				alignmentInterfaceList.add(new BwaInterface(++index, "BWA-" + run,
-					PHRED_THRESHOLDS, sequence, errored_list, new Options(paired_end,
-						indelFrequency), m_ep));
+					PHRED_THRESHOLDS, sequence, new Options(paired_end, indelFrequency), m_ep));
 				o = new Options(paired_end, indelFrequency);
 				o.penalize_duplicate_mappings = false;
 				alignmentInterfaceList.add(new BowtieInterface(++index, "Bowtie-" + run,
-					PHRED_THRESHOLDS, sequence, errored_list, new Options(paired_end,
-						indelFrequency), m_ep));
+					PHRED_THRESHOLDS, sequence, new Options(paired_end, indelFrequency), m_ep));
 				alignmentInterfaceList.add(new NovoalignInterface(++index, "Novoalign-" + run,
-					PHRED_THRESHOLDS, sequence, errored_list, new Options(paired_end,
-						indelFrequency), m_ep));
+					PHRED_THRESHOLDS, sequence, new Options(paired_end, indelFrequency), m_ep));
 
 				for (AlignmentToolInterface ati : alignmentInterfaceList)
 				{
@@ -894,21 +893,21 @@ public class AlignmentToolService
 				Options o = new Options(paired_end, dRepeatCount);
 				o.penalize_duplicate_mappings = false;
 				alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast-R-" + run,
-					PHRED_THRESHOLDS, repeated, list, o, m_ep));
+					PHRED_THRESHOLDS, repeated, o, m_ep));
 				alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast-S-" + run,
-					PHRED_THRESHOLDS, repeated, list, new Options(paired_end, dRepeatCount), m_ep));
+					PHRED_THRESHOLDS, repeated, new Options(paired_end, dRepeatCount), m_ep));
 				o = new Options(paired_end, dRepeatCount);
 				o.penalize_duplicate_mappings = false;
 				alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast-R-" + run,
-					PHRED_THRESHOLDS, repeated, list, o, m_ep));
+					PHRED_THRESHOLDS, repeated, o, m_ep));
 				alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast-S-" + run,
-					PHRED_THRESHOLDS, repeated, list, new Options(paired_end, dRepeatCount), m_ep));
+					PHRED_THRESHOLDS, repeated, new Options(paired_end, dRepeatCount), m_ep));
 				alignmentInterfaceList.add(new SoapInterface(++index, "SOAP-" + run,
-					PHRED_THRESHOLDS, repeated, list, new Options(paired_end, dRepeatCount), m_ep));
+					PHRED_THRESHOLDS, repeated, new Options(paired_end, dRepeatCount), m_ep));
 				alignmentInterfaceList.add(new BwaInterface(++index, "BWA-" + run,
-					PHRED_THRESHOLDS, repeated, list, new Options(paired_end, dRepeatCount), m_ep));
+					PHRED_THRESHOLDS, repeated, new Options(paired_end, dRepeatCount), m_ep));
 				alignmentInterfaceList.add(new BowtieInterface(++index, "Bowtie-" + run,
-					PHRED_THRESHOLDS, repeated, list, new Options(paired_end, dRepeatCount), m_ep));
+					PHRED_THRESHOLDS, repeated, new Options(paired_end, dRepeatCount), m_ep));
 
 				for (AlignmentToolInterface ati : alignmentInterfaceList)
 				{
@@ -1085,21 +1084,21 @@ public class AlignmentToolService
 			Options o = new Options(paired_end, dRepeatCount);
 			o.penalize_duplicate_mappings = false;
 			alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast-R-" + run,
-				PHRED_THRESHOLDS, filtered, list, o, m_ep));
+				PHRED_THRESHOLDS, filtered, o, m_ep));
 			alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast-S-" + run,
-				PHRED_THRESHOLDS, filtered, list, new Options(paired_end, dRepeatCount), m_ep));
+				PHRED_THRESHOLDS, filtered, new Options(paired_end, dRepeatCount), m_ep));
 			o = new Options(paired_end, dRepeatCount);
 			o.penalize_duplicate_mappings = false;
 			alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast-R-" + run,
-				PHRED_THRESHOLDS, filtered, list, o, m_ep));
+				PHRED_THRESHOLDS, filtered, o, m_ep));
 			alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast-S-" + run,
-				PHRED_THRESHOLDS, filtered, list, new Options(paired_end, dRepeatCount), m_ep));
+				PHRED_THRESHOLDS, filtered, new Options(paired_end, dRepeatCount), m_ep));
 			alignmentInterfaceList.add(new SoapInterface(++index, "SOAP-" + run, PHRED_THRESHOLDS,
-				filtered, list, new Options(paired_end, dRepeatCount), m_ep));
+				filtered, new Options(paired_end, dRepeatCount), m_ep));
 			alignmentInterfaceList.add(new BwaInterface(++index, "BWA-" + run, PHRED_THRESHOLDS,
-				filtered, list, new Options(paired_end, dRepeatCount), m_ep));
+				filtered, new Options(paired_end, dRepeatCount), m_ep));
 			alignmentInterfaceList.add(new BowtieInterface(++index, "Bowtie-" + run,
-				PHRED_THRESHOLDS, filtered, list, new Options(paired_end, dRepeatCount), m_ep));
+				PHRED_THRESHOLDS, filtered, new Options(paired_end, dRepeatCount), m_ep));
 
 			for (AlignmentToolInterface ati : alignmentInterfaceList)
 			{
@@ -1265,24 +1264,19 @@ public class AlignmentToolService
 				List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
 
 				alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast",
-					RUNTIME_THRESHOLDS, sequence, errored_list, new Options(paired_end,
-						errorProbability), m_c));
+					RUNTIME_THRESHOLDS, sequence, new Options(paired_end, errorProbability), m_c));
 				alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast",
-					RUNTIME_THRESHOLDS, sequence, errored_list, new Options(paired_end,
-						errorProbability), m_c));
+					RUNTIME_THRESHOLDS, sequence, new Options(paired_end, errorProbability), m_c));
 				alignmentInterfaceList.add(new SoapInterface(++index, "SOAP", RUNTIME_THRESHOLDS,
-					sequence, errored_list, new Options(paired_end, errorProbability), m_c));
+					sequence, new Options(paired_end, errorProbability), m_c));
 				alignmentInterfaceList.add(new BwaInterface(++index, "BWA", RUNTIME_THRESHOLDS,
-					sequence, errored_list, new Options(paired_end, errorProbability), m_c));
+					sequence, new Options(paired_end, errorProbability), m_c));
 				alignmentInterfaceList.add(new ShrimpInterface(++index, "SHRiMP",
-					RUNTIME_THRESHOLDS, sequence, errored_list, new Options(paired_end,
-						errorProbability), m_c));
+					RUNTIME_THRESHOLDS, sequence, new Options(paired_end, errorProbability), m_c));
 				alignmentInterfaceList.add(new BowtieInterface(++index, "Bowtie",
-					RUNTIME_THRESHOLDS, sequence, errored_list, new Options(paired_end,
-						errorProbability), m_c));
+					RUNTIME_THRESHOLDS, sequence, new Options(paired_end, errorProbability), m_c));
 				alignmentInterfaceList.add(new NovoalignInterface(++index, "Novoalign",
-					RUNTIME_THRESHOLDS, sequence, errored_list, new Options(paired_end,
-						errorProbability), m_c));
+					RUNTIME_THRESHOLDS, sequence, new Options(paired_end, errorProbability), m_c));
 
 				for (AlignmentToolInterface ati : alignmentInterfaceList)
 				{
@@ -1409,24 +1403,19 @@ public class AlignmentToolService
 				List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
 
 				alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast",
-					RUNTIME_THRESHOLDS, sequence, errored_list, new Options(paired_end,
-						errorProbability), m_c));
+					RUNTIME_THRESHOLDS, sequence, new Options(paired_end, errorProbability), m_c));
 				alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast",
-					RUNTIME_THRESHOLDS, sequence, errored_list, new Options(paired_end,
-						errorProbability), m_c));
+					RUNTIME_THRESHOLDS, sequence, new Options(paired_end, errorProbability), m_c));
 				alignmentInterfaceList.add(new SoapInterface(++index, "SOAP", RUNTIME_THRESHOLDS,
-					sequence, errored_list, new Options(paired_end, errorProbability), m_c));
+					sequence, new Options(paired_end, errorProbability), m_c));
 				alignmentInterfaceList.add(new BwaInterface(++index, "BWA", RUNTIME_THRESHOLDS,
-					sequence, errored_list, new Options(paired_end, errorProbability), m_c));
+					sequence, new Options(paired_end, errorProbability), m_c));
 				alignmentInterfaceList.add(new ShrimpInterface(++index, "SHRiMP",
-					RUNTIME_THRESHOLDS, sequence, errored_list, new Options(paired_end,
-						errorProbability), m_c));
+					RUNTIME_THRESHOLDS, sequence, new Options(paired_end, errorProbability), m_c));
 				alignmentInterfaceList.add(new BowtieInterface(++index, "Bowtie",
-					RUNTIME_THRESHOLDS, sequence, errored_list, new Options(paired_end,
-						errorProbability), m_c));
+					RUNTIME_THRESHOLDS, sequence, new Options(paired_end, errorProbability), m_c));
 				alignmentInterfaceList.add(new NovoalignInterface(++index, "Novoalign",
-					RUNTIME_THRESHOLDS, sequence, errored_list, new Options(paired_end,
-						errorProbability), m_c));
+					RUNTIME_THRESHOLDS, sequence, new Options(paired_end, errorProbability), m_c));
 
 				for (AlignmentToolInterface ati : alignmentInterfaceList)
 				{
@@ -1500,7 +1489,8 @@ public class AlignmentToolService
 	}
 
 	/**
-	 * TODO: Don't duplicate code, and make this method a lot less stupid
+	 * TODO: Don't duplicate code, and make this method a lot less stupid. XXX:
+	 * Fix this after recent memory reduction changes
 	 */
 	public void tandemRepeatEvaluation(String[] args)
 	{
@@ -1618,7 +1608,7 @@ public class AlignmentToolService
 			o.readLength = readLengthMean;
 			o.readLengthSd = readLengthSd;
 			alignmentInterfaceList.add(new BwaInterface(++index, "BWA", RUNTIME_THRESHOLDS,
-				sequence, list, o, m_c));
+				sequence, o, m_c));
 
 			for (AlignmentToolInterface ati : alignmentInterfaceList)
 			{
@@ -1723,6 +1713,6 @@ public class AlignmentToolService
 
 	public static void main(String[] args)
 	{
-		new AlignmentToolService().errorRateEvaluation(false, Genome.HUMAN_2GB);
+		new AlignmentToolService().errorRateEvaluation(false, Genome.RANDOM_EASY);
 	}
 }
