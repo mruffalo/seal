@@ -73,14 +73,19 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 			public File aligned_reads;
 		}
 
-		public Options(boolean is_paired_end_, double error_probability_)
+		public Options(boolean is_paired_end_, double error_rate_)
 		{
 			is_paired_end = is_paired_end_;
-			error_probability = error_probability_;
+			error_rate = error_rate_;
 		}
 
 		public final boolean is_paired_end;
-		public final double error_probability;
+		/**
+		 * This might be the base call error rate, or the indel size or indel
+		 * frequency. Always specified as a double even though indel size is an
+		 * integer -- don't want any NumberFormatExceptions while printing this
+		 */
+		public final double error_rate;
 		/**
 		 * This is the original genome file that is hardlinked to each tool's
 		 * directory

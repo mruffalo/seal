@@ -308,8 +308,7 @@ public class AlignmentToolService
 				ati.o.converted_output = new File(tool_path, "out.txt");
 				ati.o.roc_output = new File(tool_path, "roc.csv");
 
-				System.out.printf("*** %03d %s: %f%n", ati.index, ati.description,
-					ati.o.error_probability);
+				System.out.printf("*** %03d %s: %f%n", ati.index, ati.description, ati.o.error_rate);
 
 				atiList.add(ati);
 			}
@@ -506,7 +505,7 @@ public class AlignmentToolService
 					ati.o.roc_output = new File(tool_path, "roc.csv");
 
 					System.out.printf("*** %03d %s: %f%n", ati.index, ati.description,
-						ati.o.error_probability);
+						ati.o.error_rate);
 
 					atiList.add(ati);
 				}
@@ -704,7 +703,7 @@ public class AlignmentToolService
 					ati.o.roc_output = new File(tool_path, "roc.csv");
 
 					System.out.printf("*** %03d %s: %f%n", ati.index, ati.description,
-						ati.o.error_probability);
+						ati.o.error_rate);
 
 					atiList.add(ati);
 				}
@@ -880,7 +879,7 @@ public class AlignmentToolService
 					ati.o.roc_output = new File(tool_path, "roc.csv");
 
 					System.out.printf("*** %03d %s: %f%n", ati.index, ati.description,
-						ati.o.error_probability);
+						ati.o.error_rate);
 
 					atiList.add(ati);
 				}
@@ -1070,8 +1069,7 @@ public class AlignmentToolService
 				ati.o.converted_output = new File(tool_path, "out.txt");
 				ati.o.roc_output = new File(tool_path, "roc.csv");
 
-				System.out.printf("*** %03d %s: %f%n", ati.index, ati.description,
-					ati.o.error_probability);
+				System.out.printf("*** %03d %s: %f%n", ati.index, ati.description, ati.o.error_rate);
 
 				atiList.add(ati);
 			}
