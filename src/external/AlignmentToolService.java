@@ -110,14 +110,27 @@ public class AlignmentToolService
 	 */
 	private static class SimulationParameters
 	{
-		public List<Double> errorRates;
-		public boolean paired_end;
-		public String testDescription;
-		public Genome genome;
-		public File genomeFile;
-		public Map<Double, File> fragmentsByError;
-		public File path;
-		public CharSequence sequence;
+		public SimulationParameters(List<Double> errorRates_, boolean paired_end_,
+			String testDescription_, Genome genome_, File genomeFile_,
+			Map<Double, File> fragmentsByError_, File path_, CharSequence sequence_)
+		{
+			errorRates = errorRates_;
+			paired_end = paired_end_;
+			testDescription = testDescription_;
+			genome = genome_;
+			genomeFile = genomeFile_;
+			fragmentsByError = fragmentsByError_;
+			path = path_;
+			sequence = sequence_;
+		}
+		public final List<Double> errorRates;
+		public final boolean paired_end;
+		public final String testDescription;
+		public final Genome genome;
+		public final File genomeFile;
+		public final Map<Double, File> fragmentsByError;
+		public final File path;
+		public final CharSequence sequence;
 	}
 
 	private ProcessedGenome readOrGenerateGenome(Genome genome, File path)
@@ -358,10 +371,8 @@ public class AlignmentToolService
 
 		path.mkdirs();
 
-		// XXX: Assign all parameters here
-		SimulationParameters pa = new SimulationParameters();
-		pa.errorRates = ERROR_PROBABILITIES;
-		pa.paired_end = paired_end;
+		SimulationParameters pa = new SimulationParameters(ERROR_PROBABILITIES, paired_end,
+			testDescription, genome, genomeFile, fragmentsByError, path, sequence);
 
 		Map<Double, Map<String, AlignmentResults>> m = runSimulation(pa);
 
