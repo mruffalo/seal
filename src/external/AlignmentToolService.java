@@ -59,8 +59,8 @@ public class AlignmentToolService
 		5000, 20000, 100000, 500000, 1000000));
 	protected static final List<Integer> RUNTIME_COVERAGES = Collections.unmodifiableList(Arrays.asList(
 		3, 7, 10, 13, 16, 20));
-	protected static final List<Integer> INDEL_SIZES = Collections.unmodifiableList(Arrays.asList(
-		2, 4, 7, 10, 16));
+	protected static final List<Double> INDEL_SIZES = Collections.unmodifiableList(Arrays.asList(
+		2.0, 4.0, 7.0, 10.0, 16.0));
 	protected static final List<Double> INDEL_FREQUENCIES = Collections.unmodifiableList(Arrays.asList(
 		1e-5, 3e-5, 1e-4, 3e-4, 1e-3, 3e-3, 1e-2));
 	protected static final List<Integer> TANDEM_GENOME_REPEAT_COUNTS = Collections.unmodifiableList(Arrays.asList(
@@ -414,10 +414,10 @@ public class AlignmentToolService
 
 		final double indelLengthStdDev = 0.2;
 		final double indelFrequency = 5e-2;
-		Map<Integer, File> fragmentsByIndelSize = new TreeMap<Integer, File>();
-		for (int indelSize : INDEL_SIZES)
+		Map<Double, File> fragmentsByIndelSize = new TreeMap<Double, File>();
+		for (double indelSize : INDEL_SIZES)
 		{
-			String error_identifier = Integer.toString(indelSize);
+			String error_identifier = String.format("%.0f", indelSize);
 			String filename = String.format("fragments-%s-%s.fastq", testDescription,
 				error_identifier);
 			File fragments = new File(path, filename);
@@ -441,12 +441,12 @@ public class AlignmentToolService
 		List<AlignmentToolInterface> atiList = new ArrayList<AlignmentToolInterface>(
 			alignmentToolCount);
 
-		Map<Integer, Map<String, AlignmentResults>> m = Collections.synchronizedMap(new TreeMap<Integer, Map<String, AlignmentResults>>());
+		Map<Double, Map<String, AlignmentResults>> m = Collections.synchronizedMap(new TreeMap<Double, Map<String, AlignmentResults>>());
 		List<Future<AlignmentResults>> futureList = new ArrayList<Future<AlignmentResults>>(
 			alignmentToolCount);
 
 		int index = 0;
-		for (int indelSize : INDEL_SIZES)
+		for (double indelSize : INDEL_SIZES)
 		{
 			Map<String, AlignmentResults> m_ep = Collections.synchronizedMap(new TreeMap<String, AlignmentResults>());
 			m.put(indelSize, m_ep);
@@ -544,7 +544,7 @@ public class AlignmentToolService
 			FileWriter w = new FileWriter(new File(path, filename));
 			w.write(String.format("%s,%s,%s,%s,%s,%s,%s%n", "Tool", "IndelSize", "Threshold",
 				"Precision", "Recall", "Time", "UsedReadRatio"));
-			for (Integer indelSize : m.keySet())
+			for (Double indelSize : m.keySet())
 			{
 				for (String toolName : m.get(indelSize).keySet())
 				{
@@ -552,7 +552,7 @@ public class AlignmentToolService
 					{
 						AlignmentResults ar = m.get(indelSize).get(toolName);
 						FilteredAlignmentResults r = ar.filter(i);
-						w.write(String.format("%s,%d,%d,%f,%f,%d,%f%n", toolName, indelSize, i,
+						w.write(String.format("%s,%.0f,%d,%f,%f,%d,%f%n", toolName, indelSize, i,
 							r.getPrecision(), r.getRecall(),
 							ar.timeMap.get(AlignmentOperation.TOTAL), r.getUsedReadRatio()));
 					}
@@ -563,7 +563,7 @@ public class AlignmentToolService
 			System.out.printf("Writing overall ROC data to %s%n", roc_filename);
 			w = new FileWriter(new File(path, roc_filename));
 			w.write(String.format("%s,%s,%s,%s%n", "Tool", "IndelSize", "Score", "Label"));
-			for (Integer indelSize : m.keySet())
+			for (Double indelSize : m.keySet())
 			{
 				for (String toolName : m.get(indelSize).keySet())
 				{
@@ -571,11 +571,11 @@ public class AlignmentToolService
 					AlignmentResults r = m.get(indelSize).get(toolName);
 					for (int p : r.positives)
 					{
-						w.write(String.format("%s,%d,%d,%d%n", toolName, indelSize, p, 1));
+						w.write(String.format("%s,%.0f,%d,%d%n", toolName, indelSize, p, 1));
 					}
 					for (int n : r.negatives)
 					{
-						w.write(String.format("%s,%d,%d,%d%n", toolName, indelSize, n, 0));
+						w.write(String.format("%s,%.0f,%d,%d%n", toolName, indelSize, n, 0));
 					}
 				}
 			}
