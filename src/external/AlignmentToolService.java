@@ -322,9 +322,9 @@ public class AlignmentToolService
 	public void errorRateEvaluation(boolean paired_end, Genome genome)
 	{
 		final String testDescription = "error_rate";
-		final File path = new File("data");
+		final File dataPath = new File("data");
 
-		ProcessedGenome pg = readOrGenerateGenome(genome, path);
+		ProcessedGenome pg = readOrGenerateGenome(genome, dataPath);
 		CharSequence sequence = pg.sequence;
 		File genomeFile = pg.file;
 
@@ -347,7 +347,7 @@ public class AlignmentToolService
 			String error_identifier = Double.toString(errorProbability).replace('.', '_');
 			String filename = String.format("fragments-%s-%s.fastq", testDescription,
 				error_identifier);
-			File fragments = new File(path, filename);
+			File fragments = new File(dataPath, filename);
 			fragmentsByError.put(errorProbability, fragments);
 
 			System.out.printf("Introducing fragment read errors for error rate %f ... ",
@@ -369,10 +369,10 @@ public class AlignmentToolService
 			System.out.println("done.");
 		}
 
-		path.mkdirs();
+		dataPath.mkdirs();
 
 		SimulationParameters pa = new SimulationParameters(ERROR_PROBABILITIES, paired_end,
-			testDescription, genome, genomeFile, fragmentsByError, path, sequence);
+			testDescription, genome, genomeFile, fragmentsByError, dataPath, sequence);
 
 		Map<Double, Map<String, AlignmentResults>> m = runSimulation(pa);
 
@@ -383,7 +383,7 @@ public class AlignmentToolService
 		try
 		{
 			System.out.printf("Writing results to %s%n", filename);
-			FileWriter w = new FileWriter(new File(path, filename));
+			FileWriter w = new FileWriter(new File(dataPath, filename));
 			w.write(String.format("%s,%s,%s,%s,%s,%s,%s%n", "Tool", "ErrorRate", "Threshold",
 				"Precision", "Recall", "Time", "UsedReadRatio"));
 			for (Double d : m.keySet())
@@ -403,7 +403,7 @@ public class AlignmentToolService
 			w.close();
 
 			System.out.printf("Writing overall ROC data to %s%n", roc_filename);
-			w = new FileWriter(new File(path, roc_filename));
+			w = new FileWriter(new File(dataPath, roc_filename));
 			w.write(String.format("%s,%s,%s,%s%n", "Tool", "ErrorRate", "Score", "Label"));
 			for (Double d : m.keySet())
 			{
@@ -432,9 +432,9 @@ public class AlignmentToolService
 	public void indelSizeEvaluation(boolean paired_end, Genome genome)
 	{
 		final String testDescription = "indel_size";
-		final File path = new File("data");
+		final File dataPath = new File("data");
 
-		ProcessedGenome pg = readOrGenerateGenome(genome, path);
+		ProcessedGenome pg = readOrGenerateGenome(genome, dataPath);
 		CharSequence sequence = pg.sequence;
 		File genomeFile = pg.file;
 
@@ -451,7 +451,7 @@ public class AlignmentToolService
 		List<? extends Fragment> list = Fragmentizer.fragmentize(sequence, fo);
 		System.out.println("done.");
 
-		path.mkdirs();
+		dataPath.mkdirs();
 
 		final double indelLengthStdDev = 0.2;
 		final double indelFrequency = 5e-2;
@@ -461,7 +461,7 @@ public class AlignmentToolService
 			String error_identifier = String.format("%.0f", indelSize);
 			String filename = String.format("fragments-%s-%s.fastq", testDescription,
 				error_identifier);
-			File fragments = new File(path, filename);
+			File fragments = new File(dataPath, filename);
 			fragmentsByIndelSize.put(indelSize, fragments);
 
 			System.out.printf("Introducing fragment read errors for indel size %.0f ... ",
@@ -522,7 +522,7 @@ public class AlignmentToolService
 
 				for (AlignmentToolInterface ati : alignmentInterfaceList)
 				{
-					File tool_path = new File(path, String.format("%03d-%s-%s-%s", ati.index,
+					File tool_path = new File(dataPath, String.format("%03d-%s-%s-%s", ati.index,
 						ati.description, testDescription, genome.toString().toLowerCase()));
 					tool_path.mkdirs();
 					ati.o.genome = new File(tool_path, "genome.fasta");
@@ -581,7 +581,7 @@ public class AlignmentToolService
 		try
 		{
 			System.out.printf("Writing results to %s%n", filename);
-			FileWriter w = new FileWriter(new File(path, filename));
+			FileWriter w = new FileWriter(new File(dataPath, filename));
 			w.write(String.format("%s,%s,%s,%s,%s,%s,%s%n", "Tool", "IndelSize", "Threshold",
 				"Precision", "Recall", "Time", "UsedReadRatio"));
 			for (Double indelSize : m.keySet())
@@ -601,7 +601,7 @@ public class AlignmentToolService
 			w.close();
 
 			System.out.printf("Writing overall ROC data to %s%n", roc_filename);
-			w = new FileWriter(new File(path, roc_filename));
+			w = new FileWriter(new File(dataPath, roc_filename));
 			w.write(String.format("%s,%s,%s,%s%n", "Tool", "IndelSize", "Score", "Label"));
 			for (Double indelSize : m.keySet())
 			{
