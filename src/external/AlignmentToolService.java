@@ -423,7 +423,8 @@ public class AlignmentToolService
 			File fragments = new File(path, filename);
 			fragmentsByIndelSize.put(indelSize, fragments);
 
-			System.out.printf("Introducing fragment read errors for indel size %d ... ", indelSize);
+			System.out.printf("Introducing fragment read errors for indel size %.0f ... ",
+				indelSize);
 			IndelGenerator.Options igo = new IndelGenerator.Options();
 			igo.deleteLengthMean = indelSize;
 			igo.deleteLengthStdDev = indelLengthStdDev;
@@ -451,34 +452,32 @@ public class AlignmentToolService
 			Map<String, AlignmentResults> m_ep = Collections.synchronizedMap(new TreeMap<String, AlignmentResults>());
 			m.put(indelSize, m_ep);
 
-			double dis = (double) indelSize;
-
 			for (int run = 0; run < EVAL_RUN_COUNT; run++)
 			{
 				List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
 
-				Options o = new Options(paired_end, dis);
+				Options o = new Options(paired_end, indelSize);
 				o.penalize_duplicate_mappings = false;
 				alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast-R-" + run,
 					PHRED_THRESHOLDS, sequence, o, m_ep));
 				alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast-S-" + run,
-					PHRED_THRESHOLDS, sequence, new Options(paired_end, dis), m_ep));
-				o = new Options(paired_end, dis);
+					PHRED_THRESHOLDS, sequence, new Options(paired_end, indelSize), m_ep));
+				o = new Options(paired_end, indelSize);
 				o.penalize_duplicate_mappings = false;
 				alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast-R-" + run,
 					PHRED_THRESHOLDS, sequence, o, m_ep));
 				alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast-S-" + run,
-					PHRED_THRESHOLDS, sequence, new Options(paired_end, dis), m_ep));
+					PHRED_THRESHOLDS, sequence, new Options(paired_end, indelSize), m_ep));
 				alignmentInterfaceList.add(new SoapInterface(++index, "SOAP-" + run,
-					PHRED_THRESHOLDS, sequence, new Options(paired_end, dis), m_ep));
+					PHRED_THRESHOLDS, sequence, new Options(paired_end, indelSize), m_ep));
 				alignmentInterfaceList.add(new BwaInterface(++index, "BWA-" + run,
-					PHRED_THRESHOLDS, sequence, new Options(paired_end, dis), m_ep));
-				o = new Options(paired_end, dis);
+					PHRED_THRESHOLDS, sequence, new Options(paired_end, indelSize), m_ep));
+				o = new Options(paired_end, indelSize);
 				o.penalize_duplicate_mappings = false;
 				alignmentInterfaceList.add(new BowtieInterface(++index, "Bowtie-" + run,
-					PHRED_THRESHOLDS, sequence, new Options(paired_end, dis), m_ep));
+					PHRED_THRESHOLDS, sequence, new Options(paired_end, indelSize), m_ep));
 				alignmentInterfaceList.add(new NovoalignInterface(++index, "Novoalign-" + run,
-					PHRED_THRESHOLDS, sequence, new Options(paired_end, dis), m_ep));
+					PHRED_THRESHOLDS, sequence, new Options(paired_end, indelSize), m_ep));
 
 				for (AlignmentToolInterface ati : alignmentInterfaceList)
 				{
