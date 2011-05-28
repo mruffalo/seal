@@ -104,24 +104,20 @@ public class AlignmentToolService
 	}
 
 	/**
-	 * TODO: Rename this
+	 * TODO: Figure out if I should refactor this
 	 * 
 	 * @author mruffalo
 	 */
-	private static class SimulationInterface
+	private static class SimulationParameters
 	{
-		public SimulationInterface(List<AlignmentToolInterface> atiList_,
-			Map<Double, Map<String, AlignmentResults>> results_,
-			List<Future<AlignmentResults>> futureList_)
-		{
-			atiList = atiList_;
-			results = results_;
-			futureList = futureList_;
-		}
-
-		public final List<AlignmentToolInterface> atiList;
-		public final Map<Double, Map<String, AlignmentResults>> results;
-		public final List<Future<AlignmentResults>> futureList;
+		public List<Double> errorRates;
+		public boolean paired_end;
+		public String testDescription;
+		public Genome genome;
+		public File genomeFile;
+		public Map<Double, File> fragmentsByError;
+		public File path;
+		public CharSequence sequence;
 	}
 
 	private ProcessedGenome readOrGenerateGenome(Genome genome, File path)
@@ -192,6 +188,98 @@ public class AlignmentToolService
 		System.out.println("done.");
 		System.out.printf("Genome length: %d%n", sequence.length());
 		return new ProcessedGenome(genomeFile, sequence);
+	}
+
+	private Map<Double, Map<String, AlignmentResults>> runSimulation(SimulationParameters p)
+	{
+		ExecutorService pool = Executors.newFixedThreadPool(NUMBER_OF_CONCURRENT_THREADS);
+		List<AlignmentToolInterface> atiList = new ArrayList<AlignmentToolInterface>();
+
+		Map<Double, Map<String, AlignmentResults>> m = Collections.synchronizedMap(new TreeMap<Double, Map<String, AlignmentResults>>());
+		List<Future<AlignmentResults>> futureList = new ArrayList<Future<AlignmentResults>>();
+
+		int index = 0;
+		for (double errorProbability : ERROR_PROBABILITIES)
+		{
+			Map<String, AlignmentResults> m_ep = Collections.synchronizedMap(new TreeMap<String, AlignmentResults>());
+			m.put(errorProbability, m_ep);
+
+			List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
+
+			Options o = new Options(p.paired_end, errorProbability);
+			o.penalize_duplicate_mappings = false;
+			alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast-R", PHRED_THRESHOLDS,
+				p.sequence, o, m_ep));
+			alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast-S", PHRED_THRESHOLDS,
+				p.sequence, new Options(p.paired_end, errorProbability), m_ep));
+			o = new Options(p.paired_end, errorProbability);
+			o.penalize_duplicate_mappings = false;
+			alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast-R", PHRED_THRESHOLDS,
+				p.sequence, o, m_ep));
+			alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast-S", PHRED_THRESHOLDS,
+				p.sequence, new Options(p.paired_end, errorProbability), m_ep));
+			alignmentInterfaceList.add(new SoapInterface(++index, "SOAP", PHRED_THRESHOLDS,
+				p.sequence, new Options(p.paired_end, errorProbability), m_ep));
+			alignmentInterfaceList.add(new BwaInterface(++index, "BWA", PHRED_THRESHOLDS,
+				p.sequence, new Options(p.paired_end, errorProbability), m_ep));
+			o = new Options(p.paired_end, errorProbability);
+			o.penalize_duplicate_mappings = false;
+			alignmentInterfaceList.add(new BowtieInterface(++index, "Bowtie", PHRED_THRESHOLDS,
+				p.sequence, new Options(p.paired_end, errorProbability), m_ep));
+			alignmentInterfaceList.add(new NovoalignInterface(++index, "Novoalign",
+				PHRED_THRESHOLDS, p.sequence, new Options(p.paired_end, errorProbability), m_ep));
+
+			for (AlignmentToolInterface ati : alignmentInterfaceList)
+			{
+				File tool_path = new File(p.path, String.format("%03d-%s-%s-%s", ati.index,
+					ati.description, p.testDescription, p.genome.toString().toLowerCase()));
+				tool_path.mkdirs();
+				ati.o.genome = new File(tool_path, "genome.fasta");
+				ati.o.binary_genome = new File(tool_path, "genome.bfa");
+				ati.o.orig_genome = p.genomeFile;
+
+				int read_count = p.paired_end ? 2 : 1;
+				for (int i = 1; i <= read_count; i++)
+				{
+					Options.Reads r = new Options.Reads(i);
+					r.reads = new File(tool_path, String.format("fragments%d.fastq", i));
+					r.binary_reads = new File(tool_path, String.format("fragments%d.bfq", i));
+					r.aligned_reads = new File(tool_path, String.format("alignment%d.sai", i));
+					r.orig_reads = p.fragmentsByError.get(errorProbability);
+					ati.o.reads.add(r);
+				}
+				ati.o.raw_output = new File(tool_path, "out.raw");
+				ati.o.sam_output = new File(tool_path, "alignment.sam");
+				ati.o.converted_output = new File(tool_path, "out.txt");
+				ati.o.roc_output = new File(tool_path, "roc.csv");
+
+				System.out.printf("*** %03d %s: %f%n", ati.index, ati.description, ati.o.error_rate);
+
+				atiList.add(ati);
+			}
+		}
+		for (AlignmentToolInterface ati : atiList)
+		{
+			futureList.add(pool.submit(ati));
+		}
+
+		pool.shutdown();
+		for (Future<AlignmentResults> f : futureList)
+		{
+			try
+			{
+				f.get();
+			}
+			catch (InterruptedException e)
+			{
+				e.printStackTrace();
+			}
+			catch (ExecutionException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		return m;
 	}
 
 	public static void writeGenome(CharSequence genome, File file)
@@ -270,95 +358,12 @@ public class AlignmentToolService
 
 		path.mkdirs();
 
-		final int alignmentToolCount = ERROR_PROBABILITIES.size() * PHRED_THRESHOLDS.size() * 7;
-		List<AlignmentToolInterface> atiList = new ArrayList<AlignmentToolInterface>(
-			alignmentToolCount);
+		// XXX: Assign all parameters here
+		SimulationParameters pa = new SimulationParameters();
+		pa.errorRates = ERROR_PROBABILITIES;
+		pa.paired_end = paired_end;
 
-		Map<Double, Map<String, AlignmentResults>> m = Collections.synchronizedMap(new TreeMap<Double, Map<String, AlignmentResults>>());
-		List<Future<AlignmentResults>> futureList = new ArrayList<Future<AlignmentResults>>(
-			alignmentToolCount);
-
-		int index = 0;
-		for (double errorProbability : ERROR_PROBABILITIES)
-		{
-			Map<String, AlignmentResults> m_ep = Collections.synchronizedMap(new TreeMap<String, AlignmentResults>());
-			m.put(errorProbability, m_ep);
-
-			List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
-
-			Options o = new Options(paired_end, errorProbability);
-			o.penalize_duplicate_mappings = false;
-			alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast-R", PHRED_THRESHOLDS,
-				sequence, o, m_ep));
-			alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast-S", PHRED_THRESHOLDS,
-				sequence, new Options(paired_end, errorProbability), m_ep));
-			o = new Options(paired_end, errorProbability);
-			o.penalize_duplicate_mappings = false;
-			alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast-R", PHRED_THRESHOLDS,
-				sequence, o, m_ep));
-			alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast-S", PHRED_THRESHOLDS,
-				sequence, new Options(paired_end, errorProbability), m_ep));
-			alignmentInterfaceList.add(new SoapInterface(++index, "SOAP", PHRED_THRESHOLDS,
-				sequence, new Options(paired_end, errorProbability), m_ep));
-			alignmentInterfaceList.add(new BwaInterface(++index, "BWA", PHRED_THRESHOLDS, sequence,
-				new Options(paired_end, errorProbability), m_ep));
-			o = new Options(paired_end, errorProbability);
-			o.penalize_duplicate_mappings = false;
-			alignmentInterfaceList.add(new BowtieInterface(++index, "Bowtie", PHRED_THRESHOLDS,
-				sequence, new Options(paired_end, errorProbability), m_ep));
-			alignmentInterfaceList.add(new NovoalignInterface(++index, "Novoalign",
-				PHRED_THRESHOLDS, sequence, new Options(paired_end, errorProbability), m_ep));
-
-			for (AlignmentToolInterface ati : alignmentInterfaceList)
-			{
-				File tool_path = new File(path, String.format("%03d-%s-%s-%s", ati.index,
-					ati.description, testDescription, genome.toString().toLowerCase()));
-				tool_path.mkdirs();
-				ati.o.genome = new File(tool_path, "genome.fasta");
-				ati.o.binary_genome = new File(tool_path, "genome.bfa");
-				ati.o.orig_genome = genomeFile;
-
-				int read_count = paired_end ? 2 : 1;
-				for (int i = 1; i <= read_count; i++)
-				{
-					Options.Reads r = new Options.Reads(i);
-					r.reads = new File(tool_path, String.format("fragments%d.fastq", i));
-					r.binary_reads = new File(tool_path, String.format("fragments%d.bfq", i));
-					r.aligned_reads = new File(tool_path, String.format("alignment%d.sai", i));
-					r.orig_reads = fragmentsByError.get(errorProbability);
-					ati.o.reads.add(r);
-				}
-				ati.o.raw_output = new File(tool_path, "out.raw");
-				ati.o.sam_output = new File(tool_path, "alignment.sam");
-				ati.o.converted_output = new File(tool_path, "out.txt");
-				ati.o.roc_output = new File(tool_path, "roc.csv");
-
-				System.out.printf("*** %03d %s: %f%n", ati.index, ati.description, ati.o.error_rate);
-
-				atiList.add(ati);
-			}
-		}
-		for (AlignmentToolInterface ati : atiList)
-		{
-			futureList.add(pool.submit(ati));
-		}
-
-		pool.shutdown();
-		for (Future<AlignmentResults> f : futureList)
-		{
-			try
-			{
-				f.get();
-			}
-			catch (InterruptedException e)
-			{
-				e.printStackTrace();
-			}
-			catch (ExecutionException e)
-			{
-				e.printStackTrace();
-			}
-		}
+		Map<Double, Map<String, AlignmentResults>> m = runSimulation(pa);
 
 		String filename = String.format("%s_%s.csv", testDescription,
 			genome.toString().toLowerCase());
