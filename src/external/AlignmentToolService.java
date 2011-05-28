@@ -95,8 +95,33 @@ public class AlignmentToolService
 			sequence = sequence_;
 		}
 
+		/**
+		 * The file in which this genome has been written to disk -- not where
+		 * it was read from if applicable
+		 */
 		public final File file;
 		public final CharSequence sequence;
+	}
+
+	/**
+	 * TODO: Rename this
+	 * 
+	 * @author mruffalo
+	 */
+	private static class SimulationInterface
+	{
+		public SimulationInterface(List<AlignmentToolInterface> atiList_,
+			Map<Double, Map<String, AlignmentResults>> results_,
+			List<Future<AlignmentResults>> futureList_)
+		{
+			atiList = atiList_;
+			results = results_;
+			futureList = futureList_;
+		}
+
+		public final List<AlignmentToolInterface> atiList;
+		public final Map<Double, Map<String, AlignmentResults>> results;
+		public final List<Future<AlignmentResults>> futureList;
 	}
 
 	private ProcessedGenome readOrGenerateGenome(Genome genome, File path)
