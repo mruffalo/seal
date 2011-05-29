@@ -89,10 +89,11 @@ public class AlignmentToolService
 	 */
 	private static class ProcessedGenome
 	{
-		public ProcessedGenome(File file_, CharSequence sequence_)
+		public ProcessedGenome(File file_, CharSequence sequence_,
+			List<? extends Fragment> fragments_)
 		{
 			file = file_;
-			sequence = sequence_;
+			fragments = fragments_;
 		}
 
 		/**
@@ -100,7 +101,7 @@ public class AlignmentToolService
 		 * it was read from if applicable
 		 */
 		public final File file;
-		public final CharSequence sequence;
+		public final List<? extends Fragment> fragments;
 	}
 
 	/**
@@ -112,7 +113,7 @@ public class AlignmentToolService
 	{
 		public SimulationParameters(List<Double> errorRates_, boolean paired_end_,
 			String testDescription_, Genome genome_, File genomeFile_,
-			Map<Double, File> fragmentsByError_, File path_, CharSequence sequence_)
+			Map<Double, File> fragmentsByError_, File path_)
 		{
 			errorRates = errorRates_;
 			paired_end = paired_end_;
@@ -121,8 +122,8 @@ public class AlignmentToolService
 			genomeFile = genomeFile_;
 			fragmentsByError = fragmentsByError_;
 			path = path_;
-			sequence = sequence_;
 		}
+
 		public final List<Double> errorRates;
 		public final boolean paired_end;
 		public final String testDescription;
@@ -130,11 +131,11 @@ public class AlignmentToolService
 		public final File genomeFile;
 		public final Map<Double, File> fragmentsByError;
 		public final File path;
-		public final CharSequence sequence;
 	}
 
-	private ProcessedGenome readOrGenerateGenome(Genome genome, File path)
+	private ProcessedGenome getGenomeAndCleanFragments(Genome genome, File path)
 	{
+		path.mkdirs();
 		// TODO: Don't hardcode this
 		final int generated_genome_length = 100000;
 
@@ -200,7 +201,21 @@ public class AlignmentToolService
 		}
 		System.out.println("done.");
 		System.out.printf("Genome length: %d%n", sequence.length());
-		return new ProcessedGenome(genomeFile, sequence);
+
+		System.out.printf("Writing genome to %s  ... ", genomeFile.getAbsolutePath());
+		writeGenome(sequence, genomeFile);
+		System.out.println("done.");
+
+		Fragmentizer.Options fo = new Fragmentizer.Options();
+		// TODO: Don't hardcode these
+		fo.fragmentLength = 50;
+		fo.fragmentCount = 50000;
+		fo.fragmentLengthSd = 1;
+
+		System.out.print("Reading fragments ... ");
+		final List<? extends Fragment> list = Fragmentizer.fragmentize(sequence, fo);
+		System.out.println("done.");
+		return new ProcessedGenome(genomeFile, sequence, list);
 	}
 
 	private Map<Double, Map<String, AlignmentResults>> runSimulation(SimulationParameters p)
@@ -324,22 +339,7 @@ public class AlignmentToolService
 		final String testDescription = "error_rate";
 		final File dataPath = new File("data");
 
-		ProcessedGenome pg = readOrGenerateGenome(genome, dataPath);
-		CharSequence sequence = pg.sequence;
-		File genomeFile = pg.file;
-
-		System.out.printf("Writing genome to %s  ... ", genomeFile.getAbsolutePath());
-		writeGenome(sequence, genomeFile);
-		System.out.println("done.");
-
-		Fragmentizer.Options fo = new Fragmentizer.Options();
-		fo.fragmentLength = 50;
-		fo.fragmentCount = 50000;
-		fo.fragmentLengthSd = 1;
-
-		System.out.print("Reading fragments ... ");
-		final List<? extends Fragment> list = Fragmentizer.fragmentize(sequence, fo);
-		System.out.println("done.");
+		ProcessedGenome pg = getGenomeAndCleanFragments(genome, dataPath);
 
 		Map<Double, File> fragmentsByError = new TreeMap<Double, File>();
 		for (double errorProbability : ERROR_PROBABILITIES)
@@ -365,14 +365,14 @@ public class AlignmentToolService
 			List<FragmentErrorGenerator> generatorList = new ArrayList<FragmentErrorGenerator>();
 			generatorList.add(base_call_eg);
 			generatorList.add(indel_eg);
-			FragmentErrorGenerator.generateErrorsToFile(generatorList, list, fragments);
+			FragmentErrorGenerator.generateErrorsToFile(generatorList, pg.fragments, fragments);
 			System.out.println("done.");
 		}
 
 		dataPath.mkdirs();
 
 		SimulationParameters pa = new SimulationParameters(ERROR_PROBABILITIES, paired_end,
-			testDescription, genome, genomeFile, fragmentsByError, dataPath, sequence);
+			testDescription, genome, pg.file, fragmentsByError, dataPath);
 
 		Map<Double, Map<String, AlignmentResults>> m = runSimulation(pa);
 
@@ -434,24 +434,7 @@ public class AlignmentToolService
 		final String testDescription = "indel_size";
 		final File dataPath = new File("data");
 
-		ProcessedGenome pg = readOrGenerateGenome(genome, dataPath);
-		CharSequence sequence = pg.sequence;
-		File genomeFile = pg.file;
-
-		System.out.printf("Writing genome to %s  ... ", genomeFile.getAbsolutePath());
-		writeGenome(sequence, genomeFile);
-		System.out.println("done.");
-
-		Fragmentizer.Options fo = new Fragmentizer.Options();
-		fo.fragmentLength = 50;
-		fo.fragmentCount = 50000;
-		fo.fragmentLengthSd = 1;
-
-		System.out.print("Reading fragments...");
-		List<? extends Fragment> list = Fragmentizer.fragmentize(sequence, fo);
-		System.out.println("done.");
-
-		dataPath.mkdirs();
+		ProcessedGenome pg = getGenomeAndCleanFragments(genome, dataPath);
 
 		final double indelLengthStdDev = 0.2;
 		final double indelFrequency = 5e-2;
@@ -476,12 +459,12 @@ public class AlignmentToolService
 			FragmentErrorGenerator indel_eg = new IndelGenerator(SequenceGenerator.NUCLEOTIDES, igo);
 			List<FragmentErrorGenerator> generatorList = new ArrayList<FragmentErrorGenerator>();
 			generatorList.add(indel_eg);
-			FragmentErrorGenerator.generateErrorsToFile(generatorList, list, fragments);
+			FragmentErrorGenerator.generateErrorsToFile(generatorList, pg.fragments, fragments);
 			System.out.println("done.");
 		}
 
 		SimulationParameters pa = new SimulationParameters(INDEL_SIZES, paired_end,
-			testDescription, genome, genomeFile, fragmentsByIndelSize, dataPath, sequence);
+			testDescription, genome, pg.file, fragmentsByIndelSize, dataPath);
 		Map<Double, Map<String, AlignmentResults>> m = runSimulation(pa);
 
 		String filename = String.format("%s_%s.csv", testDescription,
@@ -542,22 +525,7 @@ public class AlignmentToolService
 		final String testDescription = "indel_freq";
 		final File path = new File("data");
 
-		ProcessedGenome pg = readOrGenerateGenome(genome, path);
-		CharSequence sequence = pg.sequence;
-		File genomeFile = pg.file;
-
-		System.out.printf("Writing genome to %s  ... ", genomeFile.getAbsolutePath());
-		writeGenome(sequence, genomeFile);
-		System.out.println("done.");
-
-		Fragmentizer.Options fo = new Fragmentizer.Options();
-		fo.fragmentLength = 50;
-		fo.fragmentCount = 50000;
-		fo.fragmentLengthSd = 1;
-
-		System.out.print("Reading fragments...");
-		List<? extends Fragment> list = Fragmentizer.fragmentize(sequence, fo);
-		System.out.println("done.");
+		ProcessedGenome pg = getGenomeAndCleanFragments(genome, path);
 
 		final int indelLengthMean = 2;
 		final double indelLengthStdDev = 0.2;
@@ -582,14 +550,12 @@ public class AlignmentToolService
 			FragmentErrorGenerator indel_eg = new IndelGenerator(SequenceGenerator.NUCLEOTIDES, igo);
 			List<FragmentErrorGenerator> generatorList = new ArrayList<FragmentErrorGenerator>();
 			generatorList.add(indel_eg);
-			FragmentErrorGenerator.generateErrorsToFile(generatorList, list, fragments);
+			FragmentErrorGenerator.generateErrorsToFile(generatorList, pg.fragments, fragments);
 			System.out.println("done.");
 		}
 
-		path.mkdirs();
-
 		SimulationParameters pa = new SimulationParameters(INDEL_FREQUENCIES, paired_end,
-			testDescription, genome, genomeFile, fragmentsByIndelFreq, path, sequence);
+			testDescription, genome, pg.file, fragmentsByIndelFreq, path);
 		Map<Double, Map<String, AlignmentResults>> m = runSimulation(pa);
 
 		String filename = String.format("%s_%s.csv", testDescription,
