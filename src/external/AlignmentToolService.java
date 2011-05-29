@@ -68,6 +68,8 @@ public class AlignmentToolService
 
 	private final ExecutorService pool;
 
+	private static final File DATA_PATH = new File("data");
+
 	public AlignmentToolService()
 	{
 		pool = Executors.newFixedThreadPool(NUMBER_OF_CONCURRENT_THREADS);
@@ -113,7 +115,7 @@ public class AlignmentToolService
 	{
 		public SimulationParameters(List<Double> errorRates_, boolean paired_end_,
 			String testDescription_, Genome genome_, File genomeFile_,
-			Map<Double, File> fragmentsByError_, File path_)
+			Map<Double, File> fragmentsByError_)
 		{
 			errorRates = errorRates_;
 			paired_end = paired_end_;
@@ -121,7 +123,6 @@ public class AlignmentToolService
 			genome = genome_;
 			genomeFile = genomeFile_;
 			fragmentsByError = fragmentsByError_;
-			path = path_;
 		}
 
 		public final List<Double> errorRates;
@@ -130,12 +131,11 @@ public class AlignmentToolService
 		public final Genome genome;
 		public final File genomeFile;
 		public final Map<Double, File> fragmentsByError;
-		public final File path;
 	}
 
-	private ProcessedGenome getGenomeAndCleanFragments(Genome genome, File path)
+	private ProcessedGenome getGenomeAndCleanFragments(Genome genome)
 	{
-		path.mkdirs();
+		DATA_PATH.mkdirs();
 		// TODO: Don't hardcode this
 		final int generated_genome_length = 100000;
 
@@ -147,7 +147,7 @@ public class AlignmentToolService
 		switch (genome)
 		{
 			case HUMAN_CHR22:
-				final File chr22 = new File(path, "chr22.fa");
+				final File chr22 = new File(DATA_PATH, "chr22.fa");
 				try
 				{
 					/*
@@ -160,10 +160,10 @@ public class AlignmentToolService
 				{
 					e.printStackTrace();
 				}
-				genomeFile = new File(path, "chr22-contig.fa");
+				genomeFile = new File(DATA_PATH, "chr22-contig.fa");
 				break;
 			case HUMAN_2GB:
-				final File hg19_2gb = new File(path, "hg19_2gb.fa");
+				final File hg19_2gb = new File(DATA_PATH, "hg19_2gb.fa");
 				try
 				{
 					/*
@@ -176,10 +176,10 @@ public class AlignmentToolService
 				{
 					e.printStackTrace();
 				}
-				genomeFile = new File(path, "hg19_2gb-contig.fa");
+				genomeFile = new File(DATA_PATH, "hg19_2gb-contig.fa");
 				break;
 			case RANDOM_EASY:
-				genomeFile = new File(path, "random_easy.fa");
+				genomeFile = new File(DATA_PATH, "random_easy.fa");
 				g = new SeqGenSingleSequenceMultipleRepeats();
 				sgo = new SequenceGenerator.Options();
 				sgo.length = generated_genome_length;
@@ -187,7 +187,7 @@ public class AlignmentToolService
 				sequence = g.generateSequence(sgo);
 				break;
 			case RANDOM_HARD:
-				genomeFile = new File(path, "random_hard.fa");
+				genomeFile = new File(DATA_PATH, "random_hard.fa");
 				g = new SeqGenSingleSequenceMultipleRepeats();
 				sgo = new SequenceGenerator.Options();
 				sgo.length = generated_genome_length;
@@ -259,7 +259,7 @@ public class AlignmentToolService
 
 			for (AlignmentToolInterface ati : alignmentInterfaceList)
 			{
-				File tool_path = new File(p.path, String.format("%03d-%s-%s-%s", ati.index,
+				File tool_path = new File(DATA_PATH, String.format("%03d-%s-%s-%s", ati.index,
 					ati.description, p.testDescription, p.genome.toString().toLowerCase()));
 				tool_path.mkdirs();
 				ati.o.genome = new File(tool_path, "genome.fasta");
@@ -319,7 +319,7 @@ public class AlignmentToolService
 		try
 		{
 			System.out.printf("Writing results to %s%n", filename);
-			FileWriter w = new FileWriter(new File(pa.path, filename));
+			FileWriter w = new FileWriter(new File(DATA_PATH, filename));
 			w.write(String.format("%s,%s,%s,%s,%s,%s,%s%n", "Tool", "ErrorRate", "Threshold",
 				"Precision", "Recall", "Time", "UsedReadRatio"));
 			for (Double d : m.keySet())
@@ -339,7 +339,7 @@ public class AlignmentToolService
 			w.close();
 
 			System.out.printf("Writing overall ROC data to %s%n", roc_filename);
-			w = new FileWriter(new File(pa.path, roc_filename));
+			w = new FileWriter(new File(DATA_PATH, roc_filename));
 			w.write(String.format("%s,%s,%s,%s%n", "Tool", "ErrorRate", "Score", "Label"));
 			for (Double d : m.keySet())
 			{
@@ -392,9 +392,8 @@ public class AlignmentToolService
 	public void errorRateEvaluation(boolean paired_end, Genome genome)
 	{
 		final String testDescription = "error_rate";
-		final File dataPath = new File("data");
 
-		ProcessedGenome pg = getGenomeAndCleanFragments(genome, dataPath);
+		ProcessedGenome pg = getGenomeAndCleanFragments(genome);
 
 		Map<Double, File> fragmentsByError = new TreeMap<Double, File>();
 		for (double errorProbability : ERROR_PROBABILITIES)
@@ -402,7 +401,7 @@ public class AlignmentToolService
 			String error_identifier = Double.toString(errorProbability).replace('.', '_');
 			String filename = String.format("fragments-%s-%s.fastq", testDescription,
 				error_identifier);
-			File fragments = new File(dataPath, filename);
+			File fragments = new File(DATA_PATH, filename);
 			fragmentsByError.put(errorProbability, fragments);
 
 			System.out.printf("Introducing fragment read errors for error rate %f ... ",
@@ -425,7 +424,7 @@ public class AlignmentToolService
 		}
 
 		SimulationParameters pa = new SimulationParameters(ERROR_PROBABILITIES, paired_end,
-			testDescription, genome, pg.file, fragmentsByError, dataPath);
+			testDescription, genome, pg.file, fragmentsByError);
 
 		Map<Double, Map<String, AlignmentResults>> m = runSimulation(pa);
 
@@ -435,9 +434,8 @@ public class AlignmentToolService
 	public void indelSizeEvaluation(boolean paired_end, Genome genome)
 	{
 		final String testDescription = "indel_size";
-		final File dataPath = new File("data");
 
-		ProcessedGenome pg = getGenomeAndCleanFragments(genome, dataPath);
+		ProcessedGenome pg = getGenomeAndCleanFragments(genome);
 
 		final double indelLengthStdDev = 0.2;
 		final double indelFrequency = 5e-2;
@@ -447,7 +445,7 @@ public class AlignmentToolService
 			String error_identifier = String.format("%.0f", indelSize);
 			String filename = String.format("fragments-%s-%s.fastq", testDescription,
 				error_identifier);
-			File fragments = new File(dataPath, filename);
+			File fragments = new File(DATA_PATH, filename);
 			fragmentsByIndelSize.put(indelSize, fragments);
 
 			System.out.printf("Introducing fragment read errors for indel size %.0f ... ",
@@ -467,7 +465,7 @@ public class AlignmentToolService
 		}
 
 		SimulationParameters pa = new SimulationParameters(INDEL_SIZES, paired_end,
-			testDescription, genome, pg.file, fragmentsByIndelSize, dataPath);
+			testDescription, genome, pg.file, fragmentsByIndelSize);
 		Map<Double, Map<String, AlignmentResults>> m = runSimulation(pa);
 
 		String filename = String.format("%s_%s.csv", testDescription,
@@ -477,7 +475,7 @@ public class AlignmentToolService
 		try
 		{
 			System.out.printf("Writing results to %s%n", filename);
-			FileWriter w = new FileWriter(new File(dataPath, filename));
+			FileWriter w = new FileWriter(new File(DATA_PATH, filename));
 			w.write(String.format("%s,%s,%s,%s,%s,%s,%s%n", "Tool", "IndelSize", "Threshold",
 				"Precision", "Recall", "Time", "UsedReadRatio"));
 			for (Double indelSize : m.keySet())
@@ -497,7 +495,7 @@ public class AlignmentToolService
 			w.close();
 
 			System.out.printf("Writing overall ROC data to %s%n", roc_filename);
-			w = new FileWriter(new File(dataPath, roc_filename));
+			w = new FileWriter(new File(DATA_PATH, roc_filename));
 			w.write(String.format("%s,%s,%s,%s%n", "Tool", "IndelSize", "Score", "Label"));
 			for (Double indelSize : m.keySet())
 			{
@@ -526,9 +524,8 @@ public class AlignmentToolService
 	public void indelFrequencyEvaluation(boolean paired_end, Genome genome)
 	{
 		final String testDescription = "indel_freq";
-		final File path = new File("data");
 
-		ProcessedGenome pg = getGenomeAndCleanFragments(genome, path);
+		ProcessedGenome pg = getGenomeAndCleanFragments(genome);
 
 		final int indelLengthMean = 2;
 		final double indelLengthStdDev = 0.2;
@@ -538,7 +535,7 @@ public class AlignmentToolService
 			String error_identifier = Double.toString(indelFrequency).replace('.', '_');
 			String filename = String.format("fragments-%s-%s.fastq", testDescription,
 				error_identifier);
-			File fragments = new File(path, filename);
+			File fragments = new File(DATA_PATH, filename);
 			fragmentsByIndelFreq.put(indelFrequency, fragments);
 
 			System.out.printf("Introducing fragment read errors for indel frequency %f ... ",
@@ -558,7 +555,7 @@ public class AlignmentToolService
 		}
 
 		SimulationParameters pa = new SimulationParameters(INDEL_FREQUENCIES, paired_end,
-			testDescription, genome, pg.file, fragmentsByIndelFreq, path);
+			testDescription, genome, pg.file, fragmentsByIndelFreq);
 		Map<Double, Map<String, AlignmentResults>> m = runSimulation(pa);
 
 		String filename = String.format("%s_%s.csv", testDescription,
@@ -568,7 +565,7 @@ public class AlignmentToolService
 		try
 		{
 			System.out.printf("Writing results to %s%n", filename);
-			FileWriter w = new FileWriter(new File(path, filename));
+			FileWriter w = new FileWriter(new File(DATA_PATH, filename));
 			w.write(String.format("%s,%s,%s,%s,%s,%s,%s%n", "Tool", "IndelFrequency", "Threshold",
 				"Precision", "Recall", "Time", "UsedReadRatio"));
 			for (Double indelFrequency : m.keySet())
@@ -588,7 +585,7 @@ public class AlignmentToolService
 			w.close();
 
 			System.out.printf("Writing overall ROC data to %s%n", roc_filename);
-			w = new FileWriter(new File(path, roc_filename));
+			w = new FileWriter(new File(DATA_PATH, roc_filename));
 			w.write(String.format("%s,%s,%s,%s%n", "Tool", "IndelFrequency", "Score", "Label"));
 			for (Double indelFrequency : m.keySet())
 			{
@@ -625,8 +622,7 @@ public class AlignmentToolService
 		final int generated_genome_length = 1000000;
 		CharSequence origSequence = null;
 		SeqFilterTandemRepeats g = null;
-		final File path = new File("data");
-		path.mkdirs();
+		DATA_PATH.mkdirs();
 
 		final int alignmentToolCount = ERROR_PROBABILITIES.size() * PHRED_THRESHOLDS.size() * 7;
 		List<AlignmentToolInterface> atiList = new ArrayList<AlignmentToolInterface>(
@@ -692,7 +688,7 @@ public class AlignmentToolService
 
 				for (AlignmentToolInterface ati : alignmentInterfaceList)
 				{
-					File tool_path = new File(path, String.format("%03d-%s-%s", ati.index,
+					File tool_path = new File(DATA_PATH, String.format("%03d-%s-%s", ati.index,
 						ati.description, "tandem"));
 					tool_path.mkdirs();
 					ati.o.genome = new File(tool_path, "genome.fasta");
@@ -747,7 +743,7 @@ public class AlignmentToolService
 		try
 		{
 			System.out.printf("Writing results to %s%n", filename);
-			FileWriter w = new FileWriter(new File(path, filename));
+			FileWriter w = new FileWriter(new File(DATA_PATH, filename));
 			w.write(String.format("%s,%s,%s,%s,%s,%s,%s%n", "Tool", "GenomeRepeatCount",
 				"Threshold", "Precision", "Recall", "Time", "UsedReadRatio"));
 			for (int repeatCount : m.keySet())
@@ -767,7 +763,7 @@ public class AlignmentToolService
 			w.close();
 
 			System.out.printf("Writing overall ROC data to %s%n", roc_filename);
-			w = new FileWriter(new File(path, roc_filename));
+			w = new FileWriter(new File(DATA_PATH, roc_filename));
 			w.write(String.format("%s,%s,%s,%s%n", "Tool", "IndelFrequency", "Score", "Label"));
 			for (int repeatCount : m.keySet())
 			{
@@ -805,8 +801,7 @@ public class AlignmentToolService
 		final String testDescription = "big_deletion_200";
 		final int generated_genome_length = 1000000;
 		CharSequence origSequence = null;
-		final File path = new File("data");
-		path.mkdirs();
+		DATA_PATH.mkdirs();
 
 		final int alignmentToolCount = ERROR_PROBABILITIES.size() * PHRED_THRESHOLDS.size() * 7;
 		List<AlignmentToolInterface> atiList = new ArrayList<AlignmentToolInterface>(
@@ -883,7 +878,7 @@ public class AlignmentToolService
 
 			for (AlignmentToolInterface ati : alignmentInterfaceList)
 			{
-				File tool_path = new File(path, String.format("%03d-%s-%s", ati.index,
+				File tool_path = new File(DATA_PATH, String.format("%03d-%s-%s", ati.index,
 					ati.description, "tandem"));
 				tool_path.mkdirs();
 				ati.o.genome = new File(tool_path, "genome.fasta");
@@ -937,7 +932,7 @@ public class AlignmentToolService
 		try
 		{
 			System.out.printf("Writing results to %s%n", filename);
-			FileWriter w = new FileWriter(new File(path, filename));
+			FileWriter w = new FileWriter(new File(DATA_PATH, filename));
 			w.write(String.format("%s,%s,%s,%s,%s,%s,%s%n", "Tool", "GenomeRepeatCount",
 				"Threshold", "Precision", "Recall", "Time", "UsedReadRatio"));
 			for (int repeatCount : m.keySet())
@@ -957,12 +952,12 @@ public class AlignmentToolService
 			w.close();
 
 			System.out.printf("Writing overall ROC data to %s%n", roc_filename);
-			FileWriter e = new FileWriter(new File(path, extra_filename));
+			FileWriter e = new FileWriter(new File(DATA_PATH, extra_filename));
 			e.write(String.format("#Fragments straddling breakpoint: %d%n",
 				fragmentsAcrossBreakpoint));
 			e.write(String.format("#Breakpoint position: %d%n", sfsd.getDeletePosition()));
 			e.write("ToolName,UnmappedFragments\n");
-			w = new FileWriter(new File(path, roc_filename));
+			w = new FileWriter(new File(DATA_PATH, roc_filename));
 			w.write(String.format("%s,%s,%s,%s%n", "Tool", "IndelFrequency", "Score", "Label"));
 			for (int repeatCount : m.keySet())
 			{
@@ -1003,7 +998,6 @@ public class AlignmentToolService
 			EVAL_RUN_COUNT);
 		final boolean paired_end = false;
 		final double errorProbability = 0.05;
-		final File path = new File("data");
 
 		SequenceGenerator g = new SeqGenSingleSequenceMultipleRepeats();
 		SequenceGenerator.Options sgo = new SequenceGenerator.Options();
@@ -1013,7 +1007,7 @@ public class AlignmentToolService
 		System.out.println("done.");
 		System.out.printf("Genome length: %d%n", sequence.length());
 
-		path.mkdirs();
+		DATA_PATH.mkdirs();
 		List<Future<AlignmentResults>> futureList = new ArrayList<Future<AlignmentResults>>(
 			RUNTIME_COVERAGES.size() * EVAL_RUN_COUNT * 7);
 		int index = 0;
@@ -1063,7 +1057,7 @@ public class AlignmentToolService
 
 				for (AlignmentToolInterface ati : alignmentInterfaceList)
 				{
-					File tool_path = new File(path, String.format("%03d-%s", ati.index,
+					File tool_path = new File(DATA_PATH, String.format("%03d-%s", ati.index,
 						ati.description));
 					tool_path.mkdirs();
 					ati.o.genome = new File(tool_path, "genome.fasta");
@@ -1107,7 +1101,7 @@ public class AlignmentToolService
 		System.out.printf("Writing time data to %s%n", roc_filename);
 		try
 		{
-			FileWriter w = new FileWriter(new File(path, roc_filename));
+			FileWriter w = new FileWriter(new File(DATA_PATH, roc_filename));
 			w.write(String.format("Tool,Coverage,PreprocessingTime,AlignmentTime,PostprocessingTime,TotalTime%n"));
 			for (Map<Integer, Map<String, AlignmentResults>> m : l)
 			{
@@ -1146,9 +1140,8 @@ public class AlignmentToolService
 		final boolean paired_end = false;
 		final double errorProbability = 0.05;
 		final int coverage = 3;
-		final File path = new File("data");
 
-		path.mkdirs();
+		DATA_PATH.mkdirs();
 		List<Future<AlignmentResults>> futureList = new ArrayList<Future<AlignmentResults>>(
 			RUNTIME_COVERAGES.size() * EVAL_RUN_COUNT * 7);
 		int index = 0;
@@ -1205,7 +1198,7 @@ public class AlignmentToolService
 
 				for (AlignmentToolInterface ati : alignmentInterfaceList)
 				{
-					File tool_path = new File(path, String.format("%03d-%s", ati.index,
+					File tool_path = new File(DATA_PATH, String.format("%03d-%s", ati.index,
 						ati.description));
 					tool_path.mkdirs();
 					ati.o.genome = new File(tool_path, "genome.fasta");
@@ -1249,7 +1242,7 @@ public class AlignmentToolService
 		System.out.printf("Writing time data to %s%n", roc_filename);
 		try
 		{
-			FileWriter w = new FileWriter(new File(path, roc_filename));
+			FileWriter w = new FileWriter(new File(DATA_PATH, roc_filename));
 			w.write(String.format("Tool,GenomeLength,PreprocessingTime,AlignmentTime,PostprocessingTime,TotalTime%n"));
 			for (Map<Integer, Map<String, AlignmentResults>> m : l)
 			{
@@ -1319,9 +1312,8 @@ public class AlignmentToolService
 			EVAL_RUN_COUNT);
 		final boolean paired_end = true;
 		// final double errorProbability = 0.05;
-		final File path = new File("data");
 
-		path.mkdirs();
+		DATA_PATH.mkdirs();
 		List<Future<AlignmentResults>> futureList = new ArrayList<Future<AlignmentResults>>(
 			RUNTIME_COVERAGES.size() * EVAL_RUN_COUNT * 7);
 		int index = 0;
@@ -1397,12 +1389,12 @@ public class AlignmentToolService
 
 			for (AlignmentToolInterface ati : alignmentInterfaceList)
 			{
-				File tool_path = new File(path,
-					String.format("%03d-%s", ati.index, ati.description));
+				File tool_path = new File(DATA_PATH, String.format("%03d-%s", ati.index,
+					ati.description));
 				tool_path.mkdirs();
 
 				// TODO: move this
-				File repeatPositionsFile = new File(path, repeatPositionsFilename);
+				File repeatPositionsFile = new File(DATA_PATH, repeatPositionsFilename);
 				try
 				{
 					BufferedWriter w = new BufferedWriter(new FileWriter(repeatPositionsFile));
@@ -1469,7 +1461,7 @@ public class AlignmentToolService
 			System.out.printf("Writing results to %s%n", results_filename);
 			try
 			{
-				FileWriter w = new FileWriter(new File(path, results_filename));
+				FileWriter w = new FileWriter(new File(DATA_PATH, results_filename));
 				w.write(String.format("%s,%s,%s,%s,%s,%s,%s%n", "Tool", "ErrorRate", "Threshold",
 					"Precision", "Recall", "Time", "UsedReadRatio"));
 				for (Integer d : m.keySet())
