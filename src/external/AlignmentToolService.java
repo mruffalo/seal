@@ -310,6 +310,61 @@ public class AlignmentToolService
 		return m;
 	}
 
+	public void writeResults(SimulationParameters pa, Map<Double, Map<String, AlignmentResults>> m)
+	{
+		String filename = String.format("%s_%s.csv", pa.testDescription,
+			pa.genome.toString().toLowerCase());
+		String roc_filename = String.format("%s_%s_roc.csv", pa.testDescription,
+			pa.genome.toString().toLowerCase());
+		try
+		{
+			System.out.printf("Writing results to %s%n", filename);
+			FileWriter w = new FileWriter(new File(pa.path, filename));
+			w.write(String.format("%s,%s,%s,%s,%s,%s,%s%n", "Tool", "ErrorRate", "Threshold",
+				"Precision", "Recall", "Time", "UsedReadRatio"));
+			for (Double d : m.keySet())
+			{
+				for (String s : m.get(d).keySet())
+				{
+					for (Integer i : PHRED_THRESHOLDS)
+					{
+						AlignmentResults ar = m.get(d).get(s);
+						FilteredAlignmentResults r = ar.filter(i);
+						w.write(String.format("%s,%f,%d,%f,%f,%d,%f%n", s, d, i, r.getPrecision(),
+							r.getRecall(), ar.timeMap.get(AlignmentOperation.TOTAL),
+							r.getUsedReadRatio()));
+					}
+				}
+			}
+			w.close();
+
+			System.out.printf("Writing overall ROC data to %s%n", roc_filename);
+			w = new FileWriter(new File(pa.path, roc_filename));
+			w.write(String.format("%s,%s,%s,%s%n", "Tool", "ErrorRate", "Score", "Label"));
+			for (Double d : m.keySet())
+			{
+				for (String s : m.get(d).keySet())
+				{
+					// TODO: Don't duplicate code here
+					AlignmentResults r = m.get(d).get(s);
+					for (int p : r.positives)
+					{
+						w.write(String.format("%s,%f,%d,%d%n", s, d, p, 1));
+					}
+					for (int n : r.negatives)
+					{
+						w.write(String.format("%s,%f,%d,%d%n", s, d, n, 0));
+					}
+				}
+			}
+			w.close();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
 	public static void writeGenome(CharSequence genome, File file)
 	{
 		try
@@ -369,64 +424,12 @@ public class AlignmentToolService
 			System.out.println("done.");
 		}
 
-		dataPath.mkdirs();
-
 		SimulationParameters pa = new SimulationParameters(ERROR_PROBABILITIES, paired_end,
 			testDescription, genome, pg.file, fragmentsByError, dataPath);
 
 		Map<Double, Map<String, AlignmentResults>> m = runSimulation(pa);
 
-		String filename = String.format("%s_%s.csv", testDescription,
-			genome.toString().toLowerCase());
-		String roc_filename = String.format("%s_%s_roc.csv", testDescription,
-			genome.toString().toLowerCase());
-		try
-		{
-			System.out.printf("Writing results to %s%n", filename);
-			FileWriter w = new FileWriter(new File(dataPath, filename));
-			w.write(String.format("%s,%s,%s,%s,%s,%s,%s%n", "Tool", "ErrorRate", "Threshold",
-				"Precision", "Recall", "Time", "UsedReadRatio"));
-			for (Double d : m.keySet())
-			{
-				for (String s : m.get(d).keySet())
-				{
-					for (Integer i : PHRED_THRESHOLDS)
-					{
-						AlignmentResults ar = m.get(d).get(s);
-						FilteredAlignmentResults r = ar.filter(i);
-						w.write(String.format("%s,%f,%d,%f,%f,%d,%f%n", s, d, i, r.getPrecision(),
-							r.getRecall(), ar.timeMap.get(AlignmentOperation.TOTAL),
-							r.getUsedReadRatio()));
-					}
-				}
-			}
-			w.close();
-
-			System.out.printf("Writing overall ROC data to %s%n", roc_filename);
-			w = new FileWriter(new File(dataPath, roc_filename));
-			w.write(String.format("%s,%s,%s,%s%n", "Tool", "ErrorRate", "Score", "Label"));
-			for (Double d : m.keySet())
-			{
-				for (String s : m.get(d).keySet())
-				{
-					// TODO: Don't duplicate code here
-					AlignmentResults r = m.get(d).get(s);
-					for (int p : r.positives)
-					{
-						w.write(String.format("%s,%f,%d,%d%n", s, d, p, 1));
-					}
-					for (int n : r.negatives)
-					{
-						w.write(String.format("%s,%f,%d,%d%n", s, d, n, 0));
-					}
-				}
-			}
-			w.close();
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
+		writeResults(pa, m);
 	}
 
 	public void indelSizeEvaluation(boolean paired_end, Genome genome)
