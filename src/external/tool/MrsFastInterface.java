@@ -17,10 +17,10 @@ public class MrsFastInterface extends AlignmentToolInterface
 	public static final String INDEX_COMMAND = "--index";
 	public static final String SEARCH_COMMAND = "--search";
 
-	public MrsFastInterface(int index_, String description_, List<Integer> thresholds_,
-		CharSequence sequence_, Options o_, Map<String, AlignmentResults> m_)
+	public MrsFastInterface(int index_, String description_, List<Integer> thresholds_, Options o_,
+		Map<String, AlignmentResults> m_)
 	{
-		super(index_, description_, thresholds_, sequence_, o_, m_);
+		super(index_, description_, thresholds_, o_, m_);
 	}
 
 	public void createIndex()

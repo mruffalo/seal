@@ -16,7 +16,6 @@ import java.util.concurrent.Callable;
 public abstract class AlignmentToolInterface implements Callable<AlignmentResults>
 {
 	protected final List<Integer> thresholds;
-	protected CharSequence sequence;
 	protected Options o;
 	/**
 	 * Not a Set of Fragments since we're getting this from the output of the
@@ -119,12 +118,11 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 	}
 
 	public AlignmentToolInterface(int index_, String description_, List<Integer> thresholds_,
-		CharSequence sequence_, Options o_, Map<String, AlignmentResults> m_)
+		Options o_, Map<String, AlignmentResults> m_)
 	{
 		index = index_;
 		description = description_;
 		thresholds = thresholds_;
-		sequence = sequence_;
 		o = o_;
 		m = m_;
 	}

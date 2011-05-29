@@ -1,7 +1,6 @@
 package external.tool;
 
 import io.Constants;
-import io.FastaWriter;
 import io.SamReader;
 import java.io.BufferedReader;
 import java.io.File;
@@ -28,10 +27,10 @@ public class MaqInterface extends AlignmentToolInterface
 	public static final String ASSEMBLE_COMMAND = "assemble";
 	public static final String VIEW_ALIGNMENT_COMMAND = "mapview";
 
-	public MaqInterface(int index_, String description_, List<Integer> thresholds_,
-		CharSequence sequence_, Options o_, Map<String, AlignmentResults> m_)
+	public MaqInterface(int index_, String description_, List<Integer> thresholds_, Options o_,
+		Map<String, AlignmentResults> m_)
 	{
-		super(index_, description_, thresholds_, sequence_, o_, m_);
+		super(index_, description_, thresholds_, o_, m_);
 	}
 
 	@Override
@@ -197,7 +196,6 @@ public class MaqInterface extends AlignmentToolInterface
 		pb.directory(o.genome.getParentFile());
 		try
 		{
-			FastaWriter.writeSequence(sequence, o.genome);
 			Process p = pb.start();
 			BufferedReader stdout = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			BufferedReader stderr = new BufferedReader(new InputStreamReader(p.getErrorStream()));

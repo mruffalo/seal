@@ -15,10 +15,10 @@ public class ShrimpInterface extends AlignmentToolInterface
 {
 	private static final String SHRIMP_ALIGN_COMMAND = "gmapper-ls";
 
-	public ShrimpInterface(int index_, String description_, List<Integer> thresholds_,
-		CharSequence sequence_, Options o_, Map<String, AlignmentResults> m_)
+	public ShrimpInterface(int index_, String description_, List<Integer> thresholds_, Options o_,
+		Map<String, AlignmentResults> m_)
 	{
-		super(index_, description_, thresholds_, sequence_, o_, m_);
+		super(index_, description_, thresholds_, o_, m_);
 	}
 
 	@Override

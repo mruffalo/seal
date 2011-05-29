@@ -27,10 +27,10 @@ public class BwaInterface extends AlignmentToolInterface
 
 	public static final String OUTPUT_TEMPLATE = "%s\t%d\t%d\t%d\t%d%n";
 
-	public BwaInterface(int index_, String description_, List<Integer> thresholds_,
-		CharSequence sequence_, Options o_, Map<String, AlignmentResults> m_)
+	public BwaInterface(int index_, String description_, List<Integer> thresholds_, Options o_,
+		Map<String, AlignmentResults> m_)
 	{
-		super(index_, description_, thresholds_, sequence_, o_, m_);
+		super(index_, description_, thresholds_, o_, m_);
 	}
 
 	public void createIndex()
