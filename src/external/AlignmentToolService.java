@@ -310,7 +310,8 @@ public class AlignmentToolService
 		return m;
 	}
 
-	public void writeResults(SimulationParameters pa, Map<Double, Map<String, AlignmentResults>> m)
+	public void writeResults(SimulationParameters pa, Map<Double, Map<String, AlignmentResults>> m,
+		String parameterName)
 	{
 		String filename = String.format("%s_%s.csv", pa.testDescription,
 			pa.genome.toString().toLowerCase());
@@ -320,7 +321,7 @@ public class AlignmentToolService
 		{
 			System.out.printf("Writing results to %s%n", filename);
 			FileWriter w = new FileWriter(new File(DATA_PATH, filename));
-			w.write(String.format("%s,%s,%s,%s,%s,%s,%s%n", "Tool", "ErrorRate", "Threshold",
+			w.write(String.format("%s,%s,%s,%s,%s,%s,%s%n", "Tool", parameterName, "Threshold",
 				"Precision", "Recall", "Time", "UsedReadRatio"));
 			for (Double d : m.keySet())
 			{
@@ -340,7 +341,7 @@ public class AlignmentToolService
 
 			System.out.printf("Writing overall ROC data to %s%n", roc_filename);
 			w = new FileWriter(new File(DATA_PATH, roc_filename));
-			w.write(String.format("%s,%s,%s,%s%n", "Tool", "ErrorRate", "Score", "Label"));
+			w.write(String.format("%s,%s,%s,%s%n", "Tool", parameterName, "Score", "Label"));
 			for (Double d : m.keySet())
 			{
 				for (String s : m.get(d).keySet())
@@ -428,7 +429,7 @@ public class AlignmentToolService
 
 		Map<Double, Map<String, AlignmentResults>> m = runSimulation(pa);
 
-		writeResults(pa, m);
+		writeResults(pa, m, "ErrorRate");
 	}
 
 	public void indelSizeEvaluation(boolean paired_end, Genome genome)
