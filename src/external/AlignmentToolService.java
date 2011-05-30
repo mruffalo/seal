@@ -469,57 +469,7 @@ public class AlignmentToolService
 			testDescription, genome, pg.file, fragmentsByIndelSize);
 		Map<Double, Map<String, AlignmentResults>> m = runSimulation(pa);
 
-		String filename = String.format("%s_%s.csv", testDescription,
-			genome.toString().toLowerCase());
-		String roc_filename = String.format("%s_%s_roc.csv", testDescription,
-			genome.toString().toLowerCase());
-		try
-		{
-			System.out.printf("Writing results to %s%n", filename);
-			FileWriter w = new FileWriter(new File(DATA_PATH, filename));
-			w.write(String.format("%s,%s,%s,%s,%s,%s,%s%n", "Tool", "IndelSize", "Threshold",
-				"Precision", "Recall", "Time", "UsedReadRatio"));
-			for (Double indelSize : m.keySet())
-			{
-				for (String toolName : m.get(indelSize).keySet())
-				{
-					for (Integer i : PHRED_THRESHOLDS)
-					{
-						AlignmentResults ar = m.get(indelSize).get(toolName);
-						FilteredAlignmentResults r = ar.filter(i);
-						w.write(String.format("%s,%.0f,%d,%f,%f,%d,%f%n", toolName, indelSize, i,
-							r.getPrecision(), r.getRecall(),
-							ar.timeMap.get(AlignmentOperation.TOTAL), r.getUsedReadRatio()));
-					}
-				}
-			}
-			w.close();
-
-			System.out.printf("Writing overall ROC data to %s%n", roc_filename);
-			w = new FileWriter(new File(DATA_PATH, roc_filename));
-			w.write(String.format("%s,%s,%s,%s%n", "Tool", "IndelSize", "Score", "Label"));
-			for (Double indelSize : m.keySet())
-			{
-				for (String toolName : m.get(indelSize).keySet())
-				{
-					// TODO: Don't duplicate code here
-					AlignmentResults r = m.get(indelSize).get(toolName);
-					for (int p : r.positives)
-					{
-						w.write(String.format("%s,%.0f,%d,%d%n", toolName, indelSize, p, 1));
-					}
-					for (int n : r.negatives)
-					{
-						w.write(String.format("%s,%.0f,%d,%d%n", toolName, indelSize, n, 0));
-					}
-				}
-			}
-			w.close();
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
+		writeResults(pa, m, "IndelSize");
 	}
 
 	public void indelFrequencyEvaluation(boolean paired_end, Genome genome)
@@ -559,57 +509,7 @@ public class AlignmentToolService
 			testDescription, genome, pg.file, fragmentsByIndelFreq);
 		Map<Double, Map<String, AlignmentResults>> m = runSimulation(pa);
 
-		String filename = String.format("%s_%s.csv", testDescription,
-			genome.toString().toLowerCase());
-		String roc_filename = String.format("%s_%s_roc.csv", testDescription,
-			genome.toString().toLowerCase());
-		try
-		{
-			System.out.printf("Writing results to %s%n", filename);
-			FileWriter w = new FileWriter(new File(DATA_PATH, filename));
-			w.write(String.format("%s,%s,%s,%s,%s,%s,%s%n", "Tool", "IndelFrequency", "Threshold",
-				"Precision", "Recall", "Time", "UsedReadRatio"));
-			for (Double indelFrequency : m.keySet())
-			{
-				for (String toolName : m.get(indelFrequency).keySet())
-				{
-					for (Integer threshold : PHRED_THRESHOLDS)
-					{
-						AlignmentResults ar = m.get(indelFrequency).get(toolName);
-						FilteredAlignmentResults r = ar.filter(threshold);
-						w.write(String.format("%s,%f,%d,%f,%f,%d,%f%n", toolName, indelFrequency,
-							threshold, r.getPrecision(), r.getRecall(),
-							ar.timeMap.get(AlignmentOperation.TOTAL), r.getUsedReadRatio()));
-					}
-				}
-			}
-			w.close();
-
-			System.out.printf("Writing overall ROC data to %s%n", roc_filename);
-			w = new FileWriter(new File(DATA_PATH, roc_filename));
-			w.write(String.format("%s,%s,%s,%s%n", "Tool", "IndelFrequency", "Score", "Label"));
-			for (Double indelFrequency : m.keySet())
-			{
-				for (String toolName : m.get(indelFrequency).keySet())
-				{
-					// TODO: Don't duplicate code here
-					AlignmentResults r = m.get(indelFrequency).get(toolName);
-					for (int p : r.positives)
-					{
-						w.write(String.format("%s,%f,%d,%d%n", toolName, indelFrequency, p, 1));
-					}
-					for (int n : r.negatives)
-					{
-						w.write(String.format("%s,%f,%d,%d%n", toolName, indelFrequency, n, 0));
-					}
-				}
-			}
-			w.close();
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
+		writeResults(pa, m, "IndelFrequency");
 	}
 
 	/**
