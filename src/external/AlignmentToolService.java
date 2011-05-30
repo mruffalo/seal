@@ -218,7 +218,7 @@ public class AlignmentToolService
 		return new ProcessedGenome(genomeFile, sequence, list);
 	}
 
-	private Map<Double, Map<String, AlignmentResults>> runSimulation(SimulationParameters p)
+	private Map<Double, Map<String, AlignmentResults>> runAccuracySimulation(SimulationParameters p)
 	{
 		ExecutorService pool = Executors.newFixedThreadPool(NUMBER_OF_CONCURRENT_THREADS);
 		List<AlignmentToolInterface> atiList = new ArrayList<AlignmentToolInterface>();
@@ -310,7 +310,7 @@ public class AlignmentToolService
 		return m;
 	}
 
-	public void writeResults(SimulationParameters pa, Map<Double, Map<String, AlignmentResults>> m,
+	public void writeAccuracyResults(SimulationParameters pa, Map<Double, Map<String, AlignmentResults>> m,
 		String parameterName)
 	{
 		String filename = String.format("%s_%s.csv", pa.testDescription,
@@ -427,9 +427,9 @@ public class AlignmentToolService
 		SimulationParameters pa = new SimulationParameters(ERROR_PROBABILITIES, paired_end,
 			testDescription, genome, pg.file, fragmentsByError);
 
-		Map<Double, Map<String, AlignmentResults>> m = runSimulation(pa);
+		Map<Double, Map<String, AlignmentResults>> m = runAccuracySimulation(pa);
 
-		writeResults(pa, m, "ErrorRate");
+		writeAccuracyResults(pa, m, "ErrorRate");
 	}
 
 	public void indelSizeEvaluation(boolean paired_end, Genome genome)
@@ -467,9 +467,9 @@ public class AlignmentToolService
 
 		SimulationParameters pa = new SimulationParameters(INDEL_SIZES, paired_end,
 			testDescription, genome, pg.file, fragmentsByIndelSize);
-		Map<Double, Map<String, AlignmentResults>> m = runSimulation(pa);
+		Map<Double, Map<String, AlignmentResults>> m = runAccuracySimulation(pa);
 
-		writeResults(pa, m, "IndelSize");
+		writeAccuracyResults(pa, m, "IndelSize");
 	}
 
 	public void indelFrequencyEvaluation(boolean paired_end, Genome genome)
@@ -507,9 +507,9 @@ public class AlignmentToolService
 
 		SimulationParameters pa = new SimulationParameters(INDEL_FREQUENCIES, paired_end,
 			testDescription, genome, pg.file, fragmentsByIndelFreq);
-		Map<Double, Map<String, AlignmentResults>> m = runSimulation(pa);
+		Map<Double, Map<String, AlignmentResults>> m = runAccuracySimulation(pa);
 
-		writeResults(pa, m, "IndelFrequency");
+		writeAccuracyResults(pa, m, "IndelFrequency");
 	}
 
 	/**
