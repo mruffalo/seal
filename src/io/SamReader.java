@@ -97,15 +97,22 @@ public class SamReader
 				}
 				int alignedPosition = Integer.parseInt(pieces[3]) - 1;
 				int mappingScore = Integer.parseInt(pieces[4]);
+				if (!rs.positives.containsKey(mappingScore))
+				{
+					rs.positives.put(mappingScore, 0);
+				}
+				if (!rs.negatives.containsKey(mappingScore))
+				{
+					rs.negatives.put(mappingScore, 0);
+				}
 				if (readPosition == alignedPosition)
 				{
-					rs.positives.add(mappingScore);
+					rs.positives.put(mappingScore, rs.positives.get(mappingScore) + 1);
 				}
 				else if (o.penalize_duplicate_mappings
 						|| (!o.penalize_duplicate_mappings && !correctlyMappedFragments.contains(fragmentIdentifier)))
 				{
-					rs.negatives.add(mappingScore);
-					// System.out.println(line);
+					rs.negatives.put(mappingScore, rs.negatives.get(mappingScore) + 1);
 				}
 				totalMappedFragments.add(fragmentIdentifier);
 			}

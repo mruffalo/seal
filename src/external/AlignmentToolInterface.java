@@ -243,13 +243,23 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 		{
 			w = new FileWriter(o.roc_output);
 			w.write(String.format("predictions,labels%n"));
-			for (int p : r.positives)
+			for (Map.Entry<Integer, Integer> p : r.positives.entrySet())
 			{
-				w.write(String.format("%d,%d%n", p, 1));
+				int score = p.getKey();
+				int count = p.getValue();
+				for (int i = 0; i < count; i++)
+				{
+					w.write(String.format("%d,%d%n", score, 1));
+				}
 			}
-			for (int n : r.negatives)
+			for (Map.Entry<Integer, Integer> n : r.negatives.entrySet())
 			{
-				w.write(String.format("%d,%d%n", n, 0));
+				int score = n.getKey();
+				int count = n.getValue();
+				for (int i = 0; i < count; i++)
+				{
+					w.write(String.format("%d,%d%n", score, 0));
+				}
 			}
 			w.close();
 		}

@@ -310,8 +310,8 @@ public class AlignmentToolService
 		return m;
 	}
 
-	public void writeAccuracyResults(SimulationParameters pa, Map<Double, Map<String, AlignmentResults>> m,
-		String parameterName)
+	public void writeAccuracyResults(SimulationParameters pa,
+		Map<Double, Map<String, AlignmentResults>> m, String parameterName)
 	{
 		String filename = String.format("%s_%s.csv", pa.testDescription,
 			pa.genome.toString().toLowerCase());
@@ -348,13 +348,23 @@ public class AlignmentToolService
 				{
 					// TODO: Don't duplicate code here
 					AlignmentResults r = m.get(d).get(s);
-					for (int p : r.positives)
+					for (Map.Entry<Integer, Integer> p : r.positives.entrySet())
 					{
-						w.write(String.format("%s,%f,%d,%d%n", s, d, p, 1));
+						int score = p.getKey();
+						int count = p.getValue();
+						for (int i = 0; i < count; i++)
+						{
+							w.write(String.format("%s,%f,%d,%d%n", s, d, score, 1));
+						}
 					}
-					for (int n : r.negatives)
+					for (Map.Entry<Integer, Integer> n : r.negatives.entrySet())
 					{
-						w.write(String.format("%s,%f,%d,%d%n", s, d, n, 0));
+						int score = n.getKey();
+						int count = n.getValue();
+						for (int i = 0; i < count; i++)
+						{
+							w.write(String.format("%s,%f,%d,%d%n", s, d, score, 0));
+						}
 					}
 				}
 			}
@@ -672,13 +682,23 @@ public class AlignmentToolService
 				{
 					// TODO: Don't duplicate code here
 					AlignmentResults r = m.get(repeatCount).get(toolName);
-					for (int p : r.positives)
+					for (Map.Entry<Integer, Integer> p : r.positives.entrySet())
 					{
-						w.write(String.format("%s,%d,%d,%d%n", toolName, repeatCount, p, 1));
+						int score = p.getKey();
+						int count = p.getValue();
+						for (int i = 0; i < count; i++)
+						{
+							w.write(String.format("%s,%f,%d,%d%n", toolName, repeatCount, score, 1));
+						}
 					}
-					for (int n : r.negatives)
+					for (Map.Entry<Integer, Integer> n : r.negatives.entrySet())
 					{
-						w.write(String.format("%s,%d,%d,%d%n", toolName, repeatCount, n, 0));
+						int score = n.getKey();
+						int count = n.getValue();
+						for (int i = 0; i < count; i++)
+						{
+							w.write(String.format("%s,%f,%d,%d%n", toolName, repeatCount, score, 0));
+						}
 					}
 				}
 			}
@@ -867,18 +887,26 @@ public class AlignmentToolService
 					// TODO: Don't duplicate code here
 					AlignmentResults r = m.get(repeatCount).get(toolName);
 					e.write(String.format("%s,%d%n", toolName, r.missingFragments));
-					for (int p : r.positives)
+					for (Map.Entry<Integer, Integer> p : r.positives.entrySet())
 					{
-						w.write(String.format("%s,%d,%d,%d%n", toolName, repeatCount, p, 1));
+						int score = p.getKey();
+						int count = p.getValue();
+						for (int i = 0; i < count; i++)
+						{
+							w.write(String.format("%s,%f,%d,%d%n", toolName, repeatCount, score, 1));
+						}
 					}
-					for (int n : r.negatives)
+					for (Map.Entry<Integer, Integer> n : r.negatives.entrySet())
 					{
-						w.write(String.format("%s,%d,%d,%d%n", toolName, repeatCount, n, 0));
+						int score = n.getKey();
+						int count = n.getValue();
+						for (int i = 0; i < count; i++)
+						{
+							w.write(String.format("%s,%f,%d,%d%n", toolName, repeatCount, score, 0));
+						}
 					}
 				}
 			}
-			e.close();
-			w.close();
 		}
 		catch (IOException e)
 		{

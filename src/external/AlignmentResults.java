@@ -3,35 +3,28 @@
  */
 package external;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import external.AlignmentToolInterface.AlignmentOperation;
 
 public class AlignmentResults
 {
 	public AlignmentResults()
 	{
-		positives = new ArrayList<Integer>();
-		negatives = new ArrayList<Integer>();
-	}
-
-	public AlignmentResults(int size)
-	{
-		positives = new ArrayList<Integer>(size);
-		negatives = new ArrayList<Integer>(size);
+		positives = new TreeMap<Integer, Integer>();
+		negatives = new TreeMap<Integer, Integer>();
 	}
 
 	/**
 	 * Quality values of alignments that are at the correct location in the
 	 * genome
 	 */
-	public List<Integer> positives;
+	public Map<Integer, Integer> positives;
 	/**
 	 * Quality values of alignments that are at an incorrect location in the
 	 * genome.
 	 */
-	public List<Integer> negatives;
+	public Map<Integer, Integer> negatives;
 	/**
 	 * Number of fragments that were missing from the tool's output. Always
 	 * added to false negative counts.
@@ -48,26 +41,26 @@ public class AlignmentResults
 		int tn = 0;
 		int fp = 0;
 		int fn = missingFragments;
-		for (Integer p : positives)
+		for (Map.Entry<Integer, Integer> p : positives.entrySet())
 		{
-			if (p >= threshold)
+			if (p.getKey() >= threshold)
 			{
-				tp++;
+				tp += p.getValue();
 			}
 			else
 			{
-				fn++;
+				fn += p.getValue();
 			}
 		}
-		for (Integer n : negatives)
+		for (Map.Entry<Integer, Integer> n : negatives.entrySet())
 		{
-			if (n >= threshold)
+			if (n.getKey() >= threshold)
 			{
-				fp++;
+				fp += n.getValue();
 			}
 			else
 			{
-				tn++;
+				tn += n.getValue();
 			}
 		}
 		return new FilteredAlignmentResults(threshold, tp, tn, fp, fn);

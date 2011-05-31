@@ -220,14 +220,21 @@ public class MaqInterface extends AlignmentToolInterface
 				}
 				int alignedPosition = Integer.parseInt(pieces[2]) - 1;
 				int mappingScore = Integer.parseInt(pieces[6]);
+				if (!rs.positives.containsKey(mappingScore))
+				{
+					rs.positives.put(mappingScore, 0);
+				}
+				if (!rs.negatives.containsKey(mappingScore))
+				{
+					rs.negatives.put(mappingScore, 0);
+				}
 				if (readPosition == alignedPosition)
 				{
-					rs.positives.add(mappingScore);
+					rs.positives.put(mappingScore, rs.positives.get(mappingScore) + 1);
 				}
 				else
 				{
-					rs.negatives.add(mappingScore);
-					// System.out.println(line);
+					rs.negatives.put(mappingScore, rs.negatives.get(mappingScore) + 1);
 				}
 				totalMappedFragments.add(fragmentIdentifier);
 			}
