@@ -257,6 +257,7 @@ public class AlignmentToolService
 	public RuntimeGenomeData getRuntimeGenomeData(List<Double> genomeSizes,
 		List<Double> fragmentCoverages)
 	{
+		DATA_PATH.mkdirs();
 		final double errorProbability = 0.01;
 		Map<Double, File> genomeFilesBySize = new TreeMap<Double, File>();
 		Map<Double, Map<Double, File>> fragmentsByCoverage = new TreeMap<Double, Map<Double, File>>();
@@ -1032,20 +1033,10 @@ public class AlignmentToolService
 		final boolean paired_end = false;
 		final double errorProbability = 0.05;
 
-		List<Double> genomeSizes = Arrays.asList(500000.0);
+		final double genomeSize = 500000.0;
+		List<Double> genomeSizes = Arrays.asList(genomeSize);
 		RuntimeGenomeData rgd = getRuntimeGenomeData(genomeSizes, RUNTIME_COVERAGES);
 
-		SequenceGenerator g = new SeqGenSingleSequenceMultipleRepeats();
-		SequenceGenerator.Options sgo = new SequenceGenerator.Options();
-		sgo.length = 500000;
-		System.out.print("Generating sequence...");
-		CharSequence sequence = g.generateSequence(sgo);
-		System.out.printf("Genome length: %d%n", sequence.length());
-
-		final File genomeFile = new File(DATA_PATH, "runtime_cov.fa");
-		writeGenome(sequence, genomeFile);
-
-		DATA_PATH.mkdirs();
 		List<Future<AlignmentResults>> futureList = new ArrayList<Future<AlignmentResults>>(
 			RUNTIME_COVERAGES.size() * EVAL_RUN_COUNT * 7);
 		int index = 0;
@@ -1058,24 +1049,6 @@ public class AlignmentToolService
 			{
 				Map<String, AlignmentResults> m_c = Collections.synchronizedMap(new TreeMap<String, AlignmentResults>());
 				m.put(coverage, m_c);
-				Fragmentizer.Options fo = new Fragmentizer.Options();
-				fo.fragmentLength = 50;
-				/*
-				 * Integer truncation is exactly what we want here
-				 */
-				fo.fragmentCount = (int) (coverage * sequence.length()) / fo.fragmentLength;
-				fo.fragmentLengthSd = 1;
-
-				// TODO: write fragments with fragmentizeToFile
-				System.out.printf("Reading %d fragments...", fo.fragmentCount);
-				List<? extends Fragment> list = Fragmentizer.fragmentize(sequence, fo);
-				System.out.println("done.");
-
-				System.out.print("Introducing fragment read errors...");
-				UniformErrorGenerator eg = new UniformErrorGenerator(SequenceGenerator.NUCLEOTIDES,
-					errorProbability);
-				List<? extends Fragment> errored_list = eg.generateErrors(list);
-				System.out.println("done.");
 
 				List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
 
@@ -1099,6 +1072,7 @@ public class AlignmentToolService
 					File tool_path = new File(DATA_PATH, String.format("%03d-%s", ati.index,
 						ati.description));
 					tool_path.mkdirs();
+					ati.o.orig_genome = rgd.genomesBySize.get(genomeSize);
 					ati.o.genome = new File(tool_path, "genome.fasta");
 					ati.o.binary_genome = new File(tool_path, "genome.bfa");
 
@@ -1106,6 +1080,7 @@ public class AlignmentToolService
 					r.reads = new File(tool_path, String.format("fragments%d.fastq", 1));
 					r.binary_reads = new File(tool_path, String.format("fragments%d.bfq", 1));
 					r.aligned_reads = new File(tool_path, String.format("alignment%d.sai", 1));
+					r.orig_reads = rgd.fragmentsByCoverage.get(genomeSize).get(coverage);
 					ati.o.reads.add(r);
 
 					ati.o.raw_output = new File(tool_path, "out.raw");
@@ -1137,7 +1112,7 @@ public class AlignmentToolService
 			}
 		}
 		SimulationParameters pa = new SimulationParameters(RUNTIME_COVERAGES, false,
-			testDescription, Genome.RUNTIME_COV_RANDOM, genomeFile, null);
+			testDescription, Genome.RUNTIME_COV_RANDOM, rgd.genomesBySize.get(genomeSize), null);
 		writeRuntimeResults(pa, l, "Coverage");
 	}
 
