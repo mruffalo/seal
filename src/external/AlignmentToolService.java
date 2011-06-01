@@ -118,7 +118,7 @@ public class AlignmentToolService
 			String testDescription_, Genome genome_, File genomeFile_,
 			Map<Double, File> fragmentsByError_)
 		{
-			errorRates = Collections.unmodifiableList(errorRates_);
+			parameterList = Collections.unmodifiableList(errorRates_);
 			paired_end = paired_end_;
 			testDescription = testDescription_;
 			genome = genome_;
@@ -126,11 +126,30 @@ public class AlignmentToolService
 			fragmentsByError = Collections.unmodifiableMap(fragmentsByError_);
 		}
 
-		public final List<Double> errorRates;
+		/**
+		 * This could be:
+		 * <ul>
+		 * <li>base call error rate</li>
+		 * <li>indel size</li>
+		 * <li>indel frequency</li>
+		 * <li>genome size</li>
+		 * <li>read coverage</li>
+		 * </ul>
+		 */
+		public final List<Double> parameterList;
 		public final boolean paired_end;
 		public final String testDescription;
+		/**
+		 * TODO: Refactor this for runtime genome size eval
+		 */
 		public final Genome genome;
+		/**
+		 * TODO: Refactor this for runtime genome size eval
+		 */
 		public final File genomeFile;
+		/**
+		 * TODO: Refactor this for runtime genome size eval
+		 */
 		public final Map<Double, File> fragmentsByError;
 	}
 
@@ -321,7 +340,7 @@ public class AlignmentToolService
 		List<Future<AlignmentResults>> futureList = new ArrayList<Future<AlignmentResults>>();
 
 		int index = 0;
-		for (double errorProbability : p.errorRates)
+		for (double errorProbability : p.parameterList)
 		{
 			Map<String, AlignmentResults> m_ep = Collections.synchronizedMap(new TreeMap<String, AlignmentResults>());
 			m.put(errorProbability, m_ep);
@@ -1140,115 +1159,14 @@ public class AlignmentToolService
 	public void runtimeGenomeSizeEvaluation()
 	{
 		final String testDescription = "runtime_genome_size";
-		List<Map<Double, Map<String, AlignmentResults>>> l = new ArrayList<Map<Double, Map<String, AlignmentResults>>>(
-			EVAL_RUN_COUNT);
-		final boolean paired_end = false;
-		final double errorProbability = 0.05;
-		final int coverage = 3;
 
-		DATA_PATH.mkdirs();
-		List<Future<AlignmentResults>> futureList = new ArrayList<Future<AlignmentResults>>(
-			RUNTIME_COVERAGES.size() * EVAL_RUN_COUNT * 7);
-		int index = 0;
-		for (int which_run = 0; which_run < EVAL_RUN_COUNT; which_run++)
-		{
-			Map<Double, Map<String, AlignmentResults>> m = Collections.synchronizedMap(new TreeMap<Double, Map<String, AlignmentResults>>());
-			l.add(m);
+		final double coverage = 3.0;
+		List<Double> coverages = Arrays.asList(coverage);
+		RuntimeGenomeData rgd = getRuntimeGenomeData(RUNTIME_GENOME_SIZES, coverages);
 
-			for (double genome_size : RUNTIME_GENOME_SIZES)
-			{
-				SequenceGenerator g = new SeqGenSingleSequenceMultipleRepeats();
-				SequenceGenerator.Options sgo = new SequenceGenerator.Options();
-				sgo.length = (int) genome_size;
-				System.out.print("Generating sequence...");
-				CharSequence sequence = g.generateSequence(sgo);
-				System.out.println("done.");
-				System.out.printf("Genome length: %d%n", sequence.length());
-
-				File genomeFile = new File(DATA_PATH, "runtime_size.fa");
-				writeGenome(sequence, genomeFile);
-
-				Map<String, AlignmentResults> m_c = Collections.synchronizedMap(new TreeMap<String, AlignmentResults>());
-				m.put(genome_size, m_c);
-				Fragmentizer.Options fo = new Fragmentizer.Options();
-				fo.fragmentLength = 50;
-				/*
-				 * Integer truncation is okay here
-				 */
-				fo.fragmentCount = (int) (genome_size * coverage) / fo.fragmentLength;
-				fo.fragmentLengthSd = 1;
-
-				System.out.printf("Reading %d fragments...", fo.fragmentCount);
-				List<? extends Fragment> list = Fragmentizer.fragmentize(sequence, fo);
-				System.out.println("done.");
-
-				System.out.print("Introducing fragment read errors...");
-				UniformErrorGenerator eg = new UniformErrorGenerator(SequenceGenerator.NUCLEOTIDES,
-					errorProbability);
-				List<? extends Fragment> errored_list = eg.generateErrors(list);
-				System.out.println("done.");
-
-				List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
-
-				alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast",
-					RUNTIME_THRESHOLDS, new Options(paired_end, errorProbability), m_c));
-				alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast",
-					RUNTIME_THRESHOLDS, new Options(paired_end, errorProbability), m_c));
-				alignmentInterfaceList.add(new SoapInterface(++index, "SOAP", RUNTIME_THRESHOLDS,
-					new Options(paired_end, errorProbability), m_c));
-				alignmentInterfaceList.add(new BwaInterface(++index, "BWA", RUNTIME_THRESHOLDS,
-					new Options(paired_end, errorProbability), m_c));
-				alignmentInterfaceList.add(new ShrimpInterface(++index, "SHRiMP",
-					RUNTIME_THRESHOLDS, new Options(paired_end, errorProbability), m_c));
-				alignmentInterfaceList.add(new BowtieInterface(++index, "Bowtie",
-					RUNTIME_THRESHOLDS, new Options(paired_end, errorProbability), m_c));
-				alignmentInterfaceList.add(new NovoalignInterface(++index, "Novoalign",
-					RUNTIME_THRESHOLDS, new Options(paired_end, errorProbability), m_c));
-
-				for (AlignmentToolInterface ati : alignmentInterfaceList)
-				{
-					File tool_path = new File(DATA_PATH, String.format("%03d-%s", ati.index,
-						ati.description));
-					tool_path.mkdirs();
-					ati.o.genome = new File(tool_path, "genome.fasta");
-					ati.o.binary_genome = new File(tool_path, "genome.bfa");
-
-					Options.Reads r = new Options.Reads(1);
-					r.reads = new File(tool_path, String.format("fragments%d.fastq", 1));
-					r.binary_reads = new File(tool_path, String.format("fragments%d.bfq", 1));
-					r.aligned_reads = new File(tool_path, String.format("alignment%d.sai", 1));
-					ati.o.reads.add(r);
-
-					ati.o.raw_output = new File(tool_path, "out.raw");
-					ati.o.sam_output = new File(tool_path, "alignment.sam");
-					ati.o.converted_output = new File(tool_path, "out.txt");
-					ati.o.roc_output = new File(tool_path, "roc.csv");
-
-					System.out.printf("*** %03d %s: %d%n", ati.index, ati.description, genome_size);
-
-					futureList.add(pool.submit(ati));
-				}
-			}
-
-		}
-		pool.shutdown();
-		for (Future<AlignmentResults> f : futureList)
-		{
-			try
-			{
-				f.get();
-			}
-			catch (InterruptedException e)
-			{
-				e.printStackTrace();
-			}
-			catch (ExecutionException e)
-			{
-				e.printStackTrace();
-			}
-		}
 		SimulationParameters pa = new SimulationParameters(RUNTIME_GENOME_SIZES, false,
-			testDescription, Genome.RUNTIME_COV_RANDOM, null, null);
+			testDescription, Genome.RUNTIME_SIZE_RANDOM, null, null);
+		List<Map<Double, Map<String, AlignmentResults>>> l = runRuntimeSimulation(pa, rgd);
 		writeRuntimeResults(pa, l, "GenomeSize");
 	}
 
