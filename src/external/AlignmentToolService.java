@@ -1393,8 +1393,7 @@ public class AlignmentToolService
 
 	public static void main(String[] args)
 	{
-		new AlignmentToolService().errorRateEvaluation(false, Genome.RANDOM_HARD);
-		new AlignmentToolService().indelSizeEvaluation(false, Genome.RANDOM_HARD);
-		new AlignmentToolService().indelFrequencyEvaluation(false, Genome.RANDOM_HARD);
+		new AlignmentToolService().runtimeCoverageEvaluation();
+		new AlignmentToolService().runtimeGenomeSizeEvaluation();
 	}
 }
