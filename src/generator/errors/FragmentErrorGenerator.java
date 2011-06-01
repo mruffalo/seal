@@ -61,17 +61,17 @@ public abstract class FragmentErrorGenerator
 		return list;
 	}
 
-	public static void generateErrorsToFile(List<FragmentErrorGenerator> generators,
-		List<? extends Fragment> fragments, File file)
+	public static void generateErrorsToFile(List<FragmentErrorGenerator> errorGenerators,
+		List<? extends Fragment> fragmentList, File fragmentFile)
 	{
-		List<? extends Fragment> list = fragments;
-		for (FragmentErrorGenerator eg : generators)
+		List<? extends Fragment> list = fragmentList;
+		for (FragmentErrorGenerator eg : errorGenerators)
 		{
 			list = eg.generateErrors(list);
 		}
 		try
 		{
-			FastqWriter.writeFragments(list, file, 0);
+			FastqWriter.writeFragments(list, fragmentFile, 0);
 		}
 		catch (IOException e)
 		{

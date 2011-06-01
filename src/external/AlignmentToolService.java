@@ -93,10 +93,10 @@ public class AlignmentToolService
 	 */
 	private static class ProcessedGenome
 	{
-		public ProcessedGenome(File file_, List<? extends Fragment> fragments_)
+		public ProcessedGenome(File file_, Map<Double, File> fragmentsByParameter_)
 		{
 			file = file_;
-			fragments = Collections.unmodifiableList(fragments_);
+			fragmentsByParameter = Collections.unmodifiableMap(fragmentsByParameter_);
 		}
 
 		/**
@@ -104,7 +104,7 @@ public class AlignmentToolService
 		 * it was read from if applicable
 		 */
 		public final File file;
-		public final List<? extends Fragment> fragments;
+		public final Map<Double, File> fragmentsByParameter;
 	}
 
 	/**
@@ -147,7 +147,9 @@ public class AlignmentToolService
 		public final Map<Double, File> fragmentsByCoverage;
 	}
 
-	private ProcessedGenome getGenomeAndCleanFragments(Genome genome)
+	private ProcessedGenome getGenomeAndFragmentFiles(Genome genome,
+		Map<Double, List<FragmentErrorGenerator>> fragmentErrorGenerators, String testDescription,
+		String parameterMessage)
 	{
 		DATA_PATH.mkdirs();
 		// TODO: Don't hardcode this
@@ -229,7 +231,24 @@ public class AlignmentToolService
 		System.out.print("Reading fragments ... ");
 		final List<? extends Fragment> list = Fragmentizer.fragmentize(sequence, fo);
 		System.out.println("done.");
-		return new ProcessedGenome(genomeFile, list);
+
+		Map<Double, File> fragmentsByError = new TreeMap<Double, File>();
+		for (Map.Entry<Double, List<FragmentErrorGenerator>> e : fragmentErrorGenerators.entrySet())
+		{
+			double parameter = e.getKey();
+			List<FragmentErrorGenerator> errorGenerators = e.getValue();
+
+			System.out.printf(parameterMessage, parameter);
+			String error_identifier = Double.toString(parameter).replace('.', '_');
+			String filename = String.format("fragments-%s-%s.fastq", testDescription,
+				error_identifier);
+			File fragmentFile = new File(DATA_PATH, filename);
+			fragmentsByError.put(parameter, fragmentFile);
+			FragmentErrorGenerator.generateErrorsToFile(errorGenerators, list, fragmentFile);
+			System.out.println("done.");
+		}
+
+		return new ProcessedGenome(genomeFile, fragmentsByError);
 	}
 
 	private Map<Double, Map<String, AlignmentResults>> runAccuracySimulation(SimulationParameters p)
@@ -459,19 +478,9 @@ public class AlignmentToolService
 	{
 		final String testDescription = "error_rate";
 
-		ProcessedGenome pg = getGenomeAndCleanFragments(genome);
-
-		Map<Double, File> fragmentsByError = new TreeMap<Double, File>();
+		Map<Double, List<FragmentErrorGenerator>> fegs = new TreeMap<Double, List<FragmentErrorGenerator>>();
 		for (double errorProbability : ERROR_PROBABILITIES)
 		{
-			String error_identifier = Double.toString(errorProbability).replace('.', '_');
-			String filename = String.format("fragments-%s-%s.fastq", testDescription,
-				error_identifier);
-			File fragments = new File(DATA_PATH, filename);
-			fragmentsByError.put(errorProbability, fragments);
-
-			System.out.printf("Introducing fragment read errors for error rate %f ... ",
-				errorProbability);
 			FragmentErrorGenerator base_call_eg = new LinearIncreasingErrorGenerator(
 				SequenceGenerator.NUCLEOTIDES, errorProbability / 2.0, errorProbability);
 			IndelGenerator.Options igo = new IndelGenerator.Options();
@@ -485,15 +494,14 @@ public class AlignmentToolService
 			List<FragmentErrorGenerator> generatorList = new ArrayList<FragmentErrorGenerator>();
 			generatorList.add(base_call_eg);
 			generatorList.add(indel_eg);
-			FragmentErrorGenerator.generateErrorsToFile(generatorList, pg.fragments, fragments);
-			System.out.println("done.");
+			fegs.put(errorProbability, generatorList);
 		}
 
+		ProcessedGenome pg = getGenomeAndFragmentFiles(genome, fegs, testDescription,
+			"Introducing fragment read errors for error rate %f ... ");
 		SimulationParameters pa = new SimulationParameters(ERROR_PROBABILITIES, paired_end,
-			testDescription, genome, pg.file, fragmentsByError);
-
+			testDescription, genome, pg.file, pg.fragmentsByParameter);
 		Map<Double, Map<String, AlignmentResults>> m = runAccuracySimulation(pa);
-
 		writeAccuracyResults(pa, m, "ErrorRate");
 	}
 
@@ -501,21 +509,11 @@ public class AlignmentToolService
 	{
 		final String testDescription = "indel_size";
 
-		ProcessedGenome pg = getGenomeAndCleanFragments(genome);
-
 		final double indelLengthStdDev = 0.2;
 		final double indelFrequency = 5e-2;
-		Map<Double, File> fragmentsByIndelSize = new TreeMap<Double, File>();
+		Map<Double, List<FragmentErrorGenerator>> fegs = new TreeMap<Double, List<FragmentErrorGenerator>>();
 		for (double indelSize : INDEL_SIZES)
 		{
-			String error_identifier = String.format("%.0f", indelSize);
-			String filename = String.format("fragments-%s-%s.fastq", testDescription,
-				error_identifier);
-			File fragments = new File(DATA_PATH, filename);
-			fragmentsByIndelSize.put(indelSize, fragments);
-
-			System.out.printf("Introducing fragment read errors for indel size %.0f ... ",
-				indelSize);
 			IndelGenerator.Options igo = new IndelGenerator.Options();
 			igo.deleteLengthMean = indelSize;
 			igo.deleteLengthStdDev = indelLengthStdDev;
@@ -526,36 +524,27 @@ public class AlignmentToolService
 			FragmentErrorGenerator indel_eg = new IndelGenerator(SequenceGenerator.NUCLEOTIDES, igo);
 			List<FragmentErrorGenerator> generatorList = new ArrayList<FragmentErrorGenerator>();
 			generatorList.add(indel_eg);
-			FragmentErrorGenerator.generateErrorsToFile(generatorList, pg.fragments, fragments);
-			System.out.println("done.");
+			fegs.put(indelSize, generatorList);
 		}
 
+		ProcessedGenome pg = getGenomeAndFragmentFiles(genome, fegs, testDescription,
+			"Introducing fragment read errors for indel size %.0f ... ");
 		SimulationParameters pa = new SimulationParameters(INDEL_SIZES, paired_end,
-			testDescription, genome, pg.file, fragmentsByIndelSize);
+			testDescription, genome, pg.file, pg.fragmentsByParameter);
 		Map<Double, Map<String, AlignmentResults>> m = runAccuracySimulation(pa);
-
 		writeAccuracyResults(pa, m, "IndelSize");
+
 	}
 
 	public void indelFrequencyEvaluation(boolean paired_end, Genome genome)
 	{
 		final String testDescription = "indel_freq";
 
-		ProcessedGenome pg = getGenomeAndCleanFragments(genome);
-
 		final int indelLengthMean = 2;
 		final double indelLengthStdDev = 0.2;
-		Map<Double, File> fragmentsByIndelFreq = new TreeMap<Double, File>();
+		Map<Double, List<FragmentErrorGenerator>> fegs = new TreeMap<Double, List<FragmentErrorGenerator>>();
 		for (double indelFrequency : INDEL_FREQUENCIES)
 		{
-			String error_identifier = Double.toString(indelFrequency).replace('.', '_');
-			String filename = String.format("fragments-%s-%s.fastq", testDescription,
-				error_identifier);
-			File fragments = new File(DATA_PATH, filename);
-			fragmentsByIndelFreq.put(indelFrequency, fragments);
-
-			System.out.printf("Introducing fragment read errors for indel frequency %f ... ",
-				indelFrequency);
 			IndelGenerator.Options igo = new IndelGenerator.Options();
 			igo.deleteLengthMean = indelLengthMean;
 			igo.deleteLengthStdDev = indelLengthStdDev;
@@ -566,14 +555,14 @@ public class AlignmentToolService
 			FragmentErrorGenerator indel_eg = new IndelGenerator(SequenceGenerator.NUCLEOTIDES, igo);
 			List<FragmentErrorGenerator> generatorList = new ArrayList<FragmentErrorGenerator>();
 			generatorList.add(indel_eg);
-			FragmentErrorGenerator.generateErrorsToFile(generatorList, pg.fragments, fragments);
-			System.out.println("done.");
+			fegs.put(indelFrequency, generatorList);
 		}
 
+		ProcessedGenome pg = getGenomeAndFragmentFiles(genome, fegs, testDescription,
+			"Introducing fragment read errors for indel frequency %f ... ");
 		SimulationParameters pa = new SimulationParameters(INDEL_FREQUENCIES, paired_end,
-			testDescription, genome, pg.file, fragmentsByIndelFreq);
+			testDescription, genome, pg.file, pg.fragmentsByParameter);
 		Map<Double, Map<String, AlignmentResults>> m = runAccuracySimulation(pa);
-
 		writeAccuracyResults(pa, m, "IndelFrequency");
 	}
 
