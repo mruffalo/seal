@@ -251,6 +251,14 @@ public class AlignmentToolService
 		return new ProcessedGenome(genomeFile, fragmentsByError);
 	}
 
+	public RuntimeGenomeData getRuntimeGenomeData(List<Double> genomeSizes,
+		List<Double> fragmentCoverages)
+	{
+		Map<Double, File> genomesBySize = new TreeMap<Double, File>();
+		Map<Double, File> fragmentsByCoverage = new TreeMap<Double, File>();
+		return new RuntimeGenomeData(genomesBySize, fragmentsByCoverage);
+	}
+
 	private Map<Double, Map<String, AlignmentResults>> runAccuracySimulation(SimulationParameters p)
 	{
 		ExecutorService pool = Executors.newFixedThreadPool(NUMBER_OF_CONCURRENT_THREADS);
