@@ -96,7 +96,7 @@ public class AlignmentToolService
 		public ProcessedGenome(File file_, List<? extends Fragment> fragments_)
 		{
 			file = file_;
-			fragments = fragments_;
+			fragments = Collections.unmodifiableList(fragments_);
 		}
 
 		/**
@@ -118,12 +118,12 @@ public class AlignmentToolService
 			String testDescription_, Genome genome_, File genomeFile_,
 			Map<Double, File> fragmentsByError_)
 		{
-			errorRates = errorRates_;
+			errorRates = Collections.unmodifiableList(errorRates_);
 			paired_end = paired_end_;
 			testDescription = testDescription_;
 			genome = genome_;
 			genomeFile = genomeFile_;
-			fragmentsByError = fragmentsByError_;
+			fragmentsByError = Collections.unmodifiableMap(fragmentsByError_);
 		}
 
 		public final List<Double> errorRates;
@@ -132,6 +132,19 @@ public class AlignmentToolService
 		public final Genome genome;
 		public final File genomeFile;
 		public final Map<Double, File> fragmentsByError;
+	}
+
+	private static class RuntimeGenomeData
+	{
+		public RuntimeGenomeData(Map<Double, File> genomesBySize_,
+			Map<Double, File> fragmentsByCoverage_)
+		{
+			genomesBySize = Collections.unmodifiableMap(genomesBySize_);
+			fragmentsByCoverage = Collections.unmodifiableMap(fragmentsByCoverage_);
+		}
+
+		public final Map<Double, File> genomesBySize;
+		public final Map<Double, File> fragmentsByCoverage;
 	}
 
 	private ProcessedGenome getGenomeAndCleanFragments(Genome genome)
