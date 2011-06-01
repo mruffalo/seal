@@ -430,27 +430,30 @@ public class AlignmentToolService
 	 * @param p
 	 * @return
 	 */
-	private List<Map<Double, Map<String, AlignmentResults>>> runRuntimeSimulation(
+	private List<Map<Double, Map<Double, Map<String, AlignmentResults>>>> runRuntimeSimulation(
 		SimulationParameters p, RuntimeGenomeData rgd)
 	{
-		List<Map<Double, Map<String, AlignmentResults>>> l = new ArrayList<Map<Double, Map<String, AlignmentResults>>>(
+		ExecutorService pool = Executors.newFixedThreadPool(NUMBER_OF_CONCURRENT_THREADS);
+		List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
+
+		List<Map<Double, Map<Double, Map<String, AlignmentResults>>>> l = new ArrayList<Map<Double, Map<Double, Map<String, AlignmentResults>>>>(
 			EVAL_RUN_COUNT);
 		List<Future<AlignmentResults>> futureList = new ArrayList<Future<AlignmentResults>>(
 			RUNTIME_COVERAGES.size() * EVAL_RUN_COUNT * 7);
 		int index = 0;
 		for (int which_run = 0; which_run < EVAL_RUN_COUNT; which_run++)
 		{
-			Map<Double, Map<String, AlignmentResults>> m = Collections.synchronizedMap(new TreeMap<Double, Map<String, AlignmentResults>>());
+			Map<Double, Map<Double, Map<String, AlignmentResults>>> m = Collections.synchronizedMap(new TreeMap<Double, Map<Double, Map<String, AlignmentResults>>>());
 			l.add(m);
 
 			for (double genomeSize : rgd.fragmentsByCoverage.keySet())
 			{
+				Map<Double, Map<String, AlignmentResults>> m_gs = Collections.synchronizedMap(new TreeMap<Double, Map<String, AlignmentResults>>());
+				m.put(genomeSize, m_gs);
 				for (double coverage : rgd.fragmentsByCoverage.get(genomeSize).keySet())
 				{
 					Map<String, AlignmentResults> m_c = Collections.synchronizedMap(new TreeMap<String, AlignmentResults>());
-					m.put(coverage, m_c);
-
-					List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
+					m_gs.put(coverage, m_c);
 
 					alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast",
 						RUNTIME_THRESHOLDS, new Options(p.paired_end, coverage), m_c));
@@ -589,28 +592,29 @@ public class AlignmentToolService
 	 * @param parameterName
 	 */
 	private void writeRuntimeResults(SimulationParameters pa,
-		List<Map<Double, Map<String, AlignmentResults>>> l, String parameterName)
+		List<Map<Double, Map<Double, Map<String, AlignmentResults>>>> l, String parameterName)
 	{
 		String filename = pa.testDescription + "_data.csv";
 		System.out.printf("Writing time data to %s%n", filename);
 		try
 		{
 			FileWriter w = new FileWriter(new File(DATA_PATH, filename));
-			w.write(String.format(
-				"Tool,%s,PreprocessingTime,AlignmentTime,PostprocessingTime,TotalTime%n",
-				parameterName));
-			for (Map<Double, Map<String, AlignmentResults>> m : l)
+			w.write(String.format("Tool,GenomeSize,Coverage,PreprocessingTime,AlignmentTime,PostprocessingTime,TotalTime%n"));
+			for (Map<Double, Map<Double, Map<String, AlignmentResults>>> m : l)
 			{
-				for (Double c : m.keySet())
+				for (Double gs : m.keySet())
 				{
-					for (String s : m.get(c).keySet())
+					for (Double c : m.get(gs).keySet())
 					{
-						AlignmentResults r = m.get(c).get(s);
-						w.write(String.format("%s,%f,%d,%d,%d,%d%n", s, c,
-							r.timeMap.get(AlignmentOperation.PREPROCESSING),
-							r.timeMap.get(AlignmentOperation.ALIGNMENT),
-							r.timeMap.get(AlignmentOperation.POSTPROCESSING),
-							r.timeMap.get(AlignmentOperation.TOTAL)));
+						for (String s : m.get(gs).get(c).keySet())
+						{
+							AlignmentResults r = m.get(gs).get(c).get(s);
+							w.write(String.format("%s,%f,%d,%d,%d,%d%n", s, c,
+								r.timeMap.get(AlignmentOperation.PREPROCESSING),
+								r.timeMap.get(AlignmentOperation.ALIGNMENT),
+								r.timeMap.get(AlignmentOperation.POSTPROCESSING),
+								r.timeMap.get(AlignmentOperation.TOTAL)));
+						}
 					}
 				}
 			}
@@ -1147,7 +1151,8 @@ public class AlignmentToolService
 		SimulationParameters pa = new SimulationParameters(RUNTIME_COVERAGES, false,
 			testDescription, Genome.RUNTIME_COV_RANDOM, rgd.genomesBySize.get(genomeSize),
 			new TreeMap<Double, File>());
-		List<Map<Double, Map<String, AlignmentResults>>> l = runRuntimeSimulation(pa, rgd);
+		List<Map<Double, Map<Double, Map<String, AlignmentResults>>>> l = runRuntimeSimulation(pa,
+			rgd);
 		writeRuntimeResults(pa, l, "Coverage");
 	}
 
@@ -1167,7 +1172,8 @@ public class AlignmentToolService
 
 		SimulationParameters pa = new SimulationParameters(RUNTIME_GENOME_SIZES, false,
 			testDescription, Genome.RUNTIME_SIZE_RANDOM, null, new TreeMap<Double, File>());
-		List<Map<Double, Map<String, AlignmentResults>>> l = runRuntimeSimulation(pa, rgd);
+		List<Map<Double, Map<Double, Map<String, AlignmentResults>>>> l = runRuntimeSimulation(pa,
+			rgd);
 		writeRuntimeResults(pa, l, "GenomeSize");
 	}
 
