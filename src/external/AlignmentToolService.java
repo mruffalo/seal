@@ -227,7 +227,7 @@ public class AlignmentToolService
 		List<Future<AlignmentResults>> futureList = new ArrayList<Future<AlignmentResults>>();
 
 		int index = 0;
-		for (double errorProbability : ERROR_PROBABILITIES)
+		for (double errorProbability : p.errorRates)
 		{
 			Map<String, AlignmentResults> m_ep = Collections.synchronizedMap(new TreeMap<String, AlignmentResults>());
 			m.put(errorProbability, m_ep);
