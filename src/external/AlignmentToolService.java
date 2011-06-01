@@ -137,14 +137,17 @@ public class AlignmentToolService
 	private static class RuntimeGenomeData
 	{
 		public RuntimeGenomeData(Map<Double, File> genomesBySize_,
-			Map<Double, File> fragmentsByCoverage_)
+			Map<Double, Map<Double, File>> fragmentsByCoverage_)
 		{
 			genomesBySize = Collections.unmodifiableMap(genomesBySize_);
 			fragmentsByCoverage = Collections.unmodifiableMap(fragmentsByCoverage_);
 		}
 
 		public final Map<Double, File> genomesBySize;
-		public final Map<Double, File> fragmentsByCoverage;
+		/**
+		 * First level: genome size, second level: read coverage
+		 */
+		public final Map<Double, Map<Double, File>> fragmentsByCoverage;
 	}
 
 	private ProcessedGenome getGenomeAndFragmentFiles(Genome genome,
@@ -254,9 +257,28 @@ public class AlignmentToolService
 	public RuntimeGenomeData getRuntimeGenomeData(List<Double> genomeSizes,
 		List<Double> fragmentCoverages)
 	{
-		Map<Double, File> genomesBySize = new TreeMap<Double, File>();
-		Map<Double, File> fragmentsByCoverage = new TreeMap<Double, File>();
-		return new RuntimeGenomeData(genomesBySize, fragmentsByCoverage);
+		/*
+		 * Can't generate sequence directly to a file; need to keep it in memory
+		 * in order to read from it
+		 */
+		Map<Double, CharSequence> sequencesBySize;
+		Map<Double, File> genomeFilesBySize = new TreeMap<Double, File>();
+		Map<Double, Map<Double, File>> fragmentsByCoverage = new TreeMap<Double, Map<Double, File>>();
+		for (double genomeSize : genomeSizes)
+		{
+			String filename = String.format("runtime_genome_%.0f.fa", genomeSize);
+			File genomeFile = new File(DATA_PATH, filename);
+			SequenceGenerator g = new SeqGenSingleSequenceMultipleRepeats();
+			SequenceGenerator.Options sgo = new SequenceGenerator.Options();
+			sgo.length = (int) genomeSize;
+			System.out.printf("Generating sequence of length %.0f ... ", sgo.length);
+			CharSequence sequence = g.generateSequence(sgo);
+			System.out.println("done.");
+			Map<Double, File> fragmentsForThisGenome = new TreeMap<Double, File>();
+			fragmentsByCoverage.put(genomeSize, fragmentsForThisGenome);
+		}
+
+		return new RuntimeGenomeData(genomeFilesBySize, fragmentsByCoverage);
 	}
 
 	private Map<Double, Map<String, AlignmentResults>> runAccuracySimulation(SimulationParameters p)
@@ -980,12 +1002,14 @@ public class AlignmentToolService
 		final boolean paired_end = false;
 		final double errorProbability = 0.05;
 
+		List<Double> genomeSizes = Arrays.asList(500000.0);
+		RuntimeGenomeData rgd = getRuntimeGenomeData(genomeSizes, RUNTIME_COVERAGES);
+
 		SequenceGenerator g = new SeqGenSingleSequenceMultipleRepeats();
 		SequenceGenerator.Options sgo = new SequenceGenerator.Options();
 		sgo.length = 500000;
 		System.out.print("Generating sequence...");
 		CharSequence sequence = g.generateSequence(sgo);
-		System.out.println("done.");
 		System.out.printf("Genome length: %d%n", sequence.length());
 
 		final File genomeFile = new File(DATA_PATH, "runtime_cov.fa");
