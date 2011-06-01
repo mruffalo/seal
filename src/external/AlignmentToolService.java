@@ -404,6 +404,98 @@ public class AlignmentToolService
 		return m;
 	}
 
+	/**
+	 * TODO: Don't duplicate code in
+	 * {@link #runAccuracySimulation(SimulationParameters)}
+	 * 
+	 * @param p
+	 * @return
+	 */
+	private List<Map<Double, Map<String, AlignmentResults>>> runRuntimeSimulation(
+		SimulationParameters p, RuntimeGenomeData rgd)
+	{
+		List<Map<Double, Map<String, AlignmentResults>>> l = new ArrayList<Map<Double, Map<String, AlignmentResults>>>(
+			EVAL_RUN_COUNT);
+		List<Future<AlignmentResults>> futureList = new ArrayList<Future<AlignmentResults>>(
+			RUNTIME_COVERAGES.size() * EVAL_RUN_COUNT * 7);
+		int index = 0;
+		for (int which_run = 0; which_run < EVAL_RUN_COUNT; which_run++)
+		{
+			Map<Double, Map<String, AlignmentResults>> m = Collections.synchronizedMap(new TreeMap<Double, Map<String, AlignmentResults>>());
+			l.add(m);
+
+			for (double genomeSize : rgd.fragmentsByCoverage.keySet())
+			{
+				for (double coverage : rgd.fragmentsByCoverage.get(genomeSize).keySet())
+				{
+					Map<String, AlignmentResults> m_c = Collections.synchronizedMap(new TreeMap<String, AlignmentResults>());
+					m.put(coverage, m_c);
+
+					List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
+
+					alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast",
+						RUNTIME_THRESHOLDS, new Options(p.paired_end, coverage), m_c));
+					alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast",
+						RUNTIME_THRESHOLDS, new Options(p.paired_end, coverage), m_c));
+					alignmentInterfaceList.add(new SoapInterface(++index, "SOAP",
+						RUNTIME_THRESHOLDS, new Options(p.paired_end, coverage), m_c));
+					alignmentInterfaceList.add(new BwaInterface(++index, "BWA", RUNTIME_THRESHOLDS,
+						new Options(p.paired_end, coverage), m_c));
+					alignmentInterfaceList.add(new ShrimpInterface(++index, "SHRiMP",
+						RUNTIME_THRESHOLDS, new Options(p.paired_end, coverage), m_c));
+					alignmentInterfaceList.add(new BowtieInterface(++index, "Bowtie",
+						RUNTIME_THRESHOLDS, new Options(p.paired_end, coverage), m_c));
+					alignmentInterfaceList.add(new NovoalignInterface(++index, "Novoalign",
+						RUNTIME_THRESHOLDS, new Options(p.paired_end, coverage), m_c));
+
+					for (AlignmentToolInterface ati : alignmentInterfaceList)
+					{
+						File tool_path = new File(DATA_PATH, String.format("%03d-%s", ati.index,
+							ati.description));
+						tool_path.mkdirs();
+						ati.o.orig_genome = rgd.genomesBySize.get(genomeSize);
+						ati.o.genome = new File(tool_path, "genome.fasta");
+						ati.o.binary_genome = new File(tool_path, "genome.bfa");
+
+						Options.Reads r = new Options.Reads(1);
+						r.reads = new File(tool_path, String.format("fragments%d.fastq", 1));
+						r.binary_reads = new File(tool_path, String.format("fragments%d.bfq", 1));
+						r.aligned_reads = new File(tool_path, String.format("alignment%d.sai", 1));
+						r.orig_reads = rgd.fragmentsByCoverage.get(genomeSize).get(coverage);
+						ati.o.reads.add(r);
+
+						ati.o.raw_output = new File(tool_path, "out.raw");
+						ati.o.sam_output = new File(tool_path, "alignment.sam");
+						ati.o.converted_output = new File(tool_path, "out.txt");
+						ati.o.roc_output = new File(tool_path, "roc.csv");
+
+						System.out.printf("*** %03d %s: %d%n", ati.index, ati.description, coverage);
+
+						futureList.add(pool.submit(ati));
+					}
+				}
+			}
+
+		}
+		pool.shutdown();
+		for (Future<AlignmentResults> f : futureList)
+		{
+			try
+			{
+				f.get();
+			}
+			catch (InterruptedException e)
+			{
+				e.printStackTrace();
+			}
+			catch (ExecutionException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		return l;
+	}
+
 	private void writeAccuracyResults(SimulationParameters pa,
 		Map<Double, Map<String, AlignmentResults>> m, String parameterName)
 	{
@@ -1028,91 +1120,14 @@ public class AlignmentToolService
 	public void runtimeCoverageEvaluation()
 	{
 		final String testDescription = "runtime_coverage";
-		List<Map<Double, Map<String, AlignmentResults>>> l = new ArrayList<Map<Double, Map<String, AlignmentResults>>>(
-			EVAL_RUN_COUNT);
-		final boolean paired_end = false;
-		final double errorProbability = 0.05;
 
 		final double genomeSize = 500000.0;
 		List<Double> genomeSizes = Arrays.asList(genomeSize);
 		RuntimeGenomeData rgd = getRuntimeGenomeData(genomeSizes, RUNTIME_COVERAGES);
 
-		List<Future<AlignmentResults>> futureList = new ArrayList<Future<AlignmentResults>>(
-			RUNTIME_COVERAGES.size() * EVAL_RUN_COUNT * 7);
-		int index = 0;
-		for (int which_run = 0; which_run < EVAL_RUN_COUNT; which_run++)
-		{
-			Map<Double, Map<String, AlignmentResults>> m = Collections.synchronizedMap(new TreeMap<Double, Map<String, AlignmentResults>>());
-			l.add(m);
-
-			for (double coverage : RUNTIME_COVERAGES)
-			{
-				Map<String, AlignmentResults> m_c = Collections.synchronizedMap(new TreeMap<String, AlignmentResults>());
-				m.put(coverage, m_c);
-
-				List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
-
-				alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast",
-					RUNTIME_THRESHOLDS, new Options(paired_end, errorProbability), m_c));
-				alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast",
-					RUNTIME_THRESHOLDS, new Options(paired_end, errorProbability), m_c));
-				alignmentInterfaceList.add(new SoapInterface(++index, "SOAP", RUNTIME_THRESHOLDS,
-					new Options(paired_end, errorProbability), m_c));
-				alignmentInterfaceList.add(new BwaInterface(++index, "BWA", RUNTIME_THRESHOLDS,
-					new Options(paired_end, errorProbability), m_c));
-				alignmentInterfaceList.add(new ShrimpInterface(++index, "SHRiMP",
-					RUNTIME_THRESHOLDS, new Options(paired_end, errorProbability), m_c));
-				alignmentInterfaceList.add(new BowtieInterface(++index, "Bowtie",
-					RUNTIME_THRESHOLDS, new Options(paired_end, errorProbability), m_c));
-				alignmentInterfaceList.add(new NovoalignInterface(++index, "Novoalign",
-					RUNTIME_THRESHOLDS, new Options(paired_end, errorProbability), m_c));
-
-				for (AlignmentToolInterface ati : alignmentInterfaceList)
-				{
-					File tool_path = new File(DATA_PATH, String.format("%03d-%s", ati.index,
-						ati.description));
-					tool_path.mkdirs();
-					ati.o.orig_genome = rgd.genomesBySize.get(genomeSize);
-					ati.o.genome = new File(tool_path, "genome.fasta");
-					ati.o.binary_genome = new File(tool_path, "genome.bfa");
-
-					Options.Reads r = new Options.Reads(1);
-					r.reads = new File(tool_path, String.format("fragments%d.fastq", 1));
-					r.binary_reads = new File(tool_path, String.format("fragments%d.bfq", 1));
-					r.aligned_reads = new File(tool_path, String.format("alignment%d.sai", 1));
-					r.orig_reads = rgd.fragmentsByCoverage.get(genomeSize).get(coverage);
-					ati.o.reads.add(r);
-
-					ati.o.raw_output = new File(tool_path, "out.raw");
-					ati.o.sam_output = new File(tool_path, "alignment.sam");
-					ati.o.converted_output = new File(tool_path, "out.txt");
-					ati.o.roc_output = new File(tool_path, "roc.csv");
-
-					System.out.printf("*** %03d %s: %d%n", ati.index, ati.description, coverage);
-
-					futureList.add(pool.submit(ati));
-				}
-			}
-
-		}
-		pool.shutdown();
-		for (Future<AlignmentResults> f : futureList)
-		{
-			try
-			{
-				f.get();
-			}
-			catch (InterruptedException e)
-			{
-				e.printStackTrace();
-			}
-			catch (ExecutionException e)
-			{
-				e.printStackTrace();
-			}
-		}
 		SimulationParameters pa = new SimulationParameters(RUNTIME_COVERAGES, false,
 			testDescription, Genome.RUNTIME_COV_RANDOM, rgd.genomesBySize.get(genomeSize), null);
+		List<Map<Double, Map<String, AlignmentResults>>> l = runRuntimeSimulation(pa, rgd);
 		writeRuntimeResults(pa, l, "Coverage");
 	}
 
