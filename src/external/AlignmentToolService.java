@@ -475,8 +475,9 @@ public class AlignmentToolService
 
 					for (AlignmentToolInterface ati : alignmentInterfaceList)
 					{
-						File tool_path = new File(DATA_PATH, String.format("%03d-%s", ati.index,
-							ati.description));
+						File tool_path = new File(DATA_PATH, String.format("%03d-%s-%s-%s",
+							ati.index, ati.description, p.testDescription,
+							p.genome.toString().toLowerCase()));
 						tool_path.mkdirs();
 						ati.o.orig_genome = rgd.genomesBySize.get(genomeSize);
 						ati.o.genome = new File(tool_path, "genome.fasta");
