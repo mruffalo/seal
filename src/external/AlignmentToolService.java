@@ -287,7 +287,7 @@ public class AlignmentToolService
 			SequenceGenerator g = new SeqGenSingleSequenceMultipleRepeats();
 			SequenceGenerator.Options sgo = new SequenceGenerator.Options();
 			sgo.length = (int) genomeSize;
-			System.out.printf("Generating sequence of length %.0f ... ", sgo.length);
+			System.out.printf("Generating sequence of length %d ... ", sgo.length);
 			/*
 			 * Can't generate sequence directly to a file; need to keep it in
 			 * memory in order to read from it
