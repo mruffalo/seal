@@ -273,7 +273,7 @@ public class AlignmentToolService
 		return new ProcessedGenome(genomeFile, fragmentsByError);
 	}
 
-	public RuntimeGenomeData getRuntimeGenomeData(List<Double> genomeSizes,
+	private RuntimeGenomeData getRuntimeGenomeData(List<Double> genomeSizes,
 		List<Double> fragmentCoverages)
 	{
 		DATA_PATH.mkdirs();
@@ -284,6 +284,7 @@ public class AlignmentToolService
 		{
 			String filename = String.format("runtime_genome_%.0f.fa", genomeSize);
 			File genomeFile = new File(DATA_PATH, filename);
+			genomeFilesBySize.put(genomeSize, genomeFile);
 			SequenceGenerator g = new SeqGenSingleSequenceMultipleRepeats();
 			SequenceGenerator.Options sgo = new SequenceGenerator.Options();
 			sgo.length = (int) genomeSize;
@@ -317,6 +318,7 @@ public class AlignmentToolService
 				String fragmentFilename = String.format("runtime_fragments_%.0f_%.0f.fastq",
 					genomeSize, coverage);
 				File fragmentFile = new File(DATA_PATH, fragmentFilename);
+				fragmentsForThisGenome.put(coverage, fragmentFile);
 
 				System.out.print("Introducing fragment read errors...");
 				UniformErrorGenerator eg = new UniformErrorGenerator(SequenceGenerator.NUCLEOTIDES,
@@ -434,7 +436,7 @@ public class AlignmentToolService
 		SimulationParameters p, RuntimeGenomeData rgd)
 	{
 		ExecutorService pool = Executors.newFixedThreadPool(NUMBER_OF_CONCURRENT_THREADS);
-		List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
+		List<AlignmentToolInterface> atiList = new ArrayList<AlignmentToolInterface>();
 
 		List<Map<Double, Map<Double, Map<String, AlignmentResults>>>> l = new ArrayList<Map<Double, Map<Double, Map<String, AlignmentResults>>>>(
 			EVAL_RUN_COUNT);
@@ -455,6 +457,7 @@ public class AlignmentToolService
 					Map<String, AlignmentResults> m_c = Collections.synchronizedMap(new TreeMap<String, AlignmentResults>());
 					m_gs.put(coverage, m_c);
 
+					List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
 					alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast",
 						RUNTIME_THRESHOLDS, new Options(p.paired_end, coverage), m_c));
 					alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast",
@@ -491,13 +494,18 @@ public class AlignmentToolService
 						ati.o.converted_output = new File(tool_path, "out.txt");
 						ati.o.roc_output = new File(tool_path, "roc.csv");
 
-						System.out.printf("*** %03d %s: %d%n", ati.index, ati.description, coverage);
+						System.out.printf("*** %03d %s: %.0f%n", ati.index, ati.description,
+							coverage);
 
-						futureList.add(pool.submit(ati));
+						atiList.add(ati);
 					}
 				}
 			}
-
+		}
+		System.out.printf("Running %d tool evaluations.%n", atiList.size());
+		for (AlignmentToolInterface ati : atiList)
+		{
+			futureList.add(pool.submit(ati));
 		}
 		pool.shutdown();
 		for (Future<AlignmentResults> f : futureList)
