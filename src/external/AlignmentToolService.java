@@ -57,8 +57,8 @@ public class AlignmentToolService
 	protected static final List<Integer> RUNTIME_THRESHOLDS = Collections.unmodifiableList(Arrays.asList(0));
 	protected static final List<Double> RUNTIME_GENOME_SIZES = Collections.unmodifiableList(Arrays.asList(
 		20000.0, 100000.0, 500000.0, 1000000.0, 5000000.0, 10000000.0));
-	protected static final List<Double> RUNTIME_COVERAGES = Collections.unmodifiableList(Arrays.asList(
-		3.0, 7.0, 10.0, 13.0, 16.0, 20.0));
+	protected static final List<Double> RUNTIME_READ_COUNTS = Collections.unmodifiableList(Arrays.asList(
+		10000.0, 30000.0, 100000.0, 300000.0, 1000000.0, 3000000.0, 10000000.0));
 	protected static final List<Double> INDEL_SIZES = Collections.unmodifiableList(Arrays.asList(
 		2.0, 4.0, 7.0, 10.0, 16.0));
 	protected static final List<Double> INDEL_FREQUENCIES = Collections.unmodifiableList(Arrays.asList(
@@ -274,7 +274,7 @@ public class AlignmentToolService
 	}
 
 	private RuntimeGenomeData getRuntimeGenomeData(List<Double> genomeSizes,
-		List<Double> fragmentCoverages)
+		List<Double> fragmentCounts)
 	{
 		DATA_PATH.mkdirs();
 		final double errorProbability = 0.01;
@@ -300,14 +300,14 @@ public class AlignmentToolService
 			System.out.println("done.");
 			Map<Double, File> fragmentsForThisGenome = new TreeMap<Double, File>();
 			fragmentsByCoverage.put(genomeSize, fragmentsForThisGenome);
-			for (double coverage : fragmentCoverages)
+			for (double fragmentCount : fragmentCounts)
 			{
 				Fragmentizer.Options fo = new Fragmentizer.Options();
 				fo.fragmentLength = 50;
 				/*
 				 * Integer truncation is exactly what we want here
 				 */
-				fo.fragmentCount = (int) (coverage * sequence.length()) / fo.fragmentLength;
+				fo.fragmentCount = (int) fragmentCount;
 				fo.fragmentLengthSd = 1;
 
 				// TODO: write fragments with fragmentizeToFile
@@ -316,9 +316,9 @@ public class AlignmentToolService
 				System.out.println("done.");
 
 				String fragmentFilename = String.format("runtime_fragments_%.0f_%.0f.fastq",
-					genomeSize, coverage);
+					genomeSize, fragmentCount);
 				File fragmentFile = new File(DATA_PATH, fragmentFilename);
-				fragmentsForThisGenome.put(coverage, fragmentFile);
+				fragmentsForThisGenome.put(fragmentCount, fragmentFile);
 
 				System.out.print("Introducing fragment read errors...");
 				UniformErrorGenerator eg = new UniformErrorGenerator(SequenceGenerator.NUCLEOTIDES,
@@ -441,7 +441,7 @@ public class AlignmentToolService
 		List<Map<Double, Map<Double, Map<String, AlignmentResults>>>> l = new ArrayList<Map<Double, Map<Double, Map<String, AlignmentResults>>>>(
 			EVAL_RUN_COUNT);
 		List<Future<AlignmentResults>> futureList = new ArrayList<Future<AlignmentResults>>(
-			RUNTIME_COVERAGES.size() * EVAL_RUN_COUNT * 7);
+			RUNTIME_READ_COUNTS.size() * EVAL_RUN_COUNT * 7);
 		int index = 0;
 		for (int which_run = 0; which_run < EVAL_RUN_COUNT; which_run++)
 		{
@@ -1149,15 +1149,15 @@ public class AlignmentToolService
 	 * @param paired_end
 	 * @param genome
 	 */
-	public void runtimeCoverageEvaluation()
+	public void runtimeReadCountEvaluation()
 	{
-		final String testDescription = "runtime_coverage";
+		final String testDescription = "runtime_read_count";
 
-		final double genomeSize = 500000.0;
+		final double genomeSize = 500000000.0;
 		List<Double> genomeSizes = Arrays.asList(genomeSize);
-		RuntimeGenomeData rgd = getRuntimeGenomeData(genomeSizes, RUNTIME_COVERAGES);
+		RuntimeGenomeData rgd = getRuntimeGenomeData(genomeSizes, RUNTIME_READ_COUNTS);
 
-		SimulationParameters pa = new SimulationParameters(RUNTIME_COVERAGES, false,
+		SimulationParameters pa = new SimulationParameters(RUNTIME_READ_COUNTS, false,
 			testDescription, Genome.RUNTIME_COV_RANDOM, rgd.genomesBySize.get(genomeSize),
 			new TreeMap<Double, File>());
 		List<Map<Double, Map<Double, Map<String, AlignmentResults>>>> l = runRuntimeSimulation(pa,
@@ -1234,7 +1234,7 @@ public class AlignmentToolService
 
 		DATA_PATH.mkdirs();
 		List<Future<AlignmentResults>> futureList = new ArrayList<Future<AlignmentResults>>(
-			RUNTIME_COVERAGES.size() * EVAL_RUN_COUNT * 7);
+			RUNTIME_READ_COUNTS.size() * EVAL_RUN_COUNT * 7);
 		int index = 0;
 		for (int which_run = 0; which_run < EVAL_RUN_COUNT; which_run++)
 		{
@@ -1409,7 +1409,6 @@ public class AlignmentToolService
 
 	public static void main(String[] args)
 	{
-		new AlignmentToolService().runtimeCoverageEvaluation();
-		new AlignmentToolService().runtimeGenomeSizeEvaluation();
+		new AlignmentToolService().runtimeReadCountEvaluation();
 	}
 }
