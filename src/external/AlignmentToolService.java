@@ -1145,7 +1145,8 @@ public class AlignmentToolService
 		RuntimeGenomeData rgd = getRuntimeGenomeData(genomeSizes, RUNTIME_COVERAGES);
 
 		SimulationParameters pa = new SimulationParameters(RUNTIME_COVERAGES, false,
-			testDescription, Genome.RUNTIME_COV_RANDOM, rgd.genomesBySize.get(genomeSize), null);
+			testDescription, Genome.RUNTIME_COV_RANDOM, rgd.genomesBySize.get(genomeSize),
+			new TreeMap<Double, File>());
 		List<Map<Double, Map<String, AlignmentResults>>> l = runRuntimeSimulation(pa, rgd);
 		writeRuntimeResults(pa, l, "Coverage");
 	}
@@ -1165,7 +1166,7 @@ public class AlignmentToolService
 		RuntimeGenomeData rgd = getRuntimeGenomeData(RUNTIME_GENOME_SIZES, coverages);
 
 		SimulationParameters pa = new SimulationParameters(RUNTIME_GENOME_SIZES, false,
-			testDescription, Genome.RUNTIME_SIZE_RANDOM, null, null);
+			testDescription, Genome.RUNTIME_SIZE_RANDOM, null, new TreeMap<Double, File>());
 		List<Map<Double, Map<String, AlignmentResults>>> l = runRuntimeSimulation(pa, rgd);
 		writeRuntimeResults(pa, l, "GenomeSize");
 	}
