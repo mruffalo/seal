@@ -617,7 +617,7 @@ public class AlignmentToolService
 						for (String s : m.get(gs).get(c).keySet())
 						{
 							AlignmentResults r = m.get(gs).get(c).get(s);
-							w.write(String.format("%s,%f,%d,%d,%d,%d%n", s, c,
+							w.write(String.format("%s,%.0f,%f,%d,%d,%d,%d%n", s, gs, c,
 								r.timeMap.get(AlignmentOperation.PREPROCESSING),
 								r.timeMap.get(AlignmentOperation.ALIGNMENT),
 								r.timeMap.get(AlignmentOperation.POSTPROCESSING),
