@@ -93,8 +93,7 @@ public class AlignmentToolService
 	 */
 	private static class ProcessedGenome
 	{
-		public ProcessedGenome(File file_, CharSequence sequence_,
-			List<? extends Fragment> fragments_)
+		public ProcessedGenome(File file_, List<? extends Fragment> fragments_)
 		{
 			file = file_;
 			fragments = fragments_;
@@ -217,7 +216,7 @@ public class AlignmentToolService
 		System.out.print("Reading fragments ... ");
 		final List<? extends Fragment> list = Fragmentizer.fragmentize(sequence, fo);
 		System.out.println("done.");
-		return new ProcessedGenome(genomeFile, sequence, list);
+		return new ProcessedGenome(genomeFile, list);
 	}
 
 	private Map<Double, Map<String, AlignmentResults>> runAccuracySimulation(SimulationParameters p)
