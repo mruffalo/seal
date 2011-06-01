@@ -55,10 +55,10 @@ public class AlignmentToolService
 	protected static final List<Integer> PHRED_THRESHOLDS = Collections.unmodifiableList(Arrays.asList(
 		0, 1, 2, 3, 4, 5, 7, 10, 14, 20, 25, 30, 35, 40));
 	protected static final List<Integer> RUNTIME_THRESHOLDS = Collections.unmodifiableList(Arrays.asList(0));
-	protected static final List<Integer> RUNTIME_GENOME_SIZES = Collections.unmodifiableList(Arrays.asList(
-		5000, 20000, 100000, 500000, 1000000));
-	protected static final List<Integer> RUNTIME_COVERAGES = Collections.unmodifiableList(Arrays.asList(
-		3, 7, 10, 13, 16, 20));
+	protected static final List<Double> RUNTIME_GENOME_SIZES = Collections.unmodifiableList(Arrays.asList(
+		5000.0, 20000.0, 100000.0, 500000.0, 1000000.0));
+	protected static final List<Double> RUNTIME_COVERAGES = Collections.unmodifiableList(Arrays.asList(
+		3.0, 7.0, 10.0, 13.0, 16.0, 20.0));
 	protected static final List<Double> INDEL_SIZES = Collections.unmodifiableList(Arrays.asList(
 		2.0, 4.0, 7.0, 10.0, 16.0));
 	protected static final List<Double> INDEL_FREQUENCIES = Collections.unmodifiableList(Arrays.asList(
@@ -81,6 +81,8 @@ public class AlignmentToolService
 		HUMAN_2GB,
 		RANDOM_EASY,
 		RANDOM_HARD,
+		RUNTIME_COV_RANDOM,
+		RUNTIME_SIZE_RANDOM,
 	}
 
 	/**
@@ -310,7 +312,7 @@ public class AlignmentToolService
 		return m;
 	}
 
-	public void writeAccuracyResults(SimulationParameters pa,
+	private void writeAccuracyResults(SimulationParameters pa,
 		Map<Double, Map<String, AlignmentResults>> m, String parameterName)
 	{
 		String filename = String.format("%s_%s.csv", pa.testDescription,
@@ -365,6 +367,47 @@ public class AlignmentToolService
 						{
 							w.write(String.format("%s,%f,%d,%d%n", s, d, score, 0));
 						}
+					}
+				}
+			}
+			w.close();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * TODO: Don't duplicate code from {@link #writeRuntimeResults}
+	 * 
+	 * @param pa
+	 * @param m
+	 * @param parameterName
+	 */
+	private void writeRuntimeResults(SimulationParameters pa,
+		List<Map<Double, Map<String, AlignmentResults>>> l, String parameterName)
+	{
+		String roc_filename = pa.testDescription + "_data.csv";
+		System.out.printf("Writing time data to %s%n", roc_filename);
+		try
+		{
+			FileWriter w = new FileWriter(new File(DATA_PATH, roc_filename));
+			w.write(String.format(
+				"Tool,%s,PreprocessingTime,AlignmentTime,PostprocessingTime,TotalTime%n",
+				parameterName));
+			for (Map<Double, Map<String, AlignmentResults>> m : l)
+			{
+				for (Double c : m.keySet())
+				{
+					for (String s : m.get(c).keySet())
+					{
+						AlignmentResults r = m.get(c).get(s);
+						w.write(String.format("%s,%f,%d,%d,%d,%d%n", s, c,
+							r.timeMap.get(AlignmentOperation.PREPROCESSING),
+							r.timeMap.get(AlignmentOperation.ALIGNMENT),
+							r.timeMap.get(AlignmentOperation.POSTPROCESSING),
+							r.timeMap.get(AlignmentOperation.TOTAL)));
 					}
 				}
 			}
@@ -923,7 +966,7 @@ public class AlignmentToolService
 	public void runtimeCoverageEvaluation()
 	{
 		final String testDescription = "runtime_coverage";
-		List<Map<Integer, Map<String, AlignmentResults>>> l = new ArrayList<Map<Integer, Map<String, AlignmentResults>>>(
+		List<Map<Double, Map<String, AlignmentResults>>> l = new ArrayList<Map<Double, Map<String, AlignmentResults>>>(
 			EVAL_RUN_COUNT);
 		final boolean paired_end = false;
 		final double errorProbability = 0.05;
@@ -936,27 +979,31 @@ public class AlignmentToolService
 		System.out.println("done.");
 		System.out.printf("Genome length: %d%n", sequence.length());
 
+		final File genomeFile = new File(DATA_PATH, "runtime_genome.fa");
+		writeGenome(sequence, genomeFile);
+
 		DATA_PATH.mkdirs();
 		List<Future<AlignmentResults>> futureList = new ArrayList<Future<AlignmentResults>>(
 			RUNTIME_COVERAGES.size() * EVAL_RUN_COUNT * 7);
 		int index = 0;
 		for (int which_run = 0; which_run < EVAL_RUN_COUNT; which_run++)
 		{
-			Map<Integer, Map<String, AlignmentResults>> m = Collections.synchronizedMap(new TreeMap<Integer, Map<String, AlignmentResults>>());
+			Map<Double, Map<String, AlignmentResults>> m = Collections.synchronizedMap(new TreeMap<Double, Map<String, AlignmentResults>>());
 			l.add(m);
 
-			for (int coverage : RUNTIME_COVERAGES)
+			for (double coverage : RUNTIME_COVERAGES)
 			{
 				Map<String, AlignmentResults> m_c = Collections.synchronizedMap(new TreeMap<String, AlignmentResults>());
 				m.put(coverage, m_c);
 				Fragmentizer.Options fo = new Fragmentizer.Options();
 				fo.fragmentLength = 50;
 				/*
-				 * Integer truncation is okay here
+				 * Integer truncation is exactly what we want here
 				 */
-				fo.fragmentCount = (coverage * sequence.length()) / fo.fragmentLength;
+				fo.fragmentCount = (int) (coverage * sequence.length()) / fo.fragmentLength;
 				fo.fragmentLengthSd = 1;
 
+				// TODO: write fragments with fragmentizeToFile
 				System.out.printf("Reading %d fragments...", fo.fragmentCount);
 				List<? extends Fragment> list = Fragmentizer.fragmentize(sequence, fo);
 				System.out.println("done.");
@@ -1026,33 +1073,9 @@ public class AlignmentToolService
 				e.printStackTrace();
 			}
 		}
-		String roc_filename = testDescription + "_data.csv";
-		System.out.printf("Writing time data to %s%n", roc_filename);
-		try
-		{
-			FileWriter w = new FileWriter(new File(DATA_PATH, roc_filename));
-			w.write(String.format("Tool,Coverage,PreprocessingTime,AlignmentTime,PostprocessingTime,TotalTime%n"));
-			for (Map<Integer, Map<String, AlignmentResults>> m : l)
-			{
-				for (Integer c : m.keySet())
-				{
-					for (String s : m.get(c).keySet())
-					{
-						AlignmentResults r = m.get(c).get(s);
-						w.write(String.format("%s,%d,%d,%d,%d,%d%n", s, c,
-							r.timeMap.get(AlignmentOperation.PREPROCESSING),
-							r.timeMap.get(AlignmentOperation.ALIGNMENT),
-							r.timeMap.get(AlignmentOperation.POSTPROCESSING),
-							r.timeMap.get(AlignmentOperation.TOTAL)));
-					}
-				}
-			}
-			w.close();
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
+		SimulationParameters pa = new SimulationParameters(RUNTIME_COVERAGES, false,
+			testDescription, Genome.RUNTIME_COV_RANDOM, genomeFile, null);
+		writeRuntimeResults(pa, l, "Coverage");
 	}
 
 	/**
@@ -1064,7 +1087,7 @@ public class AlignmentToolService
 	public void runtimeGenomeSizeEvaluation()
 	{
 		final String testDescription = "runtime_genome_size";
-		List<Map<Integer, Map<String, AlignmentResults>>> l = new ArrayList<Map<Integer, Map<String, AlignmentResults>>>(
+		List<Map<Double, Map<String, AlignmentResults>>> l = new ArrayList<Map<Double, Map<String, AlignmentResults>>>(
 			EVAL_RUN_COUNT);
 		final boolean paired_end = false;
 		final double errorProbability = 0.05;
@@ -1076,14 +1099,14 @@ public class AlignmentToolService
 		int index = 0;
 		for (int which_run = 0; which_run < EVAL_RUN_COUNT; which_run++)
 		{
-			Map<Integer, Map<String, AlignmentResults>> m = Collections.synchronizedMap(new TreeMap<Integer, Map<String, AlignmentResults>>());
+			Map<Double, Map<String, AlignmentResults>> m = Collections.synchronizedMap(new TreeMap<Double, Map<String, AlignmentResults>>());
 			l.add(m);
 
-			for (int genome_size : RUNTIME_GENOME_SIZES)
+			for (double genome_size : RUNTIME_GENOME_SIZES)
 			{
 				SequenceGenerator g = new SeqGenSingleSequenceMultipleRepeats();
 				SequenceGenerator.Options sgo = new SequenceGenerator.Options();
-				sgo.length = genome_size;
+				sgo.length = (int) genome_size;
 				System.out.print("Generating sequence...");
 				CharSequence sequence = g.generateSequence(sgo);
 				System.out.println("done.");
@@ -1095,7 +1118,7 @@ public class AlignmentToolService
 				/*
 				 * Integer truncation is okay here
 				 */
-				fo.fragmentCount = (genome_size * coverage) / fo.fragmentLength;
+				fo.fragmentCount = (int) (genome_size * coverage) / fo.fragmentLength;
 				fo.fragmentLengthSd = 1;
 
 				System.out.printf("Reading %d fragments...", fo.fragmentCount);
@@ -1173,14 +1196,14 @@ public class AlignmentToolService
 		{
 			FileWriter w = new FileWriter(new File(DATA_PATH, roc_filename));
 			w.write(String.format("Tool,GenomeLength,PreprocessingTime,AlignmentTime,PostprocessingTime,TotalTime%n"));
-			for (Map<Integer, Map<String, AlignmentResults>> m : l)
+			for (Map<Double, Map<String, AlignmentResults>> m : l)
 			{
-				for (Integer c : m.keySet())
+				for (Double c : m.keySet())
 				{
 					for (String s : m.get(c).keySet())
 					{
 						AlignmentResults r = m.get(c).get(s);
-						w.write(String.format("%s,%d,%d,%d,%d,%d%n", s, c,
+						w.write(String.format("%s,%f,%d,%d,%d,%d%n", s, c,
 							r.timeMap.get(AlignmentOperation.PREPROCESSING),
 							r.timeMap.get(AlignmentOperation.ALIGNMENT),
 							r.timeMap.get(AlignmentOperation.POSTPROCESSING),
