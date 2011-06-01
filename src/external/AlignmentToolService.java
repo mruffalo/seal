@@ -56,7 +56,7 @@ public class AlignmentToolService
 		0, 1, 2, 3, 4, 5, 7, 10, 14, 20, 25, 30, 35, 40));
 	protected static final List<Integer> RUNTIME_THRESHOLDS = Collections.unmodifiableList(Arrays.asList(0));
 	protected static final List<Double> RUNTIME_GENOME_SIZES = Collections.unmodifiableList(Arrays.asList(
-		5000.0, 20000.0, 100000.0, 500000.0, 1000000.0));
+		20000.0, 100000.0, 500000.0, 1000000.0, 5000000.0, 10000000.0));
 	protected static final List<Double> RUNTIME_COVERAGES = Collections.unmodifiableList(Arrays.asList(
 		3.0, 7.0, 10.0, 13.0, 16.0, 20.0));
 	protected static final List<Double> INDEL_SIZES = Collections.unmodifiableList(Arrays.asList(
