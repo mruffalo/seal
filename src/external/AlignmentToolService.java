@@ -387,11 +387,11 @@ public class AlignmentToolService
 	private void writeRuntimeResults(SimulationParameters pa,
 		List<Map<Double, Map<String, AlignmentResults>>> l, String parameterName)
 	{
-		String roc_filename = pa.testDescription + "_data.csv";
-		System.out.printf("Writing time data to %s%n", roc_filename);
+		String filename = pa.testDescription + "_data.csv";
+		System.out.printf("Writing time data to %s%n", filename);
 		try
 		{
-			FileWriter w = new FileWriter(new File(DATA_PATH, roc_filename));
+			FileWriter w = new FileWriter(new File(DATA_PATH, filename));
 			w.write(String.format(
 				"Tool,%s,PreprocessingTime,AlignmentTime,PostprocessingTime,TotalTime%n",
 				parameterName));
@@ -978,7 +978,7 @@ public class AlignmentToolService
 		System.out.println("done.");
 		System.out.printf("Genome length: %d%n", sequence.length());
 
-		final File genomeFile = new File(DATA_PATH, "runtime_genome.fa");
+		final File genomeFile = new File(DATA_PATH, "runtime_cov.fa");
 		writeGenome(sequence, genomeFile);
 
 		DATA_PATH.mkdirs();
@@ -1110,6 +1110,10 @@ public class AlignmentToolService
 				CharSequence sequence = g.generateSequence(sgo);
 				System.out.println("done.");
 				System.out.printf("Genome length: %d%n", sequence.length());
+
+				File genomeFile = new File(DATA_PATH, "runtime_size.fa");
+				writeGenome(sequence, genomeFile);
+
 				Map<String, AlignmentResults> m_c = Collections.synchronizedMap(new TreeMap<String, AlignmentResults>());
 				m.put(genome_size, m_c);
 				Fragmentizer.Options fo = new Fragmentizer.Options();
@@ -1189,33 +1193,9 @@ public class AlignmentToolService
 				e.printStackTrace();
 			}
 		}
-		String roc_filename = testDescription + "_data.csv";
-		System.out.printf("Writing time data to %s%n", roc_filename);
-		try
-		{
-			FileWriter w = new FileWriter(new File(DATA_PATH, roc_filename));
-			w.write(String.format("Tool,GenomeLength,PreprocessingTime,AlignmentTime,PostprocessingTime,TotalTime%n"));
-			for (Map<Double, Map<String, AlignmentResults>> m : l)
-			{
-				for (Double c : m.keySet())
-				{
-					for (String s : m.get(c).keySet())
-					{
-						AlignmentResults r = m.get(c).get(s);
-						w.write(String.format("%s,%f,%d,%d,%d,%d%n", s, c,
-							r.timeMap.get(AlignmentOperation.PREPROCESSING),
-							r.timeMap.get(AlignmentOperation.ALIGNMENT),
-							r.timeMap.get(AlignmentOperation.POSTPROCESSING),
-							r.timeMap.get(AlignmentOperation.TOTAL)));
-					}
-				}
-			}
-			w.close();
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
+		SimulationParameters pa = new SimulationParameters(RUNTIME_GENOME_SIZES, false,
+			testDescription, Genome.RUNTIME_COV_RANDOM, null, null);
+		writeRuntimeResults(pa, l, "GenomeSize");
 	}
 
 	/**
