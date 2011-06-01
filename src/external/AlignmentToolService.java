@@ -257,11 +257,7 @@ public class AlignmentToolService
 	public RuntimeGenomeData getRuntimeGenomeData(List<Double> genomeSizes,
 		List<Double> fragmentCoverages)
 	{
-		/*
-		 * Can't generate sequence directly to a file; need to keep it in memory
-		 * in order to read from it
-		 */
-		Map<Double, CharSequence> sequencesBySize;
+		final double errorProbability = 0.01;
 		Map<Double, File> genomeFilesBySize = new TreeMap<Double, File>();
 		Map<Double, Map<Double, File>> fragmentsByCoverage = new TreeMap<Double, Map<Double, File>>();
 		for (double genomeSize : genomeSizes)
@@ -272,10 +268,44 @@ public class AlignmentToolService
 			SequenceGenerator.Options sgo = new SequenceGenerator.Options();
 			sgo.length = (int) genomeSize;
 			System.out.printf("Generating sequence of length %.0f ... ", sgo.length);
+			/*
+			 * Can't generate sequence directly to a file; need to keep it in
+			 * memory in order to read from it
+			 */
 			CharSequence sequence = g.generateSequence(sgo);
+			System.out.println("done.");
+			System.out.printf("Writing genome to %s ... ", genomeFile.getAbsolutePath());
+			writeGenome(sequence, genomeFile);
 			System.out.println("done.");
 			Map<Double, File> fragmentsForThisGenome = new TreeMap<Double, File>();
 			fragmentsByCoverage.put(genomeSize, fragmentsForThisGenome);
+			for (double coverage : fragmentCoverages)
+			{
+				Fragmentizer.Options fo = new Fragmentizer.Options();
+				fo.fragmentLength = 50;
+				/*
+				 * Integer truncation is exactly what we want here
+				 */
+				fo.fragmentCount = (int) (coverage * sequence.length()) / fo.fragmentLength;
+				fo.fragmentLengthSd = 1;
+
+				// TODO: write fragments with fragmentizeToFile
+				System.out.printf("Reading %d fragments...", fo.fragmentCount);
+				List<? extends Fragment> list = Fragmentizer.fragmentize(sequence, fo);
+				System.out.println("done.");
+
+				String fragmentFilename = String.format("runtime_fragments_%.0f_%.0f.fastq",
+					genomeSize, coverage);
+				File fragmentFile = new File(DATA_PATH, fragmentFilename);
+
+				System.out.print("Introducing fragment read errors...");
+				UniformErrorGenerator eg = new UniformErrorGenerator(SequenceGenerator.NUCLEOTIDES,
+					errorProbability);
+				List<FragmentErrorGenerator> fegs = new ArrayList<FragmentErrorGenerator>();
+				fegs.add(eg);
+				FragmentErrorGenerator.generateErrorsToFile(fegs, list, fragmentFile);
+				System.out.println("done.");
+			}
 		}
 
 		return new RuntimeGenomeData(genomeFilesBySize, fragmentsByCoverage);
