@@ -1175,9 +1175,9 @@ public class AlignmentToolService
 	{
 		final String testDescription = "runtime_genome_size";
 
-		final double coverage = 3.0;
-		List<Double> coverages = Arrays.asList(coverage);
-		RuntimeGenomeData rgd = getRuntimeGenomeData(RUNTIME_GENOME_SIZES, coverages);
+		final double readCount = 100000.0;
+		List<Double> readCounts = Arrays.asList(readCount);
+		RuntimeGenomeData rgd = getRuntimeGenomeData(RUNTIME_GENOME_SIZES, readCounts);
 
 		SimulationParameters pa = new SimulationParameters(RUNTIME_GENOME_SIZES, false,
 			testDescription, Genome.RUNTIME_SIZE_RANDOM, null, new TreeMap<Double, File>());
@@ -1409,6 +1409,6 @@ public class AlignmentToolService
 
 	public static void main(String[] args)
 	{
-		new AlignmentToolService().runtimeReadCountEvaluation();
+		new AlignmentToolService().runtimeGenomeSizeEvaluation();
 	}
 }
