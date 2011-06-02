@@ -1409,6 +1409,8 @@ public class AlignmentToolService
 
 	public static void main(String[] args)
 	{
-		new AlignmentToolService().runtimeGenomeSizeEvaluation();
+		new AlignmentToolService().errorRateEvaluation(false, Genome.HUMAN_2GB);
+		new AlignmentToolService().indelSizeEvaluation(false, Genome.HUMAN_2GB);
+		new AlignmentToolService().indelFrequencyEvaluation(false, Genome.HUMAN_2GB);
 	}
 }
