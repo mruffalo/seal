@@ -78,7 +78,7 @@ public class AlignmentToolService
 	private static enum Genome
 	{
 		HUMAN_CHR22,
-		HUMAN_2GB,
+		HUMAN,
 		RANDOM_EASY,
 		RANDOM_HARD,
 		RUNTIME_COV_RANDOM,
@@ -200,8 +200,8 @@ public class AlignmentToolService
 				}
 				genomeFile = new File(DATA_PATH, "chr22-contig.fa");
 				break;
-			case HUMAN_2GB:
-				final File hg19_2gb = new File(DATA_PATH, "hg19_2gb.fa");
+			case HUMAN:
+				final File hg19_2gb = new File(DATA_PATH, "hg19.fa");
 				try
 				{
 					/*
@@ -1409,8 +1409,8 @@ public class AlignmentToolService
 
 	public static void main(String[] args)
 	{
-		new AlignmentToolService().errorRateEvaluation(false, Genome.HUMAN_2GB);
-		new AlignmentToolService().indelSizeEvaluation(false, Genome.HUMAN_2GB);
-		new AlignmentToolService().indelFrequencyEvaluation(false, Genome.HUMAN_2GB);
+		new AlignmentToolService().errorRateEvaluation(false, Genome.HUMAN);
+		new AlignmentToolService().indelSizeEvaluation(false, Genome.HUMAN);
+		new AlignmentToolService().indelFrequencyEvaluation(false, Genome.HUMAN);
 	}
 }
