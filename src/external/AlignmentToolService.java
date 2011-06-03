@@ -159,14 +159,14 @@ public class AlignmentToolService
 			Map<Double, Map<Double, File>> fragmentsByCoverage_)
 		{
 			genomesBySize = Collections.unmodifiableMap(genomesBySize_);
-			fragmentsByCoverage = Collections.unmodifiableMap(fragmentsByCoverage_);
+			fragmentsByReadCount = Collections.unmodifiableMap(fragmentsByCoverage_);
 		}
 
 		public final Map<Double, File> genomesBySize;
 		/**
 		 * First level: genome size, second level: read coverage
 		 */
-		public final Map<Double, Map<Double, File>> fragmentsByCoverage;
+		public final Map<Double, Map<Double, File>> fragmentsByReadCount;
 	}
 
 	private ProcessedGenome getGenomeAndFragmentFiles(Genome genome,
@@ -448,30 +448,30 @@ public class AlignmentToolService
 			Map<Double, Map<Double, Map<String, AlignmentResults>>> m = Collections.synchronizedMap(new TreeMap<Double, Map<Double, Map<String, AlignmentResults>>>());
 			l.add(m);
 
-			for (double genomeSize : rgd.fragmentsByCoverage.keySet())
+			for (double genomeSize : rgd.fragmentsByReadCount.keySet())
 			{
 				Map<Double, Map<String, AlignmentResults>> m_gs = Collections.synchronizedMap(new TreeMap<Double, Map<String, AlignmentResults>>());
 				m.put(genomeSize, m_gs);
-				for (double coverage : rgd.fragmentsByCoverage.get(genomeSize).keySet())
+				for (double readCount : rgd.fragmentsByReadCount.get(genomeSize).keySet())
 				{
 					Map<String, AlignmentResults> m_c = Collections.synchronizedMap(new TreeMap<String, AlignmentResults>());
-					m_gs.put(coverage, m_c);
+					m_gs.put(readCount, m_c);
 
 					List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
 					alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast",
-						RUNTIME_THRESHOLDS, new Options(p.paired_end, coverage), m_c));
+						RUNTIME_THRESHOLDS, new Options(p.paired_end, readCount), m_c));
 					alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast",
-						RUNTIME_THRESHOLDS, new Options(p.paired_end, coverage), m_c));
+						RUNTIME_THRESHOLDS, new Options(p.paired_end, readCount), m_c));
 					alignmentInterfaceList.add(new SoapInterface(++index, "SOAP",
-						RUNTIME_THRESHOLDS, new Options(p.paired_end, coverage), m_c));
+						RUNTIME_THRESHOLDS, new Options(p.paired_end, readCount), m_c));
 					alignmentInterfaceList.add(new BwaInterface(++index, "BWA", RUNTIME_THRESHOLDS,
-						new Options(p.paired_end, coverage), m_c));
+						new Options(p.paired_end, readCount), m_c));
 					alignmentInterfaceList.add(new ShrimpInterface(++index, "SHRiMP",
-						RUNTIME_THRESHOLDS, new Options(p.paired_end, coverage), m_c));
+						RUNTIME_THRESHOLDS, new Options(p.paired_end, readCount), m_c));
 					alignmentInterfaceList.add(new BowtieInterface(++index, "Bowtie",
-						RUNTIME_THRESHOLDS, new Options(p.paired_end, coverage), m_c));
+						RUNTIME_THRESHOLDS, new Options(p.paired_end, readCount), m_c));
 					alignmentInterfaceList.add(new NovoalignInterface(++index, "Novoalign",
-						RUNTIME_THRESHOLDS, new Options(p.paired_end, coverage), m_c));
+						RUNTIME_THRESHOLDS, new Options(p.paired_end, readCount), m_c));
 
 					for (AlignmentToolInterface ati : alignmentInterfaceList)
 					{
@@ -487,7 +487,7 @@ public class AlignmentToolService
 						r.reads = new File(tool_path, String.format("fragments%d.fastq", 1));
 						r.binary_reads = new File(tool_path, String.format("fragments%d.bfq", 1));
 						r.aligned_reads = new File(tool_path, String.format("alignment%d.sai", 1));
-						r.orig_reads = rgd.fragmentsByCoverage.get(genomeSize).get(coverage);
+						r.orig_reads = rgd.fragmentsByReadCount.get(genomeSize).get(readCount);
 						ati.o.reads.add(r);
 
 						ati.o.raw_output = new File(tool_path, "out.raw");
@@ -496,7 +496,7 @@ public class AlignmentToolService
 						ati.o.roc_output = new File(tool_path, "roc.csv");
 
 						System.out.printf("*** %03d %s: %.0f%n", ati.index, ati.description,
-							coverage);
+							readCount);
 
 						atiList.add(ati);
 					}
@@ -608,7 +608,7 @@ public class AlignmentToolService
 		try
 		{
 			FileWriter w = new FileWriter(new File(DATA_PATH, filename));
-			w.write(String.format("Tool,GenomeSize,Coverage,PreprocessingTime,AlignmentTime,PostprocessingTime,TotalTime%n"));
+			w.write(String.format("Tool,GenomeSize,ReadCount,PreprocessingTime,AlignmentTime,PostprocessingTime,TotalTime%n"));
 			for (Map<Double, Map<Double, Map<String, AlignmentResults>>> m : l)
 			{
 				for (Double gs : m.keySet())
@@ -1162,7 +1162,7 @@ public class AlignmentToolService
 			new TreeMap<Double, File>());
 		List<Map<Double, Map<Double, Map<String, AlignmentResults>>>> l = runRuntimeSimulation(pa,
 			rgd);
-		writeRuntimeResults(pa, l, "Coverage");
+		writeRuntimeResults(pa, l, "ReadCount");
 	}
 
 	/**
