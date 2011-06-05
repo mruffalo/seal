@@ -150,6 +150,12 @@ public class AlignmentToolService
 		public final Map<Double, File> fragmentsByError;
 	}
 
+	/**
+	 * TODO: Refactor this, probably by moving it into
+	 * {@link SimulationParameters} or {@link ProcessedGenome}
+	 * 
+	 * @author mruffalo
+	 */
 	private static class RuntimeGenomeData
 	{
 		public RuntimeGenomeData(Map<Double, File> genomesBySize_,
