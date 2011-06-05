@@ -66,13 +66,10 @@ public class AlignmentToolService
 	protected static final List<Integer> TANDEM_GENOME_REPEAT_COUNTS = Collections.unmodifiableList(Arrays.asList(
 		0, 10, 20, 50, 100, 250));
 
-	private final ExecutorService pool;
-
 	private static final File DATA_PATH = new File("data");
 
 	public AlignmentToolService()
 	{
-		pool = Executors.newFixedThreadPool(NUMBER_OF_CONCURRENT_THREADS);
 	}
 
 	private static enum Genome
@@ -758,6 +755,7 @@ public class AlignmentToolService
 	 */
 	public void tandemIndelFrequencyEvaluation(boolean paired_end)
 	{
+		final ExecutorService pool = Executors.newFixedThreadPool(NUMBER_OF_CONCURRENT_THREADS);
 		final String testDescription = "indel_freq_tandem";
 		final int generated_genome_length = 1000000;
 		CharSequence origSequence = null;
@@ -948,6 +946,7 @@ public class AlignmentToolService
 	 */
 	public void bigDeletionEvaluation(boolean paired_end)
 	{
+		final ExecutorService pool = Executors.newFixedThreadPool(NUMBER_OF_CONCURRENT_THREADS);
 		final String testDescription = "big_deletion_200";
 		final int generated_genome_length = 1000000;
 		CharSequence origSequence = null;
@@ -1192,6 +1191,7 @@ public class AlignmentToolService
 	 */
 	public void tandemRepeatEvaluation(String[] args)
 	{
+		final ExecutorService pool = Executors.newFixedThreadPool(NUMBER_OF_CONCURRENT_THREADS);
 		final int requiredArgumentCount = 11;
 		if (args.length < requiredArgumentCount)
 		{
