@@ -3,6 +3,7 @@ package generator.errors;
 import assembly.Fragment;
 import io.FastqWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -64,14 +65,19 @@ public abstract class FragmentErrorGenerator
 	public static void generateErrorsToFile(List<FragmentErrorGenerator> errorGenerators,
 		List<? extends Fragment> fragmentList, File fragmentFile)
 	{
-		List<? extends Fragment> list = fragmentList;
-		for (FragmentErrorGenerator eg : errorGenerators)
-		{
-			list = eg.generateErrors(list);
-		}
 		try
 		{
-			FastqWriter.writeFragments(list, fragmentFile, 0);
+			FastqWriter w = new FastqWriter(new FileWriter(fragmentFile));
+			for (int i = 0; i < fragmentList.size(); i++)
+			{
+				Fragment f = fragmentList.get(i);
+				for (FragmentErrorGenerator eg : errorGenerators)
+				{
+					f = eg.generateErrors(f);
+				}
+				w.writeFragment(f, 0, i);
+			}
+			w.close();
 		}
 		catch (IOException e)
 		{

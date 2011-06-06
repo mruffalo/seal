@@ -58,7 +58,8 @@ public class AlignmentToolService
 	protected static final List<Double> RUNTIME_GENOME_SIZES = Collections.unmodifiableList(Arrays.asList(
 		1000000.0, 3000000.0, 10000000.0, 30000000.0, 100000000.0, 300000000.0));
 	protected static final List<Double> RUNTIME_READ_COUNTS = Collections.unmodifiableList(Arrays.asList(
-		10000.0, 30000.0, 100000.0, 300000.0, 1000000.0, 3000000.0, 10000000.0));
+		10000.0, 30000.0, 100000.0, 300000.0, 1000000.0, 3000000.0, 10000000.0, 30000000.0,
+		100000000.0));
 	protected static final List<Double> INDEL_SIZES = Collections.unmodifiableList(Arrays.asList(
 		2.0, 4.0, 7.0, 10.0, 16.0));
 	protected static final List<Double> INDEL_FREQUENCIES = Collections.unmodifiableList(Arrays.asList(
@@ -1415,8 +1416,6 @@ public class AlignmentToolService
 
 	public static void main(String[] args)
 	{
-		new AlignmentToolService().errorRateEvaluation(false, Genome.HUMAN);
-		new AlignmentToolService().indelSizeEvaluation(false, Genome.HUMAN);
-		new AlignmentToolService().indelFrequencyEvaluation(false, Genome.HUMAN);
+		new AlignmentToolService().runtimeReadCountEvaluation();
 	}
 }
