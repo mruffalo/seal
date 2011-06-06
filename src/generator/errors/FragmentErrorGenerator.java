@@ -1,6 +1,7 @@
 package generator.errors;
 
 import assembly.Fragment;
+import generator.Fragmentizer;
 import io.FastqWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -62,6 +63,16 @@ public abstract class FragmentErrorGenerator
 		return list;
 	}
 
+	/**
+	 * @deprecated You should probably use
+	 *             {@link Fragmentizer#fragmentizeToFile(CharSequence, generator.Fragmentizer.Options, File)}
+	 *             and set the {@link Fragmentizer.Options#errorGenerators}
+	 *             field appropriately instead of using this.
+	 * @param errorGenerators
+	 * @param fragmentList
+	 * @param fragmentFile
+	 */
+	@Deprecated
 	public static void generateErrorsToFile(List<FragmentErrorGenerator> errorGenerators,
 		List<? extends Fragment> fragmentList, File fragmentFile)
 	{

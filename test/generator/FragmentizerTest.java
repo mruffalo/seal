@@ -2,6 +2,7 @@ package generator;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import generator.errors.FragmentErrorGenerator;
 import generator.errors.UniformErrorGenerator;
 import java.io.File;
 import java.util.ArrayList;
@@ -158,7 +159,8 @@ public class FragmentizerTest
 		fo.fragmentCount = 500;
 		fo.fragmentLength = 60;
 		fo.fragmentLengthSd = 1.0;
-		fo.errorGenerator = new UniformErrorGenerator(SequenceGenerator.NUCLEOTIDES, 0.01);
+		fo.errorGenerators = new ArrayList<FragmentErrorGenerator>(1);
+		fo.errorGenerators.add(new UniformErrorGenerator(SequenceGenerator.NUCLEOTIDES, 0.01));
 		Fragmentizer.fragmentizeToFiles(s, fo, fl);
 	}
 

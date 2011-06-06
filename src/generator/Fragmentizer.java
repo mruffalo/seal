@@ -49,7 +49,7 @@ public class Fragmentizer
 		 * If this isn't null, the list will be passed to it in order to
 		 * introduce read errors
 		 */
-		public FragmentErrorGenerator errorGenerator;
+		public List<FragmentErrorGenerator> errorGenerators;
 		/**
 		 * If this is true, the <code>readLength</code> and
 		 * <code>readLengthSd</code> parameters will be used.
@@ -169,7 +169,10 @@ public class Fragmentizer
 				int startPosition = random.nextInt(sequence.length() - fragmentLength);
 				Fragment f = new Fragment(sequence.subSequence(startPosition, startPosition
 						+ fragmentLength));
-				f = o.errorGenerator.generateErrors(f);
+				for (FragmentErrorGenerator eg : o.errorGenerators)
+				{
+					f = eg.generateErrors(f);
+				}
 				f.setPosition(FragmentPositionSource.ORIGINAL_SEQUENCE, startPosition);
 				for (FastqWriter fw : fastqWriters)
 				{
