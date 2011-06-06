@@ -55,6 +55,12 @@ public class Fragmentizer
 		 * <code>readLengthSd</code> parameters will be used.
 		 */
 		public boolean pairedEnd;
+		/**
+		 * This is how far to read past each end, for the purposes of keeping a
+		 * consistent read length when introducing deletions. This should
+		 * probably be equal to the maximum indel size. TODO: Rename this
+		 */
+		public int overage;
 	}
 
 	/**
