@@ -1,5 +1,6 @@
 package assembly;
 
+import generator.Fragmentizer;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
@@ -15,10 +16,18 @@ public class Fragment implements Cloneable
 	 * Array of Phred-scaled read quality values
 	 */
 	protected int[] readQuality;
+	/**
+	 * {@link #sequence} might be longer than this fragment if it was read with
+	 * some {@link Fragmentizer.Options#overage} -- this is the actual length
+	 * that we're interested in. This should be preserved when introducing
+	 * indels.
+	 */
+	protected int length;
 
 	public Fragment(CharSequence sequence_)
 	{
 		sequence = sequence_;
+		length = sequence.length();
 		positions = new EnumMap<FragmentPositionSource, Integer>(FragmentPositionSource.class);
 		readQuality = new int[sequence.length()];
 		for (int i = 0; i < sequence.length(); i++)
@@ -35,6 +44,19 @@ public class Fragment implements Cloneable
 	public void setPosition(FragmentPositionSource source, Integer value)
 	{
 		positions.put(source, value);
+	}
+
+	public int getLength()
+	{
+		return length;
+	}
+
+	public void setLength(int length_)
+	{
+		if (length_ >= 0 && length <= sequence.length())
+		{
+			length = length_;
+		}
 	}
 
 	@Override
@@ -139,7 +161,7 @@ public class Fragment implements Cloneable
 
 	public CharSequence getSequence()
 	{
-		return sequence;
+		return sequence.subSequence(0, length);
 	}
 
 	/**

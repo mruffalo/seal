@@ -171,7 +171,7 @@ public class Fragmentizer
 			for (int i = 0; i < o.fragmentCount; i++)
 			{
 				int sizeAddition = (int) (random.nextGaussian() * o.fragmentLengthSd);
-				int fragmentLength = o.fragmentLength + sizeAddition;
+				int fragmentLength = o.fragmentLength + o.overage + sizeAddition;
 				int startPosition = random.nextInt(sequence.length() - fragmentLength);
 				Fragment f = new Fragment(sequence.subSequence(startPosition, startPosition
 						+ fragmentLength));
