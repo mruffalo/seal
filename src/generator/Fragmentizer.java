@@ -125,22 +125,6 @@ public class Fragmentizer
 	}
 
 	/**
-	 * Convenience method to call
-	 * {@link #fragmentizeToFiles(CharSequence, Options, List)} with a single
-	 * file.
-	 *
-	 * @param string
-	 * @param o
-	 * @param file
-	 */
-	public static void fragmentizeToFile(CharSequence string, Options o, File file)
-	{
-		List<File> files = new ArrayList<File>(1);
-		files.add(file);
-		fragmentizeToFiles(string, o, files);
-	}
-
-	/**
 	 * Reads this string into fragments and directly writes them to the
 	 * specified Files.
 	 *
@@ -148,9 +132,9 @@ public class Fragmentizer
 	 * @param o
 	 * @param files
 	 */
-	public static void fragmentizeToFiles(CharSequence sequence, Options o, List<File> files)
+	public static void fragmentizeToFiles(CharSequence sequence, Options o, File... files)
 	{
-		List<FastqWriter> fastqWriters = new ArrayList<FastqWriter>(files.size());
+		List<FastqWriter> fastqWriters = new ArrayList<FastqWriter>(files.length);
 		for (File file : files)
 		{
 			try
