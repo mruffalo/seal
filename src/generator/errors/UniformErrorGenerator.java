@@ -35,7 +35,7 @@ public class UniformErrorGenerator extends SubstitutionErrorGenerator
 	}
 
 	/**
-	 * Don't need to use the nice {@link #getErrorProbability(int)} method,
+	 * Don't need to use the nice {@link #getErrorProbability} method,
 	 * since we know that it's the same for every character position in this
 	 * class.
 	 */

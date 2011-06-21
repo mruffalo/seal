@@ -40,7 +40,7 @@ import assembly.FragmentPositionSource;
 
 /**
  * Very large TODO: Refactor to avoid this ridiculous code duplication
- * 
+ *
  * @author mruffalo
  */
 public class AlignmentToolService
@@ -86,7 +86,7 @@ public class AlignmentToolService
 	/**
 	 * I <b>really</b> wish I could just return a tuple instead of making
 	 * classes like this :(
-	 * 
+	 *
 	 * @author mruffalo
 	 */
 	private static class ProcessedGenome
@@ -107,7 +107,7 @@ public class AlignmentToolService
 
 	/**
 	 * TODO: Figure out if I should refactor this
-	 * 
+	 *
 	 * @author mruffalo
 	 */
 	private static class SimulationParameters
@@ -154,7 +154,7 @@ public class AlignmentToolService
 	/**
 	 * TODO: Refactor this, probably by moving it into
 	 * {@link SimulationParameters} or {@link ProcessedGenome}
-	 * 
+	 *
 	 * @author mruffalo
 	 */
 	private static class RuntimeGenomeData
@@ -432,7 +432,7 @@ public class AlignmentToolService
 	/**
 	 * TODO: Don't duplicate code in
 	 * {@link #runAccuracySimulation(SimulationParameters)}
-	 * 
+	 *
 	 * @param p
 	 * @return
 	 */
@@ -598,10 +598,10 @@ public class AlignmentToolService
 	}
 
 	/**
-	 * TODO: Don't duplicate code from {@link #writeRuntimeResults}
-	 * 
+	 * TODO: Don't duplicate code from {@link #writeAccuracyResults}
+	 *
 	 * @param pa
-	 * @param m
+	 * @param l
 	 * @param parameterName
 	 */
 	private void writeRuntimeResults(SimulationParameters pa,
@@ -757,7 +757,7 @@ public class AlignmentToolService
 
 	/**
 	 * XXX Fix this after recent memory-reducing changes
-	 * 
+	 *
 	 * @param paired_end
 	 */
 	public void tandemIndelFrequencyEvaluation(boolean paired_end)
@@ -945,10 +945,10 @@ public class AlignmentToolService
 	}
 
 	/**
-	 * This really is the same code as {@link tandemIndelFrequencyEvaluation},
+	 * This really is the same code as {@link #tandemIndelFrequencyEvaluation},
 	 * just with a different sequence filter. This is a promising way to clean
 	 * this up, which I really should do sooner or later
-	 * 
+	 *
 	 * @param paired_end
 	 */
 	public void bigDeletionEvaluation(boolean paired_end)
@@ -1151,9 +1151,6 @@ public class AlignmentToolService
 
 	/**
 	 * XXX Fix this after recent memory-reducing changes
-	 * 
-	 * @param paired_end
-	 * @param genome
 	 */
 	public void runtimeReadCountEvaluation()
 	{
@@ -1173,9 +1170,6 @@ public class AlignmentToolService
 
 	/**
 	 * XXX Fix this after recent memory-reducing changes
-	 * 
-	 * @param paired_end
-	 * @param genome
 	 */
 	public void runtimeGenomeSizeEvaluation()
 	{

@@ -40,14 +40,14 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 
 	/**
 	 * Not all fields are used by every tool
-	 * 
+	 *
 	 * @author mruffalo
 	 */
 	public static class Options
 	{
 		/**
 		 * TODO: Examine how good an idea this was
-		 * 
+		 *
 		 * @author mruffalo
 		 */
 		public static class Reads
@@ -225,9 +225,8 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 	/**
 	 * Default implementation reads SAM output. Can be overridden if the tool
 	 * has a different output format.
-	 * 
-	 * @param qualityThreshold
-	 * @return
+	 *
+	 * @return results
 	 */
 	public AlignmentResults readAlignment()
 	{

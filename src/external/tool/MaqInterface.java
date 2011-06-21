@@ -15,7 +15,7 @@ import external.AlignmentToolInterface;
 
 /**
  * TODO: Clean up local variables vs. method parameters
- * 
+ *
  * @author mruffalo
  */
 public class MaqInterface extends AlignmentToolInterface
@@ -80,11 +80,7 @@ public class MaqInterface extends AlignmentToolInterface
 	}
 
 	/**
-	 * TODO: Duplicate much less code here and in
-	 * {@link #convertFastqToBfq(File, File)}
-	 * 
-	 * @param genome
-	 * @param binary_genome
+	 * TODO: Duplicate much less code here
 	 */
 	public void convertGenomeToBfa()
 	{
@@ -126,11 +122,7 @@ public class MaqInterface extends AlignmentToolInterface
 	}
 
 	/**
-	 * TODO: Duplicate much less code here and in
-	 * {@link #convertFastaToBfa(File, File)}
-	 * 
-	 * @param reads
-	 * @param binary_reads
+	 * TODO: Duplicate much less code here
 	 */
 	public void convertReadsToBfq()
 	{

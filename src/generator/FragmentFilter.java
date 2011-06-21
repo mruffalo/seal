@@ -15,9 +15,9 @@ public class FragmentFilter
 
 	/**
 	 * TODO: Fix this
-	 * 
-	 * @param fragments
-	 * @return
+	 *
+	 * @param fragments List of fragments to generate errors in
+	 * @return Errored list
 	 */
 	public List<? extends Fragment> generateErrors(List<? extends Fragment> fragments)
 	{

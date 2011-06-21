@@ -6,7 +6,7 @@ public class SeqFilterSingleDeletion implements SequenceFilter
 {
 	private Options o;
 	/**
-	 * This stores the position of the deletion after {@link filter} has been
+	 * This stores the position of the deletion after {@link #filter} has been
 	 * called.
 	 */
 	private int deletePosition;
@@ -22,7 +22,7 @@ public class SeqFilterSingleDeletion implements SequenceFilter
 	}
 
 	/**
-	 * @return the position of the deletion (after {@link filter} has been
+	 * @return the position of the deletion (after {@link #filter} has been
 	 *         called)
 	 */
 	public int getDeletePosition()

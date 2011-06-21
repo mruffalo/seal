@@ -66,10 +66,8 @@ public class Fragmentizer
 	/**
 	 * @param string
 	 *            String to fragmentize
-	 * @param fragmentCount
-	 *            Number of fragments to read from <code>string</code>
-	 * @param fragmentLength
-	 * @param kTolerance
+	 * @param o
+	 *            Options
 	 * @return A list of fragments that were randomly read from the provided
 	 *         string.
 	 */
@@ -91,7 +89,7 @@ public class Fragmentizer
 
 	/**
 	 * Produces two fragment lists, one for each end (forward, reverse)
-	 * 
+	 *
 	 * @param sequence
 	 * @param o
 	 *            Options. You probably want to set
@@ -130,10 +128,10 @@ public class Fragmentizer
 	 * Convenience method to call
 	 * {@link #fragmentizeToFiles(CharSequence, Options, List)} with a single
 	 * file.
-	 * 
+	 *
 	 * @param string
 	 * @param o
-	 * @param files
+	 * @param file
 	 */
 	public static void fragmentizeToFile(CharSequence string, Options o, File file)
 	{
@@ -145,7 +143,7 @@ public class Fragmentizer
 	/**
 	 * Reads this string into fragments and directly writes them to the
 	 * specified Files.
-	 * 
+	 *
 	 * @param sequence
 	 * @param o
 	 * @param files
@@ -206,10 +204,8 @@ public class Fragmentizer
 	/**
 	 * @param string
 	 *            String to fragmentize
-	 * @param fragmentCount
-	 *            Number of fragments to read from <code>string</code>
-	 * @param fragmentLength
-	 * @param kTolerance
+	 * @param o
+	 *            Options
 	 * @return A list of fragments that were randomly read from the provided
 	 *         String. Fragments that are entirely contained in another fragment
 	 *         <b>have already been filtered</b>. This means that you will
@@ -256,7 +252,7 @@ public class Fragmentizer
 	/**
 	 * TODO: Improve runtime from O(n^2) and generally make this code less
 	 * stupid
-	 * 
+	 *
 	 * @param fragments
 	 * @return
 	 */
@@ -343,7 +339,7 @@ public class Fragmentizer
 	/**
 	 * Output a <code>String</code> and its <code>List&lt;Fragment&gt;</code> to
 	 * <code>System.out</code>.
-	 * 
+	 *
 	 * @param args
 	 */
 	public static void main(String[] args)
