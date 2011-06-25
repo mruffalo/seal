@@ -5,12 +5,8 @@ import static org.junit.Assert.assertTrue;
 import generator.errors.FragmentErrorGenerator;
 import generator.errors.UniformErrorGenerator;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+
 import org.junit.Before;
 import org.junit.Test;
 import assembly.Fragment;
@@ -150,10 +146,10 @@ public class FragmentizerTest
 		SequenceGenerator.Options sgo = new SequenceGenerator.Options();
 		sgo.length = 10000;
 		CharSequence s = g.generateSequence(sgo);
-		List<File> fl = new ArrayList<File>();
+		File[] files = new File[fileCount];
 		for (int i = 0; i < fileCount; i++)
 		{
-			fl.add(new File(String.format("%d.fasta", i)));
+			files[i] = new File(String.format("%d.fasta", i));
 		}
 		Fragmentizer.Options fo = new Fragmentizer.Options();
 		fo.fragmentCount = 500;
@@ -161,7 +157,7 @@ public class FragmentizerTest
 		fo.fragmentLengthSd = 1.0;
 		fo.errorGenerators = new ArrayList<FragmentErrorGenerator>(1);
 		fo.errorGenerators.add(new UniformErrorGenerator(SequenceGenerator.NUCLEOTIDES, 0.01));
-		Fragmentizer.fragmentizeToFiles(s, fo, fl);
+		Fragmentizer.fragmentizeToFiles(s, fo, files);
 	}
 
 	@Test
