@@ -2,6 +2,7 @@ package generator;
 
 import generator.errors.FragmentErrorGenerator;
 import io.FastqWriter;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -13,8 +14,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+
 import assembly.Fragment;
 import assembly.FragmentPositionSource;
+import io.MultipartSequence;
 
 public class Fragmentizer
 {
@@ -64,14 +67,12 @@ public class Fragmentizer
 	}
 
 	/**
-	 * @param string
-	 *            String to fragmentize
-	 * @param o
-	 *            Options
+	 * @param string String to fragmentize
+	 * @param o	  Options
 	 * @return A list of fragments that were randomly read from the provided
 	 *         string.
 	 */
-	public static List<Fragment> fragmentize(CharSequence string, Options o)
+	public static List<Fragment> fragmentize(CharSequence string, Options o, int offset)
 	{
 		Random random = new Random();
 		List<Fragment> list = new ArrayList<Fragment>(o.fragmentCount);
@@ -81,25 +82,32 @@ public class Fragmentizer
 			int fragmentLength = o.fragmentLength + sizeAddition;
 			int index = random.nextInt(string.length() - fragmentLength);
 			Fragment f = new Fragment(string.subSequence(index, index + fragmentLength));
-			f.setPosition(FragmentPositionSource.ORIGINAL_SEQUENCE, index);
+			f.setPosition(FragmentPositionSource.ORIGINAL_SEQUENCE, index + offset);
 			list.add(f);
 		}
 		return list;
 	}
 
 	/**
+	 * Why can't I use default arguments? :(
+	 */
+	public static List<Fragment> fragmentize(CharSequence string, Options o)
+	{
+		return fragmentize(string, o, 0);
+	}
+
+	/**
 	 * Produces two fragment lists, one for each end (forward, reverse)
 	 *
 	 * @param sequence
-	 * @param o
-	 *            Options. You probably want to set
-	 *            <code>readLengthSd = 0</code> to accurately represent
-	 *            real-world data.
+	 * @param o		Options. You probably want to set
+	 *                 <code>readLengthSd = 0</code> to accurately represent
+	 *                 real-world data.
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
 	public static List<List<? extends Fragment>> fragmentizePairedEnd(CharSequence sequence,
-		Options o)
+			Options o)
 	{
 		Random random = new Random();
 		final int paired = 2;
@@ -185,11 +193,20 @@ public class Fragmentizer
 		}
 	}
 
+	public static List<Fragment> fragmentizeFromMultipartSequences(List<MultipartSequence>
+			sequences, Options o)
+	{
+		List<Fragment> list = new ArrayList<Fragment>(o.fragmentCount);
+		for (MultipartSequence ms : sequences)
+		{
+			list.addAll(fragmentize(ms.sequence, o, ms.offset));
+		}
+		return list;
+	}
+
 	/**
-	 * @param string
-	 *            String to fragmentize
-	 * @param o
-	 *            Options
+	 * @param string String to fragmentize
+	 * @param o	  Options
 	 * @return A list of fragments that were randomly read from the provided
 	 *         String. Fragments that are entirely contained in another fragment
 	 *         <b>have already been filtered</b>. This means that you will
@@ -201,8 +218,7 @@ public class Fragmentizer
 	}
 
 	/**
-	 * @param fragments
-	 *            A list of Fragments
+	 * @param fragments A list of Fragments
 	 * @return A filtered list -- if a Fragment is entirely contained in another
 	 *         Fragment, it has been removed.
 	 */
@@ -241,7 +257,7 @@ public class Fragmentizer
 	 * @return
 	 */
 	public static List<List<Fragment>> groupByLine(List<Fragment> fragments,
-		FragmentPositionSource source)
+			FragmentPositionSource source)
 	{
 		List<List<Fragment>> groupedList = new LinkedList<List<Fragment>>();
 		Set<Fragment> fragmentSet = new HashSet<Fragment>(fragments);
@@ -275,7 +291,9 @@ public class Fragmentizer
 					if (fragment.getPosition(source) >= begin)
 					{
 						if (earliestFinish == null
-								|| (fragment.getPosition(source) + fragment.getSequence().length()) < (earliestFinish.getPosition(source) + earliestFinish.getSequence().length()))
+								|| (fragment.getPosition(
+								source) + fragment.getSequence().length()) < (earliestFinish.getPosition(
+								source) + earliestFinish.getSequence().length()))
 						{
 							earliestFinish = fragment;
 						}
@@ -303,10 +321,8 @@ public class Fragmentizer
 	}
 
 	/**
-	 * @param string
-	 *            String to fragmentize
-	 * @param k
-	 *            Length of each fragment
+	 * @param string String to fragmentize
+	 * @param k	  Length of each fragment
 	 * @return A List of all substrings of length <code>k</code> contained in
 	 *         <code>string</code>
 	 */
@@ -331,8 +347,8 @@ public class Fragmentizer
 		if (args.length < 4)
 		{
 			System.err.printf(
-				"*** Usage: %s string n k kVariance pairedEnd readLength readLengthSd%n",
-				Fragmentizer.class.getCanonicalName());
+					"*** Usage: %s string n k kVariance pairedEnd readLength readLengthSd%n",
+					Fragmentizer.class.getCanonicalName());
 			System.exit(1);
 		}
 		String string = args[0];
