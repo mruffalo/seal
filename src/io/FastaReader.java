@@ -5,10 +5,12 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Matcher;
+
 import assembly.Fragment;
 import assembly.FragmentPositionSource;
 import util.ropes.*;
@@ -26,7 +28,7 @@ public class FastaReader
 
 	/**
 	 * TODO: Finish this
-	 * 
+	 *
 	 * @return
 	 */
 	public Fragment readFragment()
@@ -164,7 +166,7 @@ public class FastaReader
 						Fragment f = new Fragment(sb.toString());
 						f.setPosition(FragmentPositionSource.ORIGINAL_SEQUENCE, prevOrigPosition);
 						f.setPosition(FragmentPositionSource.ASSEMBLED_SEQUENCE,
-							prevAssembledPosition);
+								prevAssembledPosition);
 						list.add(new Fragment(sb.toString()));
 						prevOrigPosition = prevAssembledPosition = null;
 					}
@@ -188,6 +190,27 @@ public class FastaReader
 			{
 				input.close();
 			}
+		}
+		return list;
+	}
+
+	public static List<MultipartSequence> getSequences(List<File> files)
+	{
+		int lastOffset = 0;
+		List<MultipartSequence> list = new ArrayList<MultipartSequence>(files.size());
+		try
+		{
+			for (File file : files)
+			{
+				CharSequence sequence = FastaReader.getSequence(file);
+				list.add(new MultipartSequence(sequence, lastOffset));
+				lastOffset += sequence.length();
+			}
+		}
+		catch (IOException e)
+		{
+			System.err.println("Caught IOException:");
+			e.printStackTrace();
 		}
 		return list;
 	}
