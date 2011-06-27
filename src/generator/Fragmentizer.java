@@ -193,6 +193,16 @@ public class Fragmentizer
 		}
 	}
 
+	/**
+	 * XXX: o.fragmentCount is interpreted *per sequence*, so read coverage
+	 * is a function of the sequence length (human genome case: 2GB + 1GB with
+	 * same number of reads from each = 1GB part gets denser coverage for same
+	 * number of reads)
+	 *
+	 * @param sequences
+	 * @param o
+	 * @return
+	 */
 	public static List<Fragment> fragmentize(List<MultipartSequence>
 			sequences, Options o)
 	{
