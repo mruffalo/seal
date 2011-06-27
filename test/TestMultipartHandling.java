@@ -4,6 +4,7 @@ import generator.Fragmentizer;
 import generator.SequenceGenerator;
 import io.FastaReader;
 import io.FastaWriter;
+import io.FastqWriter;
 import io.MultipartSequence;
 import org.junit.Test;
 
@@ -46,6 +47,14 @@ public class TestMultipartHandling
 			}
 		}
 		List<MultipartSequence> sequences = FastaReader.getSequences(files);
+		try
+		{
+			FastaWriter.writeMultipartSequences(sequences, new File("m.fasta"));
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
 		Fragmentizer.Options o = new Fragmentizer.Options();
 		o.fragmentCount = 50;
 		o.fragmentLength = 25;
@@ -54,6 +63,14 @@ public class TestMultipartHandling
 		{
 			System.out.printf("%03d %s%n", fragment.getPosition(FragmentPositionSource.ORIGINAL_SEQUENCE),
 					fragment.getSequence());
+		}
+		try
+		{
+			FastqWriter.writeFragments(fragments, new File("f.fastq"), 0);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
 		}
 	}
 }
