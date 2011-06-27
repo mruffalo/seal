@@ -21,6 +21,8 @@ public class TestMultipartHandling
 	 */
 	private static final int NUMBER_OF_SEQUENCES = 2;
 	private static final int SEQUENCE_LENGTH = 50;
+	private static final int FRAGMENT_COUNT_PER_SEQUENCE = 10;
+	private static final int FRAGMENT_LENGTH = 25;
 
 	/**
 	 * This is more of an integration test than a unit test, so it doesn't
@@ -56,8 +58,8 @@ public class TestMultipartHandling
 			e.printStackTrace();
 		}
 		Fragmentizer.Options o = new Fragmentizer.Options();
-		o.fragmentCount = 50;
-		o.fragmentLength = 25;
+		o.fragmentCount = FRAGMENT_COUNT_PER_SEQUENCE;
+		o.fragmentLength = FRAGMENT_LENGTH;
 		List<Fragment> fragments = Fragmentizer.fragmentize(sequences, o);
 		for (Fragment fragment : fragments)
 		{
