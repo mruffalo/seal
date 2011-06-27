@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
+
 import assembly.Fragment;
 import assembly.FragmentPositionSource;
 
@@ -39,8 +40,35 @@ public class FastaWriter
 		}
 	}
 
+	public static void writeMultipartSequences(List<MultipartSequence> sequences,
+			File file) throws IOException
+	{
+		BufferedWriter output = null;
+		try
+		{
+			output = new BufferedWriter(new FileWriter(file));
+			for (int i = 0; i < sequences.size(); i++)
+			{
+				CharSequence sequence = sequences.get(i).sequence;
+				String identifier = String.format(">SEQUENCE_PART_%d", i);
+				output.write(identifier);
+				output.write(System.getProperty("line.separator"));
+				// TODO: Improve this
+				output.write(sequence.toString());
+				output.write(System.getProperty("line.separator"));
+			}
+		}
+		finally
+		{
+			if (output != null)
+			{
+				output.close();
+			}
+		}
+	}
+
 	public static void writeFragments(List<? extends Fragment> fragments, File file)
-		throws IOException
+			throws IOException
 	{
 		BufferedWriter output = null;
 		try
@@ -77,14 +105,14 @@ public class FastaWriter
 
 	/**
 	 * Writes a single Fragment to the internal Writer
-	 * 
+	 *
 	 * @param fragment
 	 * @param pairedIndex
 	 * @param fragmentIndex
 	 * @throws IOException
 	 */
 	public void writeFragment(Fragment fragment, int pairedIndex, int fragmentIndex)
-		throws IOException
+			throws IOException
 	{
 		StringBuilder fragmentIdentifier = new StringBuilder();
 		fragmentIdentifier.append(fragmentIndex);
@@ -116,13 +144,13 @@ public class FastaWriter
 	/**
 	 * TODO: Improve this API in the same style as the unused methods in
 	 * {@link FastaWriter}
-	 * 
+	 *
 	 * @param fragments
 	 * @param file
 	 * @throws IOException
 	 */
 	public static void writeFragments(List<? extends Fragment> fragments, File file, int pairedIndex)
-		throws IOException
+			throws IOException
 	{
 		BufferedWriter output = null;
 		try
