@@ -38,6 +38,9 @@ import java.util.concurrent.Future;
 import assembly.Fragment;
 import assembly.FragmentPositionSource;
 
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Logger;
+
 /**
  * Very large TODO: Refactor to avoid this ridiculous code duplication
  *
@@ -69,8 +72,12 @@ public class AlignmentToolService
 
 	private static final File DATA_PATH = new File("data");
 
+	private Logger log;
+
 	public AlignmentToolService()
 	{
+		BasicConfigurator.configure();
+		log = Logger.getLogger(getClass());
 	}
 
 	private static enum Genome
