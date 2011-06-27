@@ -193,7 +193,7 @@ public class Fragmentizer
 		}
 	}
 
-	public static List<Fragment> fragmentizeFromMultipartSequences(List<MultipartSequence>
+	public static List<Fragment> fragmentize(List<MultipartSequence>
 			sequences, Options o)
 	{
 		List<Fragment> list = new ArrayList<Fragment>(o.fragmentCount);

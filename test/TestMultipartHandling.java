@@ -49,7 +49,7 @@ public class TestMultipartHandling
 		Fragmentizer.Options o = new Fragmentizer.Options();
 		o.fragmentCount = 50;
 		o.fragmentLength = 25;
-		List<Fragment> fragments = Fragmentizer.fragmentizeFromMultipartSequences(sequences, o);
+		List<Fragment> fragments = Fragmentizer.fragmentize(sequences, o);
 		for (Fragment fragment : fragments)
 		{
 			System.out.printf("%03d %s%n", fragment.getPosition(FragmentPositionSource.ORIGINAL_SEQUENCE),
