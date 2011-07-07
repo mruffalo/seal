@@ -396,6 +396,7 @@ public class AlignmentToolService
 				ati.o.converted_output = new File(ati.o.tool_path, "out.txt");
 				ati.o.roc_output = new File(ati.o.tool_path, "roc.csv");
 
+				ati.initLogger();
 				log.info(String.format("%03d %s: %f", ati.index, ati.description, ati.o.error_rate));
 
 				atiList.add(ati);
@@ -495,6 +496,7 @@ public class AlignmentToolService
 						ati.o.converted_output = new File(ati.o.tool_path, "out.txt");
 						ati.o.roc_output = new File(ati.o.tool_path, "roc.csv");
 
+						ati.initLogger();
 						log.info(String.format("%03d %s: %.0f%n", ati.index, ati.description, readCount));
 
 						atiList.add(ati);

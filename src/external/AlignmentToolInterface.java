@@ -8,11 +8,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Callable;
 
 public abstract class AlignmentToolInterface implements Callable<AlignmentResults>
@@ -127,8 +123,15 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 		thresholds = thresholds_;
 		o = o_;
 		m = m_;
+	}
+
+	/**
+	 * TODO: Refactor this
+	 */
+	public void initLogger()
+	{
 		log = Logger.getLogger(String.format("%03d-%s", index, description));
-		Layout layout = log.getAppender("F1").getLayout();
+		Layout layout = log.getParent().getAppender("F1").getLayout();
 		File logFile = new File(o.tool_path, "log.txt");
 		String filename = logFile.getAbsolutePath();
 		try
