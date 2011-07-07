@@ -28,6 +28,7 @@
 		</javac>
 		<mkdir dir="${build}/conf"/>
 		<mkdir dir="${build}/lib"/>
+		<copy file="${src}/classpath.sh" todir="${build}"/>
 		<copy todir="${build}/conf">
 			<fileset dir="conf"/>
 		</copy>
