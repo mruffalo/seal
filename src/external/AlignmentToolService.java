@@ -374,29 +374,29 @@ public class AlignmentToolService
 
 			for (AlignmentToolInterface ati : alignmentInterfaceList)
 			{
-				File tool_path = new File(DATA_PATH, String.format("%03d-%s-%s-%s", ati.index,
-					ati.description, p.testDescription, p.genome.toString().toLowerCase()));
-				tool_path.mkdirs();
-				ati.o.genome = new File(tool_path, "genome.fasta");
-				ati.o.binary_genome = new File(tool_path, "genome.bfa");
+				ati.o.tool_path = new File(DATA_PATH, String.format("%03d-%s-%s-%s", ati.index,
+						ati.description, p.testDescription, p.genome.toString().toLowerCase()));
+				ati.o.tool_path.mkdirs();
+				ati.o.genome = new File(ati.o.tool_path, "genome.fasta");
+				ati.o.binary_genome = new File(ati.o.tool_path, "genome.bfa");
 				ati.o.orig_genome = p.genomeFile;
 
 				int read_count = p.paired_end ? 2 : 1;
 				for (int i = 1; i <= read_count; i++)
 				{
 					Options.Reads r = new Options.Reads(i);
-					r.reads = new File(tool_path, String.format("fragments%d.fastq", i));
-					r.binary_reads = new File(tool_path, String.format("fragments%d.bfq", i));
-					r.aligned_reads = new File(tool_path, String.format("alignment%d.sai", i));
+					r.reads = new File(ati.o.tool_path, String.format("fragments%d.fastq", i));
+					r.binary_reads = new File(ati.o.tool_path, String.format("fragments%d.bfq", i));
+					r.aligned_reads = new File(ati.o.tool_path, String.format("alignment%d.sai", i));
 					r.orig_reads = p.fragmentsByError.get(errorProbability);
 					ati.o.reads.add(r);
 				}
-				ati.o.raw_output = new File(tool_path, "out.raw");
-				ati.o.sam_output = new File(tool_path, "alignment.sam");
-				ati.o.converted_output = new File(tool_path, "out.txt");
-				ati.o.roc_output = new File(tool_path, "roc.csv");
+				ati.o.raw_output = new File(ati.o.tool_path, "out.raw");
+				ati.o.sam_output = new File(ati.o.tool_path, "alignment.sam");
+				ati.o.converted_output = new File(ati.o.tool_path, "out.txt");
+				ati.o.roc_output = new File(ati.o.tool_path, "roc.csv");
 
-				log.info(String.format("*** %03d %s: %f", ati.index, ati.description, ati.o.error_rate));
+				log.info(String.format("%03d %s: %f", ati.index, ati.description, ati.o.error_rate));
 
 				atiList.add(ati);
 			}
@@ -475,25 +475,25 @@ public class AlignmentToolService
 
 					for (AlignmentToolInterface ati : alignmentInterfaceList)
 					{
-						File tool_path = new File(DATA_PATH, String.format("%03d-%s-%s-%s",
-							ati.index, ati.description, p.testDescription,
-							p.genome.toString().toLowerCase()));
-						tool_path.mkdirs();
+						ati.o.tool_path = new File(DATA_PATH, String.format("%03d-%s-%s-%s",
+								ati.index, ati.description, p.testDescription,
+								p.genome.toString().toLowerCase()));
+						ati.o.tool_path.mkdirs();
 						ati.o.orig_genome = rgd.genomesBySize.get(genomeSize);
-						ati.o.genome = new File(tool_path, "genome.fasta");
-						ati.o.binary_genome = new File(tool_path, "genome.bfa");
+						ati.o.genome = new File(ati.o.tool_path, "genome.fasta");
+						ati.o.binary_genome = new File(ati.o.tool_path, "genome.bfa");
 
 						Options.Reads r = new Options.Reads(1);
-						r.reads = new File(tool_path, String.format("fragments%d.fastq", 1));
-						r.binary_reads = new File(tool_path, String.format("fragments%d.bfq", 1));
-						r.aligned_reads = new File(tool_path, String.format("alignment%d.sai", 1));
+						r.reads = new File(ati.o.tool_path, String.format("fragments%d.fastq", 1));
+						r.binary_reads = new File(ati.o.tool_path, String.format("fragments%d.bfq", 1));
+						r.aligned_reads = new File(ati.o.tool_path, String.format("alignment%d.sai", 1));
 						r.orig_reads = rgd.fragmentsByReadCount.get(genomeSize).get(readCount);
 						ati.o.reads.add(r);
 
-						ati.o.raw_output = new File(tool_path, "out.raw");
-						ati.o.sam_output = new File(tool_path, "alignment.sam");
-						ati.o.converted_output = new File(tool_path, "out.txt");
-						ati.o.roc_output = new File(tool_path, "roc.csv");
+						ati.o.raw_output = new File(ati.o.tool_path, "out.raw");
+						ati.o.sam_output = new File(ati.o.tool_path, "alignment.sam");
+						ati.o.converted_output = new File(ati.o.tool_path, "out.txt");
+						ati.o.roc_output = new File(ati.o.tool_path, "roc.csv");
 
 						log.info(String.format("%03d %s: %.0f%n", ati.index, ati.description, readCount));
 

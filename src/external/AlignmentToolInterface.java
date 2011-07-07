@@ -1,8 +1,7 @@
 package external;
 
 import io.SamReader;
-import org.apache.log4j.Logger;
-import org.apache.log4j.NDC;
+import org.apache.log4j.*;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -82,6 +81,7 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 			error_rate = error_rate_;
 		}
 
+		public File tool_path;
 		public final boolean is_paired_end;
 		/**
 		 * This might be the base call error rate, or the indel size or indel frequency. Always specified as a double even
@@ -128,6 +128,17 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 		o = o_;
 		m = m_;
 		log = Logger.getLogger(String.format("%03d-%s", index, description));
+		Layout layout = log.getAppender("F1").getLayout();
+		File logFile = new File(o.tool_path, "log.txt");
+		String filename = logFile.getAbsolutePath();
+		try
+		{
+			log.addAppender(new FileAppender(layout, filename));
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 	public enum AlignmentOperation
