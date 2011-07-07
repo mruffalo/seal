@@ -1,6 +1,9 @@
 package external;
 
 import io.SamReader;
+import org.apache.log4j.Logger;
+import org.apache.log4j.NDC;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
@@ -18,14 +21,12 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 	protected final List<Integer> thresholds;
 	protected Options o;
 	/**
-	 * Not a Set of Fragments since we're getting this from the output of the
-	 * alignment tool instead of the internal data structures. There's no reason
-	 * to build Fragments out of the data that we read.
+	 * Not a Set of Fragments since we're getting this from the output of the alignment tool instead of the internal data
+	 * structures. There's no reason to build Fragments out of the data that we read.
 	 */
 	protected Set<String> correctlyMappedFragments;
 	/**
-	 * Used to instantiate various internal data structures to appropriate
-	 * capacities
+	 * Used to instantiate various internal data structures to appropriate capacities
 	 */
 	protected int fragmentCount;
 	protected Set<String> totalMappedFragments;
@@ -37,6 +38,8 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 
 	private static final String LINK_COMMAND = "ln";
 	private static final String LINK_ARGUMENT_FORCE = "-f";
+
+	protected Logger log;
 
 	/**
 	 * Not all fields are used by every tool
@@ -56,6 +59,7 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 			{
 				index = index_;
 			}
+
 			public final int index;
 			/**
 			 * The original reads that will be linked into this tool's directory
@@ -80,14 +84,12 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 
 		public final boolean is_paired_end;
 		/**
-		 * This might be the base call error rate, or the indel size or indel
-		 * frequency. Always specified as a double even though indel size is an
-		 * integer -- don't want any NumberFormatExceptions while printing this
+		 * This might be the base call error rate, or the indel size or indel frequency. Always specified as a double even
+		 * though indel size is an integer -- don't want any NumberFormatExceptions while printing this
 		 */
 		public final double error_rate;
 		/**
-		 * This is the original genome file that is hardlinked to each tool's
-		 * directory
+		 * This is the original genome file that is hardlinked to each tool's directory
 		 */
 		public File orig_genome;
 		/**
@@ -125,6 +127,7 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 		thresholds = thresholds_;
 		o = o_;
 		m = m_;
+		log = Logger.getLogger(String.format("%03d-%s", index, description));
 	}
 
 	public enum AlignmentOperation
@@ -138,9 +141,10 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 	public void linkGenome()
 	{
 		ProcessBuilder pb = null;
-		System.out.printf("%03d: Linking%n", index);
-		System.out.printf("%03d:   %s to%n", index, o.orig_genome.getAbsolutePath());
-		System.out.printf("%03d:   %s%n", index, o.genome.getAbsolutePath());
+		String linkInfo = String.format("Linking\n        %s to\n        %s",
+			o.orig_genome.getAbsolutePath(),
+			o.genome.getAbsolutePath());
+		log.debug(linkInfo);
 		pb = new ProcessBuilder(LINK_COMMAND, LINK_ARGUMENT_FORCE, o.orig_genome.getAbsolutePath(),
 			o.genome.getAbsolutePath());
 		pb.directory(o.genome.getParentFile());
@@ -150,14 +154,18 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 			BufferedReader stdout = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			BufferedReader stderr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
 			String line = null;
+			NDC.push("stdout");
 			while ((line = stdout.readLine()) != null)
 			{
-				System.out.printf("%03d: %s%n", index, line);
+				log.info(line);
 			}
+			NDC.pop();
+			NDC.push("stderr");
 			while ((line = stderr.readLine()) != null)
 			{
-				System.err.printf("%03d: %s%n", index, line);
+				log.info(line);
 			}
+			NDC.pop();
 			p.waitFor();
 		}
 		catch (IOException e)
@@ -175,9 +183,10 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 		for (int i = 0; i < o.reads.size(); i++)
 		{
 			Options.Reads r = o.reads.get(i);
-			System.out.printf("%03d: Linking%n", index);
-			System.out.printf("%03d:   %s to%n", index, r.orig_reads.getAbsolutePath());
-			System.out.printf("%03d:   %s%n", index, r.reads.getAbsolutePath());
+			String linkInfo = String.format("Linking\n        %s to\n        %s",
+				r.orig_reads.getAbsolutePath(),
+				r.reads.getAbsolutePath());
+			log.debug(linkInfo);
 			ProcessBuilder pb = new ProcessBuilder(LINK_COMMAND, LINK_ARGUMENT_FORCE,
 				r.orig_reads.getAbsolutePath(), r.reads.getAbsolutePath());
 			pb.directory(o.genome.getParentFile());
@@ -189,14 +198,18 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 				BufferedReader stderr = new BufferedReader(
 					new InputStreamReader(p.getErrorStream()));
 				String line = null;
+				NDC.push("stdout");
 				while ((line = stdout.readLine()) != null)
 				{
-					System.out.printf("%03d: %s%n", index, line);
+					log.info(line);
 				}
+				NDC.pop();
+				NDC.push("stderr");
 				while ((line = stderr.readLine()) != null)
 				{
-					System.err.printf("%03d: %s%n", index, line);
+					log.info(line);
 				}
+				NDC.pop();
 				p.waitFor();
 			}
 			catch (IOException e)
@@ -223,8 +236,7 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 	public abstract void postAlignmentProcessing();
 
 	/**
-	 * Default implementation reads SAM output. Can be overridden if the tool
-	 * has a different output format.
+	 * Default implementation reads SAM output. Can be overridden if the tool has a different output format.
 	 *
 	 * @return results
 	 */
@@ -235,8 +247,7 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 
 	public void writeRocData(AlignmentResults r)
 	{
-		System.out.printf("%03d: %s%n", index, String.format("Writing ROC data to %s...%n",
-			o.roc_output.getAbsolutePath()));
+		log.info(String.format("Writing ROC data to %s", o.roc_output.getAbsolutePath()));
 		FileWriter w;
 		try
 		{
@@ -264,7 +275,6 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 		}
 		catch (IOException e)
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

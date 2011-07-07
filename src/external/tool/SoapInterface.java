@@ -8,8 +8,10 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
 import external.AlignmentResults;
 import external.AlignmentToolInterface;
+import org.apache.log4j.NDC;
 
 public class SoapInterface extends AlignmentToolInterface
 {
@@ -17,7 +19,7 @@ public class SoapInterface extends AlignmentToolInterface
 	public static final String INDEX_COMMAND = "2bwt-builder";
 	public static final String SOAP2SAM_COMMAND = "soap2sam";
 	public static final String ALIGN_INDEX_OPTION = "-D";
-	public static final String[] ALIGN_QUERY_OPTIONS = { "-a", "-b" };
+	public static final String[] ALIGN_QUERY_OPTIONS = {"-a", "-b"};
 
 	public SoapInterface(int index_, String description_, List<Integer> thresholds_, Options o_,
 		Map<String, AlignmentResults> m_)
@@ -32,7 +34,7 @@ public class SoapInterface extends AlignmentToolInterface
 		o.index = new File(o.genome.getParentFile(), index_filename);
 		if (file_to_check.isFile())
 		{
-			System.out.printf("%03d: %s%n", index, "Index found; skipping");
+			log.debug("Index found; skipping");
 		}
 		else
 		{
@@ -46,14 +48,18 @@ public class SoapInterface extends AlignmentToolInterface
 				BufferedReader stderr = new BufferedReader(
 					new InputStreamReader(p.getErrorStream()));
 				String line = null;
+				NDC.push("stdout");
 				while ((line = stdout.readLine()) != null)
 				{
-					System.out.printf("%03d: %s%n", index, line);
+					log.info(line);
 				}
+				NDC.pop();
+				NDC.push("stderr");
 				while ((line = stderr.readLine()) != null)
 				{
-					System.err.printf("%03d: %s%n", index, line);
+					log.info(line);
 				}
+				NDC.pop();
 				p.waitFor();
 			}
 			catch (IOException e)
@@ -90,14 +96,18 @@ public class SoapInterface extends AlignmentToolInterface
 			BufferedReader stdout = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			BufferedReader stderr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
 			String line = null;
+			NDC.push("stdout");
 			while ((line = stdout.readLine()) != null)
 			{
-				System.out.printf("%03d: %s%n", index, line);
+				log.info(line);
 			}
+			NDC.pop();
+			NDC.push("stderr");
 			while ((line = stderr.readLine()) != null)
 			{
-				System.err.printf("%03d: %s%n", index, line);
+				log.info(line);
 			}
+			NDC.pop();
 			p.waitFor();
 		}
 		catch (IOException e)
@@ -130,10 +140,12 @@ public class SoapInterface extends AlignmentToolInterface
 				w.write(String.format("%s%n", line));
 			}
 			w.close();
+			NDC.push("stderr");
 			while ((line = stderr.readLine()) != null)
 			{
-				System.err.printf("%03d: %s%n", index, line);
+				log.info(line);
 			}
+			NDC.pop();
 			p.waitFor();
 		}
 		catch (IOException e)
@@ -149,16 +161,14 @@ public class SoapInterface extends AlignmentToolInterface
 	@Override
 	public void preAlignmentProcessing()
 	{
-		System.out.printf("%03d: %s%n", index, "Indexing genome...");
+		log.info("Indexing genome");
 		createIndex();
-		System.out.printf("%03d: %s%n", index, "done indexing.");
 	}
 
 	@Override
 	public void postAlignmentProcessing()
 	{
-		System.out.printf("%03d: %s%n", index, "Converting output to SAM format...");
+		log.info("Converting output to SAM format");
 		convertToSamFormat();
-		System.out.printf("%03d: %s%n", index, "done converting.");
 	}
 }

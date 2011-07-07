@@ -8,8 +8,10 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
 import external.AlignmentResults;
 import external.AlignmentToolInterface;
+import org.apache.log4j.NDC;
 
 public class BowtieInterface extends AlignmentToolInterface
 {
@@ -31,10 +33,10 @@ public class BowtieInterface extends AlignmentToolInterface
 		o.index = new File(o.genome.getParentFile(), index_base_name);
 		String index_addition = ".1.ebwt";
 		File index_file_to_check = new File(o.genome.getParentFile(), index_base_name
-				+ index_addition);
+			+ index_addition);
 		if (index_file_to_check.isFile())
 		{
-			System.out.printf("%03d: %s%n", index, "Index found; skipping");
+			log.debug("Index found; skipping");
 		}
 		else
 		{
@@ -52,14 +54,18 @@ public class BowtieInterface extends AlignmentToolInterface
 				BufferedReader stderr = new BufferedReader(
 					new InputStreamReader(p.getErrorStream()));
 				String line = null;
+				NDC.push("stdout");
 				while ((line = stdout.readLine()) != null)
 				{
-					System.out.printf("%03d: %s%n", index, line);
+					log.info(line);
 				}
+				NDC.pop();
+				NDC.push("stderr");
 				while ((line = stderr.readLine()) != null)
 				{
-					System.err.printf("%03d: %s%n", index, line);
+					log.info(line);
 				}
+				NDC.pop();
 				p.waitFor();
 			}
 			catch (IOException e)
@@ -111,10 +117,12 @@ public class BowtieInterface extends AlignmentToolInterface
 				w.write(String.format("%s%n", line));
 			}
 			w.close();
+			NDC.push("stderr");
 			while ((line = stderr.readLine()) != null)
 			{
-				System.err.printf("%03d: %s%n", index, line);
+				log.info(line);
 			}
+			NDC.pop();
 			p.waitFor();
 		}
 		catch (IOException e)

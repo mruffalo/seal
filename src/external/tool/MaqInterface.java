@@ -2,6 +2,7 @@ package external.tool;
 
 import io.Constants;
 import io.SamReader;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -10,8 +11,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
+
 import external.AlignmentResults;
 import external.AlignmentToolInterface;
+import org.apache.log4j.NDC;
 
 /**
  * TODO: Clean up local variables vs. method parameters
@@ -58,14 +61,18 @@ public class MaqInterface extends AlignmentToolInterface
 			BufferedReader stdout = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			BufferedReader stderr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
 			String line = null;
+			NDC.push("stdout");
 			while ((line = stdout.readLine()) != null)
 			{
-				System.out.printf("%03d: %s%n", index, line);
+				log.info(line);
 			}
+			NDC.pop();
+			NDC.push("stderr");
 			while ((line = stderr.readLine()) != null)
 			{
-				System.err.printf("%03d: %s%n", index, line);
+				log.info(line);
 			}
+			NDC.pop();
 			p.waitFor();
 		}
 		catch (IOException e)
@@ -101,14 +108,18 @@ public class MaqInterface extends AlignmentToolInterface
 			BufferedReader stdout = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			BufferedReader stderr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
 			String line = null;
+			NDC.push("stdout");
 			while ((line = stdout.readLine()) != null)
 			{
-				System.err.printf("%03d: %s%n", index, line);
+				log.info(line);
 			}
+			NDC.pop();
+			NDC.push("stderr");
 			while ((line = stderr.readLine()) != null)
 			{
-				System.err.printf("%03d: %s%n", index, line);
+				log.info(line);
 			}
+			NDC.pop();
 			p.waitFor();
 		}
 		catch (IOException e)
@@ -147,14 +158,18 @@ public class MaqInterface extends AlignmentToolInterface
 				BufferedReader stderr = new BufferedReader(
 					new InputStreamReader(p.getErrorStream()));
 				String line = null;
+				NDC.push("stdout");
 				while ((line = stdout.readLine()) != null)
 				{
-					System.err.printf("%03d: %s%n", index, line);
+					log.info(line);
 				}
+				NDC.pop();
+				NDC.push("stderr");
 				while ((line = stderr.readLine()) != null)
 				{
-					System.err.printf("%03d: %s%n", index, line);
+					log.info(line);
 				}
+				NDC.pop();
 				p.waitFor();
 			}
 			catch (IOException e)
@@ -230,10 +245,12 @@ public class MaqInterface extends AlignmentToolInterface
 				}
 				totalMappedFragments.add(fragmentIdentifier);
 			}
+			NDC.push("stderr");
 			while ((line = stderr.readLine()) != null)
 			{
-				System.err.println(line);
+				log.info(line);
 			}
+			NDC.pop();
 			p.waitFor();
 		}
 		catch (IOException e)

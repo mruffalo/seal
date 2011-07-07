@@ -8,8 +8,10 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
 import external.AlignmentResults;
 import external.AlignmentToolInterface;
+import org.apache.log4j.NDC;
 
 public class NovoalignInterface extends AlignmentToolInterface
 {
@@ -29,7 +31,7 @@ public class NovoalignInterface extends AlignmentToolInterface
 	@Override
 	public void align()
 	{
-		System.out.printf("%03d: %s%n", index, "Aligning...");
+		log.info("Aligning");
 		List<String> commands = new ArrayList<String>();
 		commands.add(NOVOALIGN_COMMAND);
 		commands.add(NOVOALIGN_OUTPUT_FORMAT_OPTION);
@@ -55,10 +57,12 @@ public class NovoalignInterface extends AlignmentToolInterface
 				w.write(String.format("%s%n", line));
 			}
 			w.close();
+			NDC.push("stderr");
 			while ((line = stderr.readLine()) != null)
 			{
-				System.err.printf("%03d: %s%n", index, line);
+				log.info(line);
 			}
+			NDC.pop();
 			p.waitFor();
 		}
 		catch (IOException e)
@@ -69,7 +73,6 @@ public class NovoalignInterface extends AlignmentToolInterface
 		{
 			e.printStackTrace();
 		}
-		System.out.printf("%03d: %s%n", index, "Done aligning.");
 	}
 
 	@Override
@@ -82,11 +85,11 @@ public class NovoalignInterface extends AlignmentToolInterface
 		o.index = new File(o.genome.getParentFile(), o.genome.getName() + ".index");
 		if (o.index.isFile())
 		{
-			System.out.printf("%03d: %s%n", index, "Index found; skipping");
+			log.debug("Index found; skipping");
 		}
 		else
 		{
-			System.out.printf("%03d: %s%n", index, "Building index...");
+			log.info("Building index");
 			List<String> commands = new ArrayList<String>();
 			commands.add(NOVOINDEX_COMMAND);
 			commands.add(o.index.getAbsolutePath());
@@ -101,14 +104,18 @@ public class NovoalignInterface extends AlignmentToolInterface
 				BufferedReader stderr = new BufferedReader(
 					new InputStreamReader(p.getErrorStream()));
 				String line = null;
+				NDC.push("stdout");
 				while ((line = stdout.readLine()) != null)
 				{
-					System.out.printf("%03d: %s%n", index, line);
+					log.info(line);
 				}
+				NDC.pop();
+				NDC.push("stderr");
 				while ((line = stderr.readLine()) != null)
 				{
-					System.err.printf("%03d: %s%n", index, line);
+					log.info(line);
 				}
+				NDC.pop();
 				p.waitFor();
 			}
 			catch (IOException e)
@@ -119,7 +126,6 @@ public class NovoalignInterface extends AlignmentToolInterface
 			{
 				e.printStackTrace();
 			}
-			System.out.printf("%03d: %s%n", index, "Done building index.");
 		}
 	}
 

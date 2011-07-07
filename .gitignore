@@ -4,3 +4,4 @@ distrib
 data
 *.fasta
 *.fastq
+log*

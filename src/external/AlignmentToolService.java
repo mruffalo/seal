@@ -25,12 +25,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -40,6 +35,7 @@ import assembly.FragmentPositionSource;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
+import util.Log4jConfig;
 
 /**
  * Very large TODO: Refactor to avoid this ridiculous code duplication
@@ -76,7 +72,7 @@ public class AlignmentToolService
 
 	public AlignmentToolService()
 	{
-		BasicConfigurator.configure();
+		Log4jConfig.initialConfig();
 		log = Logger.getLogger(getClass());
 	}
 
@@ -192,7 +188,7 @@ public class AlignmentToolService
 		CharSequence sequence = null;
 		SequenceGenerator g = null;
 		SequenceGenerator.Options sgo = null;
-		System.out.print("Reading/creating genome ... ");
+		log.info("Reading/creating genome");
 		switch (genome)
 		{
 			case HUMAN_CHR22:
@@ -248,12 +244,10 @@ public class AlignmentToolService
 			default:
 				break;
 		}
-		System.out.println("done.");
-		System.out.printf("Genome length: %d%n", sequence.length());
+		log.info(String.format("Genome length: %d", sequence.length()));
 
-		System.out.printf("Writing genome to %s  ... ", genomeFile.getAbsolutePath());
+		log.info(String.format("Writing genome to %s", genomeFile.getAbsolutePath()));
 		writeGenome(sequence, genomeFile);
-		System.out.println("done.");
 
 		Fragmentizer.Options fo = new Fragmentizer.Options();
 		// TODO: Don't hardcode these
@@ -261,9 +255,8 @@ public class AlignmentToolService
 		fo.fragmentCount = 50000;
 		fo.fragmentLengthSd = 1;
 
-		System.out.print("Reading fragments ... ");
+		log.info("Reading fragments");
 		final List<? extends Fragment> list = Fragmentizer.fragmentize(sequence, fo);
-		System.out.println("done.");
 
 		Map<Double, File> fragmentsByError = new TreeMap<Double, File>();
 		for (Map.Entry<Double, List<FragmentErrorGenerator>> e : fragmentErrorGenerators.entrySet())
@@ -271,14 +264,13 @@ public class AlignmentToolService
 			double parameter = e.getKey();
 			List<FragmentErrorGenerator> errorGenerators = e.getValue();
 
-			System.out.printf(parameterMessage, parameter);
+			log.info(String.format(parameterMessage, parameter));
 			String error_identifier = Double.toString(parameter).replace('.', '_');
 			String filename = String.format("fragments-%s-%s.fastq", testDescription,
 				error_identifier);
 			File fragmentFile = new File(DATA_PATH, filename);
 			fragmentsByError.put(parameter, fragmentFile);
 			FragmentErrorGenerator.generateErrorsToFile(errorGenerators, list, fragmentFile);
-			System.out.println("done.");
 		}
 
 		return new ProcessedGenome(genomeFile, fragmentsByError);
@@ -299,14 +291,13 @@ public class AlignmentToolService
 			SequenceGenerator g = new SeqGenSingleSequenceMultipleRepeats();
 			SequenceGenerator.Options sgo = new SequenceGenerator.Options();
 			sgo.length = (int) genomeSize;
-			System.out.printf("Generating sequence of length %d ... ", sgo.length);
+			log.info(String.format("Generating sequence of length %d ... ", sgo.length));
 			/*
 			 * Can't generate sequence directly to a file; need to keep it in
 			 * memory in order to read from it
 			 */
 			CharSequence sequence = g.generateSequence(sgo);
-			System.out.println("done.");
-			System.out.printf("Writing genome to %s ... ", genomeFile.getAbsolutePath());
+			log.info(String.format("Writing genome to %s ... ", genomeFile.getAbsolutePath()));
 			writeGenome(sequence, genomeFile);
 			System.out.println("done.");
 			Map<Double, File> fragmentsForThisGenome = new TreeMap<Double, File>();
@@ -322,22 +313,20 @@ public class AlignmentToolService
 				fo.fragmentLengthSd = 1;
 
 				// TODO: write fragments with fragmentizeToFile
-				System.out.printf("Reading %d fragments...", fo.fragmentCount);
+				log.info(String.format("Reading %d fragments...", fo.fragmentCount));
 				List<? extends Fragment> list = Fragmentizer.fragmentize(sequence, fo);
-				System.out.println("done.");
 
 				String fragmentFilename = String.format("runtime_fragments_%.0f_%.0f.fastq",
 					genomeSize, fragmentCount);
 				File fragmentFile = new File(DATA_PATH, fragmentFilename);
 				fragmentsForThisGenome.put(fragmentCount, fragmentFile);
 
-				System.out.print("Introducing fragment read errors...");
+				log.info("Introducing fragment read errors...");
 				UniformErrorGenerator eg = new UniformErrorGenerator(SequenceGenerator.NUCLEOTIDES,
 					errorProbability);
 				List<FragmentErrorGenerator> fegs = new ArrayList<FragmentErrorGenerator>();
 				fegs.add(eg);
 				FragmentErrorGenerator.generateErrorsToFile(fegs, list, fragmentFile);
-				System.out.println("done.");
 			}
 		}
 
@@ -407,7 +396,7 @@ public class AlignmentToolService
 				ati.o.converted_output = new File(tool_path, "out.txt");
 				ati.o.roc_output = new File(tool_path, "roc.csv");
 
-				System.out.printf("*** %03d %s: %f%n", ati.index, ati.description, ati.o.error_rate);
+				log.info(String.format("*** %03d %s: %f", ati.index, ati.description, ati.o.error_rate));
 
 				atiList.add(ati);
 			}
@@ -506,15 +495,14 @@ public class AlignmentToolService
 						ati.o.converted_output = new File(tool_path, "out.txt");
 						ati.o.roc_output = new File(tool_path, "roc.csv");
 
-						System.out.printf("*** %03d %s: %.0f%n", ati.index, ati.description,
-							readCount);
+						log.info(String.format("%03d %s: %.0f%n", ati.index, ati.description, readCount));
 
 						atiList.add(ati);
 					}
 				}
 			}
 		}
-		System.out.printf("Running %d tool evaluations.%n", atiList.size());
+		log.info(String.format("Running %d tool evaluations.", atiList.size()));
 		for (AlignmentToolInterface ati : atiList)
 		{
 			futureList.add(pool.submit(ati));
@@ -547,7 +535,7 @@ public class AlignmentToolService
 			pa.genome.toString().toLowerCase());
 		try
 		{
-			System.out.printf("Writing results to %s%n", filename);
+			log.info(String.format("Writing results to %s", filename));
 			FileWriter w = new FileWriter(new File(DATA_PATH, filename));
 			w.write(String.format("%s,%s,%s,%s,%s,%s,%s%n", "Tool", parameterName, "Threshold",
 				"Precision", "Recall", "Time", "UsedReadRatio"));
@@ -567,7 +555,7 @@ public class AlignmentToolService
 			}
 			w.close();
 
-			System.out.printf("Writing overall ROC data to %s%n", roc_filename);
+			log.info(String.format("Writing overall ROC data to %s", roc_filename));
 			w = new FileWriter(new File(DATA_PATH, roc_filename));
 			w.write(String.format("%s,%s,%s,%s%n", "Tool", parameterName, "Score", "Label"));
 			for (Double d : m.keySet())
@@ -615,7 +603,7 @@ public class AlignmentToolService
 		List<Map<Double, Map<Double, Map<String, AlignmentResults>>>> l, String parameterName)
 	{
 		String filename = pa.testDescription + "_data.csv";
-		System.out.printf("Writing time data to %s%n", filename);
+		log.info(String.format("Writing time data to %s", filename));
 		try
 		{
 			FileWriter w = new FileWriter(new File(DATA_PATH, filename));
@@ -1156,9 +1144,6 @@ public class AlignmentToolService
 		}
 	}
 
-	/**
-	 * XXX Fix this after recent memory-reducing changes
-	 */
 	public void runtimeReadCountEvaluation()
 	{
 		final String testDescription = "runtime_read_count";
@@ -1175,9 +1160,6 @@ public class AlignmentToolService
 		writeRuntimeResults(pa, l, "ReadCount");
 	}
 
-	/**
-	 * XXX Fix this after recent memory-reducing changes
-	 */
 	public void runtimeGenomeSizeEvaluation()
 	{
 		final String testDescription = "runtime_genome_size";
@@ -1194,8 +1176,8 @@ public class AlignmentToolService
 	}
 
 	/**
-	 * TODO: Don't duplicate code, and make this method a lot less stupid. XXX:
-	 * Fix this after recent memory reduction changes
+	 * TODO: Don't duplicate code, and make this method a lot less stupid.
+	 * XXX: Fix this after recent memory reduction changes
 	 */
 	public void tandemRepeatEvaluation(String[] args)
 	{

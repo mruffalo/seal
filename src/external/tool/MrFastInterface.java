@@ -1,6 +1,7 @@
 package external.tool;
 
 import io.SamReader;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -8,8 +9,10 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
 import external.AlignmentResults;
 import external.AlignmentToolInterface;
+import org.apache.log4j.NDC;
 
 public class MrFastInterface extends AlignmentToolInterface
 {
@@ -31,7 +34,7 @@ public class MrFastInterface extends AlignmentToolInterface
 		o.index = new File(o.genome.getParentFile(), index_filename);
 		if (o.index.isFile())
 		{
-			System.out.printf("%03d: %s%n", index, "Index found; skipping");
+			log.debug("Index found; skipping");
 		}
 		else
 		{
@@ -46,14 +49,18 @@ public class MrFastInterface extends AlignmentToolInterface
 				BufferedReader stderr = new BufferedReader(
 					new InputStreamReader(p.getErrorStream()));
 				String line = null;
+				NDC.push("stdout");
 				while ((line = stdout.readLine()) != null)
 				{
-					System.out.printf("%03d: %s%n", index, line);
+					log.info(line);
 				}
+				NDC.pop();
+				NDC.push("stderr");
 				while ((line = stderr.readLine()) != null)
 				{
-					System.err.printf("%03d: %s%n", index, line);
+					log.info(line);
 				}
+				NDC.pop();
 				p.waitFor();
 			}
 			catch (IOException e)
@@ -87,14 +94,18 @@ public class MrFastInterface extends AlignmentToolInterface
 			BufferedReader stdout = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			BufferedReader stderr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
 			String line = null;
+			NDC.push("stdout");
 			while ((line = stdout.readLine()) != null)
 			{
-				System.out.printf("%03d: %s%n", index, line);
+				log.info(line);
 			}
+			NDC.pop();
+			NDC.push("stderr");
 			while ((line = stderr.readLine()) != null)
 			{
-				System.err.printf("%03d: %s%n", index, line);
+				log.info(line);
 			}
+			NDC.pop();
 			p.waitFor();
 		}
 		catch (IOException e)
@@ -105,15 +116,13 @@ public class MrFastInterface extends AlignmentToolInterface
 		{
 			e.printStackTrace();
 		}
-		System.out.printf("%03d: %s%n", index, "done aligning.");
 	}
 
 	@Override
 	public void preAlignmentProcessing()
 	{
-		System.out.printf("%03d: %s%n", index, "Indexing genome...");
+		log.info("Indexing genome...");
 		createIndex();
-		System.out.printf("%03d: %s%n", index, "done indexing.");
 	}
 
 	@Override

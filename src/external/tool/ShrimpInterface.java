@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import external.AlignmentResults;
 import external.AlignmentToolInterface;
+import org.apache.log4j.NDC;
 
 public class ShrimpInterface extends AlignmentToolInterface
 {
@@ -24,7 +25,7 @@ public class ShrimpInterface extends AlignmentToolInterface
 	@Override
 	public void align()
 	{
-		System.out.printf("%03d: %s%n", index, "Aligning reads...");
+		log.info("Aligning reads");
 		final int i = 0;
 		List<String> commands = new ArrayList<String>();
 		commands.add(SHRIMP_ALIGN_COMMAND);
@@ -45,10 +46,12 @@ public class ShrimpInterface extends AlignmentToolInterface
 				w.write(String.format("%s%n", line));
 			}
 			w.close();
-			while ((line = stderr.readLine()) != null)
-			{
-				System.err.printf("%03d: %s%n", index, line);
-			}
+				NDC.push("stderr");
+				while ((line = stderr.readLine()) != null)
+				{
+					log.info(line);
+				}
+				NDC.pop();
 			p.waitFor();
 		}
 		catch (IOException e)
@@ -59,7 +62,6 @@ public class ShrimpInterface extends AlignmentToolInterface
 		{
 			e.printStackTrace();
 		}
-		System.out.printf("%03d: %s%n", index, "done aligning.");
 	}
 
 	/**
