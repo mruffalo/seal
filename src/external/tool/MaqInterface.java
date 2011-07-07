@@ -39,7 +39,7 @@ public class MaqInterface extends AlignmentToolInterface
 	@Override
 	public void align()
 	{
-		System.out.printf("%03d: %s", index, "Aligning reads...");
+		log.info("Aligning reads");
 		List<String> commands = new ArrayList<String>();
 		commands.add(MAQ_COMMAND);
 		commands.add(ALIGN_COMMAND);

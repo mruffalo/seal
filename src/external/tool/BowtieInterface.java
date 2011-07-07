@@ -88,6 +88,7 @@ public class BowtieInterface extends AlignmentToolInterface
 	@Override
 	public void align()
 	{
+		log.info("Aligning reads");
 		List<String> commands = new ArrayList<String>();
 		commands.add(BOWTIE_COMMAND);
 		commands.add(SAM_OPTION);

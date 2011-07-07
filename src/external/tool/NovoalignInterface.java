@@ -31,7 +31,7 @@ public class NovoalignInterface extends AlignmentToolInterface
 	@Override
 	public void align()
 	{
-		log.info("Aligning");
+		log.info("Aligning reads");
 		List<String> commands = new ArrayList<String>();
 		commands.add(NOVOALIGN_COMMAND);
 		commands.add(NOVOALIGN_OUTPUT_FORMAT_OPTION);

@@ -118,7 +118,6 @@ public class SoapInterface extends AlignmentToolInterface
 		{
 			e.printStackTrace();
 		}
-		System.out.printf("%03d: %s%n", index, "done aligning.");
 	}
 
 	private void convertToSamFormat()

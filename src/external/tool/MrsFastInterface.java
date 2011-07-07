@@ -75,7 +75,7 @@ public class MrsFastInterface extends AlignmentToolInterface
 	@Override
 	public void align()
 	{
-		System.out.print("Aligning reads...");
+		log.info("Aligning reads...");
 		ProcessBuilder pb = new ProcessBuilder(MRSFAST_COMMAND, SEARCH_COMMAND,
 			o.genome.getAbsolutePath(), SEQ_OPTION, o.reads.get(0).reads.getAbsolutePath(), "-o",
 			o.sam_output.getAbsolutePath());

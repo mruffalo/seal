@@ -77,7 +77,7 @@ public class MrFastInterface extends AlignmentToolInterface
 	@Override
 	public void align()
 	{
-		System.out.printf("%03d: %s%n", index, "Aligning reads...");
+		log.info("Aligning reads");
 		List<String> commands = new ArrayList<String>();
 		commands.add(MRFAST_COMMAND);
 		commands.add(SEARCH_COMMAND);
