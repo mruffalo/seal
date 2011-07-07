@@ -242,7 +242,7 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 	 */
 	public AlignmentResults readAlignment()
 	{
-		return SamReader.readAlignment(index, o, fragmentCount, correctlyMappedFragments);
+		return SamReader.readAlignment(log, o, fragmentCount, correctlyMappedFragments);
 	}
 
 	public void writeRocData(AlignmentResults r)

@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import external.AlignmentResults;
 import external.AlignmentToolInterface.Options;
+import org.apache.log4j.Logger;
 
 public class SamReader
 {
@@ -67,10 +68,10 @@ public class SamReader
 		return correctlyMappedFragments;
 	}
 
-	public static AlignmentResults readAlignment(int index, Options o, int fragmentCount,
+	public static AlignmentResults readAlignment(Logger log, Options o, int fragmentCount,
 		Set<String> correctlyMappedFragments)
 	{
-		System.out.printf("%03d: Reading alignment...%n", index);
+		log.info("Reading alignment");
 		Set<String> totalMappedFragments = new HashSet<String>(fragmentCount);
 		AlignmentResults rs = new AlignmentResults();
 		try
