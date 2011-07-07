@@ -76,7 +76,7 @@ public class SoapInterface extends AlignmentToolInterface
 	@Override
 	public void align()
 	{
-		System.out.printf("%03d: %s%n", index, "Aligning reads...");
+		log.info("Aligning reads");
 		List<String> commands = new ArrayList<String>();
 		commands.add(SOAP_COMMAND);
 		commands.add(ALIGN_INDEX_OPTION);

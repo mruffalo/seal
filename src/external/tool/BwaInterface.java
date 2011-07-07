@@ -146,10 +146,6 @@ public class BwaInterface extends AlignmentToolInterface
 		}
 
 		ProcessBuilder pb = new ProcessBuilder(commands);
-		for (String arg : pb.command())
-		{
-			System.err.printf("%03d: %s%n", index, arg);
-		}
 		pb.directory(o.genome.getParentFile());
 		try
 		{
