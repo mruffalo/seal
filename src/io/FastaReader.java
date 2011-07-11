@@ -15,6 +15,9 @@ import assembly.Fragment;
 import assembly.FragmentPositionSource;
 import util.ropes.*;
 
+/**
+ * TODO: Clean up IOExceptions
+ */
 public class FastaReader
 {
 	private final BufferedReader source;

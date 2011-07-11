@@ -33,6 +33,7 @@ import java.util.concurrent.Future;
 import assembly.Fragment;
 import assembly.FragmentPositionSource;
 
+import io.MultipartSequence;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import util.Log4jConfig;
@@ -208,19 +209,10 @@ public class AlignmentToolService
 				genomeFile = new File(DATA_PATH, "chr22-contig.fa");
 				break;
 			case HUMAN:
-				final File hg19_2gb = new File(DATA_PATH, "hg19.fa");
-				try
-				{
-					/*
-					 * Don't worry about casting file size to an int: we can't
-					 * have strings longer than Integer.MAX_VALUE anyway
-					 */
-					sequence = FastaReader.getSequence(hg19_2gb, (int) hg19_2gb.length());
-				}
-				catch (IOException e)
-				{
-					e.printStackTrace();
-				}
+				List<File> hg19_files = new ArrayList<File>(2);
+				hg19_files.add(new File(DATA_PATH, "hg19-1_2.fa"));
+				hg19_files.add(new File(DATA_PATH, "hg19-2_2.fa"));
+				sequences = FastaReader.getSequences(hg19_files);
 				genomeFile = new File(DATA_PATH, "hg19-contig.fa");
 				break;
 			case RANDOM_EASY:
@@ -244,19 +236,52 @@ public class AlignmentToolService
 			default:
 				break;
 		}
-		log.info(String.format("Genome length: %d", sequence.length()));
+		List<Fragment> list = null;
+		// TODO refactor this
+		if (genome.equals(Genome.HUMAN))
+		{
+			long genomeLength = 0L;
+			for (MultipartSequence s: sequences)
+			{
+				genomeLength += s.sequence.length();
+			}
+			log.info(String.format("Genome length: %d", genomeLength));
 
-		log.info(String.format("Writing genome to %s", genomeFile.getAbsolutePath()));
-		writeGenome(sequence, genomeFile);
+			log.info(String.format("Writing genome to %s", genomeFile.getAbsolutePath()));
+			try
+			{
+				FastaWriter.writeMultipartSequences(sequences, genomeFile);
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
 
-		Fragmentizer.Options fo = new Fragmentizer.Options();
-		// TODO: Don't hardcode these
-		fo.fragmentLength = 50;
-		fo.fragmentCount = 50000;
-		fo.fragmentLengthSd = 1;
+			Fragmentizer.Options fo = new Fragmentizer.Options();
+			// TODO: Don't hardcode these, especially not twice
+			fo.fragmentLength = 50;
+			fo.fragmentCount = 50000;
+			fo.fragmentLengthSd = 1;
 
-		log.info("Reading fragments");
-		final List<? extends Fragment> list = Fragmentizer.fragmentize(sequence, fo);
+			log.info("Reading fragments");
+			list = Fragmentizer.fragmentize(sequences, fo);
+		}
+		else
+		{
+			log.info(String.format("Genome length: %d", sequence.length()));
+
+			log.info(String.format("Writing genome to %s", genomeFile.getAbsolutePath()));
+			writeGenome(sequence, genomeFile);
+
+			Fragmentizer.Options fo = new Fragmentizer.Options();
+			// TODO: Don't hardcode these, especially not twice
+			fo.fragmentLength = 50;
+			fo.fragmentCount = 50000;
+			fo.fragmentLengthSd = 1;
+
+			log.info("Reading fragments");
+			list = Fragmentizer.fragmentize(sequence, fo);
+		}
 
 		Map<Double, File> fragmentsByError = new TreeMap<Double, File>();
 		for (Map.Entry<Double, List<FragmentErrorGenerator>> e : fragmentErrorGenerators.entrySet())
