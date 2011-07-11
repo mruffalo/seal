@@ -42,40 +42,4 @@
 		<delete dir="${build}"/>
 		<delete dir="${distrib}"/>
 	</target>
-
-	<target name="get-version">
-		<exec executable="git" outputproperty="head.revision">
-			<arg value="rev-parse"/>
-			<arg value="HEAD"/>
-		</exec>
-		<echo message="HEAD revision: ${head.revision}"/>
-		<exec executable="git" outputproperty="software.version">
-			<arg value="describe"/>
-		</exec>
-		<echo message="Software version ${software.version}"/>
-	</target>
-
-	<target name="set-version" depends="get-version">
-		<propertyfile file="${version.properties.file}">
-			<entry key="software.version" value="${software.version}"/>
-		</propertyfile>
-	</target>
-
-	<target name="generate-manifest" depends="set-version">
-		<copy file="${manifest.template}" tofile="${manifest.file}" overwrite="true"/>
-		<replace file="${manifest.file}" token="!!MAIN_CLASS!!" value="${main.class}"/>
-		<replace file="${manifest.file}" token="!!HEAD_REVISION!!" value="${head.revision}"/>
-		<replace file="${manifest.file}" token="!!VERSION_NUMBER!!" value="${software.version}"/>
-		<replace file="${manifest.file}" token="!!PROJECT_DESCRIPTION!!" value="${project.description}"/>
-		<replace file="${manifest.file}" token="!!PROJECT_NAME!!" value="${project.name}"/>
-	</target>
-
-	<target name="jar" description="create jar file" depends="generate-manifest">
-		<antcall target="clean"/>
-		<antcall target="build"/>
-		<mkdir dir="${distrib}"/>
-		<copy file="${version.properties.file}" todir="${build}/utils"/>
-		<jar destfile="${distrib}/${project.name}-${software.version}.jar" basedir="${build}"
-			 manifest="${manifest.file}"/>
-	</target>
 </project>
