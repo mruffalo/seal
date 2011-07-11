@@ -182,7 +182,7 @@ public class AlignmentToolService
 	{
 		DATA_PATH.mkdirs();
 		// TODO: Don't hardcode this
-		final int generated_genome_length = 100000;
+		final int generated_genome_length = 500000000;
 
 		File genomeFile = null;
 		CharSequence sequence = null;
@@ -1401,6 +1401,7 @@ public class AlignmentToolService
 
 	public static void main(String[] args)
 	{
+		new AlignmentToolService().indelSizeEvaluation(false, Genome.RANDOM_HARD);
 		new AlignmentToolService().indelSizeEvaluation(false, Genome.HUMAN);
 	}
 }
