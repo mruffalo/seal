@@ -221,7 +221,7 @@ public class AlignmentToolService
 				{
 					e.printStackTrace();
 				}
-				genomeFile = new File(DATA_PATH, "hg19_2gb-contig.fa");
+				genomeFile = new File(DATA_PATH, "hg19-contig.fa");
 				break;
 			case RANDOM_EASY:
 				genomeFile = new File(DATA_PATH, "random_easy.fa");
@@ -1401,6 +1401,6 @@ public class AlignmentToolService
 
 	public static void main(String[] args)
 	{
-		new AlignmentToolService().runtimeReadCountEvaluation();
+		new AlignmentToolService().indelSizeEvaluation(false, Genome.HUMAN);
 	}
 }
