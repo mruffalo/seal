@@ -5,3 +5,4 @@ data
 *.fasta
 *.fastq
 log*.txt
+*~
