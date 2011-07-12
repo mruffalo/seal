@@ -10,18 +10,14 @@ import external.tool.NovoalignInterface;
 import external.tool.ShrimpInterface;
 import external.tool.SoapInterface;
 import generator.Fragmentizer;
-import generator.SeqFilterSingleDeletion;
 import generator.SeqGenSingleSequenceMultipleRepeats;
-import generator.SeqFilterTandemRepeats;
 import generator.SequenceGenerator;
 import generator.errors.FragmentErrorGenerator;
 import generator.errors.IndelGenerator;
-import generator.errors.LinearIncreasingErrorGenerator;
 import generator.errors.UniformErrorGenerator;
 import io.FastaReader;
 import io.FastaWriter;
 import io.FastqWriter;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -31,18 +27,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import assembly.Fragment;
-import assembly.FragmentPositionSource;
 
 import io.MultipartSequence;
-import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import util.Log4jConfig;
 
-/**
- * Very large TODO: Refactor to avoid this ridiculous code duplication
- *
- * @author mruffalo
- */
 public class AlignmentToolService
 {
 	/**
@@ -50,8 +39,9 @@ public class AlignmentToolService
 	 */
 	private static final int NUMBER_OF_CONCURRENT_THREADS = 2;
 	private static final int EVAL_RUN_COUNT = 1;
-	protected static final List<Double> ERROR_PROBABILITIES = Collections.unmodifiableList(Arrays.asList(
-			0.0, 0.001, 0.004, 0.01, 0.025, 0.05, 0.1));
+
+	public static final int DEFAULT_GENERATED_GENOME_LENGTH = 500000000;
+
 	protected static final List<Integer> PHRED_THRESHOLDS = Collections.unmodifiableList(Arrays.asList(
 		0, 1, 2, 3, 4, 5, 7, 10, 14, 20, 25, 30, 35, 40));
 	protected static final List<Integer> RUNTIME_THRESHOLDS = Collections.unmodifiableList(Arrays.asList(0));
@@ -60,8 +50,6 @@ public class AlignmentToolService
 	protected static final List<Double> RUNTIME_READ_COUNTS = Collections.unmodifiableList(Arrays.asList(
 			10000.0, 30000.0, 100000.0, 300000.0, 1000000.0, 3000000.0, 10000000.0, 30000000.0,
 			100000000.0));
-	protected static final List<Double> INDEL_SIZES = Collections.unmodifiableList(Arrays.asList(
-			2.0, 4.0, 7.0, 10.0, 16.0));
 	protected static final List<Double> INDEL_FREQUENCIES = Collections.unmodifiableList(Arrays.asList(
 			1e-5, 3e-5, 1e-4, 3e-4, 1e-3, 3e-3, 1e-2));
 
@@ -682,37 +670,6 @@ public class AlignmentToolService
 		}
 	}
 
-	public void indelSizeEvaluation(boolean paired_end, Genome genome)
-	{
-		final String testDescription = "indel_size";
-
-		final double indelLengthStdDev = 0.2;
-		final double indelFrequency = 5e-2;
-		Map<Double, List<FragmentErrorGenerator>> fegs = new TreeMap<Double, List<FragmentErrorGenerator>>();
-		for (double indelSize : INDEL_SIZES)
-		{
-			IndelGenerator.Options igo = new IndelGenerator.Options();
-			igo.deleteLengthMean = indelSize;
-			igo.deleteLengthStdDev = indelLengthStdDev;
-			igo.deleteProbability = indelFrequency;
-			igo.insertLengthMean = indelSize;
-			igo.insertLengthStdDev = indelLengthStdDev;
-			igo.insertProbability = indelFrequency;
-			FragmentErrorGenerator indel_eg = new IndelGenerator(SequenceGenerator.NUCLEOTIDES, igo);
-			List<FragmentErrorGenerator> generatorList = new ArrayList<FragmentErrorGenerator>();
-			generatorList.add(indel_eg);
-			fegs.put(indelSize, generatorList);
-		}
-
-		ProcessedGenome pg = getGenomeAndFragmentFiles(genome, 500000000, fegs, testDescription,
-			"Introducing fragment read errors for indel size %.0f ... ");
-		SimulationParameters pa = new SimulationParameters(INDEL_SIZES, paired_end,
-			testDescription, genome, pg.file, pg.fragmentsByParameter);
-		Map<Double, Map<String, AlignmentResults>> m = runAccuracySimulation(pa);
-		writeAccuracyResults(pa, m, "IndelSize");
-
-	}
-
 	public void indelFrequencyEvaluation(boolean paired_end, Genome genome)
 	{
 		final String testDescription = "indel_freq";
@@ -772,11 +729,5 @@ public class AlignmentToolService
 		List<Map<Double, Map<Double, Map<String, AlignmentResults>>>> l = runRuntimeSimulation(pa,
 			rgd);
 		writeRuntimeResults(pa, l, "GenomeSize");
-	}
-
-	public static void main(String[] args)
-	{
-		new AlignmentToolService().indelSizeEvaluation(false, Genome.RANDOM_HARD);
-		new AlignmentToolService().indelSizeEvaluation(false, Genome.HUMAN);
 	}
 }

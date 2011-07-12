@@ -24,7 +24,7 @@ public class ErrorRateEvaluation
 	protected String errorProbabilities = "0.0,0.001,0.004,0.01,0.025,0.05,0.1";
 
 	@Parameter(names = "--length", description = "Length of genome (if generated)")
-	protected int generatedGenomeLength = 500000000;
+	protected int generatedGenomeLength = AlignmentToolService.DEFAULT_GENERATED_GENOME_LENGTH;
 
 	@Parameter(names = "--genome", description = "Genome to use; HUMAN and HUMAN_CHR22 require FASTA files to read",
 			converter = GenomeConverter.class)
@@ -32,11 +32,11 @@ public class ErrorRateEvaluation
 
 	public void errorRateEvaluation()
 	{
-		List<Double> errorProbabilities = new DoubleCsvConverter().convert(this.errorProbabilities);
+		List<Double> errorProbabilityValues = new DoubleCsvConverter().convert(this.errorProbabilities);
 		final String testDescription = "error_rate";
 
 		Map<Double, List<FragmentErrorGenerator>> fegs = new TreeMap<Double, List<FragmentErrorGenerator>>();
-		for (double errorProbability : errorProbabilities)
+		for (double errorProbability : errorProbabilityValues)
 		{
 			FragmentErrorGenerator base_call_eg = new LinearIncreasingErrorGenerator(
 					SequenceGenerator.NUCLEOTIDES, errorProbability / 2.0, errorProbability);
@@ -58,7 +58,7 @@ public class ErrorRateEvaluation
 		AlignmentToolService.ProcessedGenome pg = ats.getGenomeAndFragmentFiles(genome, generatedGenomeLength, fegs,
 				testDescription, "Introducing fragment read errors for error rate %f ... ");
 		AlignmentToolService.SimulationParameters pa =
-				new AlignmentToolService.SimulationParameters(errorProbabilities, false,
+				new AlignmentToolService.SimulationParameters(errorProbabilityValues, false,
 						testDescription, genome, pg.file, pg.fragmentsByParameter);
 		Map<Double, Map<String, AlignmentResults>> m = ats.runAccuracySimulation(pa);
 		ats.writeAccuracyResults(pa, m, "ErrorRate");
