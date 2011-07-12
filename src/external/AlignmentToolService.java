@@ -48,8 +48,6 @@ public class AlignmentToolService
 	protected static final List<Integer> PHRED_THRESHOLDS = Collections.unmodifiableList(Arrays.asList(
 		0, 1, 2, 3, 4, 5, 7, 10, 14, 20, 25, 30, 35, 40));
 	protected static final List<Integer> RUNTIME_THRESHOLDS = Collections.unmodifiableList(Arrays.asList(0));
-	protected static final List<Double> RUNTIME_GENOME_SIZES = Collections.unmodifiableList(Arrays.asList(
-			1e6, 3e6, 1e7, 3e7, 1e8, 3e8, 5e8));
 	protected static final List<Double> RUNTIME_READ_COUNTS = Collections.unmodifiableList(Arrays.asList(
 			10000.0, 30000.0, 100000.0, 300000.0, 1000000.0, 3000000.0, 10000000.0, 30000000.0,
 			100000000.0));
@@ -148,7 +146,7 @@ public class AlignmentToolService
 	 *
 	 * @author mruffalo
 	 */
-	private static class RuntimeGenomeData
+	public static class RuntimeGenomeData
 	{
 		public RuntimeGenomeData(Map<Double, File> genomesBySize_,
 			Map<Double, Map<Double, File>> fragmentsByCoverage_)
@@ -280,8 +278,8 @@ public class AlignmentToolService
 		return new ProcessedGenome(genomeFile, fragmentsByError);
 	}
 
-	private RuntimeGenomeData getRuntimeGenomeData(List<Double> genomeSizes,
-		List<Double> fragmentCounts)
+	public RuntimeGenomeData getRuntimeGenomeData(List<Double> genomeSizes,
+			List<Double> fragmentCounts)
 	{
 		DATA_PATH.mkdirs();
 		final double errorProbability = 0.01;
@@ -437,8 +435,8 @@ public class AlignmentToolService
 	 * @param p
 	 * @return
 	 */
-	private List<Map<Double, Map<Double, Map<String, AlignmentResults>>>> runRuntimeSimulation(
-		SimulationParameters p, RuntimeGenomeData rgd)
+	public List<Map<Double, Map<Double, Map<String, AlignmentResults>>>> runRuntimeSimulation(
+			SimulationParameters p, RuntimeGenomeData rgd)
 	{
 		ExecutorService pool = Executors.newFixedThreadPool(NUMBER_OF_CONCURRENT_THREADS);
 		List<AlignmentToolInterface> atiList = new ArrayList<AlignmentToolInterface>();
@@ -605,8 +603,8 @@ public class AlignmentToolService
 	 * @param l
 	 * @param parameterName
 	 */
-	private void writeRuntimeResults(SimulationParameters pa,
-		List<Map<Double, Map<Double, Map<String, AlignmentResults>>>> l, String parameterName)
+	public void writeRuntimeResults(SimulationParameters pa,
+			List<Map<Double, Map<Double, Map<String, AlignmentResults>>>> l, String parameterName)
 	{
 		String filename = pa.testDescription + "_data.csv";
 		log.info(String.format("Writing time data to %s", filename));
@@ -678,20 +676,5 @@ public class AlignmentToolService
 		List<Map<Double, Map<Double, Map<String, AlignmentResults>>>> l = runRuntimeSimulation(pa,
 			rgd);
 		writeRuntimeResults(pa, l, "ReadCount");
-	}
-
-	public void runtimeGenomeSizeEvaluation()
-	{
-		final String testDescription = "runtime_genome_size";
-
-		final double readCount = 100000.0;
-		List<Double> readCounts = Arrays.asList(readCount);
-		RuntimeGenomeData rgd = getRuntimeGenomeData(RUNTIME_GENOME_SIZES, readCounts);
-
-		SimulationParameters pa = new SimulationParameters(RUNTIME_GENOME_SIZES, false,
-			testDescription, Genome.RUNTIME_SIZE_RANDOM, null, new TreeMap<Double, File>());
-		List<Map<Double, Map<Double, Map<String, AlignmentResults>>>> l = runRuntimeSimulation(pa,
-			rgd);
-		writeRuntimeResults(pa, l, "GenomeSize");
 	}
 }
