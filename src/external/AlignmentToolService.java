@@ -684,37 +684,6 @@ public class AlignmentToolService
 		}
 	}
 
-	public void errorRateEvaluation(boolean paired_end, Genome genome)
-	{
-		final String testDescription = "error_rate";
-
-		Map<Double, List<FragmentErrorGenerator>> fegs = new TreeMap<Double, List<FragmentErrorGenerator>>();
-		for (double errorProbability : ERROR_PROBABILITIES)
-		{
-			FragmentErrorGenerator base_call_eg = new LinearIncreasingErrorGenerator(
-				SequenceGenerator.NUCLEOTIDES, errorProbability / 2.0, errorProbability);
-			IndelGenerator.Options igo = new IndelGenerator.Options();
-			igo.deleteLengthMean = 2;
-			igo.deleteLengthStdDev = 0.7;
-			igo.deleteProbability = errorProbability / 40.0;
-			igo.insertLengthMean = 2;
-			igo.insertLengthStdDev = 0.7;
-			igo.insertProbability = errorProbability / 40.0;
-			FragmentErrorGenerator indel_eg = new IndelGenerator(SequenceGenerator.NUCLEOTIDES, igo);
-			List<FragmentErrorGenerator> generatorList = new ArrayList<FragmentErrorGenerator>();
-			generatorList.add(base_call_eg);
-			generatorList.add(indel_eg);
-			fegs.put(errorProbability, generatorList);
-		}
-
-		ProcessedGenome pg = getGenomeAndFragmentFiles(genome, fegs, testDescription,
-			"Introducing fragment read errors for error rate %f ... ");
-		SimulationParameters pa = new SimulationParameters(ERROR_PROBABILITIES, paired_end,
-			testDescription, genome, pg.file, pg.fragmentsByParameter);
-		Map<Double, Map<String, AlignmentResults>> m = runAccuracySimulation(pa);
-		writeAccuracyResults(pa, m, "ErrorRate");
-	}
-
 	public void indelSizeEvaluation(boolean paired_end, Genome genome)
 	{
 		final String testDescription = "indel_size";
