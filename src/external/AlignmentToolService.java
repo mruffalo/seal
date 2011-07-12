@@ -48,9 +48,6 @@ public class AlignmentToolService
 	protected static final List<Integer> PHRED_THRESHOLDS = Collections.unmodifiableList(Arrays.asList(
 		0, 1, 2, 3, 4, 5, 7, 10, 14, 20, 25, 30, 35, 40));
 	protected static final List<Integer> RUNTIME_THRESHOLDS = Collections.unmodifiableList(Arrays.asList(0));
-	protected static final List<Double> RUNTIME_READ_COUNTS = Collections.unmodifiableList(Arrays.asList(
-			10000.0, 30000.0, 100000.0, 300000.0, 1000000.0, 3000000.0, 10000000.0, 30000000.0,
-			100000000.0));
 
 	private static final File DATA_PATH = new File("data");
 
@@ -444,7 +441,7 @@ public class AlignmentToolService
 		List<Map<Double, Map<Double, Map<String, AlignmentResults>>>> l = new ArrayList<Map<Double, Map<Double, Map<String, AlignmentResults>>>>(
 			EVAL_RUN_COUNT);
 		List<Future<AlignmentResults>> futureList = new ArrayList<Future<AlignmentResults>>(
-			RUNTIME_READ_COUNTS.size() * EVAL_RUN_COUNT * 7);
+			rgd.fragmentsByReadCount.size() * EVAL_RUN_COUNT * 7);
 		int index = 0;
 		for (int which_run = 0; which_run < EVAL_RUN_COUNT; which_run++)
 		{
@@ -660,21 +657,5 @@ public class AlignmentToolService
 		{
 			e.printStackTrace();
 		}
-	}
-
-	public void runtimeReadCountEvaluation()
-	{
-		final String testDescription = "runtime_read_count";
-
-		final double genomeSize = 500000000.0;
-		List<Double> genomeSizes = Arrays.asList(genomeSize);
-		RuntimeGenomeData rgd = getRuntimeGenomeData(genomeSizes, RUNTIME_READ_COUNTS);
-
-		SimulationParameters pa = new SimulationParameters(RUNTIME_READ_COUNTS, false,
-			testDescription, Genome.RUNTIME_COV_RANDOM, rgd.genomesBySize.get(genomeSize),
-			new TreeMap<Double, File>());
-		List<Map<Double, Map<Double, Map<String, AlignmentResults>>>> l = runRuntimeSimulation(pa,
-			rgd);
-		writeRuntimeResults(pa, l, "ReadCount");
 	}
 }
