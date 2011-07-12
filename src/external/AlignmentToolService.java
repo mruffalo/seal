@@ -175,13 +175,11 @@ public class AlignmentToolService
 		public final Map<Double, Map<Double, File>> fragmentsByReadCount;
 	}
 
-	public ProcessedGenome getGenomeAndFragmentFiles(Genome genome,
+	public ProcessedGenome getGenomeAndFragmentFiles(Genome genome, int generated_genome_length,
 			Map<Double, List<FragmentErrorGenerator>> fragmentErrorGenerators, String testDescription,
 			String parameterMessage)
 	{
 		DATA_PATH.mkdirs();
-		// TODO: Don't hardcode this
-		final int generated_genome_length = 500000000;
 
 		File genomeFile = null;
 		CharSequence sequence = null;
@@ -706,7 +704,7 @@ public class AlignmentToolService
 			fegs.put(indelSize, generatorList);
 		}
 
-		ProcessedGenome pg = getGenomeAndFragmentFiles(genome, fegs, testDescription,
+		ProcessedGenome pg = getGenomeAndFragmentFiles(genome, 500000000, fegs, testDescription,
 			"Introducing fragment read errors for indel size %.0f ... ");
 		SimulationParameters pa = new SimulationParameters(INDEL_SIZES, paired_end,
 			testDescription, genome, pg.file, pg.fragmentsByParameter);
@@ -737,7 +735,7 @@ public class AlignmentToolService
 			fegs.put(indelFrequency, generatorList);
 		}
 
-		ProcessedGenome pg = getGenomeAndFragmentFiles(genome, fegs, testDescription,
+		ProcessedGenome pg = getGenomeAndFragmentFiles(genome, 500000000, fegs, testDescription,
 			"Introducing fragment read errors for indel frequency %f ... ");
 		SimulationParameters pa = new SimulationParameters(INDEL_FREQUENCIES, paired_end,
 			testDescription, genome, pg.file, pg.fragmentsByParameter);
