@@ -187,6 +187,7 @@ public class AlignmentToolService
 
 		File genomeFile = null;
 		CharSequence sequence = null;
+		List<MultipartSequence> sequences = new ArrayList<MultipartSequence>();
 		SequenceGenerator g = null;
 		SequenceGenerator.Options sgo = null;
 		log.info("Reading/creating genome");
