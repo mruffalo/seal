@@ -22,7 +22,7 @@ public class IndelFrequencyEvaluation
 	@Parameter(names = {"-h", "--help"}, hidden = true)
 	protected boolean showHelp = false;
 
-	@Parameter(names = "--indel_sizes")
+	@Parameter(names = "--indel-frequencies")
 	/**
 	 * This is a String because JCommander keeps wanting to <b>append</b> to a collection
 	 * instead of replacing it with command line arguments.

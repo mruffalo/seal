@@ -20,12 +20,12 @@ public class ErrorRateEvaluation
 	@Parameter(names = {"-h", "--help"}, hidden = true)
 	protected boolean showHelp = false;
 
-	@Parameter(names = "--error_probabilities")
+	@Parameter(names = "--error-rates")
 	/**
 	 * This is a String because JCommander keeps wanting to <b>append</b> to a collection
 	 * instead of replacing it with command line arguments.
 	 */
-	protected String errorProbabilities = "0.0,0.001,0.004,0.01,0.025,0.05,0.1";
+	protected String errorRates = "0.0,0.001,0.004,0.01,0.025,0.05,0.1";
 
 	@Parameter(names = "--length", description = "Length of genome (if generated)")
 	protected int generatedGenomeLength = AlignmentToolService.DEFAULT_GENERATED_GENOME_LENGTH;
@@ -45,11 +45,11 @@ public class ErrorRateEvaluation
 
 	public void errorRateEvaluation()
 	{
-		List<Double> errorProbabilityValues = new DoubleCsvConverter().convert(this.errorProbabilities);
+		List<Double> errorRateValues = new DoubleCsvConverter().convert(this.errorRates);
 		final String testDescription = "error_rate";
 
 		Map<Double, List<FragmentErrorGenerator>> fegs = new TreeMap<Double, List<FragmentErrorGenerator>>();
-		for (double errorProbability : errorProbabilityValues)
+		for (double errorProbability : errorRateValues)
 		{
 			FragmentErrorGenerator base_call_eg = new LinearIncreasingErrorGenerator(
 					SequenceGenerator.NUCLEOTIDES, errorProbability / 2.0, errorProbability);
@@ -75,7 +75,7 @@ public class ErrorRateEvaluation
 		AlignmentToolService.ProcessedGenome pg = ats.getGenomeAndFragmentFiles(genome, generatedGenomeLength, fo, fegs,
 				testDescription, "Introducing fragment read errors for error rate %f ... ");
 		AlignmentToolService.SimulationParameters pa =
-				new AlignmentToolService.SimulationParameters(errorProbabilityValues, false,
+				new AlignmentToolService.SimulationParameters(errorRateValues, false,
 						testDescription, genome, pg.file, pg.fragmentsByParameter);
 		Map<Double, Map<String, AlignmentResults>> m = ats.runAccuracySimulation(pa);
 		ats.writeAccuracyResults(pa, m, "ErrorRate");
