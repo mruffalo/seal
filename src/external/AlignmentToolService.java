@@ -51,19 +51,19 @@ public class AlignmentToolService
 	private static final int NUMBER_OF_CONCURRENT_THREADS = 2;
 	private static final int EVAL_RUN_COUNT = 1;
 	protected static final List<Double> ERROR_PROBABILITIES = Collections.unmodifiableList(Arrays.asList(
-		0.0, 0.001, 0.004, 0.01, 0.025, 0.05, 0.1));
+			0.0, 0.001, 0.004, 0.01, 0.025, 0.05, 0.1));
 	protected static final List<Integer> PHRED_THRESHOLDS = Collections.unmodifiableList(Arrays.asList(
 		0, 1, 2, 3, 4, 5, 7, 10, 14, 20, 25, 30, 35, 40));
 	protected static final List<Integer> RUNTIME_THRESHOLDS = Collections.unmodifiableList(Arrays.asList(0));
 	protected static final List<Double> RUNTIME_GENOME_SIZES = Collections.unmodifiableList(Arrays.asList(
-		1e6, 3e6, 1e7, 3e7, 1e8, 3e8, 5e8));
+			1e6, 3e6, 1e7, 3e7, 1e8, 3e8, 5e8));
 	protected static final List<Double> RUNTIME_READ_COUNTS = Collections.unmodifiableList(Arrays.asList(
-		10000.0, 30000.0, 100000.0, 300000.0, 1000000.0, 3000000.0, 10000000.0, 30000000.0,
-		100000000.0));
+			10000.0, 30000.0, 100000.0, 300000.0, 1000000.0, 3000000.0, 10000000.0, 30000000.0,
+			100000000.0));
 	protected static final List<Double> INDEL_SIZES = Collections.unmodifiableList(Arrays.asList(
-		2.0, 4.0, 7.0, 10.0, 16.0));
+			2.0, 4.0, 7.0, 10.0, 16.0));
 	protected static final List<Double> INDEL_FREQUENCIES = Collections.unmodifiableList(Arrays.asList(
-		1e-5, 3e-5, 1e-4, 3e-4, 1e-3, 3e-3, 1e-2));
+			1e-5, 3e-5, 1e-4, 3e-4, 1e-3, 3e-3, 1e-2));
 
 	private static final File DATA_PATH = new File("data");
 
@@ -75,7 +75,7 @@ public class AlignmentToolService
 		log = Logger.getLogger(getClass());
 	}
 
-	private static enum Genome
+	public static enum Genome
 	{
 		HUMAN_CHR22,
 		HUMAN,
@@ -91,7 +91,7 @@ public class AlignmentToolService
 	 *
 	 * @author mruffalo
 	 */
-	private static class ProcessedGenome
+	public static class ProcessedGenome
 	{
 		public ProcessedGenome(File file_, Map<Double, File> fragmentsByParameter_)
 		{
@@ -112,7 +112,7 @@ public class AlignmentToolService
 	 *
 	 * @author mruffalo
 	 */
-	private static class SimulationParameters
+	public static class SimulationParameters
 	{
 		public SimulationParameters(List<Double> errorRates_, boolean paired_end_,
 			String testDescription_, Genome genome_, File genomeFile_,
@@ -175,9 +175,9 @@ public class AlignmentToolService
 		public final Map<Double, Map<Double, File>> fragmentsByReadCount;
 	}
 
-	private ProcessedGenome getGenomeAndFragmentFiles(Genome genome,
-		Map<Double, List<FragmentErrorGenerator>> fragmentErrorGenerators, String testDescription,
-		String parameterMessage)
+	public ProcessedGenome getGenomeAndFragmentFiles(Genome genome,
+			Map<Double, List<FragmentErrorGenerator>> fragmentErrorGenerators, String testDescription,
+			String parameterMessage)
 	{
 		DATA_PATH.mkdirs();
 		// TODO: Don't hardcode this
@@ -357,7 +357,7 @@ public class AlignmentToolService
 		return new RuntimeGenomeData(genomeFilesBySize, fragmentsByCoverage);
 	}
 
-	private Map<Double, Map<String, AlignmentResults>> runAccuracySimulation(SimulationParameters p)
+	public Map<Double, Map<String, AlignmentResults>> runAccuracySimulation(SimulationParameters p)
 	{
 		ExecutorService pool = Executors.newFixedThreadPool(NUMBER_OF_CONCURRENT_THREADS);
 		List<AlignmentToolInterface> atiList = new ArrayList<AlignmentToolInterface>();
@@ -552,8 +552,8 @@ public class AlignmentToolService
 		return l;
 	}
 
-	private void writeAccuracyResults(SimulationParameters pa,
-		Map<Double, Map<String, AlignmentResults>> m, String parameterName)
+	public void writeAccuracyResults(SimulationParameters pa,
+			Map<Double, Map<String, AlignmentResults>> m, String parameterName)
 	{
 		String filename = String.format("%s_%s.csv", pa.testDescription,
 			pa.genome.toString().toLowerCase());
