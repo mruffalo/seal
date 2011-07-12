@@ -42,7 +42,7 @@ public class AlignmentToolService
 
 	public static final int DEFAULT_GENERATED_GENOME_LENGTH = 500000000;
 	public static final int DEFAULT_FRAGMENT_LENGTH_MEAN = 50;
-	public static final double DEFAULT_FRAGMENT_LENGTH_SD = 50;
+	public static final double DEFAULT_FRAGMENT_LENGTH_SD = 1.0;
 	public static final int DEFAULT_FRAGMENT_COUNT = 100000;
 
 	protected static final List<Integer> PHRED_THRESHOLDS = Collections.unmodifiableList(Arrays.asList(
