@@ -41,6 +41,9 @@ public class AlignmentToolService
 	private static final int EVAL_RUN_COUNT = 1;
 
 	public static final int DEFAULT_GENERATED_GENOME_LENGTH = 500000000;
+	public static final int DEFAULT_FRAGMENT_LENGTH_MEAN = 50;
+	public static final double DEFAULT_FRAGMENT_LENGTH_SD = 50;
+	public static final int DEFAULT_FRAGMENT_COUNT = 100000;
 
 	protected static final List<Integer> PHRED_THRESHOLDS = Collections.unmodifiableList(Arrays.asList(
 		0, 1, 2, 3, 4, 5, 7, 10, 14, 20, 25, 30, 35, 40));
@@ -50,8 +53,6 @@ public class AlignmentToolService
 	protected static final List<Double> RUNTIME_READ_COUNTS = Collections.unmodifiableList(Arrays.asList(
 			10000.0, 30000.0, 100000.0, 300000.0, 1000000.0, 3000000.0, 10000000.0, 30000000.0,
 			100000000.0));
-	protected static final List<Double> INDEL_FREQUENCIES = Collections.unmodifiableList(Arrays.asList(
-			1e-5, 3e-5, 1e-4, 3e-4, 1e-3, 3e-3, 1e-2));
 
 	private static final File DATA_PATH = new File("data");
 
@@ -164,6 +165,7 @@ public class AlignmentToolService
 	}
 
 	public ProcessedGenome getGenomeAndFragmentFiles(Genome genome, int generated_genome_length,
+			Fragmentizer.Options fo,
 			Map<Double, List<FragmentErrorGenerator>> fragmentErrorGenerators, String testDescription,
 			String parameterMessage)
 	{
@@ -242,8 +244,6 @@ public class AlignmentToolService
 				e.printStackTrace();
 			}
 
-			Fragmentizer.Options fo = new Fragmentizer.Options();
-			// TODO: Don't hardcode these, especially not twice
 			fo.fragmentLength = 50;
 			fo.fragmentCount = 50000;
 			fo.fragmentLengthSd = 1;
@@ -257,12 +257,6 @@ public class AlignmentToolService
 
 			log.info(String.format("Writing genome to %s", genomeFile.getAbsolutePath()));
 			writeGenome(sequence, genomeFile);
-
-			Fragmentizer.Options fo = new Fragmentizer.Options();
-			// TODO: Don't hardcode these, especially not twice
-			fo.fragmentLength = 50;
-			fo.fragmentCount = 50000;
-			fo.fragmentLengthSd = 1;
 
 			log.info("Reading fragments");
 			list = Fragmentizer.fragmentize(sequence, fo);
@@ -668,36 +662,6 @@ public class AlignmentToolService
 		{
 			e.printStackTrace();
 		}
-	}
-
-	public void indelFrequencyEvaluation(boolean paired_end, Genome genome)
-	{
-		final String testDescription = "indel_freq";
-
-		final int indelLengthMean = 2;
-		final double indelLengthStdDev = 0.2;
-		Map<Double, List<FragmentErrorGenerator>> fegs = new TreeMap<Double, List<FragmentErrorGenerator>>();
-		for (double indelFrequency : INDEL_FREQUENCIES)
-		{
-			IndelGenerator.Options igo = new IndelGenerator.Options();
-			igo.deleteLengthMean = indelLengthMean;
-			igo.deleteLengthStdDev = indelLengthStdDev;
-			igo.deleteProbability = indelFrequency;
-			igo.insertLengthMean = indelLengthMean;
-			igo.insertLengthStdDev = indelLengthStdDev;
-			igo.insertProbability = indelFrequency;
-			FragmentErrorGenerator indel_eg = new IndelGenerator(SequenceGenerator.NUCLEOTIDES, igo);
-			List<FragmentErrorGenerator> generatorList = new ArrayList<FragmentErrorGenerator>();
-			generatorList.add(indel_eg);
-			fegs.put(indelFrequency, generatorList);
-		}
-
-		ProcessedGenome pg = getGenomeAndFragmentFiles(genome, 500000000, fegs, testDescription,
-			"Introducing fragment read errors for indel frequency %f ... ");
-		SimulationParameters pa = new SimulationParameters(INDEL_FREQUENCIES, paired_end,
-			testDescription, genome, pg.file, pg.fragmentsByParameter);
-		Map<Double, Map<String, AlignmentResults>> m = runAccuracySimulation(pa);
-		writeAccuracyResults(pa, m, "IndelFrequency");
 	}
 
 	public void runtimeReadCountEvaluation()

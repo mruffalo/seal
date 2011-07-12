@@ -2,6 +2,7 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import external.AlignmentResults;
 import external.AlignmentToolService;
+import generator.Fragmentizer;
 import generator.SequenceGenerator;
 import generator.errors.FragmentErrorGenerator;
 import generator.errors.IndelGenerator;
@@ -13,6 +14,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+/**
+ * TODO: Clean up parameter duplication between these standalone files
+ */
 public class IndelSizeEvaluation
 {
 	@Parameter(names = {"-h", "--help"}, hidden = true)
@@ -31,6 +35,15 @@ public class IndelSizeEvaluation
 	@Parameter(names = "--genome", description = "Genome to use; HUMAN and HUMAN_CHR22 require FASTA files to read",
 			converter = GenomeConverter.class)
 	protected AlignmentToolService.Genome genome = AlignmentToolService.Genome.RANDOM_HARD;
+
+	@Parameter(names = "--fragment-length", description = "Fragment length (mean)")
+	protected int fragmentLength = AlignmentToolService.DEFAULT_FRAGMENT_LENGTH_MEAN;
+
+	@Parameter(names = "--fragment-length-sd", description = "Fragment length (std.dev.)")
+	protected double fragmentLengthSd = AlignmentToolService.DEFAULT_FRAGMENT_LENGTH_SD;
+
+	@Parameter(names = "--fragment-count", description = "Fragment count")
+	protected int fragmentCount = AlignmentToolService.DEFAULT_FRAGMENT_COUNT;
 
 	public void indelSizeEvaluation()
 	{
@@ -56,7 +69,11 @@ public class IndelSizeEvaluation
 		}
 
 		AlignmentToolService ats = new AlignmentToolService();
-		AlignmentToolService.ProcessedGenome pg = ats.getGenomeAndFragmentFiles(genome, generatedGenomeLength, fegs,
+		Fragmentizer.Options fo = new Fragmentizer.Options();
+		fo.fragmentLength = fragmentLength;
+		fo.fragmentCount = fragmentCount;
+		fo.fragmentLengthSd = fragmentLengthSd;
+		AlignmentToolService.ProcessedGenome pg = ats.getGenomeAndFragmentFiles(genome, generatedGenomeLength, fo, fegs,
 				testDescription, "Introducing fragment read errors for indel size %.0f ... ");
 		AlignmentToolService.SimulationParameters pa =
 				new AlignmentToolService.SimulationParameters(indelSizeValues, false,
