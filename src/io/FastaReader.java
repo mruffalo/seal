@@ -96,7 +96,7 @@ public class FastaReader
 	public static String getSequence(File file) throws IOException
 	{
 		StringBuilder sb = new StringBuilder();
-		String sequence = null, temp = null;
+		String temp = null;
 		Scanner input = null;
 		try
 		{
@@ -108,7 +108,7 @@ public class FastaReader
 				{
 					continue;
 				}
-				sequence = temp;
+				sb.append(temp);
 			}
 		}
 		finally
@@ -118,7 +118,7 @@ public class FastaReader
 				input.close();
 			}
 		}
-		return sequence;
+		return sb.toString();
 	}
 
 	public static CharSequence getLargeSequence(File file) throws IOException
