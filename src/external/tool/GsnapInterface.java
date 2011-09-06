@@ -114,5 +114,6 @@ public class GsnapInterface extends AlignmentToolInterface
 	@Override
 	public void postAlignmentProcessing()
 	{
+		// TODO convert output to SAM format, or read from scratch here
 	}
 }
