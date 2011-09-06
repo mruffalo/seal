@@ -81,6 +81,10 @@ public class IndelGenerator extends FragmentErrorGenerator
 			{
 				int insertLength = (int) (o.insertLengthMean + o.insertLengthStdDev
 						* random.nextGaussian());
+				if (insertLength < 0)
+				{
+					insertLength = 0;
+				}
 				SequenceGenerator.Options sgo = new SequenceGenerator.Options();
 				sgo.length = insertLength;
 				CharSequence insertedSequence = sg.generateSequence(sgo);
