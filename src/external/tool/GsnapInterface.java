@@ -14,8 +14,9 @@ import java.util.Map;
 public class GsnapInterface extends AlignmentToolInterface
 {
 	private static final String INDEX_COMMAND = "gmap_build";
-	private static final String INDEX_ARGUMENT_GENOME_NAME = "-d";
+	private static final String ARGUMENT_GENOME_NAME = "-d";
 	private static final String ALIGN_COMMAND = "gsnap";
+	public static final String GENOME_NAME = "genome";
 
 	public GsnapInterface(int index_, String description_, List<Integer> thresholds_,
 			Options o_, Map<String, AlignmentResults> m_)
@@ -28,8 +29,8 @@ public class GsnapInterface extends AlignmentToolInterface
 	{
 		List<String> commands = new ArrayList<String>();
 		commands.add(INDEX_COMMAND);
-		commands.add(INDEX_ARGUMENT_GENOME_NAME);
-		commands.add("genome");
+		commands.add(ARGUMENT_GENOME_NAME);
+		commands.add(GENOME_NAME);
 		commands.add(o.genome.getAbsolutePath());
 		ProcessBuilder pb = new ProcessBuilder(commands);
 		pb.directory(o.genome.getParentFile());
@@ -68,6 +69,46 @@ public class GsnapInterface extends AlignmentToolInterface
 	@Override
 	public void align()
 	{
+		List<String> commands = new ArrayList<String>();
+		commands.add(ALIGN_COMMAND);
+		commands.add(ARGUMENT_GENOME_NAME);
+		commands.add(GENOME_NAME);
+		for (Options.Reads r : o.reads)
+		{
+			commands.add(r.reads.getAbsolutePath());
+		}
+		ProcessBuilder pb = new ProcessBuilder(commands);
+		pb.directory(o.genome.getParentFile());
+		try
+		{
+			Process p = pb.start();
+			BufferedReader stdout = new BufferedReader(
+					new InputStreamReader(p.getInputStream()));
+			BufferedReader stderr = new BufferedReader(
+					new InputStreamReader(p.getErrorStream()));
+			String line = null;
+			NDC.push("stdout");
+			while ((line = stdout.readLine()) != null)
+			{
+				log.info(line);
+			}
+			NDC.pop();
+			NDC.push("stderr");
+			while ((line = stderr.readLine()) != null)
+			{
+				log.info(line);
+			}
+			NDC.pop();
+			p.waitFor();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+		catch (InterruptedException e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 	@Override
