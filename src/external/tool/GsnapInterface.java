@@ -5,6 +5,7 @@ import external.AlignmentToolInterface;
 import org.apache.log4j.NDC;
 
 import java.io.BufferedReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -87,12 +88,12 @@ public class GsnapInterface extends AlignmentToolInterface
 			BufferedReader stderr = new BufferedReader(
 					new InputStreamReader(p.getErrorStream()));
 			String line = null;
-			NDC.push("stdout");
+			FileWriter w = new FileWriter(o.sam_output);
 			while ((line = stdout.readLine()) != null)
 			{
-				log.info(line);
+				w.write(String.format("%s%n", line));
 			}
-			NDC.pop();
+			w.close();
 			NDC.push("stderr");
 			while ((line = stderr.readLine()) != null)
 			{
@@ -114,6 +115,6 @@ public class GsnapInterface extends AlignmentToolInterface
 	@Override
 	public void postAlignmentProcessing()
 	{
-		// TODO convert output to SAM format, or read from scratch here
+
 	}
 }
