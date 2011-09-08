@@ -31,7 +31,7 @@ public class GenomeSizeEvaluation extends EvaluationProgram
 		final double readCount = fragmentCount;
 		List<Double> readCounts = Arrays.asList(readCount);
 
-		AlignmentToolService ats = new AlignmentToolService();
+		AlignmentToolService ats = new AlignmentToolService(getToolNames());
 		AlignmentToolService.RuntimeGenomeData rgd = ats.getRuntimeGenomeData(genomeSizeValues, readCounts);
 		AlignmentToolService.SimulationParameters pa = new AlignmentToolService.SimulationParameters(genomeSizeValues, false,
 			testDescription, AlignmentToolService.Genome.RUNTIME_SIZE_RANDOM, null, new TreeMap<Double, File>());

@@ -46,7 +46,7 @@ public class ErrorRateEvaluation extends AccuracyEvaluationProgram
 			fegs.put(errorProbability, generatorList);
 		}
 
-		AlignmentToolService ats = new AlignmentToolService();
+		AlignmentToolService ats = new AlignmentToolService(getToolNames());
 		Fragmentizer.Options fo = new Fragmentizer.Options();
 		fo.fragmentLength = fragmentLength;
 		fo.fragmentCount = fragmentCount;

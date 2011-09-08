@@ -33,7 +33,7 @@ public class ReadCountEvaluation extends EvaluationProgram
 
 		List<Double> genomeSizes = Arrays.asList(genomeSize);
 
-		AlignmentToolService ats = new AlignmentToolService();
+		AlignmentToolService ats = new AlignmentToolService(getToolNames());
 		AlignmentToolService.RuntimeGenomeData rgd = ats.getRuntimeGenomeData(genomeSizes, readCountValues);
 		AlignmentToolService.SimulationParameters pa = new AlignmentToolService.SimulationParameters(readCountValues, false,
 			testDescription, AlignmentToolService.Genome.RUNTIME_COV_RANDOM, rgd.genomesBySize.get(genomeSize),
