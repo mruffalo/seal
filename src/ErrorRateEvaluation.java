@@ -1,8 +1,8 @@
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
+import external.AccuracyEvaluationProgram;
 import external.AlignmentResults;
 import external.AlignmentToolService;
-import external.EvaluationProgram;
 import generator.Fragmentizer;
 import generator.SequenceGenerator;
 import generator.errors.FragmentErrorGenerator;
@@ -13,10 +13,7 @@ import util.GenomeConverter;
 
 import java.util.*;
 
-/**
- * TODO: Clean up parameter duplication between these standalone files
- */
-public class ErrorRateEvaluation extends EvaluationProgram
+public class ErrorRateEvaluation extends AccuracyEvaluationProgram
 {
 	@Parameter(names = "--error-rates")
 	/**
@@ -24,22 +21,6 @@ public class ErrorRateEvaluation extends EvaluationProgram
 	 * instead of replacing it with command line arguments.
 	 */
 	protected String errorRates = "0.0,0.001,0.004,0.01,0.025,0.05,0.1";
-
-	@Parameter(names = "--length", description = "Length of genome (if generated)")
-	protected int generatedGenomeLength = AlignmentToolService.DEFAULT_GENERATED_GENOME_LENGTH;
-
-	@Parameter(names = "--genome", description = "Genome to use; HUMAN and HUMAN_CHR22 require FASTA files to read",
-			converter = GenomeConverter.class)
-	protected AlignmentToolService.Genome genome = AlignmentToolService.Genome.RANDOM_HARD;
-
-	@Parameter(names = "--fragment-length", description = "Fragment length (mean)")
-	protected int fragmentLength = AlignmentToolService.DEFAULT_FRAGMENT_LENGTH_MEAN;
-
-	@Parameter(names = "--fragment-length-sd", description = "Fragment length (std.dev.)")
-	protected double fragmentLengthSd = AlignmentToolService.DEFAULT_FRAGMENT_LENGTH_SD;
-
-	@Parameter(names = "--fragment-count", description = "Fragment count")
-	protected int fragmentCount = AlignmentToolService.DEFAULT_FRAGMENT_COUNT;
 
 	public void errorRateEvaluation()
 	{
