@@ -18,9 +18,6 @@ import java.util.*;
  */
 public class ErrorRateEvaluation extends EvaluationProgram
 {
-	@Parameter(names = {"-h", "--help"}, hidden = true)
-	protected boolean showHelp = false;
-
 	@Parameter(names = "--error-rates")
 	/**
 	 * This is a String because JCommander keeps wanting to <b>append</b> to a collection

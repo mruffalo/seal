@@ -13,9 +13,6 @@ import java.util.*;
  */
 public class ReadCountEvaluation extends EvaluationProgram
 {
-	@Parameter(names = {"-h", "--help"}, hidden = true)
-	protected boolean showHelp = false;
-
 	@Parameter(names = "--read-counts")
 	/**
 	 * This is a String because JCommander keeps wanting to <b>append</b> to a collection

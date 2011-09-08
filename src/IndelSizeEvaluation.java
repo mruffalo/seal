@@ -20,9 +20,6 @@ import java.util.TreeMap;
  */
 public class IndelSizeEvaluation extends EvaluationProgram
 {
-	@Parameter(names = {"-h", "--help"}, hidden = true)
-	protected boolean showHelp = false;
-
 	@Parameter(names = "--indel_sizes")
 	/**
 	 * This is a String because JCommander keeps wanting to <b>append</b> to a collection
