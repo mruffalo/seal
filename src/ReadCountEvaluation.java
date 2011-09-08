@@ -2,6 +2,7 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import external.AlignmentResults;
 import external.AlignmentToolService;
+import external.EvaluationProgram;
 import util.DoubleCsvConverter;
 
 import java.io.File;
@@ -10,7 +11,7 @@ import java.util.*;
 /**
  * TODO: Clean up parameter duplication between these standalone files
  */
-public class ReadCountEvaluation
+public class ReadCountEvaluation extends EvaluationProgram
 {
 	@Parameter(names = {"-h", "--help"}, hidden = true)
 	protected boolean showHelp = false;

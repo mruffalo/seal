@@ -2,6 +2,7 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import external.AlignmentResults;
 import external.AlignmentToolService;
+import external.EvaluationProgram;
 import generator.Fragmentizer;
 import generator.SequenceGenerator;
 import generator.errors.FragmentErrorGenerator;
@@ -17,7 +18,7 @@ import java.util.TreeMap;
 /**
  * TODO: Clean up parameter duplication between these standalone files
  */
-public class IndelFrequencyEvaluation
+public class IndelFrequencyEvaluation extends EvaluationProgram
 {
 	@Parameter(names = {"-h", "--help"}, hidden = true)
 	protected boolean showHelp = false;

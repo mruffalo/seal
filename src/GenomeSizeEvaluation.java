@@ -2,12 +2,8 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import external.AlignmentResults;
 import external.AlignmentToolService;
-import generator.Fragmentizer;
-import generator.SequenceGenerator;
-import generator.errors.FragmentErrorGenerator;
-import generator.errors.IndelGenerator;
+import external.EvaluationProgram;
 import util.DoubleCsvConverter;
-import util.GenomeConverter;
 
 import java.io.File;
 import java.util.*;
@@ -15,7 +11,7 @@ import java.util.*;
 /**
  * TODO: Clean up parameter duplication between these standalone files
  */
-public class GenomeSizeEvaluation
+public class GenomeSizeEvaluation extends EvaluationProgram
 {
 	@Parameter(names = {"-h", "--help"}, hidden = true)
 	protected boolean showHelp = false;
