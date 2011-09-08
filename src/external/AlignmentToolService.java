@@ -53,13 +53,13 @@ public class AlignmentToolService
 
 	private Logger log;
 
-	private List<String> toolNames;
+	private Set<String> toolNames;
 
 	public AlignmentToolService(List<String> toolNames_)
 	{
 		Log4jConfig.initialConfig();
 		log = Logger.getLogger(getClass());
-		toolNames = Collections.unmodifiableList(toolNames_);
+		toolNames = Collections.unmodifiableSet(new TreeSet<String>(toolNames_));
 	}
 
 	public static enum Genome
