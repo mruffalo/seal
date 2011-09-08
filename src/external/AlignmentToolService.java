@@ -2,13 +2,7 @@ package external;
 
 import external.AlignmentToolInterface.AlignmentOperation;
 import external.AlignmentToolInterface.Options;
-import external.tool.BowtieInterface;
-import external.tool.BwaInterface;
-import external.tool.MrFastInterface;
-import external.tool.MrsFastInterface;
-import external.tool.NovoalignInterface;
-import external.tool.ShrimpInterface;
-import external.tool.SoapInterface;
+import external.tool.*;
 import generator.Fragmentizer;
 import generator.SeqGenSingleSequenceMultipleRepeats;
 import generator.SequenceGenerator;
@@ -18,6 +12,7 @@ import generator.errors.UniformErrorGenerator;
 import io.FastaReader;
 import io.FastaWriter;
 import io.FastqWriter;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -26,6 +21,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+
 import assembly.Fragment;
 
 import io.MultipartSequence;
@@ -46,7 +42,7 @@ public class AlignmentToolService
 	public static final int DEFAULT_FRAGMENT_COUNT = 100000;
 
 	protected static final List<Integer> PHRED_THRESHOLDS = Collections.unmodifiableList(Arrays.asList(
-		0, 1, 2, 3, 4, 5, 7, 10, 14, 20, 25, 30, 35, 40));
+			0, 1, 2, 3, 4, 5, 7, 10, 14, 20, 25, 30, 35, 40));
 	protected static final List<Integer> RUNTIME_THRESHOLDS = Collections.unmodifiableList(Arrays.asList(0));
 
 	private static final File DATA_PATH = new File("data");
@@ -59,7 +55,7 @@ public class AlignmentToolService
 	{
 		Log4jConfig.initialConfig();
 		log = Logger.getLogger(getClass());
-		toolNames = Collections.unmodifiableSet(new TreeSet<String>(toolNames_));
+		toolNames = Collections.unmodifiableSet(new HashSet<String>(toolNames_));
 	}
 
 	public static enum Genome
@@ -102,8 +98,8 @@ public class AlignmentToolService
 	public static class SimulationParameters
 	{
 		public SimulationParameters(List<Double> errorRates_, boolean paired_end_,
-			String testDescription_, Genome genome_, File genomeFile_,
-			Map<Double, File> fragmentsByError_)
+				String testDescription_, Genome genome_, File genomeFile_,
+				Map<Double, File> fragmentsByError_)
 		{
 			parameterList = Collections.unmodifiableList(errorRates_);
 			paired_end = paired_end_;
@@ -149,7 +145,7 @@ public class AlignmentToolService
 	public static class RuntimeGenomeData
 	{
 		public RuntimeGenomeData(Map<Double, File> genomesBySize_,
-			Map<Double, Map<Double, File>> fragmentsByCoverage_)
+				Map<Double, Map<Double, File>> fragmentsByCoverage_)
 		{
 			genomesBySize = Collections.unmodifiableMap(genomesBySize_);
 			fragmentsByReadCount = Collections.unmodifiableMap(fragmentsByCoverage_);
@@ -226,7 +222,7 @@ public class AlignmentToolService
 		if (genome.equals(Genome.HUMAN))
 		{
 			long genomeLength = 0L;
-			for (MultipartSequence s: sequences)
+			for (MultipartSequence s : sequences)
 			{
 				genomeLength += s.sequence.length();
 			}
@@ -269,7 +265,7 @@ public class AlignmentToolService
 			log.info(String.format(parameterMessage, parameter));
 			String error_identifier = Double.toString(parameter).replace('.', '_');
 			String filename = String.format("fragments-%s-%s.fastq", testDescription,
-				error_identifier);
+					error_identifier);
 			File fragmentFile = new File(DATA_PATH, filename);
 			fragmentsByError.put(parameter, fragmentFile);
 			FragmentErrorGenerator.generateErrorsToFile(errorGenerators, list, fragmentFile);
@@ -319,13 +315,13 @@ public class AlignmentToolService
 				List<? extends Fragment> list = Fragmentizer.fragmentize(sequence, fo);
 
 				String fragmentFilename = String.format("runtime_fragments_%.0f_%.0f.fastq",
-					genomeSize, fragmentCount);
+						genomeSize, fragmentCount);
 				File fragmentFile = new File(DATA_PATH, fragmentFilename);
 				fragmentsForThisGenome.put(fragmentCount, fragmentFile);
 
 				log.info("Introducing fragment read errors...");
 				UniformErrorGenerator eg = new UniformErrorGenerator(SequenceGenerator.NUCLEOTIDES,
-					errorProbability);
+						errorProbability);
 				List<FragmentErrorGenerator> fegs = new ArrayList<FragmentErrorGenerator>();
 				fegs.add(eg);
 				FragmentErrorGenerator.generateErrorsToFile(fegs, list, fragmentFile);
@@ -340,7 +336,8 @@ public class AlignmentToolService
 		ExecutorService pool = Executors.newFixedThreadPool(NUMBER_OF_CONCURRENT_THREADS);
 		List<AlignmentToolInterface> atiList = new ArrayList<AlignmentToolInterface>();
 
-		Map<Double, Map<String, AlignmentResults>> m = Collections.synchronizedMap(new TreeMap<Double, Map<String, AlignmentResults>>());
+		Map<Double, Map<String, AlignmentResults>> m =
+				Collections.synchronizedMap(new TreeMap<Double, Map<String, AlignmentResults>>());
 		List<Future<AlignmentResults>> futureList = new ArrayList<Future<AlignmentResults>>();
 
 		int index = 0;
@@ -351,28 +348,60 @@ public class AlignmentToolService
 
 			List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
 
-			Options o = new Options(p.paired_end, errorProbability);
-			o.penalize_duplicate_mappings = false;
-			alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast-R", PHRED_THRESHOLDS,
-				o, m_ep));
-			alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast-S", PHRED_THRESHOLDS,
-				new Options(p.paired_end, errorProbability), m_ep));
-			o = new Options(p.paired_end, errorProbability);
-			o.penalize_duplicate_mappings = false;
-			alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast-R", PHRED_THRESHOLDS,
-				o, m_ep));
-			alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast-S", PHRED_THRESHOLDS,
-				new Options(p.paired_end, errorProbability), m_ep));
-			alignmentInterfaceList.add(new SoapInterface(++index, "SOAP", PHRED_THRESHOLDS,
-				new Options(p.paired_end, errorProbability), m_ep));
-			alignmentInterfaceList.add(new BwaInterface(++index, "BWA", PHRED_THRESHOLDS,
-				new Options(p.paired_end, errorProbability), m_ep));
-			o = new Options(p.paired_end, errorProbability);
-			o.penalize_duplicate_mappings = false;
-			alignmentInterfaceList.add(new BowtieInterface(++index, "Bowtie", PHRED_THRESHOLDS,
-				new Options(p.paired_end, errorProbability), m_ep));
-			alignmentInterfaceList.add(new NovoalignInterface(++index, "Novoalign",
-				PHRED_THRESHOLDS, new Options(p.paired_end, errorProbability), m_ep));
+			Options o;
+			// TODO make this smarter and don't hardcode tool names to check
+			if (toolNames.contains("mrfast"))
+			{
+				o = new Options(p.paired_end, errorProbability);
+				o.penalize_duplicate_mappings = false;
+				alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast-R", PHRED_THRESHOLDS,
+						o, m_ep));
+				alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast-S", PHRED_THRESHOLDS,
+						new Options(p.paired_end, errorProbability), m_ep));
+			}
+			if (toolNames.contains("mrsfast"))
+			{
+				o = new Options(p.paired_end, errorProbability);
+				o.penalize_duplicate_mappings = false;
+				alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast-R", PHRED_THRESHOLDS,
+						o, m_ep));
+				alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast-S", PHRED_THRESHOLDS,
+						new Options(p.paired_end, errorProbability), m_ep));
+			}
+			if (toolNames.contains("shrimp"))
+			{
+				o = new Options(p.paired_end, errorProbability);
+				o.penalize_duplicate_mappings = false;
+				alignmentInterfaceList.add(new ShrimpInterface(++index, "SHRiMP-R", PHRED_THRESHOLDS,
+						o, m_ep));
+				alignmentInterfaceList.add(new ShrimpInterface(++index, "SHRiMP-S", PHRED_THRESHOLDS,
+						new Options(p.paired_end, errorProbability), m_ep));
+			}
+			if (toolNames.contains("soap"))
+			{
+				alignmentInterfaceList.add(new SoapInterface(++index, "SOAP", PHRED_THRESHOLDS,
+						new Options(p.paired_end, errorProbability), m_ep));
+			}
+			if (toolNames.contains("bwa"))
+			{
+				alignmentInterfaceList.add(new BwaInterface(++index, "BWA", PHRED_THRESHOLDS,
+						new Options(p.paired_end, errorProbability), m_ep));
+			}
+			if (toolNames.contains("bowtie"))
+			{
+				alignmentInterfaceList.add(new BowtieInterface(++index, "Bowtie", PHRED_THRESHOLDS,
+						new Options(p.paired_end, errorProbability), m_ep));
+			}
+			if (toolNames.contains("novoalign"))
+			{
+				alignmentInterfaceList.add(new NovoalignInterface(++index, "Novoalign",
+						PHRED_THRESHOLDS, new Options(p.paired_end, errorProbability), m_ep));
+			}
+			if (toolNames.contains("gsnap"))
+			{
+				alignmentInterfaceList.add(new GsnapInterface(++index, "GSNAP",
+						PHRED_THRESHOLDS, new Options(p.paired_end, errorProbability), m_ep));
+			}
 
 			for (AlignmentToolInterface ati : alignmentInterfaceList)
 			{
@@ -441,40 +470,72 @@ public class AlignmentToolService
 		ExecutorService pool = Executors.newFixedThreadPool(NUMBER_OF_CONCURRENT_THREADS);
 		List<AlignmentToolInterface> atiList = new ArrayList<AlignmentToolInterface>();
 
-		List<Map<Double, Map<Double, Map<String, AlignmentResults>>>> l = new ArrayList<Map<Double, Map<Double, Map<String, AlignmentResults>>>>(
-			EVAL_RUN_COUNT);
+		List<Map<Double, Map<Double, Map<String, AlignmentResults>>>> l =
+				new ArrayList<Map<Double, Map<Double, Map<String, AlignmentResults>>>>(
+						EVAL_RUN_COUNT);
 		List<Future<AlignmentResults>> futureList = new ArrayList<Future<AlignmentResults>>(
-			rgd.fragmentsByReadCount.size() * EVAL_RUN_COUNT * 7);
+				rgd.fragmentsByReadCount.size() * EVAL_RUN_COUNT * 7);
 		int index = 0;
 		for (int which_run = 0; which_run < EVAL_RUN_COUNT; which_run++)
 		{
-			Map<Double, Map<Double, Map<String, AlignmentResults>>> m = Collections.synchronizedMap(new TreeMap<Double, Map<Double, Map<String, AlignmentResults>>>());
+			Map<Double, Map<Double, Map<String, AlignmentResults>>> m =
+					Collections.synchronizedMap(new TreeMap<Double, Map<Double, Map<String, AlignmentResults>>>());
 			l.add(m);
 
 			for (double genomeSize : rgd.fragmentsByReadCount.keySet())
 			{
-				Map<Double, Map<String, AlignmentResults>> m_gs = Collections.synchronizedMap(new TreeMap<Double, Map<String, AlignmentResults>>());
+				Map<Double, Map<String, AlignmentResults>> m_gs =
+						Collections.synchronizedMap(new TreeMap<Double, Map<String, AlignmentResults>>());
 				m.put(genomeSize, m_gs);
 				for (double readCount : rgd.fragmentsByReadCount.get(genomeSize).keySet())
 				{
-					Map<String, AlignmentResults> m_c = Collections.synchronizedMap(new TreeMap<String, AlignmentResults>());
+					Map<String, AlignmentResults> m_c =
+							Collections.synchronizedMap(new TreeMap<String, AlignmentResults>());
 					m_gs.put(readCount, m_c);
 
 					List<AlignmentToolInterface> alignmentInterfaceList = new ArrayList<AlignmentToolInterface>();
-					alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast",
-						RUNTIME_THRESHOLDS, new Options(p.paired_end, readCount), m_c));
-					alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast",
-						RUNTIME_THRESHOLDS, new Options(p.paired_end, readCount), m_c));
-					alignmentInterfaceList.add(new SoapInterface(++index, "SOAP",
-						RUNTIME_THRESHOLDS, new Options(p.paired_end, readCount), m_c));
-					alignmentInterfaceList.add(new BwaInterface(++index, "BWA", RUNTIME_THRESHOLDS,
-						new Options(p.paired_end, readCount), m_c));
-					alignmentInterfaceList.add(new ShrimpInterface(++index, "SHRiMP",
-						RUNTIME_THRESHOLDS, new Options(p.paired_end, readCount), m_c));
-					alignmentInterfaceList.add(new BowtieInterface(++index, "Bowtie",
-						RUNTIME_THRESHOLDS, new Options(p.paired_end, readCount), m_c));
-					alignmentInterfaceList.add(new NovoalignInterface(++index, "Novoalign",
-						RUNTIME_THRESHOLDS, new Options(p.paired_end, readCount), m_c));
+
+					// TODO make this smarter and don't hardcode tool names to check
+					if (toolNames.contains("mrfast"))
+					{
+						alignmentInterfaceList.add(new MrFastInterface(++index, "MrFast",
+								RUNTIME_THRESHOLDS, new Options(p.paired_end, readCount), m_c));
+					}
+					if (toolNames.contains("mrsfast"))
+					{
+						alignmentInterfaceList.add(new MrsFastInterface(++index, "MrsFast",
+								RUNTIME_THRESHOLDS, new Options(p.paired_end, readCount), m_c));
+					}
+					if (toolNames.contains("soap"))
+					{
+						alignmentInterfaceList.add(new SoapInterface(++index, "SOAP",
+								RUNTIME_THRESHOLDS, new Options(p.paired_end, readCount), m_c));
+					}
+					if (toolNames.contains("bwa"))
+					{
+						alignmentInterfaceList.add(new BwaInterface(++index, "BWA", RUNTIME_THRESHOLDS,
+								new Options(p.paired_end, readCount), m_c));
+					}
+					if (toolNames.contains("shrimp"))
+					{
+						alignmentInterfaceList.add(new ShrimpInterface(++index, "SHRiMP",
+								RUNTIME_THRESHOLDS, new Options(p.paired_end, readCount), m_c));
+					}
+					if (toolNames.contains("bowtie"))
+					{
+						alignmentInterfaceList.add(new BowtieInterface(++index, "Bowtie",
+								RUNTIME_THRESHOLDS, new Options(p.paired_end, readCount), m_c));
+					}
+					if (toolNames.contains("novoalign"))
+					{
+						alignmentInterfaceList.add(new NovoalignInterface(++index, "Novoalign",
+								RUNTIME_THRESHOLDS, new Options(p.paired_end, readCount), m_c));
+					}
+					if (toolNames.contains("gsnap"))
+					{
+						alignmentInterfaceList.add(new GsnapInterface(++index, "GSNAP",
+								RUNTIME_THRESHOLDS, new Options(p.paired_end, readCount), m_c));
+					}
 
 					for (AlignmentToolInterface ati : alignmentInterfaceList)
 					{
@@ -534,15 +595,15 @@ public class AlignmentToolService
 			Map<Double, Map<String, AlignmentResults>> m, String parameterName)
 	{
 		String filename = String.format("%s_%s.csv", pa.testDescription,
-			pa.genome.toString().toLowerCase());
+				pa.genome.toString().toLowerCase());
 		String roc_filename = String.format("%s_%s_roc.csv", pa.testDescription,
-			pa.genome.toString().toLowerCase());
+				pa.genome.toString().toLowerCase());
 		try
 		{
 			log.info(String.format("Writing results to %s", filename));
 			FileWriter w = new FileWriter(new File(DATA_PATH, filename));
 			w.write(String.format("%s,%s,%s,%s,%s,%s,%s%n", "Tool", parameterName, "Threshold",
-				"Precision", "Recall", "Time", "UsedReadRatio"));
+					"Precision", "Recall", "Time", "UsedReadRatio"));
 			for (Double d : m.keySet())
 			{
 				for (String s : m.get(d).keySet())
@@ -552,8 +613,8 @@ public class AlignmentToolService
 						AlignmentResults ar = m.get(d).get(s);
 						FilteredAlignmentResults r = ar.filter(i);
 						w.write(String.format("%s,%f,%d,%f,%f,%d,%f%n", s, d, i, r.getPrecision(),
-							r.getRecall(), ar.timeMap.get(AlignmentOperation.TOTAL),
-							r.getUsedReadRatio()));
+								r.getRecall(), ar.timeMap.get(AlignmentOperation.TOTAL),
+								r.getUsedReadRatio()));
 					}
 				}
 			}
@@ -611,7 +672,8 @@ public class AlignmentToolService
 		try
 		{
 			FileWriter w = new FileWriter(new File(DATA_PATH, filename));
-			w.write(String.format("Tool,GenomeSize,ReadCount,PreprocessingTime,AlignmentTime,PostprocessingTime,TotalTime%n"));
+			w.write(String.format(
+					"Tool,GenomeSize,ReadCount,PreprocessingTime,AlignmentTime,PostprocessingTime,TotalTime%n"));
 			for (Map<Double, Map<Double, Map<String, AlignmentResults>>> m : l)
 			{
 				for (Double gs : m.keySet())
@@ -622,10 +684,10 @@ public class AlignmentToolService
 						{
 							AlignmentResults r = m.get(gs).get(c).get(s);
 							w.write(String.format("%s,%.0f,%f,%d,%d,%d,%d%n", s, gs, c,
-								r.timeMap.get(AlignmentOperation.PREPROCESSING),
-								r.timeMap.get(AlignmentOperation.ALIGNMENT),
-								r.timeMap.get(AlignmentOperation.POSTPROCESSING),
-								r.timeMap.get(AlignmentOperation.TOTAL)));
+									r.timeMap.get(AlignmentOperation.PREPROCESSING),
+									r.timeMap.get(AlignmentOperation.ALIGNMENT),
+									r.timeMap.get(AlignmentOperation.POSTPROCESSING),
+									r.timeMap.get(AlignmentOperation.TOTAL)));
 						}
 					}
 				}
