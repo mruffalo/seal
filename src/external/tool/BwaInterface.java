@@ -11,10 +11,9 @@ import java.util.Map;
 import external.AlignmentResults;
 import external.AlignmentToolInterface;
 import org.apache.log4j.NDC;
+import util.ProcessRunner;
 
 /**
- * TODO: Move some of this code into the general {@link AlignmentToolInterface} class
- *
  * @author mruffalo
  */
 public class BwaInterface extends AlignmentToolInterface
@@ -25,8 +24,6 @@ public class BwaInterface extends AlignmentToolInterface
 	public static final String SAM_SINGLE_END_COMMAND = "samse";
 	public static final String SAM_PAIRED_END_COMMAND = "sampe";
 	public static final String OUTPUT_FILE_OPTION = "-f";
-
-	public static final String OUTPUT_TEMPLATE = "%s\t%d\t%d\t%d\t%d%n";
 
 	public BwaInterface(int index_, String description_, List<Integer> thresholds_, Options o_,
 		Map<String, AlignmentResults> m_)
@@ -44,39 +41,11 @@ public class BwaInterface extends AlignmentToolInterface
 		}
 		else
 		{
-			ProcessBuilder pb = new ProcessBuilder(BWA_COMMAND, INDEX_COMMAND,
-				o.genome.getAbsolutePath());
-			pb.directory(o.genome.getParentFile());
-			try
-			{
-				Process p = pb.start();
-				BufferedReader stdout = new BufferedReader(
-					new InputStreamReader(p.getInputStream()));
-				BufferedReader stderr = new BufferedReader(
-					new InputStreamReader(p.getErrorStream()));
-				String line = null;
-				NDC.push("stdout");
-				while ((line = stdout.readLine()) != null)
-				{
-					log.info(line);
-				}
-				NDC.pop();
-				NDC.push("stderr");
-				while ((line = stderr.readLine()) != null)
-				{
-					log.info(line);
-				}
-				NDC.pop();
-				p.waitFor();
-			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
-			}
-			catch (InterruptedException e)
-			{
-				e.printStackTrace();
-			}
+			List<String> commands = new ArrayList<String>();
+			commands.add(BWA_COMMAND);
+			commands.add(INDEX_COMMAND);
+			commands.add(o.genome.getAbsolutePath());
+			ProcessRunner.run(log, commands, o.genome.getParentFile());
 		}
 	}
 
@@ -93,38 +62,7 @@ public class BwaInterface extends AlignmentToolInterface
 			commands.add(o.reads.get(i).aligned_reads.getAbsolutePath());
 			commands.add(o.genome.getAbsolutePath());
 			commands.add(o.reads.get(i).reads.getAbsolutePath());
-			ProcessBuilder pb = new ProcessBuilder(commands);
-			pb.directory(o.genome.getParentFile());
-			try
-			{
-				Process p = pb.start();
-				BufferedReader stdout = new BufferedReader(
-					new InputStreamReader(p.getInputStream()));
-				BufferedReader stderr = new BufferedReader(
-					new InputStreamReader(p.getErrorStream()));
-				String line = null;
-				NDC.push("stdout");
-				while ((line = stdout.readLine()) != null)
-				{
-					log.info(line);
-				}
-				NDC.pop();
-				NDC.push("stderr");
-				while ((line = stderr.readLine()) != null)
-				{
-					log.info(line);
-				}
-				NDC.pop();
-				p.waitFor();
-			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
-			}
-			catch (InterruptedException e)
-			{
-				e.printStackTrace();
-			}
+			ProcessRunner.run(log, commands, o.genome.getParentFile());
 		}
 	}
 
@@ -144,37 +82,7 @@ public class BwaInterface extends AlignmentToolInterface
 		{
 			commands.add(r.reads.getAbsolutePath());
 		}
-
-		ProcessBuilder pb = new ProcessBuilder(commands);
-		pb.directory(o.genome.getParentFile());
-		try
-		{
-			Process p = pb.start();
-			BufferedReader stdout = new BufferedReader(new InputStreamReader(p.getInputStream()));
-			BufferedReader stderr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-			String line = null;
-			NDC.push("stdout");
-			while ((line = stdout.readLine()) != null)
-			{
-				log.info(line);
-			}
-			NDC.pop();
-			NDC.push("stderr");
-			while ((line = stderr.readLine()) != null)
-			{
-				log.info(line);
-			}
-			NDC.pop();
-			p.waitFor();
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-		catch (InterruptedException e)
-		{
-			e.printStackTrace();
-		}
+		ProcessRunner.run(log, commands, o.genome.getParentFile());
 	}
 
 	@Override
