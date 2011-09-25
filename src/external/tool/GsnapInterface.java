@@ -3,6 +3,7 @@ package external.tool;
 import external.AlignmentResults;
 import external.AlignmentToolInterface;
 import org.apache.log4j.NDC;
+import util.ProcessRunner;
 
 import java.io.BufferedReader;
 import java.io.FileWriter;
@@ -35,38 +36,7 @@ public class GsnapInterface extends AlignmentToolInterface
 		commands.add(ARGUMENT_GENOME_NAME);
 		commands.add(GENOME_NAME);
 		commands.add(o.genome.getAbsolutePath());
-		ProcessBuilder pb = new ProcessBuilder(commands);
-		pb.directory(o.genome.getParentFile());
-		try
-		{
-			Process p = pb.start();
-			BufferedReader stdout = new BufferedReader(
-					new InputStreamReader(p.getInputStream()));
-			BufferedReader stderr = new BufferedReader(
-					new InputStreamReader(p.getErrorStream()));
-			String line = null;
-			NDC.push("stdout");
-			while ((line = stdout.readLine()) != null)
-			{
-				log.info(line);
-			}
-			NDC.pop();
-			NDC.push("stderr");
-			while ((line = stderr.readLine()) != null)
-			{
-				log.info(line);
-			}
-			NDC.pop();
-			p.waitFor();
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-		catch (InterruptedException e)
-		{
-			e.printStackTrace();
-		}
+		ProcessRunner.run(log, commands, o.genome.getParentFile());
 	}
 
 	@Override
@@ -82,43 +52,11 @@ public class GsnapInterface extends AlignmentToolInterface
 		}
 		commands.add(OUTPUT_TYPE_OPTION);
 		commands.add(OUTPUT_TYPE_SAM);
-		ProcessBuilder pb = new ProcessBuilder(commands);
-		pb.directory(o.genome.getParentFile());
-		try
-		{
-			Process p = pb.start();
-			BufferedReader stdout = new BufferedReader(
-					new InputStreamReader(p.getInputStream()));
-			BufferedReader stderr = new BufferedReader(
-					new InputStreamReader(p.getErrorStream()));
-			String line = null;
-			FileWriter w = new FileWriter(o.sam_output);
-			while ((line = stdout.readLine()) != null)
-			{
-				w.write(String.format("%s%n", line));
-			}
-			w.close();
-			NDC.push("stderr");
-			while ((line = stderr.readLine()) != null)
-			{
-				log.info(line);
-			}
-			NDC.pop();
-			p.waitFor();
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-		catch (InterruptedException e)
-		{
-			e.printStackTrace();
-		}
+		ProcessRunner.run(log, commands, o.genome.getParentFile());
 	}
 
 	@Override
 	public void postAlignmentProcessing()
 	{
-
 	}
 }

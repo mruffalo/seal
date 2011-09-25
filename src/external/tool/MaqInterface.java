@@ -15,6 +15,7 @@ import java.util.regex.Matcher;
 import external.AlignmentResults;
 import external.AlignmentToolInterface;
 import org.apache.log4j.NDC;
+import util.ProcessRunner;
 
 /**
  * TODO: Clean up local variables vs. method parameters
@@ -49,41 +50,7 @@ public class MaqInterface extends AlignmentToolInterface
 		{
 			commands.add(r.binary_reads.getAbsolutePath());
 		}
-		for (String arg : commands)
-		{
-			System.err.printf("%03d: %s%n", index, arg);
-		}
-		ProcessBuilder pb = new ProcessBuilder(commands);
-		pb.directory(o.genome.getParentFile());
-		try
-		{
-			Process p = pb.start();
-			BufferedReader stdout = new BufferedReader(new InputStreamReader(p.getInputStream()));
-			BufferedReader stderr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-			String line = null;
-			NDC.push("stdout");
-			while ((line = stdout.readLine()) != null)
-			{
-				log.info(line);
-			}
-			NDC.pop();
-			NDC.push("stderr");
-			while ((line = stderr.readLine()) != null)
-			{
-				log.info(line);
-			}
-			NDC.pop();
-			p.waitFor();
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-		catch (InterruptedException e)
-		{
-			e.printStackTrace();
-		}
-		System.out.printf("%03d: %s%n", index, "done.");
+		ProcessRunner.run(log, commands, o.genome.getParentFile());
 	}
 
 	/**
@@ -96,40 +63,7 @@ public class MaqInterface extends AlignmentToolInterface
 		commands.add(FASTA_TO_BFA_COMMAND);
 		commands.add(o.genome.getAbsolutePath());
 		commands.add(o.binary_genome.getAbsolutePath());
-		for (String arg : commands)
-		{
-			System.err.printf("%03d: %s%n", index, arg);
-		}
-		ProcessBuilder pb = new ProcessBuilder(commands);
-		pb.directory(o.genome.getParentFile());
-		try
-		{
-			Process p = pb.start();
-			BufferedReader stdout = new BufferedReader(new InputStreamReader(p.getInputStream()));
-			BufferedReader stderr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-			String line = null;
-			NDC.push("stdout");
-			while ((line = stdout.readLine()) != null)
-			{
-				log.info(line);
-			}
-			NDC.pop();
-			NDC.push("stderr");
-			while ((line = stderr.readLine()) != null)
-			{
-				log.info(line);
-			}
-			NDC.pop();
-			p.waitFor();
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-		catch (InterruptedException e)
-		{
-			e.printStackTrace();
-		}
+		ProcessRunner.run(log, commands, o.genome.getParentFile());
 	}
 
 	/**
@@ -144,47 +78,14 @@ public class MaqInterface extends AlignmentToolInterface
 			commands.add(FASTQ_TO_BFQ_COMMAND);
 			commands.add(r.reads.getAbsolutePath());
 			commands.add(r.binary_reads.getAbsolutePath());
-			for (String arg : commands)
-			{
-				System.err.printf("%03d: %s%n", index, arg);
-			}
-			ProcessBuilder pb = new ProcessBuilder(commands);
-			pb.directory(r.reads.getParentFile());
-			try
-			{
-				Process p = pb.start();
-				BufferedReader stdout = new BufferedReader(
-					new InputStreamReader(p.getInputStream()));
-				BufferedReader stderr = new BufferedReader(
-					new InputStreamReader(p.getErrorStream()));
-				String line = null;
-				NDC.push("stdout");
-				while ((line = stdout.readLine()) != null)
-				{
-					log.info(line);
-				}
-				NDC.pop();
-				NDC.push("stderr");
-				while ((line = stderr.readLine()) != null)
-				{
-					log.info(line);
-				}
-				NDC.pop();
-				p.waitFor();
-			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
-			}
-			catch (InterruptedException e)
-			{
-				e.printStackTrace();
-			}
+			ProcessRunner.run(log, commands, r.reads.getParentFile());
 		}
 	}
 
 	/**
 	 * Can't use {@link SamReader} since MAQ doesn't output SAM files.
+	 *
+	 * TODO: Use ProcessRunner for this
 	 */
 	@Override
 	public AlignmentResults readAlignment()
@@ -267,12 +168,8 @@ public class MaqInterface extends AlignmentToolInterface
 	@Override
 	public void preAlignmentProcessing()
 	{
-		System.out.printf("%03d: %s%n", index, "Converting FASTQ output to BFQ...");
 		convertReadsToBfq();
-		System.out.printf("%03d: %s%n", index, "done converting FASTQ.");
-		System.out.printf("%03d: %s%n", index, "Converting FASTA genome to BFA...");
 		convertGenomeToBfa();
-		System.out.printf("%03d: %s%n", index, "done converting FASTA.");
 	}
 
 	@Override

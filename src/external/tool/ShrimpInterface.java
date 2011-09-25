@@ -1,6 +1,7 @@
 package external.tool;
 
 import io.SamReader;
+
 import java.io.BufferedReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -8,6 +9,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
 import external.AlignmentResults;
 import external.AlignmentToolInterface;
 import org.apache.log4j.NDC;
@@ -22,6 +24,9 @@ public class ShrimpInterface extends AlignmentToolInterface
 		super(index_, description_, thresholds_, o_, m_);
 	}
 
+	/**
+	 * TODO: Add ProcessRunner functionality for this
+	 */
 	@Override
 	public void align()
 	{
@@ -46,12 +51,12 @@ public class ShrimpInterface extends AlignmentToolInterface
 				w.write(String.format("%s%n", line));
 			}
 			w.close();
-				NDC.push("stderr");
-				while ((line = stderr.readLine()) != null)
-				{
-					log.info(line);
-				}
-				NDC.pop();
+			NDC.push("stderr");
+			while ((line = stderr.readLine()) != null)
+			{
+				log.info(line);
+			}
+			NDC.pop();
 			p.waitFor();
 		}
 		catch (IOException e)

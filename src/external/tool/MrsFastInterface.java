@@ -6,12 +6,14 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import external.AlignmentResults;
 import external.AlignmentToolInterface;
 import org.apache.log4j.NDC;
+import util.ProcessRunner;
 
 public class MrsFastInterface extends AlignmentToolInterface
 {
@@ -19,6 +21,7 @@ public class MrsFastInterface extends AlignmentToolInterface
 	public static final String MRSFAST_COMMAND = "mrsfast";
 	public static final String INDEX_COMMAND = "--index";
 	public static final String SEARCH_COMMAND = "--search";
+	public static final String OUTPUT_FILE_OPTION = "-o";
 
 	public MrsFastInterface(int index_, String description_, List<Integer> thresholds_, Options o_,
 		Map<String, AlignmentResults> m_)
@@ -36,39 +39,11 @@ public class MrsFastInterface extends AlignmentToolInterface
 		}
 		else
 		{
-			ProcessBuilder pb = new ProcessBuilder(MRSFAST_COMMAND, INDEX_COMMAND,
-				o.genome.getAbsolutePath());
-			pb.directory(o.genome.getParentFile());
-			try
-			{
-				Process p = pb.start();
-				BufferedReader stdout = new BufferedReader(
-					new InputStreamReader(p.getInputStream()));
-				BufferedReader stderr = new BufferedReader(
-					new InputStreamReader(p.getErrorStream()));
-				String line = null;
-				NDC.push("stdout");
-				while ((line = stdout.readLine()) != null)
-				{
-					log.info(line);
-				}
-				NDC.pop();
-				NDC.push("stderr");
-				while ((line = stderr.readLine()) != null)
-				{
-					log.info(line);
-				}
-				NDC.pop();
-				p.waitFor();
-			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
-			}
-			catch (InterruptedException e)
-			{
-				e.printStackTrace();
-			}
+			List<String> commands = new ArrayList<String>();
+			commands.add(MRSFAST_COMMAND);
+			commands.add(INDEX_COMMAND);
+			commands.add(o.genome.getAbsolutePath());
+			ProcessRunner.run(log, commands, o.genome.getParentFile());
 		}
 	}
 
@@ -76,38 +51,15 @@ public class MrsFastInterface extends AlignmentToolInterface
 	public void align()
 	{
 		log.info("Aligning reads...");
-		ProcessBuilder pb = new ProcessBuilder(MRSFAST_COMMAND, SEARCH_COMMAND,
-			o.genome.getAbsolutePath(), SEQ_OPTION, o.reads.get(0).reads.getAbsolutePath(), "-o",
-			o.sam_output.getAbsolutePath());
-		pb.directory(o.genome.getParentFile());
-		try
-		{
-			Process p = pb.start();
-			BufferedReader stdout = new BufferedReader(new InputStreamReader(p.getInputStream()));
-			BufferedReader stderr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-			String line = null;
-			NDC.push("stdout");
-			while ((line = stdout.readLine()) != null)
-			{
-				log.info(line);
-			}
-			NDC.pop();
-			NDC.push("stderr");
-			while ((line = stderr.readLine()) != null)
-			{
-				log.info(line);
-			}
-			NDC.pop();
-			p.waitFor();
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-		catch (InterruptedException e)
-		{
-			e.printStackTrace();
-		}
+		List<String> commands = new ArrayList<String>();
+		commands.add(MRSFAST_COMMAND);
+		commands.add(SEARCH_COMMAND);
+		commands.add(o.genome.getAbsolutePath());
+		commands.add(SEQ_OPTION);
+		commands.add(o.reads.get(0).reads.getAbsolutePath());
+		commands.add(OUTPUT_FILE_OPTION);
+		commands.add(o.sam_output.getAbsolutePath());
+		ProcessRunner.run(log, commands, o.genome.getParentFile());
 	}
 
 	@Override

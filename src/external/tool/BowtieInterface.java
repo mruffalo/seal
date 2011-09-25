@@ -12,6 +12,7 @@ import java.util.Map;
 import external.AlignmentResults;
 import external.AlignmentToolInterface;
 import org.apache.log4j.NDC;
+import util.ProcessRunner;
 
 public class BowtieInterface extends AlignmentToolInterface
 {
@@ -44,38 +45,7 @@ public class BowtieInterface extends AlignmentToolInterface
 			commands.add(BOWTIE_INDEX_COMMAND);
 			commands.add(o.genome.getAbsolutePath());
 			commands.add(index_base_name);
-			ProcessBuilder pb = new ProcessBuilder(commands);
-			pb.directory(o.index.getParentFile());
-			try
-			{
-				Process p = pb.start();
-				BufferedReader stdout = new BufferedReader(
-					new InputStreamReader(p.getInputStream()));
-				BufferedReader stderr = new BufferedReader(
-					new InputStreamReader(p.getErrorStream()));
-				String line = null;
-				NDC.push("stdout");
-				while ((line = stdout.readLine()) != null)
-				{
-					log.info(line);
-				}
-				NDC.pop();
-				NDC.push("stderr");
-				while ((line = stderr.readLine()) != null)
-				{
-					log.info(line);
-				}
-				NDC.pop();
-				p.waitFor();
-			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
-			}
-			catch (InterruptedException e)
-			{
-				e.printStackTrace();
-			}
+			ProcessRunner.run(log, commands, o.index.getParentFile());
 		}
 	}
 
@@ -104,36 +74,7 @@ public class BowtieInterface extends AlignmentToolInterface
 		{
 			commands.add(o.reads.get(0).reads.getAbsolutePath());
 		}
-		ProcessBuilder pb = new ProcessBuilder(commands);
-		pb.directory(o.index.getParentFile());
-		try
-		{
-			Process p = pb.start();
-			BufferedReader stdout = new BufferedReader(new InputStreamReader(p.getInputStream()));
-			BufferedReader stderr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-			String line = null;
-			FileWriter w = new FileWriter(o.sam_output);
-			while ((line = stdout.readLine()) != null)
-			{
-				w.write(String.format("%s%n", line));
-			}
-			w.close();
-			NDC.push("stderr");
-			while ((line = stderr.readLine()) != null)
-			{
-				log.info(line);
-			}
-			NDC.pop();
-			p.waitFor();
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-		catch (InterruptedException e)
-		{
-			e.printStackTrace();
-		}
+		ProcessRunner.run(log, commands, o.index.getParentFile());
 	}
 
 	@Override

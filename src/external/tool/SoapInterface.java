@@ -12,6 +12,7 @@ import java.util.Map;
 import external.AlignmentResults;
 import external.AlignmentToolInterface;
 import org.apache.log4j.NDC;
+import util.ProcessRunner;
 
 public class SoapInterface extends AlignmentToolInterface
 {
@@ -38,38 +39,10 @@ public class SoapInterface extends AlignmentToolInterface
 		}
 		else
 		{
-			ProcessBuilder pb = new ProcessBuilder(INDEX_COMMAND, o.genome.getAbsolutePath());
-			pb.directory(o.genome.getParentFile());
-			try
-			{
-				Process p = pb.start();
-				BufferedReader stdout = new BufferedReader(
-					new InputStreamReader(p.getInputStream()));
-				BufferedReader stderr = new BufferedReader(
-					new InputStreamReader(p.getErrorStream()));
-				String line = null;
-				NDC.push("stdout");
-				while ((line = stdout.readLine()) != null)
-				{
-					log.info(line);
-				}
-				NDC.pop();
-				NDC.push("stderr");
-				while ((line = stderr.readLine()) != null)
-				{
-					log.info(line);
-				}
-				NDC.pop();
-				p.waitFor();
-			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
-			}
-			catch (InterruptedException e)
-			{
-				e.printStackTrace();
-			}
+			List<String> commands = new ArrayList<String>();
+			commands.add(INDEX_COMMAND);
+			commands.add(o.genome.getAbsolutePath());
+			ProcessRunner.run(log, commands, o.genome.getParentFile());
 		}
 	}
 
@@ -88,38 +61,12 @@ public class SoapInterface extends AlignmentToolInterface
 		}
 		commands.add("-o");
 		commands.add(o.raw_output.getAbsolutePath());
-		ProcessBuilder pb = new ProcessBuilder(commands);
-		pb.directory(o.genome.getParentFile());
-		try
-		{
-			Process p = pb.start();
-			BufferedReader stdout = new BufferedReader(new InputStreamReader(p.getInputStream()));
-			BufferedReader stderr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-			String line = null;
-			NDC.push("stdout");
-			while ((line = stdout.readLine()) != null)
-			{
-				log.info(line);
-			}
-			NDC.pop();
-			NDC.push("stderr");
-			while ((line = stderr.readLine()) != null)
-			{
-				log.info(line);
-			}
-			NDC.pop();
-			p.waitFor();
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-		catch (InterruptedException e)
-		{
-			e.printStackTrace();
-		}
+		ProcessRunner.run(log, commands, o.genome.getParentFile());
 	}
 
+	/**
+	 * TODO: Add ProcessRunner functionality for this
+	 */
 	private void convertToSamFormat()
 	{
 		List<String> commands = new ArrayList<String>();
