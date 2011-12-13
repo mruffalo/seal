@@ -74,6 +74,7 @@ public class BowtieInterface extends AlignmentToolInterface
 		{
 			commands.add(o.reads.get(0).reads.getAbsolutePath());
 		}
+		commands.add(o.sam_output.getAbsolutePath());
 		ProcessRunner.run(log, commands, o.index.getParentFile());
 	}
 
