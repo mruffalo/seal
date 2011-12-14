@@ -4,9 +4,10 @@ public class LinearIncreasingErrorGenerator extends SubstitutionErrorGenerator
 {
 	private double beginErrorProbability;
 	private double endErrorProbability;
+	private double errorProbabilityStdDev;
 
 	public LinearIncreasingErrorGenerator(String allowedCharacters_, double beginErrorProbability_,
-		double endErrorProbability_)
+			double endErrorProbability_, double errorProbabilityStdDev_)
 	{
 		super(allowedCharacters_);
 		setBeginErrorProbability(beginErrorProbability_);
@@ -46,6 +47,24 @@ public class LinearIncreasingErrorGenerator extends SubstitutionErrorGenerator
 		{
 			// TODO: be nicer about this :)
 			throw new IllegalArgumentException("error probability must be >= 0.0 and <= 1.0");
+		}
+	}
+
+	public double getErrorProbabilityStdDev()
+	{
+		return errorProbabilityStdDev;
+	}
+
+	public void setErrorProbabilityStdDev(double errorProbabilityStdDev_)
+	{
+		if (errorProbabilityStdDev_ <= 1.0 && errorProbabilityStdDev_ >= 0.0)
+		{
+			errorProbabilityStdDev = errorProbabilityStdDev_;
+		}
+		else
+		{
+			// TODO: be nicer about this :)
+			throw new IllegalArgumentException("error std.dev must be >= 0.0");
 		}
 	}
 
