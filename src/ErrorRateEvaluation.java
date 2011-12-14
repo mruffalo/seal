@@ -30,12 +30,12 @@ public class ErrorRateEvaluation extends AccuracyEvaluationProgram
 		Map<Double, List<FragmentErrorGenerator>> fegs = new TreeMap<Double, List<FragmentErrorGenerator>>();
 		for (double errorProbability : errorRateValues)
 		{
-			double errorBeginMin = errorProbability * 0.35;
+			double errorBeginMin = Math.max(0, errorProbability * 0.35);
 			double errorBeginMax = Math.min(errorProbability * 0.7, 1.0);
-			double errorEndMin = errorBeginMin * 0.7;
+			double errorEndMin = Math.max(0, errorBeginMin * 0.7);
 			double errorEndMax = Math.min(errorProbability * 1.3, 1.0);
 			FragmentErrorGenerator base_call_eg = new LinearIncreasingErrorGenerator(
-					SequenceGenerator.NUCLEOTIDES, errorBeginMin, errorBeginMax, errorEndMin, errorEndMax, 0.4);
+					SequenceGenerator.NUCLEOTIDES, errorBeginMin, errorBeginMax, errorEndMin, errorEndMax, 0.04);
 			List<FragmentErrorGenerator> generatorList = new ArrayList<FragmentErrorGenerator>();
 			generatorList.add(base_call_eg);
 			fegs.put(errorProbability, generatorList);

@@ -174,7 +174,8 @@ public class LinearIncreasingErrorGenerator extends SubstitutionErrorGenerator
 	{
 		double linear_combination = begin + (end - begin) * ((double) position / (double) length);
 		double gaussian_noise = random.nextGaussian() * errorProbabilityStdDev;
-		return linear_combination + gaussian_noise;
+		double sum = linear_combination + gaussian_noise;
+		return Math.max(0.0, Math.min(sum, 1.0));
 	}
 
 	/**
