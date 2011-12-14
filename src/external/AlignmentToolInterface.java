@@ -152,6 +152,9 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 		TOTAL,
 	}
 
+	/**
+	 * TODO use {@link util.ProcessRunner}
+	 */
 	public void linkGenome()
 	{
 		ProcessBuilder pb = null;
@@ -192,6 +195,9 @@ public abstract class AlignmentToolInterface implements Callable<AlignmentResult
 		}
 	}
 
+	/**
+	 * TODO use {@link util.ProcessRunner}
+	 */
 	public void linkFragments()
 	{
 		for (int i = 0; i < o.reads.size(); i++)
