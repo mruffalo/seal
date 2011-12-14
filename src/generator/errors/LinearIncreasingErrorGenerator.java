@@ -13,12 +13,16 @@ public class LinearIncreasingErrorGenerator extends SubstitutionErrorGenerator
 	private double errorProbabilityStdDev;
 	private Random random = new Random();
 
-	public LinearIncreasingErrorGenerator(String allowedCharacters_, double beginErrorProbability_,
-			double endErrorProbability_, double errorProbabilityStdDev_)
+	public LinearIncreasingErrorGenerator(String allowedCharacters_, double beginErrorProbabilityMin_,
+			double beginErrorProbabilityMax_, double endErrorProbabilityMin_,
+			double endErrorProbabilityMax_, double errorProbabilityStdDev_)
 	{
 		super(allowedCharacters_);
-		setBeginErrorProbabilityMin(beginErrorProbability_);
-		setEndErrorProbabilityMax(endErrorProbability_);
+		setBeginErrorProbabilityMin(beginErrorProbabilityMin_);
+		setBeginErrorProbabilityMax(beginErrorProbabilityMax_);
+		setEndErrorProbabilityMin(endErrorProbabilityMin_);
+		setEndErrorProbabilityMax(endErrorProbabilityMax_);
+		setErrorProbabilityStdDev(errorProbabilityStdDev_);
 	}
 
 	public double getBeginErrorProbabilityMin()
