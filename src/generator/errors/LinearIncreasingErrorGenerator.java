@@ -2,28 +2,30 @@ package generator.errors;
 
 public class LinearIncreasingErrorGenerator extends SubstitutionErrorGenerator
 {
-	private double beginErrorProbability;
-	private double endErrorProbability;
+	private double beginErrorProbabilityMin;
+	private double beginErrorProbabilityMax;
+	private double endErrorProbabilityMin;
+	private double endErrorProbabilityMax;
 	private double errorProbabilityStdDev;
 
 	public LinearIncreasingErrorGenerator(String allowedCharacters_, double beginErrorProbability_,
 			double endErrorProbability_, double errorProbabilityStdDev_)
 	{
 		super(allowedCharacters_);
-		setBeginErrorProbability(beginErrorProbability_);
-		setEndErrorProbability(endErrorProbability_);
+		setBeginErrorProbabilityMin(beginErrorProbability_);
+		setEndErrorProbabilityMax(endErrorProbability_);
 	}
 
-	public double getBeginErrorProbability()
+	public double getBeginErrorProbabilityMin()
 	{
-		return beginErrorProbability;
+		return beginErrorProbabilityMin;
 	}
 
-	public void setBeginErrorProbability(double beginErrorProbability_)
+	public void setBeginErrorProbabilityMin(double beginErrorProbability_)
 	{
 		if (beginErrorProbability_ <= 1.0 && beginErrorProbability_ >= 0.0)
 		{
-			beginErrorProbability = beginErrorProbability_;
+			beginErrorProbabilityMin = beginErrorProbability_;
 		}
 		else
 		{
@@ -32,16 +34,52 @@ public class LinearIncreasingErrorGenerator extends SubstitutionErrorGenerator
 		}
 	}
 
-	public double getEndErrorProbability()
+	public double getBeginErrorProbabilityMax()
 	{
-		return endErrorProbability;
+		return beginErrorProbabilityMax;
 	}
 
-	public void setEndErrorProbability(double endErrorProbability_)
+	public void setBeginErrorProbabilityMax(double beginErrorProbabilityMax_)
+	{
+		if (beginErrorProbabilityMax_ <= 1.0 && beginErrorProbabilityMax_ >= 0.0)
+		{
+			beginErrorProbabilityMax = beginErrorProbabilityMax_;
+		}
+		else
+		{
+			// TODO: be nicer about this :)
+			throw new IllegalArgumentException("error probability must be >= 0.0 and <= 1.0");
+		}
+	}
+
+	public double getEndErrorProbabilityMin()
+	{
+		return endErrorProbabilityMin;
+	}
+
+	public void setEndErrorProbabilityMin(double endErrorProbabilityMin_)
+	{
+		if (endErrorProbabilityMin_ <= 1.0 && endErrorProbabilityMin_ >= 0.0)
+		{
+			endErrorProbabilityMin = endErrorProbabilityMin_;
+		}
+		else
+		{
+			// TODO: be nicer about this :)
+			throw new IllegalArgumentException("error probability must be >= 0.0 and <= 1.0");
+		}
+	}
+
+	public double getEndErrorProbabilityMax()
+	{
+		return endErrorProbabilityMax;
+	}
+
+	public void setEndErrorProbabilityMax(double endErrorProbability_)
 	{
 		if (endErrorProbability_ <= 1.0 && endErrorProbability_ >= 0.0)
 		{
-			endErrorProbability = endErrorProbability_;
+			endErrorProbabilityMax = endErrorProbability_;
 		}
 		else
 		{
@@ -104,7 +142,7 @@ public class LinearIncreasingErrorGenerator extends SubstitutionErrorGenerator
 	@Override
 	protected double getSubstitutionProbability(int position, int length)
 	{
-		return beginErrorProbability + (endErrorProbability - beginErrorProbability)
+		return beginErrorProbabilityMin + (endErrorProbabilityMax - beginErrorProbabilityMin)
 				* ((double) position / (double) length);
 	}
 }
