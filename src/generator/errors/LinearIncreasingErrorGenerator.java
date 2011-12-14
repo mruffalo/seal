@@ -1,5 +1,9 @@
 package generator.errors;
 
+import assembly.Fragment;
+
+import java.util.Random;
+
 public class LinearIncreasingErrorGenerator extends SubstitutionErrorGenerator
 {
 	private double beginErrorProbabilityMin;
@@ -7,6 +11,7 @@ public class LinearIncreasingErrorGenerator extends SubstitutionErrorGenerator
 	private double endErrorProbabilityMin;
 	private double endErrorProbabilityMax;
 	private double errorProbabilityStdDev;
+	private Random random = new Random();
 
 	public LinearIncreasingErrorGenerator(String allowedCharacters_, double beginErrorProbability_,
 			double endErrorProbability_, double errorProbabilityStdDev_)
@@ -109,18 +114,34 @@ public class LinearIncreasingErrorGenerator extends SubstitutionErrorGenerator
 	@Override
 	public CharSequence generateErrors(CharSequence sequence)
 	{
+		// TODO clean this up
+		return null;
+	}
+
+	@Override
+	public Fragment generateErrors(Fragment fragment)
+	{
 		if (verbose)
 		{
 			System.err.println();
-			System.err.printf("Original sequence: %s%n", sequence);
+			System.err.printf("Original sequence: %s%n", fragment.getSequence());
 			System.err.print("                   ");
 		}
+		CharSequence sequence = fragment.getSequence();
 		StringBuilder sb = new StringBuilder(sequence.length());
 		StringBuilder errorIndicator = new StringBuilder(sequence.length());
+		double errorProbBegin = random.nextDouble() * (beginErrorProbabilityMax - beginErrorProbabilityMin) +
+				beginErrorProbabilityMin;
+		double errorProbEnd = random.nextDouble() * (endErrorProbabilityMax - endErrorProbabilityMin) +
+				endErrorProbabilityMin;
+		double[] qualities = new double[sequence.length()];
 		for (int i = 0; i < sequence.length(); i++)
 		{
 			char orig = sequence.charAt(i);
-			if (random.nextDouble() <= getSubstitutionProbability(i, sequence.length()))
+			double substitutionProbability =
+					getSubstitutionProbability(i, sequence.length(), errorProbBegin, errorProbEnd);
+			qualities[i] = substitutionProbability;
+			if (random.nextDouble() <= substitutionProbability)
 			{
 				sb.append(chooseRandomReplacementCharacter(orig));
 				errorIndicator.append("X");
@@ -136,13 +157,32 @@ public class LinearIncreasingErrorGenerator extends SubstitutionErrorGenerator
 			System.err.println(errorIndicator.toString());
 			System.err.printf("New sequence:      %s%n%n", sb.toString());
 		}
-		return sb;
+		Fragment f = new Fragment(sb.toString());
+		f.clonePositionsAndReadQuality(fragment);
+		for (int i = 0; i < sequence.length(); i++)
+		{
+			f.setReadQuality(i, phredScaleProbability(qualities[i]));
+		}
+		return f;
 	}
 
+	protected double getSubstitutionProbability(int position, int length, double begin, double end)
+	{
+		double linear_combination = begin + (end - begin) * ((double) position / (double) length);
+		double gaussian_noise = random.nextGaussian() * errorProbabilityStdDev;
+		return linear_combination + gaussian_noise;
+	}
+
+	/**
+	 * TODO figure out the best way to remove this
+	 *
+	 * @param position
+	 * @param length
+	 * @return
+	 */
 	@Override
 	protected double getSubstitutionProbability(int position, int length)
 	{
-		return beginErrorProbabilityMin + (endErrorProbabilityMax - beginErrorProbabilityMin)
-				* ((double) position / (double) length);
+		return 0.0;
 	}
 }
