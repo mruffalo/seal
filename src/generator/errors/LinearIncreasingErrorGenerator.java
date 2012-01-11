@@ -138,6 +138,10 @@ public class LinearIncreasingErrorGenerator extends SubstitutionErrorGenerator
 				beginErrorProbabilityMin;
 		double errorProbEnd = random.nextDouble() * (endErrorProbabilityMax - endErrorProbabilityMin) +
 				endErrorProbabilityMin;
+		if (errorProbEnd < errorProbBegin)
+		{
+			errorProbEnd = errorProbBegin;
+		}
 		double[] qualities = new double[sequence.length()];
 		for (int i = 0; i < sequence.length(); i++)
 		{
