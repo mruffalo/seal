@@ -102,9 +102,14 @@ public class RealDataErrorGenerator extends SubstitutionErrorGenerator
 			}
 			r.close();
 		}
+		catch (FileNotFoundException e)
+		{
+			System.err.printf("File %s not found", file.getAbsolutePath());
+			throw new RuntimeException(e);
+		}
 		catch (IOException e)
 		{
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 		log.info(String.format("Processed %d lines", linesProcessed));
 		return list;
