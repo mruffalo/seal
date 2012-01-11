@@ -1,5 +1,7 @@
 package generator.errors;
 
+import io.Constants;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,10 +32,14 @@ public class RealDataErrorGenerator extends SubstitutionErrorGenerator
 
 	private static int[] decodeQualityString(String string, int offset)
 	{
-		// TODO this
-		return new int[]{};
+		int[] scores = new int[string.length()];
+		for (int i = 0; i < string.length(); i++)
+		{
+			scores[i] = Character.codePointAt(string, i) - offset;
+		}
+		return scores;
 	}
-	
+
 	/**
 	 * TODO: refactor this; probably move it into FastqReader
 	 *
@@ -50,8 +56,18 @@ public class RealDataErrorGenerator extends SubstitutionErrorGenerator
 			String line;
 			while ((line = r.readLine()) != null)
 			{
-				if (isQualityString) {
-					list.add(decodeQualityString(line.trim()))
+				// why oh why is "+" a valid FASTQ quality character
+				if (isQualityString)
+				{
+					list.add(decodeQualityString(line.trim(), Constants.ILLUMINA_1_9_OFFSET));
+					isQualityString = false;
+				}
+				else
+				{
+					if (line.startsWith(Constants.FASTQ_QUALITY_MARKER))
+					{
+						isQualityString = true;
+					}
 				}
 			}
 		}
