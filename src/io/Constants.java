@@ -11,6 +11,7 @@ public class Constants
 	public static final int SOLEXA_OFFSET = 26;
 	public static final int ILLUMINA_1_3_OFFSET = 33;
 	public static final int ILLUMINA_1_5_OFFSET = 36;
+	public static final int ILLUMINA_1_9_OFFSET = 0;
 	/**
 	 * From http://en.wikipedia.org/wiki/Fastq
 	 */
