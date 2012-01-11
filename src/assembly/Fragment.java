@@ -1,6 +1,7 @@
 package assembly;
 
 import generator.Fragmentizer;
+
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
@@ -113,10 +114,14 @@ public class Fragment implements Cloneable
 		readQuality[index] = quality;
 	}
 
+	public void setReadQuality(int[] qualities)
+	{
+		readQuality = qualities;
+	}
+
 	/**
-	 * @param length
-	 *            The length of the paired end reads on either side of the
-	 *            actual fragment
+	 * @param length The length of the paired end reads on either side of the
+	 *               actual fragment
 	 * @return
 	 */
 	public List<? extends Fragment> pairedEndClone(int length)
@@ -132,7 +137,7 @@ public class Fragment implements Cloneable
 	}
 
 	public static List<List<? extends Fragment>> pairedEndClone(List<? extends Fragment> list,
-		int length)
+			int length)
 	{
 		List<PairedEndFragment> one = new ArrayList<PairedEndFragment>(list.size());
 		List<PairedEndFragment> two = new ArrayList<PairedEndFragment>(list.size());
@@ -167,7 +172,7 @@ public class Fragment implements Cloneable
 	/**
 	 * Copies positions and read quality data from the input fragment into this
 	 * one
-	 * 
+	 *
 	 * @param that
 	 */
 	public void clonePositionsAndReadQuality(Fragment that)
