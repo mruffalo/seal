@@ -96,7 +96,7 @@ public class Fragment implements Cloneable
 			 * position has not been assigned in one of the fragments, it
 			 * doesn't count toward equality.
 			 */
-			if (thisPosition != null && thatPosition != null && thisPosition != thatPosition)
+			if (thisPosition != null && thatPosition != null && !thisPosition.equals(thatPosition))
 			{
 				return false;
 			}
@@ -106,6 +106,10 @@ public class Fragment implements Cloneable
 
 	public int getReadQuality(int index)
 	{
+		if (index >= readQuality.length)
+		{
+			index = readQuality.length - 1;
+		}
 		return readQuality[index];
 	}
 

@@ -134,9 +134,13 @@ public class RealDataErrorGenerator extends SubstitutionErrorGenerator
 		return null;
 	}
 
-	private static double getErrorProbability(int quality)
+	private static double getErrorProbability(int[] qualities, int position)
 	{
-		return Math.pow(10, quality / (-10.0));
+		if (position >= qualities.length)
+		{
+			position = qualities.length - 1;
+		}
+		return Math.pow(10, qualities[position] / (-10.0));
 	}
 
 	@Override
@@ -156,7 +160,7 @@ public class RealDataErrorGenerator extends SubstitutionErrorGenerator
 		for (int i = 0; i < sequence.length(); i++)
 		{
 			char orig = sequence.charAt(i);
-			double substitutionProbability = getErrorProbability(baseQualities[i]);
+			double substitutionProbability = getErrorProbability(baseQualities, i);
 			if (random.nextDouble() <= substitutionProbability)
 			{
 				sb.append(chooseRandomReplacementCharacter(orig));
