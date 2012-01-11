@@ -58,7 +58,7 @@ public class RealDataErrorGenerator extends SubstitutionErrorGenerator
 		int[] scores = new int[string.length()];
 		for (int i = 0; i < string.length(); i++)
 		{
-			scores[i] = Character.codePointAt(string, i) - offset;
+			scores[i] = Character.codePointAt(string, i) - (offset + 33);
 		}
 		return scores;
 	}
